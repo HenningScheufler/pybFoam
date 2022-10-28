@@ -1,0 +1,960 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2112                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : 90034fe6-20220502 OPENFOAM=2112 version=v2112
+Arch   : "LSB;label=32;scalar=64"
+Exec   : interIsoFoam
+Date   : Sep 05 2022
+Time   : 18:07:48
+Host   : henning-AB350M-HD3
+PID    : 73728
+I/O    : uncollated
+Case   : /media/henning/ssd1linux/libsAndApps/release/ECI4FOAM/src/embeddingPython/pybind11/libs
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Selecting dynamicFvMesh staticFvMesh
+
+PIMPLE: Operating solver in PISO mode
+
+Reading field p_rgh
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Reading transportProperties
+
+Selecting incompressible transport model Newtonian
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type laminar
+Selecting laminar stress model Stokes
+
+Reading g
+
+Reading hRef
+Calculating field g.h
+
+No MRF models present
+
+No finite volume options present
+Selecting reconstructionScheme: isoAlpha
+DICPCG:  Solving for pcorr, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors : sum local = 0, global = 0, cumulative = 0
+Courant Number mean: 0 max: 0
+
+Starting time loop
+
+Sampled surface:
+    freeSurf -> vtk
+        sampledInterface: freeSurf
+
+Courant Number mean: 0 max: 0
+Interface Courant Number mean: 0 max: 0
+deltaT = 0.00117647
+Time = 0.00117647
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 0
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 1, Final residual = 0.00471937, No Iterations 1
+time step continuity errors : sum local = 0.00246656, global = -3.28741e-07, cumulative = -3.28741e-07
+GAMG:  Solving for p_rgh, Initial residual = 0.00213102, Final residual = 3.85039e-05, No Iterations 3
+time step continuity errors : sum local = 4.46443e-05, global = -2.70101e-05, cumulative = -2.73388e-05
+GAMG:  Solving for p_rgh, Initial residual = 3.34656e-05, Final residual = 5.65747e-10, No Iterations 15
+time step continuity errors : sum local = 7.60116e-10, global = -7.28317e-10, cumulative = -2.73396e-05
+ExecutionTime = 0.13 s  ClockTime = 0 s
+
+Courant Number mean: 0.00136141 max: 0.207022
+Interface Courant Number mean: 0 max: 0
+deltaT = 0.00144796
+Time = 0.00262443
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 0
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.00858129, Final residual = 0.000333954, No Iterations 1
+time step continuity errors : sum local = 0.000582406, global = 1.43005e-06, cumulative = -2.59095e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000336188, Final residual = 5.88884e-06, No Iterations 3
+time step continuity errors : sum local = 1.03056e-05, global = 1.97197e-06, cumulative = -2.39375e-05
+GAMG:  Solving for p_rgh, Initial residual = 8.44715e-06, Final residual = 9.29188e-10, No Iterations 11
+time step continuity errors : sum local = 1.6257e-09, global = 1.54821e-09, cumulative = -2.3936e-05
+ExecutionTime = 0.16 s  ClockTime = 0 s
+
+Courant Number mean: 0.00305515 max: 0.139575
+Interface Courant Number mean: 2.60655e-05 max: 0.139575
+deltaT = 0.00173756
+Time = 0.00436199
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.00435149, Final residual = 0.000195736, No Iterations 1
+time step continuity errors : sum local = 0.000427176, global = 2.27179e-06, cumulative = -2.16642e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000198693, Final residual = 8.04695e-06, No Iterations 3
+time step continuity errors : sum local = 1.75243e-05, global = 2.07849e-06, cumulative = -1.95857e-05
+GAMG:  Solving for p_rgh, Initial residual = 1.04457e-05, Final residual = 9.82957e-10, No Iterations 11
+time step continuity errors : sum local = 2.14088e-09, global = -2.0388e-09, cumulative = -1.95878e-05
+ExecutionTime = 0.2 s  ClockTime = 0 s
+
+Courant Number mean: 0.00581081 max: 0.194309
+Interface Courant Number mean: 6.88374e-05 max: 0.194309
+deltaT = 0.00195475
+Time = 0.00631674
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.00559363, Final residual = 9.29398e-05, No Iterations 1
+time step continuity errors : sum local = 0.000234427, global = 5.22772e-07, cumulative = -1.9065e-05
+GAMG:  Solving for p_rgh, Initial residual = 9.65156e-05, Final residual = 3.75571e-06, No Iterations 3
+time step continuity errors : sum local = 9.43493e-06, global = 9.23502e-07, cumulative = -1.81415e-05
+GAMG:  Solving for p_rgh, Initial residual = 5.47667e-06, Final residual = 5.17503e-10, No Iterations 11
+time step continuity errors : sum local = 1.30073e-09, global = -1.23959e-09, cumulative = -1.81427e-05
+ExecutionTime = 0.23 s  ClockTime = 0 s
+
+Courant Number mean: 0.00940813 max: 0.266327
+Interface Courant Number mean: 0.000189387 max: 0.266327
+deltaT = 0.00228054
+Time = 0.00859729
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.00889537, Final residual = 8.86522e-05, No Iterations 1
+time step continuity errors : sum local = 0.000285499, global = 3.39494e-07, cumulative = -1.78032e-05
+GAMG:  Solving for p_rgh, Initial residual = 9.28801e-05, Final residual = 3.92817e-06, No Iterations 3
+time step continuity errors : sum local = 1.25622e-05, global = 2.01635e-06, cumulative = -1.57869e-05
+GAMG:  Solving for p_rgh, Initial residual = 5.90793e-06, Final residual = 5.11181e-10, No Iterations 11
+time step continuity errors : sum local = 1.63633e-09, global = 1.57763e-09, cumulative = -1.57853e-05
+ExecutionTime = 0.26 s  ClockTime = 0 s
+
+Courant Number mean: 0.0148171 max: 0.349469
+Interface Courant Number mean: 0.000344254 max: 0.349469
+deltaT = 0.00285068
+Time = 0.011448
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0151218, Final residual = 0.000127046, No Iterations 1
+time step continuity errors : sum local = 0.000604028, global = 4.25611e-07, cumulative = -1.53597e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000133687, Final residual = 6.17666e-06, No Iterations 3
+time step continuity errors : sum local = 2.90245e-05, global = 4.57809e-06, cumulative = -1.07816e-05
+GAMG:  Solving for p_rgh, Initial residual = 9.66855e-06, Final residual = 8.31155e-10, No Iterations 11
+time step continuity errors : sum local = 3.91227e-09, global = 3.76921e-09, cumulative = -1.07778e-05
+ExecutionTime = 0.3 s  ClockTime = 0 s
+
+Courant Number mean: 0.0244483 max: 0.464195
+Interface Courant Number mean: 0.000620832 max: 0.464195
+deltaT = 0.00285068
+Time = 0.0142986
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0203709, Final residual = 0.000150396, No Iterations 1
+time step continuity errors : sum local = 0.000685812, global = 2.66197e-07, cumulative = -1.05116e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000158511, Final residual = 7.80602e-06, No Iterations 3
+time step continuity errors : sum local = 3.50717e-05, global = 5.69686e-06, cumulative = -4.81477e-06
+GAMG:  Solving for p_rgh, Initial residual = 1.22018e-05, Final residual = 5.51181e-10, No Iterations 12
+time step continuity errors : sum local = 2.4822e-09, global = 2.36821e-09, cumulative = -4.8124e-06
+ExecutionTime = 0.33 s  ClockTime = 0 s
+
+Courant Number mean: 0.0302491 max: 0.460472
+Interface Courant Number mean: 0.000829574 max: 0.460472
+deltaT = 0.00285068
+Time = 0.0171493
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0258421, Final residual = 0.000171108, No Iterations 1
+time step continuity errors : sum local = 0.00074896, global = 6.94158e-08, cumulative = -4.74298e-06
+GAMG:  Solving for p_rgh, Initial residual = 0.000180832, Final residual = 3.86261e-06, No Iterations 4
+time step continuity errors : sum local = 1.65966e-05, global = 4.99455e-06, cumulative = 2.5157e-07
+GAMG:  Solving for p_rgh, Initial residual = 9.95756e-06, Final residual = 9.3289e-10, No Iterations 11
+time step continuity errors : sum local = 4.02105e-09, global = 3.83376e-09, cumulative = 2.55404e-07
+ExecutionTime = 0.36 s  ClockTime = 0 s
+
+Courant Number mean: 0.0359389 max: 0.439987
+Interface Courant Number mean: 0.000970356 max: 0.439987
+deltaT = 0.00285068
+Time = 0.02
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0316473, Final residual = 0.000189587, No Iterations 1
+time step continuity errors : sum local = 0.000794972, global = -1.64576e-07, cumulative = 9.08279e-08
+GAMG:  Solving for p_rgh, Initial residual = 0.000200944, Final residual = 4.5956e-06, No Iterations 4
+time step continuity errors : sum local = 1.88419e-05, global = 5.78443e-06, cumulative = 5.87526e-06
+GAMG:  Solving for p_rgh, Initial residual = 1.14359e-05, Final residual = 5.65497e-10, No Iterations 12
+time step continuity errors : sum local = 2.32749e-09, global = 2.21724e-09, cumulative = 5.87748e-06
+ExecutionTime = 0.46 s  ClockTime = 0 s
+
+Courant Number mean: 0.0415316 max: 0.413142
+Interface Courant Number mean: 0.00110611 max: 0.406303
+deltaT = 0.00333333
+Time = 0.0233333
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0443132, Final residual = 0.00024091, No Iterations 1
+time step continuity errors : sum local = 0.00130125, global = -7.14548e-07, cumulative = 5.16293e-06
+GAMG:  Solving for p_rgh, Initial residual = 0.000258725, Final residual = 6.35953e-06, No Iterations 4
+time step continuity errors : sum local = 3.32975e-05, global = 1.01993e-05, cumulative = 1.53623e-05
+GAMG:  Solving for p_rgh, Initial residual = 1.68495e-05, Final residual = 8.6093e-10, No Iterations 12
+time step continuity errors : sum local = 4.53289e-09, global = 4.31633e-09, cumulative = 1.53666e-05
+ExecutionTime = 0.5 s  ClockTime = 0 s
+
+Courant Number mean: 0.0561142 max: 0.525615
+Interface Courant Number mean: 0.00148394 max: 0.525615
+deltaT = 0.00333333
+Time = 0.0266667
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0534931, Final residual = 0.000231555, No Iterations 1
+time step continuity errors : sum local = 0.00117484, global = -1.30038e-06, cumulative = 1.40662e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000249907, Final residual = 7.0561e-06, No Iterations 4
+time step continuity errors : sum local = 3.44869e-05, global = 1.14429e-05, cumulative = 2.55091e-05
+GAMG:  Solving for p_rgh, Initial residual = 1.68686e-05, Final residual = 5.16936e-10, No Iterations 13
+time step continuity errors : sum local = 2.54457e-09, global = 2.4229e-09, cumulative = 2.55115e-05
+ExecutionTime = 0.55 s  ClockTime = 0 s
+
+Courant Number mean: 0.0635201 max: 0.53688
+Interface Courant Number mean: 0.0016808 max: 0.53688
+deltaT = 0.00333333
+Time = 0.03
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0642511, Final residual = 0.000189502, No Iterations 1
+time step continuity errors : sum local = 0.000894101, global = -1.93627e-06, cumulative = 2.35753e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000206582, Final residual = 7.622e-06, No Iterations 4
+time step continuity errors : sum local = 3.43888e-05, global = 1.2282e-05, cumulative = 3.58572e-05
+GAMG:  Solving for p_rgh, Initial residual = 1.42231e-05, Final residual = 6.50959e-10, No Iterations 13
+time step continuity errors : sum local = 2.96314e-09, global = 2.82277e-09, cumulative = 3.586e-05
+ExecutionTime = 0.59 s  ClockTime = 0 s
+
+Courant Number mean: 0.0709088 max: 0.588874
+Interface Courant Number mean: 0.00183203 max: 0.588874
+deltaT = 0.0025
+Time = 0.0325
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0588964, Final residual = 0.000185883, No Iterations 1
+time step continuity errors : sum local = 0.000465651, global = -9.2997e-07, cumulative = 3.49301e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000202951, Final residual = 6.39162e-06, No Iterations 4
+time step continuity errors : sum local = 1.53556e-05, global = 5.54204e-06, cumulative = 4.04721e-05
+GAMG:  Solving for p_rgh, Initial residual = 1.24861e-05, Final residual = 5.37082e-10, No Iterations 13
+time step continuity errors : sum local = 1.30186e-09, global = 1.24504e-09, cumulative = 4.04734e-05
+ExecutionTime = 0.63 s  ClockTime = 1 s
+
+Courant Number mean: 0.0574481 max: 0.497252
+Interface Courant Number mean: 0.00147538 max: 0.497252
+deltaT = 0.0025
+Time = 0.035
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -4.33681e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0669075, Final residual = 0.000212908, No Iterations 1
+time step continuity errors : sum local = 0.000493952, global = -1.27006e-06, cumulative = 3.92033e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000234083, Final residual = 7.16185e-06, No Iterations 4
+time step continuity errors : sum local = 1.58606e-05, global = 6.64721e-06, cumulative = 4.58505e-05
+GAMG:  Solving for p_rgh, Initial residual = 1.48641e-05, Final residual = 7.21687e-10, No Iterations 13
+time step continuity errors : sum local = 1.614e-09, global = 1.54402e-09, cumulative = 4.58521e-05
+ExecutionTime = 0.67 s  ClockTime = 1 s
+
+Courant Number mean: 0.061636 max: 0.50692
+Interface Courant Number mean: 0.00158019 max: 0.50692
+deltaT = 0.0025
+Time = 0.0375
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0754732, Final residual = 0.000237526, No Iterations 1
+time step continuity errors : sum local = 0.000519038, global = -3.23526e-06, cumulative = 4.26168e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000266672, Final residual = 9.49254e-06, No Iterations 4
+time step continuity errors : sum local = 1.96967e-05, global = 9.49014e-06, cumulative = 5.21069e-05
+GAMG:  Solving for p_rgh, Initial residual = 2.05047e-05, Final residual = 9.29929e-10, No Iterations 13
+time step continuity errors : sum local = 1.95073e-09, global = 1.86732e-09, cumulative = 5.21088e-05
+ExecutionTime = 0.71 s  ClockTime = 1 s
+
+Courant Number mean: 0.0657959 max: 0.565416
+Interface Courant Number mean: 0.00166626 max: 0.565416
+deltaT = 0.0025
+Time = 0.04
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -3.46945e-18, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0565244, Final residual = 0.000273469, No Iterations 1
+time step continuity errors : sum local = 0.000607005, global = -1.66944e-06, cumulative = 5.04394e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000292404, Final residual = 8.5693e-06, No Iterations 3
+time step continuity errors : sum local = 1.88052e-05, global = 3.26068e-06, cumulative = 5.37e-05
+GAMG:  Solving for p_rgh, Initial residual = 2.86251e-05, Final residual = 5.24695e-10, No Iterations 13
+time step continuity errors : sum local = 1.14624e-09, global = 1.09765e-09, cumulative = 5.37011e-05
+ExecutionTime = 0.8 s  ClockTime = 1 s
+
+Courant Number mean: 0.0699119 max: 0.606322
+Interface Courant Number mean: 0.00181951 max: 0.606322
+deltaT = 0.002
+Time = 0.042
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0397528, Final residual = 0.000384742, No Iterations 1
+time step continuity errors : sum local = 0.000930345, global = -1.17916e-06, cumulative = 5.2522e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000406014, Final residual = 9.11364e-06, No Iterations 3
+time step continuity errors : sum local = 2.18615e-05, global = 1.17741e-06, cumulative = 5.36994e-05
+GAMG:  Solving for p_rgh, Initial residual = 4.49738e-05, Final residual = 9.5679e-10, No Iterations 12
+time step continuity errors : sum local = 2.26658e-09, global = 2.17387e-09, cumulative = 5.37016e-05
+ExecutionTime = 0.84 s  ClockTime = 1 s
+
+Courant Number mean: 0.05849 max: 0.500179
+Interface Courant Number mean: 0.00151475 max: 0.500179
+deltaT = 0.002
+Time = 0.044
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0452849, Final residual = 0.000423005, No Iterations 1
+time step continuity errors : sum local = 0.000974157, global = -8.65367e-07, cumulative = 5.28362e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.00044972, Final residual = 9.70432e-06, No Iterations 3
+time step continuity errors : sum local = 2.21057e-05, global = 1.63535e-06, cumulative = 5.44715e-05
+GAMG:  Solving for p_rgh, Initial residual = 5.15364e-05, Final residual = 4.8764e-10, No Iterations 13
+time step continuity errors : sum local = 1.09345e-09, global = 1.04895e-09, cumulative = 5.44726e-05
+ExecutionTime = 0.88 s  ClockTime = 1 s
+
+Courant Number mean: 0.0610791 max: 0.504656
+Interface Courant Number mean: 0.00155194 max: 0.504656
+deltaT = 0.002
+Time = 0.046
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0516127, Final residual = 0.000568608, No Iterations 1
+time step continuity errors : sum local = 0.00123372, global = 3.72228e-06, cumulative = 5.81949e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000600076, Final residual = 1.33118e-05, No Iterations 3
+time step continuity errors : sum local = 2.84991e-05, global = 3.96729e-06, cumulative = 6.21622e-05
+GAMG:  Solving for p_rgh, Initial residual = 6.5135e-05, Final residual = 5.57851e-10, No Iterations 13
+time step continuity errors : sum local = 1.17243e-09, global = -1.12602e-09, cumulative = 6.2161e-05
+ExecutionTime = 0.91 s  ClockTime = 1 s
+
+Courant Number mean: 0.0637934 max: 0.553277
+Interface Courant Number mean: 0.0016874 max: 0.553277
+deltaT = 0.00175
+Time = 0.04775
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0500164, Final residual = 0.000526121, No Iterations 1
+time step continuity errors : sum local = 0.00081666, global = 2.32414e-06, cumulative = 6.44852e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000550626, Final residual = 1.29517e-05, No Iterations 3
+time step continuity errors : sum local = 1.98715e-05, global = 2.85844e-06, cumulative = 6.73436e-05
+GAMG:  Solving for p_rgh, Initial residual = 5.74039e-05, Final residual = 5.22148e-10, No Iterations 13
+time step continuity errors : sum local = 7.87745e-10, global = 7.63866e-10, cumulative = 6.73444e-05
+ExecutionTime = 0.95 s  ClockTime = 1 s
+
+Courant Number mean: 0.0577941 max: 0.473852
+Interface Courant Number mean: 0.00148266 max: 0.473852
+deltaT = 0.00175
+Time = 0.0495
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0544546, Final residual = 0.0005568, No Iterations 1
+time step continuity errors : sum local = 0.000802574, global = 1.89435e-06, cumulative = 6.92387e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000584754, Final residual = 1.29868e-05, No Iterations 3
+time step continuity errors : sum local = 1.84937e-05, global = 2.79583e-06, cumulative = 7.20346e-05
+GAMG:  Solving for p_rgh, Initial residual = 6.18992e-05, Final residual = 6.1296e-10, No Iterations 13
+time step continuity errors : sum local = 8.55838e-10, global = 8.23453e-10, cumulative = 7.20354e-05
+ExecutionTime = 0.99 s  ClockTime = 1 s
+
+Courant Number mean: 0.0596925 max: 0.475559
+Interface Courant Number mean: 0.00154186 max: 0.475559
+deltaT = 0.00175
+Time = 0.05125
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0598511, Final residual = 0.000596977, No Iterations 1
+time step continuity errors : sum local = 0.000800014, global = 2.52626e-06, cumulative = 7.45616e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000621744, Final residual = 1.46356e-05, No Iterations 3
+time step continuity errors : sum local = 1.93803e-05, global = 3.50201e-06, cumulative = 7.80636e-05
+GAMG:  Solving for p_rgh, Initial residual = 6.04264e-05, Final residual = 7.74064e-10, No Iterations 13
+time step continuity errors : sum local = 1.00222e-09, global = 9.6272e-10, cumulative = 7.80646e-05
+ExecutionTime = 1.03 s  ClockTime = 1 s
+
+Courant Number mean: 0.0616283 max: 0.490751
+Interface Courant Number mean: 0.00161511 max: 0.490751
+deltaT = 0.00175
+Time = 0.053
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -8.67362e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0649495, Final residual = 0.000734516, No Iterations 1
+time step continuity errors : sum local = 0.000917171, global = 1.02514e-05, cumulative = 8.8316e-05
+GAMG:  Solving for p_rgh, Initial residual = 0.000766396, Final residual = 2.45536e-05, No Iterations 3
+time step continuity errors : sum local = 3.02743e-05, global = 6.12515e-06, cumulative = 9.44411e-05
+GAMG:  Solving for p_rgh, Initial residual = 7.24538e-05, Final residual = 9.79944e-10, No Iterations 13
+time step continuity errors : sum local = 1.17955e-09, global = -1.13325e-09, cumulative = 9.444e-05
+ExecutionTime = 1.06 s  ClockTime = 1 s
+
+Courant Number mean: 0.0635216 max: 0.502696
+Interface Courant Number mean: 0.00161314 max: 0.502696
+deltaT = 0.00175
+Time = 0.05475
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -2.1684e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0602061, Final residual = 0.000646148, No Iterations 1
+time step continuity errors : sum local = 0.000815825, global = 1.23666e-05, cumulative = 0.000106807
+GAMG:  Solving for p_rgh, Initial residual = 0.000679099, Final residual = 2.34491e-05, No Iterations 3
+time step continuity errors : sum local = 2.92726e-05, global = 5.72999e-06, cumulative = 0.000112537
+GAMG:  Solving for p_rgh, Initial residual = 6.08082e-05, Final residual = 9.37996e-10, No Iterations 13
+time step continuity errors : sum local = 1.1513e-09, global = -1.1066e-09, cumulative = 0.000112536
+ExecutionTime = 1.09 s  ClockTime = 1 s
+
+Courant Number mean: 0.0654099 max: 0.502567
+Interface Courant Number mean: 0.0016013 max: 0.502567
+deltaT = 0.00175
+Time = 0.0565
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -6.93889e-18, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0449901, Final residual = 0.000313686, No Iterations 1
+time step continuity errors : sum local = 0.000474472, global = 1.8594e-05, cumulative = 0.00013113
+GAMG:  Solving for p_rgh, Initial residual = 0.000335388, Final residual = 7.94918e-06, No Iterations 4
+time step continuity errors : sum local = 1.16692e-05, global = 2.49261e-06, cumulative = 0.000133622
+GAMG:  Solving for p_rgh, Initial residual = 2.36997e-05, Final residual = 8.72041e-10, No Iterations 12
+time step continuity errors : sum local = 1.29441e-09, global = -1.24576e-09, cumulative = 0.000133621
+ExecutionTime = 1.13 s  ClockTime = 1 s
+
+Courant Number mean: 0.0673468 max: 0.511407
+Interface Courant Number mean: 0.00177307 max: 0.511407
+deltaT = 0.00175
+Time = 0.05825
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0494898, Final residual = 0.000180011, No Iterations 1
+time step continuity errors : sum local = 0.000336973, global = 2.65681e-05, cumulative = 0.000160189
+GAMG:  Solving for p_rgh, Initial residual = 0.000199009, Final residual = 7.75048e-06, No Iterations 4
+time step continuity errors : sum local = 1.37796e-05, global = 4.91408e-06, cumulative = 0.000165103
+GAMG:  Solving for p_rgh, Initial residual = 1.52247e-05, Final residual = 8.23714e-10, No Iterations 12
+time step continuity errors : sum local = 1.4958e-09, global = -1.44169e-09, cumulative = 0.000165102
+ExecutionTime = 1.17 s  ClockTime = 1 s
+
+Courant Number mean: 0.0693384 max: 0.546082
+Interface Courant Number mean: 0.00180907 max: 0.546082
+deltaT = 0.00175
+Time = 0.06
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0543772, Final residual = 0.000157238, No Iterations 1
+time step continuity errors : sum local = 0.000272631, global = 2.55414e-05, cumulative = 0.000190643
+GAMG:  Solving for p_rgh, Initial residual = 0.000182305, Final residual = 7.53681e-06, No Iterations 4
+time step continuity errors : sum local = 1.23413e-05, global = 5.42825e-06, cumulative = 0.000196071
+GAMG:  Solving for p_rgh, Initial residual = 1.57377e-05, Final residual = 5.43334e-10, No Iterations 13
+time step continuity errors : sum local = 9.11455e-10, global = 8.79545e-10, cumulative = 0.000196072
+ExecutionTime = 1.27 s  ClockTime = 1 s
+
+Courant Number mean: 0.0711816 max: 0.534968
+Interface Courant Number mean: 0.00185212 max: 0.534968
+deltaT = 0.00166667
+Time = 0.0616667
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0572888, Final residual = 0.000153401, No Iterations 1
+time step continuity errors : sum local = 0.000222914, global = 2.11226e-05, cumulative = 0.000217195
+GAMG:  Solving for p_rgh, Initial residual = 0.000173112, Final residual = 7.17078e-06, No Iterations 4
+time step continuity errors : sum local = 9.82051e-06, global = 4.90403e-06, cumulative = 0.000222099
+GAMG:  Solving for p_rgh, Initial residual = 1.49874e-05, Final residual = 5.70219e-10, No Iterations 13
+time step continuity errors : sum local = 8.00744e-10, global = 7.72296e-10, cumulative = 0.0002221
+ExecutionTime = 1.31 s  ClockTime = 1 s
+
+Courant Number mean: 0.0694392 max: 0.522351
+Interface Courant Number mean: 0.00174566 max: 0.522351
+deltaT = 0.00166667
+Time = 0.0633333
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0624148, Final residual = 0.000146104, No Iterations 1
+time step continuity errors : sum local = 0.00019511, global = 2.06277e-05, cumulative = 0.000242727
+GAMG:  Solving for p_rgh, Initial residual = 0.000170177, Final residual = 6.46997e-06, No Iterations 4
+time step continuity errors : sum local = 8.09714e-06, global = 5.51241e-06, cumulative = 0.00024824
+GAMG:  Solving for p_rgh, Initial residual = 1.50052e-05, Final residual = 7.11586e-10, No Iterations 13
+time step continuity errors : sum local = 9.16805e-10, global = 8.84488e-10, cumulative = 0.000248241
+ExecutionTime = 1.34 s  ClockTime = 1 s
+
+Courant Number mean: 0.0710575 max: 0.532083
+Interface Courant Number mean: 0.00178524 max: 0.532083
+deltaT = 0.00151515
+Time = 0.0648485
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0625113, Final residual = 0.000193172, No Iterations 1
+time step continuity errors : sum local = 0.000202035, global = 1.87349e-05, cumulative = 0.000266975
+GAMG:  Solving for p_rgh, Initial residual = 0.000223739, Final residual = 7.40942e-06, No Iterations 4
+time step continuity errors : sum local = 7.27574e-06, global = 3.32374e-06, cumulative = 0.000270299
+GAMG:  Solving for p_rgh, Initial residual = 1.94575e-05, Final residual = 5.82768e-10, No Iterations 13
+time step continuity errors : sum local = 5.88295e-10, global = 5.68069e-10, cumulative = 0.0002703
+ExecutionTime = 1.38 s  ClockTime = 1 s
+
+Courant Number mean: 0.0659343 max: 0.491474
+Interface Courant Number mean: 0.00173237 max: 0.491474
+deltaT = 0.00151515
+Time = 0.0663636
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0611772, Final residual = 0.000230015, No Iterations 1
+time step continuity errors : sum local = 0.000236282, global = 1.18798e-05, cumulative = 0.00028218
+GAMG:  Solving for p_rgh, Initial residual = 0.000258268, Final residual = 1.02662e-05, No Iterations 3
+time step continuity errors : sum local = 9.983e-06, global = 4.86947e-06, cumulative = 0.000287049
+GAMG:  Solving for p_rgh, Initial residual = 2.75138e-05, Final residual = 6.53928e-10, No Iterations 13
+time step continuity errors : sum local = 6.50071e-10, global = 6.27848e-10, cumulative = 0.00028705
+ExecutionTime = 1.42 s  ClockTime = 1 s
+
+Courant Number mean: 0.0673145 max: 0.502773
+Interface Courant Number mean: 0.00168158 max: 0.502773
+deltaT = 0.00151515
+Time = 0.0678788
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -4.33681e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0560746, Final residual = 0.000395475, No Iterations 1
+time step continuity errors : sum local = 0.000434932, global = 8.40018e-06, cumulative = 0.00029545
+GAMG:  Solving for p_rgh, Initial residual = 0.000431684, Final residual = 2.09768e-05, No Iterations 2
+time step continuity errors : sum local = 2.20735e-05, global = 5.56087e-06, cumulative = 0.000301011
+GAMG:  Solving for p_rgh, Initial residual = 4.42309e-05, Final residual = 7.91824e-10, No Iterations 13
+time step continuity errors : sum local = 8.42092e-10, global = 8.14524e-10, cumulative = 0.000301012
+ExecutionTime = 1.45 s  ClockTime = 1 s
+
+Courant Number mean: 0.0687199 max: 0.516156
+Interface Courant Number mean: 0.00173234 max: 0.516156
+deltaT = 0.00151515
+Time = 0.0693939
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -8.67362e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0470389, Final residual = 0.000471129, No Iterations 1
+time step continuity errors : sum local = 0.000588798, global = 1.28868e-06, cumulative = 0.0003023
+GAMG:  Solving for p_rgh, Initial residual = 0.000495212, Final residual = 1.19192e-05, No Iterations 3
+time step continuity errors : sum local = 1.46147e-05, global = 1.52072e-06, cumulative = 0.000303821
+GAMG:  Solving for p_rgh, Initial residual = 4.46537e-05, Final residual = 6.32731e-10, No Iterations 13
+time step continuity errors : sum local = 7.72835e-10, global = 7.47739e-10, cumulative = 0.000303822
+ExecutionTime = 1.48 s  ClockTime = 1 s
+
+Courant Number mean: 0.0700583 max: 0.52598
+Interface Courant Number mean: 0.00185345 max: 0.52598
+deltaT = 0.00151515
+Time = 0.0709091
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0522872, Final residual = 0.000510734, No Iterations 1
+time step continuity errors : sum local = 0.000693137, global = -1.13918e-07, cumulative = 0.000303708
+GAMG:  Solving for p_rgh, Initial residual = 0.000535876, Final residual = 1.43704e-05, No Iterations 3
+time step continuity errors : sum local = 1.90488e-05, global = 1.13037e-06, cumulative = 0.000304838
+GAMG:  Solving for p_rgh, Initial residual = 5.47361e-05, Final residual = 7.63566e-10, No Iterations 13
+time step continuity errors : sum local = 1.00487e-09, global = 9.72557e-10, cumulative = 0.000304839
+ExecutionTime = 1.53 s  ClockTime = 1 s
+
+Courant Number mean: 0.0713813 max: 0.528697
+Interface Courant Number mean: 0.0018067 max: 0.528697
+deltaT = 0.00151515
+Time = 0.0724242
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -2.1684e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0559502, Final residual = 0.000539043, No Iterations 1
+time step continuity errors : sum local = 0.000675406, global = -1.80512e-07, cumulative = 0.000304659
+GAMG:  Solving for p_rgh, Initial residual = 0.000568907, Final residual = 1.73887e-05, No Iterations 3
+time step continuity errors : sum local = 2.1252e-05, global = 1.28983e-06, cumulative = 0.000305948
+GAMG:  Solving for p_rgh, Initial residual = 6.24515e-05, Final residual = 9.57129e-10, No Iterations 13
+time step continuity errors : sum local = 1.16021e-09, global = 1.12317e-09, cumulative = 0.00030595
+ExecutionTime = 1.56 s  ClockTime = 1 s
+
+Courant Number mean: 0.0726048 max: 0.539614
+Interface Courant Number mean: 0.00185109 max: 0.539614
+deltaT = 0.00151515
+Time = 0.0739394
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0616491, Final residual = 0.000583339, No Iterations 1
+time step continuity errors : sum local = 0.000679039, global = -8.47875e-07, cumulative = 0.000305102
+GAMG:  Solving for p_rgh, Initial residual = 0.000610778, Final residual = 2.08996e-05, No Iterations 3
+time step continuity errors : sum local = 2.36896e-05, global = 1.50994e-06, cumulative = 0.000306612
+GAMG:  Solving for p_rgh, Initial residual = 6.82012e-05, Final residual = 5.56115e-10, No Iterations 14
+time step continuity errors : sum local = 6.24673e-10, global = 6.05169e-10, cumulative = 0.000306612
+ExecutionTime = 1.6 s  ClockTime = 2 s
+
+Courant Number mean: 0.0738838 max: 0.55289
+Interface Courant Number mean: 0.00188247 max: 0.55289
+deltaT = 0.00151515
+Time = 0.0754545
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0650901, Final residual = 0.000591409, No Iterations 1
+time step continuity errors : sum local = 0.000644507, global = -8.33356e-07, cumulative = 0.000305779
+GAMG:  Solving for p_rgh, Initial residual = 0.000623777, Final residual = 1.87847e-05, No Iterations 3
+time step continuity errors : sum local = 1.99e-05, global = 8.93762e-07, cumulative = 0.000306673
+GAMG:  Solving for p_rgh, Initial residual = 6.47466e-05, Final residual = 9.17146e-10, No Iterations 13
+time step continuity errors : sum local = 9.6235e-10, global = 9.32686e-10, cumulative = 0.000306674
+ExecutionTime = 1.64 s  ClockTime = 2 s
+
+Courant Number mean: 0.0751805 max: 0.567422
+Interface Courant Number mean: 0.00186196 max: 0.567422
+deltaT = 0.00151515
+Time = 0.0769697
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -4.33681e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0647641, Final residual = 0.000516346, No Iterations 1
+time step continuity errors : sum local = 0.000553213, global = -8.06003e-07, cumulative = 0.000305868
+GAMG:  Solving for p_rgh, Initial residual = 0.000551979, Final residual = 1.69822e-05, No Iterations 3
+time step continuity errors : sum local = 1.76885e-05, global = 1.16822e-06, cumulative = 0.000307036
+GAMG:  Solving for p_rgh, Initial residual = 5.51983e-05, Final residual = 9.13033e-10, No Iterations 13
+time step continuity errors : sum local = 9.46064e-10, global = 9.17872e-10, cumulative = 0.000307037
+ExecutionTime = 1.68 s  ClockTime = 2 s
+
+Courant Number mean: 0.0764386 max: 0.57289
+Interface Courant Number mean: 0.00197159 max: 0.57289
+deltaT = 0.00151515
+Time = 0.0784848
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -2.1684e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.062884, Final residual = 0.000416303, No Iterations 1
+time step continuity errors : sum local = 0.000464602, global = -5.55296e-07, cumulative = 0.000306481
+GAMG:  Solving for p_rgh, Initial residual = 0.000447636, Final residual = 1.42036e-05, No Iterations 3
+time step continuity errors : sum local = 1.53244e-05, global = 1.74941e-06, cumulative = 0.000308231
+GAMG:  Solving for p_rgh, Initial residual = 3.92244e-05, Final residual = 8.05122e-10, No Iterations 13
+time step continuity errors : sum local = 8.67284e-10, global = 8.4237e-10, cumulative = 0.000308232
+ExecutionTime = 1.71 s  ClockTime = 2 s
+
+Courant Number mean: 0.0777266 max: 0.569988
+Interface Courant Number mean: 0.00210642 max: 0.569988
+deltaT = 0.00151515
+Time = 0.08
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -4.33681e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.054205, Final residual = 0.000239212, No Iterations 1
+time step continuity errors : sum local = 0.000284665, global = -4.39394e-07, cumulative = 0.000307792
+GAMG:  Solving for p_rgh, Initial residual = 0.000266427, Final residual = 6.03383e-06, No Iterations 4
+time step continuity errors : sum local = 6.95587e-06, global = 2.07301e-06, cumulative = 0.000309865
+GAMG:  Solving for p_rgh, Initial residual = 2.04583e-05, Final residual = 5.08424e-10, No Iterations 13
+time step continuity errors : sum local = 5.90434e-10, global = 5.73517e-10, cumulative = 0.000309866
+ExecutionTime = 1.82 s  ClockTime = 2 s
+
+Courant Number mean: 0.0789502 max: 0.575908
+Interface Courant Number mean: 0.00207063 max: 0.575908
+deltaT = 0.00133333
+Time = 0.0813333
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0503398, Final residual = 0.000163838, No Iterations 1
+time step continuity errors : sum local = 0.000167956, global = -2.43435e-07, cumulative = 0.000309622
+GAMG:  Solving for p_rgh, Initial residual = 0.000184587, Final residual = 6.41636e-06, No Iterations 4
+time step continuity errors : sum local = 6.3486e-06, global = 2.05889e-06, cumulative = 0.000311681
+GAMG:  Solving for p_rgh, Initial residual = 1.5129e-05, Final residual = 5.29338e-10, No Iterations 13
+time step continuity errors : sum local = 5.27856e-10, global = 5.13038e-10, cumulative = 0.000311682
+ExecutionTime = 1.86 s  ClockTime = 2 s
+
+Courant Number mean: 0.0703768 max: 0.513814
+Interface Courant Number mean: 0.00185461 max: 0.513814
+deltaT = 0.00133333
+Time = 0.0826667
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0550961, Final residual = 0.000186715, No Iterations 1
+time step continuity errors : sum local = 0.000182182, global = -1.75424e-07, cumulative = 0.000311506
+GAMG:  Solving for p_rgh, Initial residual = 0.000206057, Final residual = 6.81002e-06, No Iterations 4
+time step continuity errors : sum local = 6.40531e-06, global = 2.3317e-06, cumulative = 0.000313838
+GAMG:  Solving for p_rgh, Initial residual = 1.56182e-05, Final residual = 6.03602e-10, No Iterations 13
+time step continuity errors : sum local = 5.71443e-10, global = 5.55667e-10, cumulative = 0.000313839
+ExecutionTime = 1.9 s  ClockTime = 2 s
+
+Courant Number mean: 0.0713493 max: 0.513176
+Interface Courant Number mean: 0.00187004 max: 0.513176
+deltaT = 0.00133333
+Time = 0.084
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0582954, Final residual = 0.000216878, No Iterations 1
+time step continuity errors : sum local = 0.000197447, global = 5.55739e-07, cumulative = 0.000314394
+GAMG:  Solving for p_rgh, Initial residual = 0.000246689, Final residual = 6.80055e-06, No Iterations 4
+time step continuity errors : sum local = 5.9438e-06, global = 1.83306e-06, cumulative = 0.000316228
+GAMG:  Solving for p_rgh, Initial residual = 2.23476e-05, Final residual = 5.60913e-10, No Iterations 13
+time step continuity errors : sum local = 4.94062e-10, global = 4.80486e-10, cumulative = 0.000316228
+ExecutionTime = 1.94 s  ClockTime = 2 s
+
+Courant Number mean: 0.0722336 max: 0.520162
+Interface Courant Number mean: 0.00184672 max: 0.520162
+deltaT = 0.00133333
+Time = 0.0853333
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -4.33681e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0597825, Final residual = 0.000285407, No Iterations 1
+time step continuity errors : sum local = 0.000247711, global = 1.4348e-06, cumulative = 0.000317663
+GAMG:  Solving for p_rgh, Initial residual = 0.000314215, Final residual = 1.4702e-05, No Iterations 3
+time step continuity errors : sum local = 1.22789e-05, global = 2.33529e-06, cumulative = 0.000319998
+GAMG:  Solving for p_rgh, Initial residual = 3.36715e-05, Final residual = 6.50319e-10, No Iterations 13
+time step continuity errors : sum local = 5.45458e-10, global = 5.30889e-10, cumulative = 0.000319999
+ExecutionTime = 1.97 s  ClockTime = 2 s
+
+Courant Number mean: 0.0731561 max: 0.524185
+Interface Courant Number mean: 0.00196401 max: 0.524185
+deltaT = 0.00122222
+Time = 0.0865556
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -1.35525e-20, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0564595, Final residual = 0.00036077, No Iterations 1
+time step continuity errors : sum local = 0.000265214, global = 2.91465e-06, cumulative = 0.000322913
+GAMG:  Solving for p_rgh, Initial residual = 0.000386661, Final residual = 1.31892e-05, No Iterations 3
+time step continuity errors : sum local = 9.41293e-06, global = 2.04881e-06, cumulative = 0.000324962
+GAMG:  Solving for p_rgh, Initial residual = 3.70932e-05, Final residual = 9.35352e-10, No Iterations 12
+time step continuity errors : sum local = 6.66803e-10, global = -6.38795e-10, cumulative = 0.000324961
+ExecutionTime = 2.02 s  ClockTime = 2 s
+
+Courant Number mean: 0.0678352 max: 0.489301
+Interface Courant Number mean: 0.00177516 max: 0.489301
+deltaT = 0.00122222
+Time = 0.0877778
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -4.33681e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0558303, Final residual = 0.000387981, No Iterations 1
+time step continuity errors : sum local = 0.000285694, global = 2.30061e-06, cumulative = 0.000327262
+GAMG:  Solving for p_rgh, Initial residual = 0.000421509, Final residual = 1.12417e-05, No Iterations 3
+time step continuity errors : sum local = 8.0974e-06, global = 1.65625e-06, cumulative = 0.000328918
+GAMG:  Solving for p_rgh, Initial residual = 4.08268e-05, Final residual = 5.05262e-10, No Iterations 13
+time step continuity errors : sum local = 3.62092e-10, global = -3.52661e-10, cumulative = 0.000328918
+ExecutionTime = 2.05 s  ClockTime = 2 s
+
+Courant Number mean: 0.068576 max: 0.489089
+Interface Courant Number mean: 0.00178338 max: 0.489089
+deltaT = 0.00122222
+Time = 0.089
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -4.33681e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0520818, Final residual = 0.00041968, No Iterations 1
+time step continuity errors : sum local = 0.000311263, global = 1.72438e-06, cumulative = 0.000330642
+GAMG:  Solving for p_rgh, Initial residual = 0.000444607, Final residual = 8.53975e-06, No Iterations 3
+time step continuity errors : sum local = 6.25808e-06, global = 1.31847e-06, cumulative = 0.000331961
+GAMG:  Solving for p_rgh, Initial residual = 4.20148e-05, Final residual = 8.43835e-10, No Iterations 12
+time step continuity errors : sum local = 6.09139e-10, global = -2.88151e-10, cumulative = 0.00033196
+ExecutionTime = 2.09 s  ClockTime = 2 s
+
+Courant Number mean: 0.069287 max: 0.493341
+Interface Courant Number mean: 0.00186057 max: 0.493341
+deltaT = 0.00122222
+Time = 0.0902222
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -2.71051e-20, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0488778, Final residual = 0.000502087, No Iterations 1
+time step continuity errors : sum local = 0.000417688, global = 8.75718e-06, cumulative = 0.000340718
+GAMG:  Solving for p_rgh, Initial residual = 0.000516561, Final residual = 1.73863e-05, No Iterations 3
+time step continuity errors : sum local = 1.44032e-05, global = 3.3505e-06, cumulative = 0.000344068
+GAMG:  Solving for p_rgh, Initial residual = 5.25028e-05, Final residual = 7.54974e-10, No Iterations 13
+time step continuity errors : sum local = 6.13751e-10, global = -5.97994e-10, cumulative = 0.000344068
+ExecutionTime = 2.12 s  ClockTime = 2 s
+
+Courant Number mean: 0.0700477 max: 0.49822
+Interface Courant Number mean: 0.0018251 max: 0.49822
+deltaT = 0.00122222
+Time = 0.0914444
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = 0, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0529371, Final residual = 0.000531781, No Iterations 1
+time step continuity errors : sum local = 0.000446273, global = 9.0601e-06, cumulative = 0.000353128
+GAMG:  Solving for p_rgh, Initial residual = 0.000556204, Final residual = 1.94251e-05, No Iterations 3
+time step continuity errors : sum local = 1.60805e-05, global = 2.682e-06, cumulative = 0.00035581
+GAMG:  Solving for p_rgh, Initial residual = 5.92933e-05, Final residual = 9.10936e-10, No Iterations 13
+time step continuity errors : sum local = 7.40674e-10, global = -7.21851e-10, cumulative = 0.000355809
+ExecutionTime = 2.16 s  ClockTime = 2 s
+
+Courant Number mean: 0.0708094 max: 0.501744
+Interface Courant Number mean: 0.00183827 max: 0.501744
+deltaT = 0.00122222
+Time = 0.0926667
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -1.0842e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0549652, Final residual = 0.000511562, No Iterations 1
+time step continuity errors : sum local = 0.000403461, global = 7.74706e-06, cumulative = 0.000363556
+GAMG:  Solving for p_rgh, Initial residual = 0.000542337, Final residual = 1.8511e-05, No Iterations 3
+time step continuity errors : sum local = 1.43752e-05, global = 2.58293e-06, cumulative = 0.000366139
+GAMG:  Solving for p_rgh, Initial residual = 5.70586e-05, Final residual = 8.29066e-10, No Iterations 13
+time step continuity errors : sum local = 6.33907e-10, global = -6.18122e-10, cumulative = 0.000366138
+ExecutionTime = 2.2 s  ClockTime = 2 s
+
+Courant Number mean: 0.0715078 max: 0.507662
+Interface Courant Number mean: 0.0019395 max: 0.507662
+deltaT = 0.00122222
+Time = 0.0938889
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -1.0842e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0581096, Final residual = 0.000484047, No Iterations 1
+time step continuity errors : sum local = 0.000367586, global = 6.55538e-06, cumulative = 0.000372694
+GAMG:  Solving for p_rgh, Initial residual = 0.000515599, Final residual = 1.67065e-05, No Iterations 3
+time step continuity errors : sum local = 1.24081e-05, global = 2.71987e-06, cumulative = 0.000375414
+GAMG:  Solving for p_rgh, Initial residual = 5.04192e-05, Final residual = 6.76293e-10, No Iterations 13
+time step continuity errors : sum local = 4.96584e-10, global = -4.8459e-10, cumulative = 0.000375413
+ExecutionTime = 2.23 s  ClockTime = 2 s
+
+Courant Number mean: 0.0722568 max: 0.507858
+Interface Courant Number mean: 0.00193005 max: 0.507858
+deltaT = 0.00122222
+Time = 0.0951111
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -2.11758e-22, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0593487, Final residual = 0.000436448, No Iterations 1
+time step continuity errors : sum local = 0.000325771, global = 6.25569e-06, cumulative = 0.000381669
+GAMG:  Solving for p_rgh, Initial residual = 0.000469215, Final residual = 1.41356e-05, No Iterations 3
+time step continuity errors : sum local = 1.02636e-05, global = 2.78459e-06, cumulative = 0.000384453
+GAMG:  Solving for p_rgh, Initial residual = 4.54523e-05, Final residual = 4.5417e-10, No Iterations 13
+time step continuity errors : sum local = 3.27902e-10, global = -3.03906e-10, cumulative = 0.000384453
+ExecutionTime = 2.27 s  ClockTime = 2 s
+
+Courant Number mean: 0.07296 max: 0.513735
+Interface Courant Number mean: 0.00185778 max: 0.513735
+deltaT = 0.00122222
+Time = 0.0963333
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -2.71051e-20, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0581004, Final residual = 0.000352668, No Iterations 1
+time step continuity errors : sum local = 0.000251634, global = 5.40105e-06, cumulative = 0.000389854
+GAMG:  Solving for p_rgh, Initial residual = 0.000392454, Final residual = 1.08911e-05, No Iterations 3
+time step continuity errors : sum local = 7.4839e-06, global = 2.3514e-06, cumulative = 0.000392206
+GAMG:  Solving for p_rgh, Initial residual = 3.67808e-05, Final residual = 5.39042e-10, No Iterations 13
+time step continuity errors : sum local = 3.72055e-10, global = 3.63387e-10, cumulative = 0.000392206
+ExecutionTime = 2.31 s  ClockTime = 2 s
+
+Courant Number mean: 0.0735707 max: 0.519171
+Interface Courant Number mean: 0.00205412 max: 0.519171
+deltaT = 0.00122222
+Time = 0.0975556
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -4.33681e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0577016, Final residual = 0.000317418, No Iterations 1
+time step continuity errors : sum local = 0.000232149, global = 8.60442e-06, cumulative = 0.00040081
+GAMG:  Solving for p_rgh, Initial residual = 0.000348185, Final residual = 1.10671e-05, No Iterations 3
+time step continuity errors : sum local = 7.74394e-06, global = 2.41454e-06, cumulative = 0.000403225
+GAMG:  Solving for p_rgh, Initial residual = 3.24904e-05, Final residual = 9.089e-10, No Iterations 12
+time step continuity errors : sum local = 6.43403e-10, global = -6.28297e-10, cumulative = 0.000403224
+ExecutionTime = 2.34 s  ClockTime = 2 s
+
+Courant Number mean: 0.0742963 max: 0.525017
+Interface Courant Number mean: 0.00196166 max: 0.525017
+deltaT = 0.00122222
+Time = 0.0987778
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -1.0842e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0539012, Final residual = 0.000255653, No Iterations 1
+time step continuity errors : sum local = 0.00019945, global = 1.19267e-05, cumulative = 0.000415151
+GAMG:  Solving for p_rgh, Initial residual = 0.000286556, Final residual = 7.13261e-06, No Iterations 4
+time step continuity errors : sum local = 5.2966e-06, global = 2.00875e-07, cumulative = 0.000415352
+GAMG:  Solving for p_rgh, Initial residual = 2.82461e-05, Final residual = 9.96998e-10, No Iterations 12
+time step continuity errors : sum local = 7.5939e-10, global = -7.41548e-10, cumulative = 0.000415351
+ExecutionTime = 2.38 s  ClockTime = 2 s
+
+Courant Number mean: 0.0750502 max: 0.537123
+Interface Courant Number mean: 0.00195944 max: 0.526777
+deltaT = 0.00122222
+Time = 0.1
+
+PIMPLE: iteration 1
+isoAdvection: After conservative bounding: min(alpha) = -1.0842e-19, max(alpha) = 1 + 2.22045e-16
+Phase-1 volume fraction = 0.124769  Min(alpha.water) = 0  Max(alpha.water) = 1
+GAMG:  Solving for p_rgh, Initial residual = 0.0537174, Final residual = 0.000198941, No Iterations 1
+time step continuity errors : sum local = 0.000165524, global = 8.87302e-06, cumulative = 0.000424224
+GAMG:  Solving for p_rgh, Initial residual = 0.000235729, Final residual = 6.01141e-06, No Iterations 4
+time step continuity errors : sum local = 4.71586e-06, global = 1.00811e-06, cumulative = 0.000425232
+GAMG:  Solving for p_rgh, Initial residual = 2.38478e-05, Final residual = 8.65614e-10, No Iterations 12
+time step continuity errors : sum local = 6.97172e-10, global = -6.81185e-10, cumulative = 0.000425232
+ExecutionTime = 2.47 s  ClockTime = 2 s
+
+End
+

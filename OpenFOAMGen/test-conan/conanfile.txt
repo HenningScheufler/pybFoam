@@ -1,0 +1,7 @@
+[requires]
+    OpenFOAMGen/0.2@myuser/OpenFOAMGen
+    nlohmann_json/3.9.1
+    boost/1.74.0
+
+[generators]
+    OpenFOAMGen

@@ -1,0 +1,12 @@
+#!/bin/bash
+cd "${0%/*}" || exit                                # Run from this directory
+
+
+source ../../../../scripts/pyInstall.sh
+
+echo "PY_RPATH := $(pyrpath)" > Make/options
+echo -e "\n" >> Make/options
+cat Make/options.temp >> Make/options
+
+
+wmake libso

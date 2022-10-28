@@ -1,0 +1,5 @@
+linux*
+*.json
+*.lock
+test-conan/conaninfo.txt
+test-conan/conanbuildinfo.txt

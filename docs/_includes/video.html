@@ -1,0 +1,8 @@
+<p><video id="scenario-1" class="video-js vjs-default-skin vjs-big-play-centered" controls
+    preload="auto" data-setup='{}' alt="{{include.alt}}"
+    {% if {{include.max-width}} %}style="max-width: {{include.max-width}}px"{% endif %}>
+     <source src="images/{{include.file}}" type='video/mp4'>
+     {% if {{include.caption}} %}<figcaption>{{include.caption}}</figcaption>{% endif %}
+   </video></p>
+
+{% comment %} Copyright 2021 company_namememe {% endcomment %}

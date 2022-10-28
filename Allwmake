@@ -1,0 +1,10 @@
+#!/bin/bash
+
+
+./src/testing/Allwmake
+./src/embeddingPython/Allwmake
+./src/pypostProcessing/Allwmake
+
+
+./application/test/test-pythonNumpy/Allwmake
+

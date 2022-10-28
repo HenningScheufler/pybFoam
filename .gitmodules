@@ -1,0 +1,3 @@
+[submodule "OpenFOAMGen"]
+	path = OpenFOAMGen
+	url = https://github.com/HenningScheufler/OpenFOAMGen.git

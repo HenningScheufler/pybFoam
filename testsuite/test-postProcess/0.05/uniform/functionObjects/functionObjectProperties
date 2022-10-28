@@ -1,0 +1,97 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2206                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    arch        "LSB;label=32;scalar=64";
+    class       dictionary;
+    location    "0.05/uniform/functionObjects";
+    object      functionObjectProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+cdf7e925f5746741c316f5fbcf39ad0dfca90775
+{
+    probes
+    {
+        scalar
+        {
+            average(T)      349.1115910414007;
+            min(T)          349.1115910414007;
+            max(T)          349.1115910414007;
+            average(p)      99133.61887680291;
+            min(p)          99133.61887680291;
+            max(p)          99133.61887680291;
+        }
+        label
+        {
+            size(T)         1;
+            size(p)         1;
+            size(U)         1;
+        }
+        vector
+        {
+            average(U)      ( -0.1528110911618639 0.02567837166805194 0 );
+            min(U)          ( -0.1528110911618639 0.02567837166805194 0 );
+            max(U)          ( -0.1528110911618639 0.02567837166805194 0 );
+        }
+    }
+    forces
+    {
+        vector
+        {
+            pressureForce   ( 0.000645867172323733 -847.8721018775955 0 );
+            viscousForce    ( 0.0005909473313922956 -6.383090153046195e-05 -9.114455241178993e-22 );
+            internalForce   ( 0 0 0 );
+            pressureMoment  ( -163.3849540318126 -0.0001244586041109219 2236.863678113595 );
+            viscousMoment   ( -1.230021472492001e-05 -0.0001138755507592954 0.0001791499866855103 );
+            internalMoment  ( 0 0 0 );
+        }
+    }
+    sample1
+    {
+        scalar
+        {
+            average(centreLine,T) 324.28411486789;
+            min(centreLine,T) 273.0756862120199;
+            max(centreLine,T) 349.1146757023329;
+            average(T)      324.28411486789;
+            min(T)          273.0756862120199;
+            max(T)          349.1146757023329;
+        }
+        label
+        {
+            size(centreLine,T) 100;
+            size(T)         100;
+        }
+    }
+}
+
+freeSurface
+{
+    p
+    {
+        file            "<case>/postProcessing/freeSurface/0.05/p_freeSurface.raw";
+    }
+    U
+    {
+        file            "<case>/postProcessing/freeSurface/0.05/U_freeSurface.raw";
+    }
+}
+
+sample1
+{
+    T
+    {
+        file            "<case>/postProcessing/sample1/0.05/centreLine_T.xy";
+    }
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,32 @@
+PY_INCS := \ 
+ -Wno-old-style-cast \ 
+-I/home/henning/miniconda3/envs/eci4foam/include/python3.10 \ 
+-I/home/henning/miniconda3/envs/eci4foam/include/python3.10 \ 
+-I/home/henning/miniconda3/envs/eci4foam/lib/python3.10/site-packages/numpy/core/include
+
+
+PY_LIBS := \ 
+-L/home/henning/miniconda3/envs/eci4foam/lib/python3.10/config-3.10-x86_64-linux-gnu \ 
+-L/home/henning/miniconda3/envs/eci4foam/lib \ 
+-Wl,-rpath=/home/henning/miniconda3/envs/eci4foam/lib \ 
+-lpython3.10
+
+
+CONAN_INCS := \
+{{{CONAN_INCS_INCS}}}
+
+CONAN_LIBS := \
+{{{CONAN_INCS_LIBS}}}
+
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    $(PY_INCS) \
+    $(CONAN_INCS)
+
+LIB_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
+    -L$(FOAM_USER_LIBBIN) \
+    $(PY_LIBS) \
+    $(CONAN_LIBS)

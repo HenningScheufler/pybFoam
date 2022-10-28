@@ -1,0 +1,39 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2206                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _76d719d1e6-20220624 OPENFOAM=2206 version=v2206
+Arch   : "LSB;label=32;scalar=64"
+Exec   : setFields
+Date   : Oct 28 2022
+Time   : 19:51:02
+Host   : henning-Yoga-Slim-7-Pro-14IAP7
+PID    : 62453
+I/O    : uncollated
+Case   : /home/henning/libsAndApps/pybFoam/testsuite/test-postProcess
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Reading setFieldsDict
+
+Setting field default values
+    Setting internal values of volScalarField alpha.water
+    Setting internal values of volScalarField T
+
+Setting field region values
+    Adding cells with centre within boxes 1((0 0 -1) (0.1461 0.3 1))
+    Setting internal values of volScalarField alpha.water
+    Setting internal values of volScalarField T
+
+End
+

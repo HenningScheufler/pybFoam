@@ -1,0 +1,18 @@
+CONAN_INCS := \
+{{{CONAN_INCS_INCS}}}
+
+CONAN_LIBS := \
+{{{CONAN_INCS_LIBS}}}
+
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    $(PY_INCS) \
+    $(CONAN_INCS)
+
+LIB_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
+    -L$(FOAM_USER_LIBBIN) \
+    $(PY_LIBS) \
+    $(CONAN_LIBS)
