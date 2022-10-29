@@ -15,5 +15,4 @@ wmake libso
 # wmake overwrite linux to 1 for what ever reason
 mv pybFoam_core.so pybFoam_core$(python3-config --extension-suffix)
 
-
-
+stubgen -m pybFoam_core -o .

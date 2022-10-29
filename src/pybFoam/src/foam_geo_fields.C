@@ -67,43 +67,57 @@ void field(GeometricField<Type, PatchField, GeoMesh>& vf,const fvMesh& mesh, con
 }
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-GeometricField<Type, PatchField, GeoMesh> read_geoField
-(
-    const std::string& name,
-    const fvMesh& mesh
-)
-{
-    return GeometricField<Type, PatchField, GeoMesh>
-    (
-        IOobject
-        (
-            name,
-            mesh.time().timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    );
-}
-
-template<class Type, template<class> class PatchField, class GeoMesh>
 py::class_< GeometricField<Type, PatchField, GeoMesh> > declare_geofields(py::module &m, std::string className) {
     auto geofieldClass = py::class_< Foam::GeometricField<Type, PatchField, GeoMesh>>(m, className.c_str())
-    .def(py::init([]
-    (
-        const std::string& name,
-        const Foam::fvMesh& mesh
-    )
+    // .def(py::init([]
+    // (
+    //     const Foam::fvMesh& mesh,
+    //     const std::string& name
+    // )
+    // {
+    //     return Foam::GeometricField<Type, PatchField, GeoMesh>
+    //     (
+    //         IOobject
+    //         (
+    //             name,
+    //             mesh.time().timeName(),
+    //             mesh,
+    //             Foam::IOobject::MUST_READ,
+    //             Foam::IOobject::AUTO_WRITE
+    //         ),
+    //         mesh
+    //     );
+    // }))
+    .def_static("read_field",[](const fvMesh& mesh,std::string name)
     {
-        return Foam::read_geoField<Type, PatchField, GeoMesh>(name,mesh);
-    }))
-    .def_static("from_registry",[](const fvMesh& mesh,std::string obj_name)
+        Foam::GeometricField<Type, PatchField, GeoMesh>* geoField
+        (
+            new Foam::GeometricField<Type, PatchField, GeoMesh>
+            (
+                Foam::IOobject
+                (
+                    name,
+                    mesh.time().timeName(),
+                    mesh,
+                    Foam::IOobject::MUST_READ,
+                    Foam::IOobject::AUTO_WRITE
+                ),
+                mesh
+            )
+        );
+        mesh.objectRegistry::store(geoField);
+        return geoField;
+    },py::return_value_policy::reference)
+    .def_static("from_registry",[](const fvMesh& mesh,std::string name)
     {
         const Foam::GeometricField<Type, PatchField, GeoMesh>* obj =
-            mesh.findObject<Foam::GeometricField<Type, PatchField, GeoMesh>>(obj_name);
+            mesh.findObject<Foam::GeometricField<Type, PatchField, GeoMesh>>(name);
         return obj;
     },py::return_value_policy::reference)
+    .def_static("list_objects",[](const fvMesh& mesh)
+    {
+        return mesh.names<Foam::GeometricField<Type, PatchField, GeoMesh>>();
+    })
     .def("internalField", [](
         const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
         const std::string& name)
