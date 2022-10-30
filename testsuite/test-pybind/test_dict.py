@@ -1,7 +1,9 @@
 import pytest
-from pybFoam import dictionary, vector, tensor
+from pybFoam import dictionary, vector, tensor, Word
 import os
 import numpy as np
+
+import pybFoam
 
 @pytest.fixture(scope="function")
 def change_test_dir(request):
@@ -18,6 +20,8 @@ def test_ofdict(change_test_dir):
     assert l_word.list()[0] == "FoamFile"
 
     # primitives
+
+    
     assert d.get_word("word") == "word"
     assert d.get_scalar("scalar") == 1.1
     assert d.get_vector("vector") == vector(1.1,1.1,1.1)
@@ -28,3 +32,12 @@ def test_ofdict(change_test_dir):
     assert (d.get_scalarField("scalarField").to_numpy() == np.ones(2)).all()
     assert (d.get_vectorField("vectorField").to_numpy() == np.ones([2,3])).all()
     assert (d.get_tensorField("tensorField").to_numpy() == np.ones([2,9])).all()
+
+    # assumes the other are also correct
+    d.set_word("word",Word("word2"))
+
+    assert d.get_word("word") == "word2"
+
+    d.set_wordList("wordList2",pybFoam.wordList(["word3","word4"]))
+
+    assert  d.get_wordList("wordList2").list() == ["word3", "word4"]

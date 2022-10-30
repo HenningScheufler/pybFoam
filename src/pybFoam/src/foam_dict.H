@@ -50,7 +50,7 @@ namespace Foam
 dictionary read_dictionary(const std::string& file_name);
 
 template<class Type>
-Type getFromDict(dictionary& dict, const std::string key);
+Type get(dictionary& dict, const std::string key);
 
 
 }

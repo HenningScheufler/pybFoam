@@ -19,68 +19,6 @@ License
 
 #include "foam_dict.H"
 
-
-class Dict {
-    private:
-        Foam::dictionary dict_;
-
-
-    public:
-    Dict(const std::string &file_name)
-    :
-    dict_()
-    {
-        Foam::autoPtr<Foam::IFstream> dictFile(new Foam::IFstream(file_name));
-        dict_ = Foam::dictionary(dictFile(), true);
-    }
-
-    std::vector<std::string> toc()
-    {
-        std::vector<std::string> content = {};
-        for (const Foam::word& w: dict_.toc())
-        {
-            content.push_back(w);
-        }
-        return content;
-    }
-
-    std::string value(std::string scopedName)
-    {
-
-        // const auto finder = dict_.csearchScoped(scopedName, Foam::keyType::REGEX);
-
-        // if (!finder.found())
-        // {
-        //     FatalIOErrorInFunction(dict_.name())
-        //         << "Cannot find entry " << scopedName
-        //         << exit(Foam::FatalIOError, 2);
-        // }
-
-        // if (finder.isDict())
-        // {
-        //     Foam::Info << finder.dict();
-        // }
-        // else if (finder.ref().isStream())
-        // {
-        //     const Foam::tokenList& tokens = finder.ref().stream();
-        //     Foam::IStringStream istr();
-        //     forAll(tokens, i)
-        //     {
-        //         Foam::Info<< tokens[i];
-        //         if (i < tokens.size() - 1)
-        //         {
-        //             Foam::Info<< Foam::token::SPACE;
-        //         }
-        //     }
-        //     Foam::Info << Foam::endl;
-        //     // return istr.str();
-        //     return std::string("asdasdasd");
-        // }
-        return std::string("asdasdasd");
-    
-    }
-};
-
 namespace Foam
 {
 
@@ -94,9 +32,21 @@ namespace Foam
     }
 
     template<class Type>
-    Type getFromDict(dictionary& dict, const std::string key)
+    Type get(dictionary& dict, const std::string key)
     {
         return dict.get<Type>(word(key));
+    }
+    
+    template<class Type>
+    void set(dictionary& dict, const std::string key,const Type T)
+    {
+        dict.set<Type>(word(key),T);
+    }
+
+    template<class Type>
+    void add(dictionary& dict, const std::string key,const Type T)
+    {
+        dict.add<Type>(word(key),T);
     }
 
 }
@@ -105,19 +55,54 @@ namespace Foam
 void AddPyDict(pybind11::module& m)
 {
     namespace py = pybind11;
+    
+    py::class_<Foam::entry>(m, "entry");
 
     py::class_<Foam::dictionary>(m, "dictionary")
-        .def(py::init([](const std::string name) {
-            return Foam::read_dictionary(name);
+        .def(py::init([](const std::string file_name) {
+            return Foam::read_dictionary(file_name);
+        }))
+        .def(py::init([]() {
+            return Foam::dictionary();
+        }))
+        .def(py::init([](const Foam::dictionary& d) {
+            return Foam::dictionary(d);
         }))
         .def("toc", &Foam::dictionary::toc)
-        .def("get_word", &Foam::getFromDict<Foam::word>)
-        .def("get_scalar", &Foam::getFromDict<Foam::scalar>)
-        .def("get_vector", &Foam::getFromDict<Foam::vector>)
-        .def("get_tensor", &Foam::getFromDict<Foam::tensor>)
-        .def("get_wordList", &Foam::getFromDict<Foam::List<Foam::word>>)
-        .def("get_scalarField", &Foam::getFromDict<Foam::Field<Foam::scalar>>)
-        .def("get_vectorField", &Foam::getFromDict<Foam::Field<Foam::vector>>)
-        .def("get_tensorField", &Foam::getFromDict<Foam::Field<Foam::tensor>>)
+        .def("clear", &Foam::dictionary::clear)
+        .def("isDict", [](const Foam::dictionary& self, const std::string key)
+        {
+            return self.isDict(Foam::word(key));
+        })
+        .def("subDict", [](const Foam::dictionary& self, const std::string key)
+        {
+            return self.subDict(Foam::word(key));
+        })
+        .def("get_word", &Foam::get<Foam::word>)
+        .def("get_scalar", &Foam::get<Foam::scalar>)
+        .def("get_vector", &Foam::get<Foam::vector>)
+        .def("get_tensor", &Foam::get<Foam::tensor>)
+        .def("get_wordList", &Foam::get<Foam::List<Foam::word>>)
+        .def("get_scalarField", &Foam::get<Foam::Field<Foam::scalar>>)
+        .def("get_vectorField", &Foam::get<Foam::Field<Foam::vector>>)
+        .def("get_tensorField", &Foam::get<Foam::Field<Foam::tensor>>)
+
+        .def("set", &Foam::set<Foam::word>)
+        .def("set", &Foam::set<Foam::scalar>)
+        .def("set", &Foam::set<Foam::vector>)
+        .def("set", &Foam::set<Foam::tensor>)
+        .def("set", &Foam::set<Foam::List<Foam::word>>)
+        .def("set", &Foam::set<Foam::Field<Foam::scalar>>)
+        .def("set", &Foam::set<Foam::Field<Foam::vector>>)
+        .def("set", &Foam::set<Foam::Field<Foam::tensor>>)
+
+        .def("add", &Foam::add<Foam::word>)
+        .def("add", &Foam::add<Foam::scalar>)
+        .def("add", &Foam::add<Foam::vector>)
+        .def("add", &Foam::add<Foam::tensor>)
+        .def("add", &Foam::add<Foam::List<Foam::word>>)
+        .def("add", &Foam::add<Foam::Field<Foam::scalar>>)
+        .def("add", &Foam::add<Foam::Field<Foam::vector>>)
+        .def("add", &Foam::add<Foam::Field<Foam::tensor>>)
         ;
 }

@@ -54,11 +54,12 @@ py::class_<Type> declare_vectorspace(py::module &m, std::string className) {
         })
         .def("__str__", [](const Type& self)
         {
-            std::string out;
+            std::string out = "(" + Foam::name(self[0]);
             for (label i = 1; i < pTraits<Type>::nComponents; ++i)
             {
                 out += " " +  Foam::name(self[i]);
             }
+            out += ")";
             return out;
         })
         .def("__len__", [](Type& self) -> int {return pTraits<Type>::nComponents;})
