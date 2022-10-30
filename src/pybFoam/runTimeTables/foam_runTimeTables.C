@@ -39,10 +39,8 @@ void AddPyRunTime(pybind11::module& m)
 {
     namespace py = pybind11;
 
-    py::module_ runTables = m.def_submodule("runTables", "A submodule of 'example'");
-
     
-    runTables.def("Function1", [](){
+    m.def("Function1", [](){
         declareRunTimeSelectionTableToc(Foam::Function1<Foam::scalar>, dictionary);
     })
     .def("fvPatchScalarField", [](){

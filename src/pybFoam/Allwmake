@@ -1,18 +1,9 @@
 #!/bin/bash
 cd "${0%/*}" || exit                                # Run from this directory
 
+./pybFoam_core/Allwmake
 
-source ../../scripts/pyInstall.sh
-
-pybind11_includes > Make/options.template
-echo -e "\n" >> Make/options.template
-
-cat Make/options.temp >> Make/options.template
-cp Make/options.template Make/options
-
-wmake libso
-
-# wmake overwrite linux to 1 for what ever reason
-mv pybFoam_core.so pybFoam_core$(python3-config --extension-suffix)
+./runTimeTables/Allwmake
 
 stubgen -m pybFoam_core -o .
+stubgen -m runTimeTables -o .

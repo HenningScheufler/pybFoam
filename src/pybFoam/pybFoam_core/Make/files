@@ -1,0 +1,8 @@
+foam_dict.C
+foam_mesh.C
+foam_primitives.C
+foam_fields.C
+foam_geo_fields.C
+pybFoam.C
+
+LIB = pybFoam_core

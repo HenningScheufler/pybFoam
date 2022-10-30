@@ -10,5 +10,7 @@ class pybFoamPaths(object):
 sys.path.append(pybFoamPaths.pybFoam_libs)
 
 from pybFoam_core import *
+import runTimeTables
+
 from pybFoam import postProcess
 from pybFoam import time_series
