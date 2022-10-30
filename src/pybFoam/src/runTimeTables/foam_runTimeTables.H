@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2022, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the ECI4FOAM source code library, which is an
@@ -15,26 +15,43 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::pyInterp
+
+Description
+
+Author
+    Henning Scheufler, all rights reserved.
+
+SourceFiles
+
+
 \*---------------------------------------------------------------------------*/
 
+#ifndef foam_runTimeTables
+#define foam_runTimeTables
+
+// System includes
 #include <pybind11/pybind11.h>
-#include "foam_dict.H"
-#include "foam_mesh.H"
-#include "foam_primitives.H"
-#include "foam_fields.H"
-#include "foam_geo_fields.H"
-#include "foam_runTimeTables.H"
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 
-namespace py = pybind11;
+#include "dictionary.H"
+#include "word.H"
+#include "tensor.H"
+#include "vector.H"
+#include "autoPtr.H"
+#include "IFstream.H"
+#include "Field.H"
+
+namespace Foam
+{
+    
 
 
-PYBIND11_MODULE(pybFoam_core, m) {
-    m.doc() = "python bindings for openfoam"; // optional module docstring
-
-    AddPyDict(m);
-    AddPyMesh(m);
-    AddFoamPrimitives(m);
-    AddFoamFields(m);
-    AddPyGeoFields(m);
-    AddPyRunTime(m);
 }
+
+void  AddPyRunTime(pybind11::module& m);
+
+
+#endif // foam_runTimeTables  defined 
