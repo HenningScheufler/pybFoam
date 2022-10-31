@@ -21,6 +21,8 @@ License
 #include "OFstream.H"
 #include "Fstream.H"
 #include "IOobject.H"
+#include "dictionaryEntry.H"
+#include "entry.H"
 namespace Foam
 {
 
@@ -57,8 +59,21 @@ namespace Foam
 void AddPyDict(pybind11::module& m)
 {
     namespace py = pybind11;
+
+    py::class_<Foam::keyType>(m, "keyType")
+    .def(py::init<const Foam::word &>())
+    .def(py::init([](std::string k) {
+        return Foam::keyType(Foam::word(k));
+    }))
+    ;
     
-    py::class_<Foam::entry>(m, "entry");
+    py::class_<Foam::entry>(m, "entry")
+    ;
+
+    py::class_<Foam::dictionaryEntry, Foam::entry>(m, "dictionaryEntry")
+    .def(py::init<const Foam::keyType &,const Foam::dictionary &,const Foam::dictionary &>())
+    ;
+    
 
     py::class_<Foam::dictionary>(m, "dictionary")
         .def(py::init([](const std::string file_name) {
@@ -113,7 +128,6 @@ void AddPyDict(pybind11::module& m)
         .def("get_vectorField", &Foam::get<Foam::Field<Foam::vector>>)
         .def("get_tensorField", &Foam::get<Foam::Field<Foam::tensor>>)
 
-        .def("set", &Foam::set<Foam::dictionary>)
         .def("set", &Foam::set<Foam::word>)
         .def("set", &Foam::set<Foam::scalar>)
         .def("set", &Foam::set<Foam::vector>)
@@ -123,7 +137,10 @@ void AddPyDict(pybind11::module& m)
         .def("set", &Foam::set<Foam::Field<Foam::vector>>)
         .def("set", &Foam::set<Foam::Field<Foam::tensor>>)
 
-        .def("add", &Foam::set<Foam::dictionary>)
+        .def("add", [](Foam::dictionary& self,const Foam::entry& e, bool merge)
+        {
+            self.add(e,merge);
+        })
         .def("add", &Foam::add<Foam::word>)
         .def("add", &Foam::add<Foam::scalar>)
         .def("add", &Foam::add<Foam::vector>)
