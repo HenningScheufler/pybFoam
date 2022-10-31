@@ -18,7 +18,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "foam_dict.H"
-
+#include "OFstream.H"
+#include "Fstream.H"
+#include "IOobject.H"
 namespace Foam
 {
 
@@ -60,8 +62,11 @@ void AddPyDict(pybind11::module& m)
 
     py::class_<Foam::dictionary>(m, "dictionary")
         .def(py::init([](const std::string file_name) {
-            return Foam::read_dictionary(file_name);
+            return Foam::dictionary(file_name);
         }))
+        .def_static("read",[](const std::string file_name) {
+            return Foam::read_dictionary(file_name);
+        })
         .def(py::init([]() {
             return Foam::dictionary();
         }))
@@ -70,6 +75,7 @@ void AddPyDict(pybind11::module& m)
         }))
         .def("toc", &Foam::dictionary::toc)
         .def("clear", &Foam::dictionary::clear)
+        .def("clear", &Foam::dictionary::clear)
         .def("isDict", [](const Foam::dictionary& self, const std::string key)
         {
             return self.isDict(Foam::word(key));
@@ -77,6 +83,26 @@ void AddPyDict(pybind11::module& m)
         .def("subDict", [](const Foam::dictionary& self, const std::string key)
         {
             return self.subDict(Foam::word(key));
+        },py::return_value_policy::reference)
+        .def("subDictOrAdd", [](Foam::dictionary& self, const std::string key)
+        {
+            return self.subDictOrAdd(Foam::word(key));
+        },py::return_value_policy::reference_internal)
+        .def("write", [](const Foam::dictionary& self,const std::string file_name)
+        {
+            Foam::fileName dictFileName(file_name);
+            Foam::OFstream os(dictFileName);
+            Foam::IOobject::writeBanner(os);
+            Foam::IOobject::writeDivider(os);
+            self.write(os,false);
+            Foam::IOobject::writeEndDivider(os);
+        })
+        .def("print", [](const Foam::dictionary& self)
+        {
+            Foam::IOobject::writeBanner(Foam::Info);
+            Foam::IOobject::writeDivider(Foam::Info);
+            self.write(Foam::Info,false);
+            Foam::IOobject::writeEndDivider(Foam::Info);
         })
         .def("get_word", &Foam::get<Foam::word>)
         .def("get_scalar", &Foam::get<Foam::scalar>)
@@ -87,6 +113,7 @@ void AddPyDict(pybind11::module& m)
         .def("get_vectorField", &Foam::get<Foam::Field<Foam::vector>>)
         .def("get_tensorField", &Foam::get<Foam::Field<Foam::tensor>>)
 
+        .def("set", &Foam::set<Foam::dictionary>)
         .def("set", &Foam::set<Foam::word>)
         .def("set", &Foam::set<Foam::scalar>)
         .def("set", &Foam::set<Foam::vector>)
@@ -96,6 +123,7 @@ void AddPyDict(pybind11::module& m)
         .def("set", &Foam::set<Foam::Field<Foam::vector>>)
         .def("set", &Foam::set<Foam::Field<Foam::tensor>>)
 
+        .def("add", &Foam::set<Foam::dictionary>)
         .def("add", &Foam::add<Foam::word>)
         .def("add", &Foam::add<Foam::scalar>)
         .def("add", &Foam::add<Foam::vector>)
