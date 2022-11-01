@@ -34,6 +34,7 @@ jobs:
         
         # compile OpenFOAM
         ${{ matrix.ofversion }} -c ./build-pybFoam.sh
+        ls
 
     - name: test
       shell: bash
