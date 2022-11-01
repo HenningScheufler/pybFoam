@@ -28,14 +28,14 @@ jobs:
         python -m pip install --upgrade pip
         
         # compile OpenFOAM
-        openfoam2106 -c ./build-ECI4FOAM.sh
+        openfoam2112 -c ./build-ECI4FOAM.sh
 
     - name: test
       shell: bash
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        openfoam2106 -c "py.test -v --tb=auto -s"
+        openfoam2112 -c "py.test -v --tb=auto -s"
 
     - name: upload logs
       if: ${{ failure() }}
