@@ -34,8 +34,7 @@ jobs:
         
         # compile OpenFOAM
         ${{ matrix.ofversion }} -c ./build-pybFoam.sh
-        ls
-        ls src/pybFoam
+        echo "installed files"
         ls /home/runner/.local/lib/python3.8/site-packages/pybFoam
 
     - name: test
