@@ -33,7 +33,7 @@ jobs:
         python -m pip install --upgrade pip
         
         # compile OpenFOAM
-        ${{ matrix.ofversion }} -c ./build-ECI4FOAM.sh
+        ${{ matrix.ofversion }} -c ./build-pybFoam.sh
 
     - name: test
       shell: bash
