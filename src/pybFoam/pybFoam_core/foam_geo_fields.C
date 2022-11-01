@@ -69,6 +69,7 @@ void field(GeometricField<Type, PatchField, GeoMesh>& vf,const fvMesh& mesh, con
 template<class Type, template<class> class PatchField, class GeoMesh>
 py::class_< GeometricField<Type, PatchField, GeoMesh> > declare_geofields(py::module &m, std::string className) {
     auto geofieldClass = py::class_< Foam::GeometricField<Type, PatchField, GeoMesh>>(m, className.c_str())
+    .def(py::init<GeometricField<Type, PatchField, GeoMesh>>())
     // .def(py::init([]
     // (
     //     const Foam::fvMesh& mesh,

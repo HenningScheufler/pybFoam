@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Dict
 from pybFoam import dictionary
 from pydantic import BaseModel, Field
 from pybFoam import (

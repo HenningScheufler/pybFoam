@@ -14,7 +14,7 @@ def change_test_dir(request):
 
 def test_ofdict(change_test_dir):
 
-    d = dictionary("system/TestDict")
+    d = dictionary.read("system/TestDict")
 
     l_word = d.toc()
     assert l_word.list()[0] == "FoamFile"
@@ -34,10 +34,10 @@ def test_ofdict(change_test_dir):
     assert (d.get_tensorField("tensorField").to_numpy() == np.ones([2,9])).all()
 
     # assumes the other are also correct
-    d.set_word("word",Word("word2"))
+    d.set("word",Word("word2"))
 
     assert d.get_word("word") == "word2"
 
-    d.set_wordList("wordList2",pybFoam.wordList(["word3","word4"]))
+    d.set("wordList2",pybFoam.wordList(["word3","word4"]))
 
     assert  d.get_wordList("wordList2").list() == ["word3", "word4"]

@@ -4,6 +4,7 @@
 ./src/testing/Allwmake
 ./src/embeddingPython/Allwmake
 ./src/pypostProcessing/Allwmake
+./src/pybFoam/Allwmake
 
 
 ./application/test/test-pythonNumpy/Allwmake

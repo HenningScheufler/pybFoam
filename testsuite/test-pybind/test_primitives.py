@@ -1,12 +1,6 @@
 import pytest
 from pybFoam import vector, Word, tensor, mag, scalarField, vectorField, tensorField
 import numpy as np
-# @pytest.fixture(scope="function")
-# def change_test_dir(request):
-#     os.chdir(request.fspath.dirname)
-#     yield
-#     os.chdir(request.config.invocation_dir)
-
 
 def test_word():
     s = -10

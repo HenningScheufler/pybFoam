@@ -30,9 +30,10 @@ ext_modules = [
     ),
 ]
 
-setup(ext_modules = [WMakeExtension("pybFoam", sorted(glob("src/pybFoam/src/*.C")))],
-      cmdclass = {'build_ext': wmake_build},
-      )
+setup()
+# setup(ext_modules = [WMakeExtension("pybFoam", sorted(glob("src/pybFoam/src/*.C")))],
+#       cmdclass = {'build_ext': wmake_build},
+#       )
 
 
 

@@ -1,15 +1,15 @@
 PY_INCS := \ 
  -Wno-old-style-cast \ 
--I/home/henning/miniconda3/envs/eci4foam/include/python3.10 \ 
--I/home/henning/miniconda3/envs/eci4foam/include/python3.10 \ 
--I/home/henning/miniconda3/envs/eci4foam/lib/python3.10/site-packages/numpy/core/include
+-I/media/henning/ssd1linux/miniconda3/envs/pybFoam/include/python3.9 \ 
+-I/media/henning/ssd1linux/miniconda3/envs/pybFoam/include/python3.9 \ 
+-I/media/henning/ssd1linux/miniconda3/envs/pybFoam/lib/python3.9/site-packages/numpy/core/include
 
 
 PY_LIBS := \ 
--L/home/henning/miniconda3/envs/eci4foam/lib/python3.10/config-3.10-x86_64-linux-gnu \ 
--L/home/henning/miniconda3/envs/eci4foam/lib \ 
--Wl,-rpath=/home/henning/miniconda3/envs/eci4foam/lib \ 
--lpython3.10
+-L/media/henning/ssd1linux/miniconda3/envs/pybFoam/lib/python3.9/config-3.9-x86_64-linux-gnu \ 
+-L/media/henning/ssd1linux/miniconda3/envs/pybFoam/lib \ 
+-Wl,-rpath=/media/henning/ssd1linux/miniconda3/envs/pybFoam/lib \ 
+-lpython3.9
 
 
 CONAN_INCS := \

@@ -1,7 +1,8 @@
 import pytest
 import pybFoam
 import os
-
+import oftest
+from oftest import run_reset_case
 
 @pytest.fixture(scope="function")
 def change_test_dir(request):
@@ -9,49 +10,55 @@ def change_test_dir(request):
     yield
     os.chdir(request.config.invocation_dir)
 
+class TestGroup: 
 
-def test_geoFieldField(change_test_dir):
+    def test_init(self,run_reset_case):
+        log = oftest.path_log()
+        assert oftest.case_status(log) == 'completed' # checks if run completes
+        # assert run_case.success
 
-    time = pybFoam.Time(".", ".")
-    mesh = pybFoam.fvMesh(time)
-    p_rgh = pybFoam.volScalarField("p_rgh", mesh)
+    def test_geoFieldField(self,change_test_dir):
 
-    p_rgh2 = pybFoam.volScalarField("p_rgh", mesh)
-    assert sum(p_rgh["internalField"].to_numpy()) == 0
-    p_rgh["internalField"] += 1
-    assert sum(p_rgh["internalField"].to_numpy()) == len(p_rgh["internalField"])
+        time = pybFoam.Time(".", ".")
+        mesh = pybFoam.fvMesh(time)
+        p_rgh = pybFoam.volScalarField.read_field(mesh,"p_rgh")
 
-    p_rgh2["internalField"] += 1
+        p_rgh2 = pybFoam.volScalarField(p_rgh) #pybFoam.volScalarField.read_field(mesh,"p_rgh")
+        assert sum(p_rgh["internalField"].to_numpy()) == 0
+        p_rgh["internalField"] += 1
+        assert sum(p_rgh["internalField"].to_numpy()) == len(p_rgh["internalField"])
 
-    test = p_rgh2 + p_rgh
+        p_rgh2["internalField"] += 1
 
-    assert sum(p_rgh["leftWall"].to_numpy()) == 0
-    p_rgh["leftWall"] += 1
-    assert sum(p_rgh["leftWall"].to_numpy()) == len(p_rgh["leftWall"])
+        test = p_rgh2 + p_rgh
 
-    U = pybFoam.volVectorField("U", mesh)
-    assert (sum(U["internalField"].to_numpy()) == [0, 0, 0]).all()
-    U["internalField"] += pybFoam.vector(1, 1, 1)
-    nElements = len(p_rgh["internalField"])
-    assert (
-        sum(U["internalField"].to_numpy()) == [nElements, nElements, nElements]
-    ).all()
+        assert sum(p_rgh["leftWall"].to_numpy()) == 0
+        p_rgh["leftWall"] += 1
+        assert sum(p_rgh["leftWall"].to_numpy()) == len(p_rgh["leftWall"])
 
-def test_mesh(change_test_dir):
+        U = pybFoam.volVectorField.read_field(mesh,"U")
+        assert (sum(U["internalField"].to_numpy()) == [0, 0, 0]).all()
+        U["internalField"] += pybFoam.vector(1, 1, 1)
+        nElements = len(p_rgh["internalField"])
+        assert (
+            sum(U["internalField"].to_numpy()) == [nElements, nElements, nElements]
+        ).all()
 
-    time = pybFoam.Time(".", ".")
-    mesh = pybFoam.fvMesh(time)
+    def test_mesh(self,change_test_dir):
 
-
-    C = mesh.C()
-    print(C["internalField"].to_numpy())
+        time = pybFoam.Time(".", ".")
+        mesh = pybFoam.fvMesh(time)
 
 
-def test_mesh(change_test_dir):
+        C = mesh.C()
+        print(C["internalField"].to_numpy())
 
-    time = pybFoam.Time(".", ".")
-    times = pybFoam.selectTimes(time,["test_mesh"])
 
-    for t in times:
-        print(t)
+    def test_mesh(self,change_test_dir):
+
+        time = pybFoam.Time(".", ".")
+        times = pybFoam.selectTimes(time,["test_mesh"])
+
+        for t in times:
+            print(t)
     

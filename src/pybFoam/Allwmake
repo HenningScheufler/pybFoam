@@ -1,6 +1,9 @@
 #!/bin/bash
 cd "${0%/*}" || exit                                # Run from this directory
 
+
+echo $PWD
+
 ./pybFoam_core/Allwmake
 
 ./runTimeTables/Allwmake

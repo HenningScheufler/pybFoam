@@ -2,7 +2,7 @@
 cd "${0%/*}" || exit                                # Run from this directory
 
 
-source ../../../scripts/pyInstall.sh
+source ../pyInstall.sh
 
 pybind11_includes > Make/options.template
 echo -e "\n" >> Make/options.template

@@ -3,6 +3,8 @@ import pybFoam
 from pybFoam.time_series import Force
 import os
 import numpy as np
+import oftest
+from oftest import run_reset_case
 
 @pytest.fixture(scope="function")
 def change_test_dir(request):
@@ -10,25 +12,31 @@ def change_test_dir(request):
     yield
     os.chdir(request.config.invocation_dir)
 
+pybFoam.volVectorField.read_field
+class TestGroup_postProcess: 
 
-def test_postProcess(change_test_dir):
+    def test_init(self,run_reset_case):
+        log = oftest.path_log()
+        assert oftest.case_status(log) == 'completed' # checks if run completes
 
-    time = pybFoam.Time(".", ".")
-    times = pybFoam.selectTimes(time,["test_mesh"])
-    mesh = pybFoam.fvMesh(time)
+    def test_postProcess(self,change_test_dir):
 
-    f = Force(mesh,["lowerWall"])
+        time = pybFoam.Time(".", ".")
+        times = pybFoam.selectTimes(time,["test_mesh"])
+        mesh = pybFoam.fvMesh(time)
+
+        # f = Force(mesh,["lowerWall"])
 
 
-    for idx, t in enumerate(times):
-        time.setTime(t,idx)
-        print(t)
-        p_rgh = pybFoam.volScalarField("p_rgh", mesh)
+        # for idx, t in enumerate(times):
+        #     time.setTime(t,idx)
+        #     print(t)
+        #     p = pybFoam.volScalarField.read_field(mesh,"p")
 
-        T = pybFoam.volScalarField("T", mesh)
+        #     T = pybFoam.volScalarField.read_field(mesh,"T")
 
-        magU = pybFoam.mag(pybFoam.volVectorField("U", mesh))
+        #     magU = pybFoam.mag(pybFoam.volVectorField.read_field(mesh,"U"))
 
-        force = f.compute()
-        print(force)
+        #     force = f.compute()
+        #     print(force)
     
