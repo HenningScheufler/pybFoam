@@ -2,7 +2,7 @@ name: openfoam
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
     branches:
       - '*'
@@ -19,7 +19,7 @@ jobs:
       run: |
         curl -s https://dl.openfoam.com/add-debian-repo.sh | sudo bash
         wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-        sudo apt-get install openfoam2106-dev
+        sudo apt-get install openfoam2112-dev
     - name: compile library
       shell: bash
       run: |
@@ -27,17 +27,8 @@ jobs:
         export WM_NCOMPPROCS=2
         python -m pip install --upgrade pip
         
-        # similar to build-ECI4FOAM.sh
-        pip install -r requirements.txt
-        git submodule update --init --recursive
-        
-        #install generator
-        cd OpenFOAMGen/OpenFOAMGen
-        conan export . myuser/OpenFOAMGen
-        cd ../..
-
         # compile OpenFOAM
-        openfoam2106 -c ./Allwmake
+        openfoam2106 -c ./build-ECI4FOAM.sh
 
     - name: test
       shell: bash
