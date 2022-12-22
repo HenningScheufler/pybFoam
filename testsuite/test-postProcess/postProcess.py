@@ -11,7 +11,7 @@ class postProcess():
 
     def __init__(self,mesh: pybFoam.fvMesh):
         self.mesh = mesh
-        self.csv1 = time_series.csvTimeSeries(name="pyforce",header=["fx","fy","fz"])
+        self.csv1 = time_series.csvTimeSeriesWriter(name="pyforce",header=["fx","fy","fz"])
         self.csv1.create_file()
         self.f = time_series.Force(mesh,["lowerWall"])
 
@@ -25,7 +25,7 @@ class postProcess():
         pass
 
 # ppf = postProcessFunctions(mesh)
-
+# ppb = pybFoam.postProcess.postProcessBuilder()
 
 # @ppf.time_series()
 # def add_force():

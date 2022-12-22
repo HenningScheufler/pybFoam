@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2022, Henning Scheufler
+            Copyright (c) 2021, German Aerospace Center (DLR)
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -15,51 +15,17 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    Foam::pyInterp
-
-Description
-
-Author
-    Henning Scheufler, all rights reserved.
-
-SourceFiles
-
-
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_mesh
-#define foam_mesh
-
-// System includes
 #include <pybind11/pybind11.h>
-#include "fvMesh.H"
-#include "Time.H"
-#include "polyMesh.H"
-#include <pybind11/stl.h>
-#include "instantList.H"
-#include "timeSelector.H"
-#include <vector>
-#include "argList.H"
+
+#include "foam_fvc.H"
+
+namespace py = pybind11;
 
 
-namespace Foam
-{
+PYBIND11_MODULE(fvc, fvc) {
+    fvc.doc() = "finite volume calculus"; // optional module docstring
 
-    Foam::instantList selectTimes
-    ( 
-        Time& runTime,
-        const std::vector<std::string>& args
-    );
-
-    Time* createTime(std::string rootPath = ".",std::string caseName= ".");
-
-    fvMesh* createMesh(const Time& time);
-
+    Foam::AddPyFVC(fvc);
 }
-
-
-void  AddPyMesh(pybind11::module& m);
-
-
-#endif // foam_dict  defined 

@@ -2,7 +2,7 @@
             Copyright (c) 2021, German Aerospace Center (DLR)
 -------------------------------------------------------------------------------
 License
-    This file is part of the ECI4FOAM source code library, which is an
+    This file is part of the pybFoam source code library, which is an
 	unofficial extension to OpenFOAM.
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ License
 #include "foam_primitives.H"
 #include "foam_fields.H"
 #include "foam_geo_fields.H"
+// #include "foam_fvc.H"
 
 namespace py = pybind11;
 
@@ -33,6 +34,7 @@ PYBIND11_MODULE(pybFoam_core, m) {
     AddPyDict(m);
     AddPyMesh(m);
     AddFoamPrimitives(m);
-    AddFoamFields(m);
-    AddPyGeoFields(m);
+    Foam::AddFoamFields(m);
+    Foam::AddPyGeoFields(m);
+    // Foam::AddPyFVC(m);
 }

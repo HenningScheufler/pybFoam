@@ -1,12 +1,13 @@
 #!/bin/bash
 cd "${0%/*}" || exit                                # Run from this directory
 
-
 echo $PWD
 
 ./pybFoam_core/Allwmake
-
 ./runTimeTables/Allwmake
+./fvc/Allwmake
 
 stubgen -m pybFoam_core -o .
+stubgen -m fvc -o .
 stubgen -m runTimeTables -o .
+# stubgen -m pybFoam_fvc -o .

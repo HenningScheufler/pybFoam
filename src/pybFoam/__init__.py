@@ -10,6 +10,7 @@ class pybFoamPaths(object):
 sys.path.append(pybFoamPaths.pybFoam_libs)
 
 from pybFoam_core import *
+import fvc
 import runTimeTables
 
 from pybFoam import postProcess

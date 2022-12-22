@@ -1,0 +1,18 @@
+#!/bin/bash
+cd "${0%/*}" || exit                                # Run from this directory
+
+
+source ../pyInstall.sh
+
+pybind11_includes > Make/options.template
+echo -e "\n" >> Make/options.template
+
+cat Make/options.temp >> Make/options.template
+cp Make/options.template Make/options
+
+wmake libso
+# wmake overwrite linux to 1 for what ever reason
+mv fvc.so ../fvc$(python3-config --extension-suffix)
+
+cd ..
+

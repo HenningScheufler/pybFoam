@@ -2,7 +2,7 @@
             Copyright (c) 2022, Henning Scheufler
 -------------------------------------------------------------------------------
 License
-    This file is part of the ECI4FOAM source code library, which is an
+    This file is part of the pybFoam source code library, which is an
 	unofficial extension to OpenFOAM.
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -63,12 +63,8 @@ void fromNumpy<scalar>(Field<scalar>& values,const py::array_t<scalar> np_arr);
 template<class Type>
 py::class_< Field<Type>> declare_fields(py::module &m, std::string &className);
 
-
-
-}
-
-
 void  AddFoamFields(py::module& m);
 
+}
 
 #endif // foam_dict  defined 

@@ -2,7 +2,7 @@
             Copyright (c) 20212, Henning Scheufler
 -------------------------------------------------------------------------------
 License
-    This file is part of the ECI4FOAM source code library, which is an
+    This file is part of the pybFoam source code library, which is an
 	unofficial extension to OpenFOAM.
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ namespace py = pybind11;
 namespace Foam
 {
 
+
 template<typename Type>
 py::array_t<scalar> toNumpy(const Field<Type>& values)
 {
@@ -46,6 +47,7 @@ py::array_t<scalar> toNumpy(const Field<Type>& values)
 
     return arr;
 }
+
 
 template< >
 py::array_t<scalar> toNumpy<scalar>(const Field<scalar>& values)
@@ -98,6 +100,7 @@ void fromNumpy(Field<Type>& values,const py::array_t<scalar> np_arr)
     }
 }
 
+
 template<>
 void fromNumpy<scalar>(Field<scalar>& values,const py::array_t<scalar> np_arr)
 {
@@ -126,12 +129,12 @@ void fromNumpy<scalar>(Field<scalar>& values,const py::array_t<scalar> np_arr)
     }
 }
 
+
 template<class Type>
 Type declare_sum(const Field<Type>& values)
 {
     return gSum(values);
 }
-
 
 
 template<class Type>
@@ -184,10 +187,10 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
 
 }
 
-void AddFoamFields(py::module& m)
+void Foam::AddFoamFields(py::module& m)
 {
-    py::class_<Foam::instantList>(m, "instantList")
-        .def("__getitem__", [](const Foam::instantList& self, const Foam::label idx) {
+    py::class_<instantList>(m, "instantList")
+        .def("__getitem__", [](const instantList& self, const label idx) {
             if (idx >= self.size())
             {
                 throw py::index_error();
@@ -196,30 +199,30 @@ void AddFoamFields(py::module& m)
         })
     ;
 
-    py::class_<Foam::List<Foam::word>>(m, "wordList")
-        .def(py::init<Foam::List<Foam::word> > ())
+    py::class_<List<word>>(m, "wordList")
+        .def(py::init<List<word> > ())
         .def(py::init([](std::vector<std::string> vec) {
-            Foam::List<Foam::word> f(vec.size());
+            List<word> f(vec.size());
             forAll(f,i)
             {
                 f[i] = vec[i];
             }
             return f;
         }))
-        .def("__len__", [](const Foam::List<Foam::word>& self) {
+        .def("__len__", [](const List<word>& self) {
             return self.size();
         })
-        .def("__getitem__", [](const Foam::List<Foam::word>& self, const Foam::label idx) {
+        .def("__getitem__", [](const List<word>& self, const label idx) {
             if (idx >= self.size())
             {
                 throw py::index_error();
             }
             return std::string(self[idx]);
         })
-        .def("__setitem__", [](Foam::List<Foam::word>& self, const Foam::label idx,const std::string& s) {
+        .def("__setitem__", [](List<word>& self, const label idx,const std::string& s) {
             self[idx] = s;
         })
-        .def("list",[](Foam::List<Foam::word>& self){
+        .def("list",[](List<word>& self){
             std::vector<std::string> l_out(self.size());
             forAll(self,i)
             {
@@ -230,17 +233,17 @@ void AddFoamFields(py::module& m)
         ;
 
 
-    auto sf = Foam::declare_fields<Foam::scalar>(m, std::string("scalarField"));
+    auto sf = declare_fields<scalar>(m, std::string("scalarField"));
 
-    auto vf = Foam::declare_fields<Foam::vector>(m, std::string("vectorField"));
+    auto vf = declare_fields<vector>(m, std::string("vectorField"));
 
-    auto tf = Foam::declare_fields<Foam::tensor>(m, std::string("tensorField"));
+    auto tf = declare_fields<tensor>(m, std::string("tensorField"));
 
-    auto stf = Foam::declare_fields<Foam::symmTensor>(m, std::string("symmTensorField"));
+    auto stf = declare_fields<symmTensor>(m, std::string("symmTensorField"));
 
 
-    m.def("sum",Foam::declare_sum<Foam::scalar>);
-    m.def("sum",Foam::declare_sum<Foam::vector>);
-    m.def("sum",Foam::declare_sum<Foam::tensor>);
-    m.def("sum",Foam::declare_sum<Foam::symmTensor>);
+    m.def("sum",declare_sum<scalar>);
+    m.def("sum",declare_sum<vector>);
+    m.def("sum",declare_sum<tensor>);
+    m.def("sum",declare_sum<symmTensor>);
 }

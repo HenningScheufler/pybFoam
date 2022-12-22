@@ -1,12 +1,14 @@
 PY_INCS := \ 
  -Wno-old-style-cast \ 
--I/media/henning/ssd1linux/miniconda3/envs/pybFoam/include/python3.9 -I/media/henning/ssd1linux/miniconda3/envs/pybFoam/lib/python3.9/site-packages/pybind11/include
+-I/home/henning/miniconda3/envs/eci4foam/include/python3.10 -I/home/henning/miniconda3/envs/eci4foam/lib/python3.10/site-packages/pybind11/include
 
 
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
     $(PY_INCS) \
 
 LIB_LIBS = \
+    -lmeshTools \
     -lfiniteVolume \
 

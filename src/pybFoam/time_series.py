@@ -1,4 +1,5 @@
 from pybFoam import volScalarField, fvMesh, vector
+from pydantic import BaseModel
 import pybFoam
 import numpy as np
 from typing import Protocol, List, Any, Callable
@@ -23,7 +24,7 @@ class TimeSeriesWriter(Protocol):
         pass
 
 
-class csvTimeSeries(TimeSeriesWriter):
+class csvTimeSeriesWriter(TimeSeriesWriter):
     def __init__(
         self,
         name: str,
@@ -73,3 +74,12 @@ class Force:
     def compute(self) -> List[str]:
         force = self.calcForces()
         return [str(force[0]), str(force[1]), str(force[2])]
+
+
+class Sum(BaseModel):
+    header: List[str]
+    fields: List[str]
+
+
+    def compute(self):
+        return self.header

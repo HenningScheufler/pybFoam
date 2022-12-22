@@ -2,7 +2,7 @@
             Copyright (c) 2022, Henning Scheufler
 -------------------------------------------------------------------------------
 License
-    This file is part of the ECI4FOAM source code library, which is an
+    This file is part of the pybFoam source code library, which is an
 	unofficial extension to OpenFOAM.
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -98,12 +98,9 @@ GeometricField<scalar, PatchField, GeoMesh>
 declare_mag(const GeometricField<Type, PatchField, GeoMesh>& geof);
 
 
-}
-
-
-
 
 void  AddPyGeoFields(pybind11::module& m);
 
+}
 
 #endif // foam_geo_fields  defined 

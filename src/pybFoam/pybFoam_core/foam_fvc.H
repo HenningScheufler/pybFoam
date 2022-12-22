@@ -28,38 +28,23 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_mesh
-#define foam_mesh
+#ifndef foam_fvc
+#define foam_fvc
 
 // System includes
 #include <pybind11/pybind11.h>
-#include "fvMesh.H"
-#include "Time.H"
-#include "polyMesh.H"
 #include <pybind11/stl.h>
-#include "instantList.H"
-#include "timeSelector.H"
-#include <vector>
-#include "argList.H"
-
+#include "word.H"
+#include "scalar.H"
+#include "vector.H"
+#include "tensor.H"
+#include "symmTensor.H"
 
 namespace Foam
 {
+    namespace py = pybind11;
 
-    Foam::instantList selectTimes
-    ( 
-        Time& runTime,
-        const std::vector<std::string>& args
-    );
-
-    Time* createTime(std::string rootPath = ".",std::string caseName= ".");
-
-    fvMesh* createMesh(const Time& time);
-
+    void  AddPyFVC(py::module& m);
 }
 
-
-void  AddPyMesh(pybind11::module& m);
-
-
-#endif // foam_dict  defined 
+#endif // foam_fvc  defined 
