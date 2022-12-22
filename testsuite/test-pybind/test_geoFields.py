@@ -15,7 +15,6 @@ class TestGroup:
     def test_init(self,run_reset_case):
         log = oftest.path_log()
         assert oftest.case_status(log) == 'completed' # checks if run completes
-        # assert run_case.success
 
     def test_geoFieldField(self,change_test_dir):
 
@@ -29,8 +28,6 @@ class TestGroup:
         assert sum(p_rgh["internalField"].to_numpy()) == len(p_rgh["internalField"])
 
         p_rgh2["internalField"] += 1
-
-        test = p_rgh2 + p_rgh
 
         assert sum(p_rgh["leftWall"].to_numpy()) == 0
         p_rgh["leftWall"] += 1
