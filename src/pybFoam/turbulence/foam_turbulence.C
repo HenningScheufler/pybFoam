@@ -66,8 +66,10 @@ void Foam::AddPyTurbulence(py::module& m)
     .def("nuEff", overload_cast_< >()(&incompressible::turbulenceModel::nuEff, py::const_))
     .def("nuEff", overload_cast_<const label >()(&incompressible::turbulenceModel::nuEff, py::const_))
     .def("devRhoReff", overload_cast_< >()(&incompressible::turbulenceModel::devRhoReff, py::const_))
-    .def("devRhoReff", overload_cast_<const volVectorField&>()(&incompressible::turbulenceModel::devRhoReff, py::const_))
     .def("divDevReff", overload_cast_<volVectorField&>()(&incompressible::turbulenceModel::divDevReff, py::const_))
+    #if OPENFOAM > 2106
+        .def("devRhoReff", overload_cast_<const volVectorField&>()(&incompressible::turbulenceModel::devRhoReff, py::const_))
+    #endif
     ;
 
     
@@ -99,8 +101,10 @@ void Foam::AddPyTurbulence(py::module& m)
     .def("nuEff", overload_cast_< >()(&compressible::turbulenceModel::nuEff, py::const_))
     .def("nuEff", overload_cast_<const label >()(&compressible::turbulenceModel::nuEff, py::const_))
     .def("devRhoReff", overload_cast_< >()(&compressible::turbulenceModel::devRhoReff, py::const_))
-    .def("devRhoReff", overload_cast_<const volVectorField&>()(&compressible::turbulenceModel::devRhoReff, py::const_))
     .def("divDevRhoReff", overload_cast_<volVectorField&>()(&compressible::turbulenceModel::divDevRhoReff, py::const_))
+    #if OPENFOAM > 2106
+        .def("devRhoReff", overload_cast_<const volVectorField&>()(&compressible::turbulenceModel::devRhoReff, py::const_))
+    #endif
     ;
 
 }
