@@ -1,4 +1,5 @@
 import pytest
+import pandas as pd
 import pybFoam
 from pybFoam.time_series import Force
 import os
@@ -22,6 +23,16 @@ class TestGroup_postProcess:
 
     def test_postProcess(self,change_test_dir):
 
-        assert Path("postProcessing/pyforce/pyforce.csv").exists()
 
-    
+        assert Path("postProcessing/pyforce/pyforce.csv").exists()
+        py_f = pd.read_csv("postProcessing/pyforce/pyforce.csv")
+
+        f = oftest.read_functionObject("postProcessing/forces/0/force.dat")
+        f = f.drop(columns=[4,5,6,7,8,9])
+        f.columns = ["t","fx","fy","fz"]
+
+        error = py_f - f
+        max_error = max(error.max())
+        assert max_error < 1e-6
+
+

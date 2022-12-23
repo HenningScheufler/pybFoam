@@ -1,10 +1,13 @@
 from pybFoam import volScalarField, fvMesh, vector
+from pybFoam.thermo import fluidThermo
 from pydantic import BaseModel
 import pybFoam
 import numpy as np
 from typing import Protocol, List, Any, Callable
 from pathlib import Path
 import os
+
+from pybFoam import fieldFunctions
 
 
 class TimeSeriesWriter(Protocol):
@@ -64,11 +67,13 @@ class Force:
         return ["force_x", "force_y", "force_z"]
 
     def calcForces(self) -> vector:
-        p = volScalarField.from_registry(self.mesh,self.p_name)
+        p = fieldFunctions.pressure(self.mesh,self.p_name)
+        viscousForce = fieldFunctions.viscousStressTensorEff(self.mesh)
+
         force = vector(0, 0, 0)
         for bc in self.bc_names:
             force += pybFoam.sum(self.mesh.Sf()[bc] * p[bc])
-
+            force += pybFoam.sum(self.mesh.Sf()[bc] & viscousForce[bc])
         return force
 
     def compute(self) -> List[str]:

@@ -1,0 +1,19 @@
+PY_INCS := \ 
+ -Wno-old-style-cast \ 
+-I/home/henning/miniconda3/envs/eci4foam/include/python3.10 -I/home/henning/miniconda3/envs/eci4foam/lib/python3.10/site-packages/pybind11/include
+
+
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/solidThermo/lnInclude \
+    -I$(LIB_SRC)/transportModels/compressible/lnInclude \
+    $(PY_INCS) \
+
+LIB_LIBS = \
+    -lmeshTools \
+    -lfiniteVolume \
+    -lcompressibleTransportModels \
+    -lsolidThermo  \
+    -lfluidThermophysicalModels

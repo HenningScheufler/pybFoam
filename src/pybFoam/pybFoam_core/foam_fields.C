@@ -235,11 +235,42 @@ void Foam::AddFoamFields(py::module& m)
 
     auto sf = declare_fields<scalar>(m, std::string("scalarField"));
 
-    auto vf = declare_fields<vector>(m, std::string("vectorField"));
+    auto vf = declare_fields<vector>(m, std::string("vectorField"))
+    .def("__and__", [](Field<vector>& self, const vector& s) {return Field<scalar>(self & s);})
+    .def("__and__", [](Field<vector>& self, const Field<vector>& sf)
+    {
+        return Field<scalar>(self & sf);
+    })
+    .def("__and__", [](Field<vector>& self, const tensor& s) {return Field<vector>(self & s);})
+    .def("__and__", [](Field<vector>& self, const Field<tensor>& sf)
+    {
+        return Field<vector>(self & sf);
+    })
+    .def("__and__", [](Field<vector>& self, const symmTensor& s) {return Field<vector>(self & s);})
+    .def("__and__", [](Field<vector>& self, const Field<symmTensor>& sf)
+    {
+        return Field<vector>(self & sf);
+    })
+    ;
 
-    auto tf = declare_fields<tensor>(m, std::string("tensorField"));
 
-    auto stf = declare_fields<symmTensor>(m, std::string("symmTensorField"));
+    auto tf = declare_fields<tensor>(m, std::string("tensorField"))
+    // .def("__iand__", [](Field<tensor>& self, const vector& s) {return Field<vector>(self & s);})
+    // .def("__iand__", [](Field<tensor>& self, const Field<vector>& sf)
+    // {
+    //     return Field<vector>(self & sf);
+    // })
+    ;
+
+
+    auto stf = declare_fields<symmTensor>(m, std::string("symmTensorField"))
+    // .def("__iand__", [](Field<symmTensor>& self, const vector& s) {return Field<vector>(self & s);})
+    // .def("__iand__", [](Field<symmTensor>& self, const Field<vector>& sf)
+    // {
+    //     return Field<vector>(self & sf);
+    // })
+    ;
+
 
 
     m.def("sum",declare_sum<scalar>);
