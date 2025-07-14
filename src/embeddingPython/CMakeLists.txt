@@ -19,14 +19,13 @@ set_target_properties(embPython PROPERTIES
 
 # Link OpenFOAM and Python libraries
 target_link_libraries(embPython PUBLIC
-    ${OPENFOAM_LIBRARIES}
+    OpenFOAM::api
     Python::Python
 )
 
 # Add include directories
 target_include_directories(embPython PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${OPENFOAM_INCLUDE_DIRS}
 )
 
 # Install the library

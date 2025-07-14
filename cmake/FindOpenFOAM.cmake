@@ -23,9 +23,15 @@ if(DEFINED ENV{FOAM_SRC})
             "${FOAM_SRC}/meshTools/lnInclude"
             "${FOAM_SRC}/OpenFOAM/lnInclude"
             "${FOAM_SRC}/OSspecific/POSIX/lnInclude"
-            "${FOAM_SRC}/transportModels/lnInclude"
-            "${FOAM_SRC}/turbulenceModels/lnInclude"
-            "${FOAM_SRC}/thermophysicalModels/lnInclude"
+            "${FOAM_SRC}/transportModels"
+            "${FOAM_SRC}/transportModels/incompressible/singlePhaseTransportModel"
+            "${FOAM_SRC}/TurbulenceModels/turbulenceModels/lnInclude"
+            "${FOAM_SRC}/TurbulenceModels/incompressible/lnInclude"
+            "${FOAM_SRC}/thermophysicalModels/basic/lnInclude"
+            "${FOAM_SRC}/fileFormats/lnInclude"
+            "${FOAM_SRC}/surfMesh/lnInclude"
+            "${FOAM_SRC}/lagrangian/basic/lnInclude"
+            "${FOAM_SRC}/dynamicMesh/lnInclude"
         )
         
         # Find OpenFOAM libraries
@@ -60,6 +66,38 @@ if(DEFINED ENV{FOAM_SRC})
             if(OPENFOAM_VERSION)
                 message(STATUS "OpenFOAM version: ${OPENFOAM_VERSION}")
             endif()
+            
+            # Create or configure OpenFOAM interface target
+            if(NOT TARGET OpenFOAM::api)
+                add_library(OpenFOAM::api INTERFACE IMPORTED)
+                target_include_directories(OpenFOAM::api INTERFACE ${OPENFOAM_INCLUDE_DIRS})
+                target_link_libraries(OpenFOAM::api INTERFACE ${OPENFOAM_LIBRARIES})
+                target_link_directories(OpenFOAM::api INTERFACE ${OPENFOAM_LIBRARY_DIRS})
+            endif()
+            
+            # Apply compile definitions (always needed regardless of target origin)
+            # Check if environment variables are set properly
+            if(NOT DEFINED ENV{WM_LABEL_SIZE})
+                message(FATAL_ERROR "WM_LABEL_SIZE environment variable not set. Please source OpenFOAM environment.")
+            endif()
+            if(NOT DEFINED ENV{WM_PRECISION_OPTION})
+                message(FATAL_ERROR "WM_PRECISION_OPTION environment variable not set. Please source OpenFOAM environment.")
+            endif()
+            if(NOT DEFINED ENV{FOAM_API})
+                message(FATAL_ERROR "FOAM_API environment variable not set. Please source OpenFOAM environment.")
+            endif()
+            
+            target_compile_definitions(OpenFOAM::api INTERFACE 
+                WM_LABEL_SIZE=$ENV{WM_LABEL_SIZE} 
+                NoRepository
+                WM_$ENV{WM_PRECISION_OPTION} 
+                OPENFOAM=$ENV{FOAM_API}
+            )
+            
+            # Debug: Print the values being used
+            message(STATUS "WM_LABEL_SIZE: $ENV{WM_LABEL_SIZE}")
+            message(STATUS "WM_PRECISION_OPTION: $ENV{WM_PRECISION_OPTION}")
+            message(STATUS "FOAM_API: $ENV{FOAM_API}")
         else()
             set(OPENFOAM_FOUND FALSE)
             message(FATAL_ERROR "OpenFOAM libraries not found in ${FOAM_LIBBIN}")

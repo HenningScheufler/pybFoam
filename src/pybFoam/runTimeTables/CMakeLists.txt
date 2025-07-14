@@ -20,13 +20,12 @@ set_target_properties(runTimeTables PROPERTIES
 
 # Link OpenFOAM libraries
 target_link_libraries(runTimeTables PRIVATE
-    ${OPENFOAM_LIBRARIES}
+    OpenFOAM::api
 )
 
 # Add include directories specific to this module
 target_include_directories(runTimeTables PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${OPENFOAM_INCLUDE_DIRS}
 )
 
 # Install the module

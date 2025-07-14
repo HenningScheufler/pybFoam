@@ -81,37 +81,37 @@ function(add_boost)
 endfunction()
 
 # Function to add ZMQ support
-function(add_zmq)
-    # First add libzmq (C library)
-    CPMAddPackage(
-        NAME libzmq
-        GITHUB_REPOSITORY zeromq/libzmq
-        VERSION ${LIBZMQ_VERSION}
-        OPTIONS
-            "ZMQ_BUILD_TESTS OFF"
-            "WITH_PERF_TOOL OFF"
-            "BUILD_SHARED ON"
-            "BUILD_STATIC OFF"
-            "ENABLE_CPACK OFF"
-    )
+# function(add_zmq)
+#     # First add libzmq (C library)
+#     CPMAddPackage(
+#         NAME libzmq
+#         GITHUB_REPOSITORY zeromq/libzmq
+#         VERSION ${LIBZMQ_VERSION}
+#         OPTIONS
+#             "ZMQ_BUILD_TESTS OFF"
+#             "WITH_PERF_TOOL OFF"
+#             "BUILD_SHARED ON"
+#             "BUILD_STATIC OFF"
+#             "ENABLE_CPACK OFF"
+#     )
     
-    # Then add cppzmq (C++ bindings)
-    CPMAddPackage(
-        NAME cppzmq
-        GITHUB_REPOSITORY zeromq/cppzmq
-        VERSION ${CPPZMQ_VERSION}
-        OPTIONS
-            "CPPZMQ_BUILD_TESTS OFF"
-    )
+#     # Then add cppzmq (C++ bindings)
+#     CPMAddPackage(
+#         NAME cppzmq
+#         GITHUB_REPOSITORY zeromq/cppzmq
+#         VERSION ${CPPZMQ_VERSION}
+#         OPTIONS
+#             "CPPZMQ_BUILD_TESTS OFF"
+#     )
     
-    if(libzmq_ADDED)
-        message(STATUS "Added libzmq ${LIBZMQ_VERSION}")
-    endif()
+#     if(libzmq_ADDED)
+#         message(STATUS "Added libzmq ${LIBZMQ_VERSION}")
+#     endif()
     
-    if(cppzmq_ADDED)
-        message(STATUS "Added cppzmq ${CPPZMQ_VERSION}")
-    endif()
-endfunction()
+#     if(cppzmq_ADDED)
+#         message(STATUS "Added cppzmq ${CPPZMQ_VERSION}")
+#     endif()
+# endfunction()
 
 # Function to add testing dependencies
 function(add_testing_deps)
@@ -148,10 +148,10 @@ function(configure_dependencies)
         add_boost()
     endif()
     
-    option(PYBFOAM_USE_ZMQ "Enable ZMQ support" ON)
-    if(PYBFOAM_USE_ZMQ)
-        add_zmq()
-    endif()
+    # option(PYBFOAM_USE_ZMQ "Enable ZMQ support" ON)
+    # if(PYBFOAM_USE_ZMQ)
+    #     add_zmq()
+    # endif()
     
     option(PYBFOAM_BUILD_TESTS "Build tests" ON)
     if(PYBFOAM_BUILD_TESTS)

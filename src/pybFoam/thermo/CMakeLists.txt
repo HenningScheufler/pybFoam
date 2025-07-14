@@ -20,13 +20,12 @@ set_target_properties(thermo PROPERTIES
 
 # Link OpenFOAM libraries
 target_link_libraries(thermo PRIVATE
-    ${OPENFOAM_LIBRARIES}
+    OpenFOAM::api
 )
 
 # Add include directories specific to this module
 target_include_directories(thermo PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${OPENFOAM_INCLUDE_DIRS}
 )
 
 # Install the module

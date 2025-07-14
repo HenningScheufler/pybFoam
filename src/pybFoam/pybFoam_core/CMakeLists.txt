@@ -29,13 +29,12 @@ set_target_properties(pybFoam_core PROPERTIES
 
 # Link OpenFOAM libraries
 target_link_libraries(pybFoam_core PRIVATE
-    ${OPENFOAM_LIBRARIES}
+    OpenFOAM::api
 )
 
 # Add include directories specific to this module
 target_include_directories(pybFoam_core PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${OPENFOAM_INCLUDE_DIRS}
 )
 
 # Install the module

@@ -5,7 +5,7 @@ add_executable(test-pythonNumpy test-pythonNumpy.C)
 
 # Link libraries
 target_link_libraries(test-pythonNumpy
-    ${OPENFOAM_LIBRARIES}
+    OpenFOAM::api
     embPython
     Python::Python
 )
@@ -13,7 +13,6 @@ target_link_libraries(test-pythonNumpy
 # Add include directories
 target_include_directories(test-pythonNumpy PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${OPENFOAM_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/src/embeddingPython/lnInclude
 )
 
