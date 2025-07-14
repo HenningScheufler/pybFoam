@@ -1,4 +1,4 @@
-PY_RPATH := -Wl,-rpath=/home/henning/miniconda3/envs/eci4foam/lib
+PY_RPATH := -Wl,-rpath=/home/henning/miniforge3/envs/pybfoam/lib
 
 
 EXE_INC = \

@@ -1,0 +1,35 @@
+# turbulence module CMakeLists.txt
+
+set(TURBULENCE_SOURCES
+    foam_turbulence.C
+    turbulence.C
+)
+
+set(TURBULENCE_HEADERS
+    foam_turbulence.H
+)
+
+# Create the pybind11 module
+pybind11_add_module(turbulence ${TURBULENCE_SOURCES})
+
+# Set target properties
+set_target_properties(turbulence PROPERTIES
+    CXX_VISIBILITY_PRESET "hidden"
+    VISIBILITY_INLINES_HIDDEN ON
+)
+
+# Link OpenFOAM libraries
+target_link_libraries(turbulence PRIVATE
+    ${OPENFOAM_LIBRARIES}
+)
+
+# Add include directories specific to this module
+target_include_directories(turbulence PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${OPENFOAM_INCLUDE_DIRS}
+)
+
+# Install the module
+install(TARGETS turbulence
+    LIBRARY DESTINATION "${Python_SITELIB}/pybFoam"
+)
