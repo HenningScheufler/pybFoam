@@ -25,9 +25,12 @@ if(DEFINED ENV{FOAM_SRC})
             "${FOAM_SRC}/OSspecific/POSIX/lnInclude"
             "${FOAM_SRC}/transportModels"
             "${FOAM_SRC}/transportModels/incompressible/singlePhaseTransportModel"
+            "${FOAM_SRC}/transportModels/compressible/lnInclude"
             "${FOAM_SRC}/TurbulenceModels/turbulenceModels/lnInclude"
             "${FOAM_SRC}/TurbulenceModels/incompressible/lnInclude"
+            "${FOAM_SRC}/TurbulenceModels/compressible/lnInclude"
             "${FOAM_SRC}/thermophysicalModels/basic/lnInclude"
+            "${FOAM_SRC}/thermophysicalModels/solidThermo/lnInclude"
             "${FOAM_SRC}/fileFormats/lnInclude"
             "${FOAM_SRC}/surfMesh/lnInclude"
             "${FOAM_SRC}/lagrangian/basic/lnInclude"
@@ -47,9 +50,10 @@ if(DEFINED ENV{FOAM_SRC})
                 OpenFOAM
                 finiteVolume
                 meshTools
-                transportModels
                 turbulenceModels
-                thermophysicalModels
+                fluidThermophysicalModels
+                compressibleTransportModels
+                incompressibleTransportModels
             )
             
             # Check OpenFOAM version

@@ -62,8 +62,8 @@ void AddPyDict(pybind11::module& m)
 
     py::class_<Foam::keyType>(m, "keyType")
     .def(py::init<const Foam::word &>())
-    .def(py::init([](std::string k) {
-        return Foam::keyType(Foam::word(k));
+    .def(py::init([](const std::string& str) {
+        return new Foam::keyType(Foam::word(str));
     }))
     ;
     
@@ -76,18 +76,12 @@ void AddPyDict(pybind11::module& m)
     
 
     py::class_<Foam::dictionary>(m, "dictionary")
-        .def(py::init([](const std::string file_name) {
-            return Foam::dictionary(file_name);
-        }))
+        .def(py::init<const std::string&>())
         .def_static("read",[](const std::string file_name) {
             return Foam::read_dictionary(file_name);
         })
-        .def(py::init([]() {
-            return Foam::dictionary();
-        }))
-        .def(py::init([](const Foam::dictionary& d) {
-            return Foam::dictionary(d);
-        }))
+        .def(py::init<>())
+        .def(py::init<const Foam::dictionary&>())
         .def("toc", &Foam::dictionary::toc)
         .def("clear", &Foam::dictionary::clear)
         .def("clear", &Foam::dictionary::clear)

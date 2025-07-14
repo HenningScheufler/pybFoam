@@ -21,17 +21,13 @@ find_package(OpenFOAM REQUIRED)
 # Add compiler flags for OpenFOAM compatibility
 add_compile_options(-Wno-old-style-cast)
 
-# Include directories
-include_directories(${OPENFOAM_INCLUDE_DIRS})
-link_directories(${OPENFOAM_LIBRARY_DIRS})
-
 # Add subdirectories
-add_subdirectory(src/embeddingPython)
+# add_subdirectory(src/embeddingPython)
 add_subdirectory(src/pybFoam)
 
-# Optional: Add applications
-add_subdirectory(application EXCLUDE_FROM_ALL)
+# # Optional: Add applications
+# add_subdirectory(application EXCLUDE_FROM_ALL)
 
-# Optional: Add tests
-enable_testing()
-add_subdirectory(testsuite EXCLUDE_FROM_ALL)
+# # Optional: Add tests
+# enable_testing()
+# add_subdirectory(testsuite EXCLUDE_FROM_ALL)
