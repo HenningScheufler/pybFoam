@@ -1,5 +1,6 @@
 import pytest
 import pybFoam
+from pybFoam import fvc, volScalarField, volVectorField, fvMesh, Time, vector
 import os
 import oftest
 from oftest import run_reset_case
@@ -20,15 +21,15 @@ class TestGroup:
     def test_fvc(self,change_test_dir):
 
         # init test case
-        time = pybFoam.Time(".", ".")
-        mesh = pybFoam.fvMesh(time)
-        p_rgh = pybFoam.volScalarField.read_field(mesh,"p_rgh")
-        U = pybFoam.volVectorField.read_field(mesh,"U")
+        time = Time(".", ".")
+        mesh = fvMesh(time)
+        p_rgh = volScalarField.read_field(mesh,"p_rgh")
+        U = volVectorField.read_field(mesh,"U")
 
-        grad_p = pybFoam.fvc.grad(p_rgh).geoField()
-        assert pybFoam.sum(grad_p["internalField"]) == pybFoam.vector(0,0,0)
+        grad_p = fvc.grad(p_rgh).geoField()
+        assert pybFoam.sum(grad_p["internalField"]) == vector(0,0,0)
         
-        div_U = pybFoam.fvc.div(U).geoField()
+        div_U = fvc.div(U).geoField()
         assert pybFoam.sum(div_U["internalField"]) == 0
 
         lap_p = pybFoam.fvc.laplacian(p_rgh).geoField()

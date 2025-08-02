@@ -54,6 +54,9 @@ if(DEFINED ENV{FOAM_SRC})
                 fluidThermophysicalModels
                 compressibleTransportModels
                 incompressibleTransportModels
+                compressibleTurbulenceModels
+                incompressibleTurbulenceModels
+                solidThermo
             )
             
             # Check OpenFOAM version

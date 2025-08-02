@@ -32,7 +32,8 @@ namespace Foam
     )
     {
         autoPtr<IFstream> dictFile(new IFstream(file_name));
-        return dictionary(dictFile(), true);
+        dictionary dict(dictFile(), true);
+        return dict;
     }
 
     template<class Type>
@@ -77,9 +78,10 @@ void AddPyDict(pybind11::module& m)
 
     py::class_<Foam::dictionary>(m, "dictionary")
         .def(py::init<const std::string&>())
-        .def_static("read",[](const std::string file_name) {
-            return Foam::read_dictionary(file_name);
-        })
+        .def_static("read", [](const std::string& filename) -> Foam::dictionary* {
+            // Allocate on heap and return pointer
+            return new Foam::dictionary(Foam::read_dictionary(filename));
+        }, py::return_value_policy::take_ownership)
         .def(py::init<>())
         .def(py::init<const Foam::dictionary&>())
         .def("toc", &Foam::dictionary::toc)

@@ -29,6 +29,15 @@ target_include_directories(fvc PRIVATE
 )
 
 # Install the module
-install(TARGETS fvc
-    LIBRARY DESTINATION "${Python_SITELIB}/pybFoam"
-)
+if(DEFINED SKBUILD)
+    # scikit-build-core manages the installation
+    install(TARGETS fvc
+        LIBRARY DESTINATION pybFoam
+        COMPONENT python
+    )
+else()
+    # Standalone build - install to Python site-packages
+    install(TARGETS fvc
+        LIBRARY DESTINATION "${Python_SITELIB}/pybFoam"
+    )
+endif()

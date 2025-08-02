@@ -1,9 +1,0 @@
-#!/bin/bash
-cd "${0%/*}" || exit                                # Run from this directory
-
-
-
-rm -r lnInclude
-mkdir lnInclude
-
-conan install . -s compiler=gcc -s compiler.libcxx=libstdc++11 --build

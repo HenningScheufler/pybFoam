@@ -29,6 +29,15 @@ target_include_directories(runTimeTables PRIVATE
 )
 
 # Install the module
-install(TARGETS runTimeTables
-    LIBRARY DESTINATION "${Python_SITELIB}/pybFoam"
-)
+if(DEFINED SKBUILD)
+    # scikit-build-core manages the installation
+    install(TARGETS runTimeTables
+        LIBRARY DESTINATION pybFoam
+        COMPONENT python
+    )
+else()
+    # Standalone build - install to Python site-packages
+    install(TARGETS runTimeTables
+        LIBRARY DESTINATION "${Python_SITELIB}/pybFoam"
+    )
+endif()

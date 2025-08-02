@@ -1,6 +1,0 @@
-conan 
-oftest 
-pyzmq
-pybind11
-mypy
-pydantic

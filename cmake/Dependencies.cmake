@@ -24,10 +24,6 @@ set(CPM_LOCAL_PACKAGES_ONLY OFF)
 
 # Define dependency versions
 set(PYBIND11_VERSION 2.11.1)
-set(NLOHMANN_JSON_VERSION 3.11.2)
-set(BOOST_VERSION 1.82.0)
-set(CPPZMQ_VERSION 4.10.0)
-set(LIBZMQ_VERSION 4.3.4)
 
 # Function to add pybind11
 function(add_pybind11)
@@ -45,73 +41,6 @@ function(add_pybind11)
         message(STATUS "Added pybind11 ${PYBIND11_VERSION}")
     endif()
 endfunction()
-
-# Function to add nlohmann/json
-function(add_nlohmann_json)
-    CPMAddPackage(
-        NAME nlohmann_json
-        GITHUB_REPOSITORY nlohmann/json
-        VERSION ${NLOHMANN_JSON_VERSION}
-        OPTIONS
-            "JSON_BuildTests OFF"
-            "JSON_Install ON"
-            "JSON_MultipleHeaders OFF"
-    )
-    
-    if(nlohmann_json_ADDED)
-        message(STATUS "Added nlohmann/json ${NLOHMANN_JSON_VERSION}")
-    endif()
-endfunction()
-
-# Function to add Boost (selective libraries)
-function(add_boost)
-    CPMAddPackage(
-        NAME Boost
-        GITHUB_REPOSITORY boostorg/boost
-        VERSION ${BOOST_VERSION}
-        OPTIONS
-            "BOOST_ENABLE_CMAKE ON"
-            "BOOST_INCLUDE_LIBRARIES regex;system;filesystem;program_options"
-            "BUILD_TESTING OFF"
-    )
-    
-    if(Boost_ADDED)
-        message(STATUS "Added Boost ${BOOST_VERSION}")
-    endif()
-endfunction()
-
-# Function to add ZMQ support
-# function(add_zmq)
-#     # First add libzmq (C library)
-#     CPMAddPackage(
-#         NAME libzmq
-#         GITHUB_REPOSITORY zeromq/libzmq
-#         VERSION ${LIBZMQ_VERSION}
-#         OPTIONS
-#             "ZMQ_BUILD_TESTS OFF"
-#             "WITH_PERF_TOOL OFF"
-#             "BUILD_SHARED ON"
-#             "BUILD_STATIC OFF"
-#             "ENABLE_CPACK OFF"
-#     )
-    
-#     # Then add cppzmq (C++ bindings)
-#     CPMAddPackage(
-#         NAME cppzmq
-#         GITHUB_REPOSITORY zeromq/cppzmq
-#         VERSION ${CPPZMQ_VERSION}
-#         OPTIONS
-#             "CPPZMQ_BUILD_TESTS OFF"
-#     )
-    
-#     if(libzmq_ADDED)
-#         message(STATUS "Added libzmq ${LIBZMQ_VERSION}")
-#     endif()
-    
-#     if(cppzmq_ADDED)
-#         message(STATUS "Added cppzmq ${CPPZMQ_VERSION}")
-#     endif()
-# endfunction()
 
 # Function to add testing dependencies
 function(add_testing_deps)
@@ -136,23 +65,7 @@ function(configure_dependencies)
     
     # Essential dependencies
     add_pybind11()
-    
-    # Optional dependencies (can be controlled by options)
-    option(PYBFOAM_USE_JSON "Enable JSON support" ON)
-    if(PYBFOAM_USE_JSON)
-        add_nlohmann_json()
-    endif()
-    
-    option(PYBFOAM_USE_BOOST "Enable Boost support" ON)
-    if(PYBFOAM_USE_BOOST)
-        add_boost()
-    endif()
-    
-    # option(PYBFOAM_USE_ZMQ "Enable ZMQ support" ON)
-    # if(PYBFOAM_USE_ZMQ)
-    #     add_zmq()
-    # endif()
-    
+
     option(PYBFOAM_BUILD_TESTS "Build tests" ON)
     if(PYBFOAM_BUILD_TESTS)
         add_testing_deps()

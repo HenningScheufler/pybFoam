@@ -38,6 +38,15 @@ target_include_directories(pybFoam_core PRIVATE
 )
 
 # Install the module
-install(TARGETS pybFoam_core
-    LIBRARY DESTINATION "${Python_SITELIB}/pybFoam"
-)
+if(DEFINED SKBUILD)
+    # scikit-build-core manages the installation
+    install(TARGETS pybFoam_core
+        LIBRARY DESTINATION pybFoam
+        COMPONENT python
+    )
+else()
+    # Standalone build - install to Python site-packages
+    install(TARGETS pybFoam_core
+        LIBRARY DESTINATION "${Python_SITELIB}/pybFoam"
+    )
+endif()
