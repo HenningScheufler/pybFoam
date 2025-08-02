@@ -1,4 +1,0 @@
-foam_turbulence.C
-turbulence.C
-
-LIB = turbulence

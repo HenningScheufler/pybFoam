@@ -20,7 +20,9 @@ set_target_properties(thermo PROPERTIES
 
 # Link OpenFOAM libraries
 target_link_libraries(thermo PRIVATE
-    OpenFOAM::api
+    OpenFOAM::thermo
+    OpenFOAM::finiteVolume
+    OpenFOAM::transport
 )
 
 # Add include directories specific to this module

@@ -20,7 +20,9 @@ set_target_properties(turbulence PROPERTIES
 
 # Link OpenFOAM libraries
 target_link_libraries(turbulence PRIVATE
-    OpenFOAM::api
+    OpenFOAM::turbulence
+    OpenFOAM::finiteVolume
+    OpenFOAM::transport
 )
 
 # Add include directories specific to this module

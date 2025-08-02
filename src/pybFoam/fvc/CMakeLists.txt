@@ -20,7 +20,7 @@ set_target_properties(fvc PROPERTIES
 
 # Link OpenFOAM libraries
 target_link_libraries(fvc PRIVATE
-    OpenFOAM::api
+    OpenFOAM::finiteVolume
 )
 
 # Add include directories specific to this module

@@ -29,7 +29,7 @@ set_target_properties(pybFoam_core PROPERTIES
 
 # Link OpenFOAM libraries
 target_link_libraries(pybFoam_core PRIVATE
-    OpenFOAM::api
+    OpenFOAM::finiteVolume
 )
 
 # Add include directories specific to this module

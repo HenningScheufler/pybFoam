@@ -1,4 +1,0 @@
-foam_fvc.C
-fvc.C
-
-LIB = fvc

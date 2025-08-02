@@ -1,4 +1,0 @@
-foam_thermo.C
-thermo.C
-
-LIB = thermo
