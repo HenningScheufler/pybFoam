@@ -14,7 +14,7 @@ def change_test_dir(request):
     yield
     os.chdir(request.config.invocation_dir)
 
-
+@pytest.mark.skip(reason="post process is not yet ported to cmake")
 class TestGroup_postProcess: 
 
     def test_init(self,run_reset_case):

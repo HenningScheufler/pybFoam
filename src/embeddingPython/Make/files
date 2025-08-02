@@ -1,3 +1,0 @@
-pyInterp.C
-
-LIB = $(FOAM_USER_LIBBIN)/libembPython
