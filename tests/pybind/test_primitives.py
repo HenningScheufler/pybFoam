@@ -2,7 +2,7 @@ import pytest
 from pybFoam import vector, Word, tensor, mag, scalarField, vectorField, tensorField
 import numpy as np
 
-def test_word():
+def test_mag():
     s = -10
     assert mag(s) == 10
 
