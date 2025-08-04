@@ -3,8 +3,8 @@ import sys
 import pybFoam 
 from pybFoam import (
     volScalarField, volVectorField, surfaceScalarField, fvScalarMatrix, fvVectorMatrix,
-    fvMesh, Time, fvc, fvm, Word,
-    solve, adjustPhi, constrainPressure, createPhi,
+    fvMesh, Time, fvc, fvm, Word, dictionary, Info,
+    solve, adjustPhi, constrainPressure, createPhi, setRefCell,
     constrainHbyA, pisoControl
 )
 
@@ -23,13 +23,15 @@ def main(argv):
     p, U, phi, nu = create_fields(mesh)
 
     # Optional: pressure reference
-    pRefCell = 0
-    pRefValue = 0.0
+
+    fvSolution = dictionary.read("system/fvSolution")
+    pRefCell, pRefValue = setRefCell(p, fvSolution.subDict("PISO"))
+    mesh.setFluxRequired(Word("p"))
 
     piso = pisoControl(mesh)
 
     while runTime.loop():
-        print(f"Time = {runTime.timeName()}")
+        Info(f"Time = {runTime.timeName()}")
 
         # Courant number computation assumed handled elsewhere
         # (optionally bind and call selectCourantNo)
@@ -55,13 +57,12 @@ def main(argv):
 
             while piso.correctNonOrthogonal():
                 pEqn = fvScalarMatrix(fvm.laplacian(rAU, p) - fvc.div(phiHbyA))
-                pEqn.setReference(pRefCell, pRefValue,False)
+                pEqn.setReference(pRefCell, pRefValue, False)
                 pEqn.solve(p.select(piso.finalInnerIter()))
 
                 if piso.finalNonOrthogonalIter():
                     phi.assign(phiHbyA - pEqn.flux())
 
-            print("corrected p")
             # Optionally include continuityErrs()
             U.assign(HbyA - rAU * fvc.grad(p))
             U.correctBoundaryConditions()
@@ -69,7 +70,7 @@ def main(argv):
         runTime.write(True)
         runTime.printExecutionTime()
 
-    print("End")
+    Info("End")
 
 if __name__ == "__main__":
     main(sys.argv)

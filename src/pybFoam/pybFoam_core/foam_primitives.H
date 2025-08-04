@@ -112,4 +112,4 @@ py::class_<Type> declare_vectorspace(py::module &m, std::string &className);
 void  AddFoamPrimitives(py::module& m);
 
 
-#endif // foam_dict  defined 
+#endif 

@@ -1,6 +1,7 @@
 # pybFoam_core module CMakeLists.txt
 
 set(PYBFOAM_CORE_SOURCES
+    bind_io.cpp
     foam_dict.C
     foam_mesh.C
     foam_primitives.C
@@ -14,6 +15,7 @@ set(PYBFOAM_CORE_SOURCES
 )
 
 set(PYBFOAM_CORE_HEADERS
+    bind_io.hpp
     foam_dict.H
     foam_mesh.H
     foam_primitives.H

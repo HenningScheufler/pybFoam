@@ -71,11 +71,10 @@ void AddPyDict(pybind11::module& m)
     py::class_<Foam::entry>(m, "entry")
     ;
 
-    py::class_<Foam::dictionaryEntry, Foam::entry>(m, "dictionaryEntry")
-    .def(py::init<const Foam::keyType &,const Foam::dictionary &,const Foam::dictionary &>())
-    ;
+    // py::class_<Foam::dictionaryEntry, Foam::entry, Foam::dictionary>(m, "dictionaryEntry")
+    // .def(py::init<const Foam::keyType &,const Foam::dictionary &,const Foam::dictionary &>())
+    // ;
     
-
     py::class_<Foam::dictionary>(m, "dictionary")
         .def(py::init<const std::string&>())
         .def_static("read", [](const std::string& filename) -> Foam::dictionary* {
@@ -91,10 +90,10 @@ void AddPyDict(pybind11::module& m)
         {
             return self.isDict(Foam::word(key));
         })
-        .def("subDict", [](const Foam::dictionary& self, const std::string key)
+        .def("subDict", [](Foam::dictionary& self, const std::string key)
         {
-            return self.subDict(Foam::word(key));
-        },py::return_value_policy::reference)
+            return static_cast<Foam::dictionary*>(&self.subDict(Foam::word(key)));
+        },py::return_value_policy::reference_internal)
         .def("subDictOrAdd", [](Foam::dictionary& self, const std::string key)
         {
             return self.subDictOrAdd(Foam::word(key));

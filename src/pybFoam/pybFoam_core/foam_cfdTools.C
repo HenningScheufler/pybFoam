@@ -3,7 +3,7 @@
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
-	unofficial extension to OpenFOAM.
+    unofficial extension to OpenFOAM.
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -20,6 +20,7 @@ License
 #include "foam_cfdTools.H"
 
 #include "adjustPhi.H"
+#include "findRefCell.H"
 #include "constrainPressure.H"
 #include "constrainHbyA.H"
 #include "fvc.H"
@@ -27,47 +28,47 @@ License
 namespace Foam
 {
 
-
-template<typename RAUType>
-void declare_constrainPressure(pybind11::module& m)
-{
-    // Declare the function in the module
-    namespace py = pybind11;
-        m.def ("constrainPressure",
-            [](volScalarField& p, const volVectorField& U, const surfaceScalarField& phiHbyA, const RAUType& rAU)
-            {
-                return constrainPressure(p, U, phiHbyA, rAU);
-            },
-            py::arg("p"), py::arg("U"), py::arg("phiHbyA"), py::arg("rAU"));
-
-}
-
-void AddPycfdTools(pybind11::module& m)
-{
-    namespace py = pybind11;
-
-    m.def("adjustPhi", &adjustPhi);
-    declare_constrainPressure<volScalarField>(m);
-    m.def("constrainHbyA", &constrainHbyA);
-    m.def("createPhi", [](const volVectorField& U)
+    template <typename RAUType>
+    void declare_constrainPressure(pybind11::module &m)
     {
-        const fvMesh& mesh = U.mesh();
-        surfaceScalarField phi
-        (
-            IOobject
+        // Declare the function in the module
+        namespace py = pybind11;
+        m.def("constrainPressure", [](volScalarField &p, const volVectorField &U, const surfaceScalarField &phiHbyA, const RAUType &rAU)
+              { return constrainPressure(p, U, phiHbyA, rAU); }, py::arg("p"), py::arg("U"), py::arg("phiHbyA"), py::arg("rAU"));
+    }
+
+    void AddPycfdTools(pybind11::module &m)
+    {
+        namespace py = pybind11;
+
+        m.def("adjustPhi", &adjustPhi);
+        declare_constrainPressure<volScalarField>(m);
+        m.def("constrainHbyA", &constrainHbyA);
+        m.def("createPhi", [](const volVectorField &U)
+        {
+            const fvMesh& mesh = U.mesh();
+            surfaceScalarField phi
             (
-                "phi",
-                mesh.time().timeName(),
-                mesh,
-                IOobject::READ_IF_PRESENT,
-                IOobject::AUTO_WRITE
-            ),
-            fvc::flux(U)
-        );
-        return phi;
-    }, py::arg("U"));
-}
+                IOobject
+                (
+                    "phi",
+                    mesh.time().timeName(),
+                    mesh,
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                fvc::flux(U)
+            );
+            return phi;
+        }, py::arg("U"));
+
+        m.def("setRefCell", [](volScalarField &p, const Foam::dictionary &dict, const bool forceReference)
+        {
+            label pRefCell = 0;
+            scalar pRefValue = 0.0;
+            setRefCell(p, dict, pRefCell, pRefValue, forceReference);
+            return std::make_tuple(pRefCell, pRefValue);
+        }, py::arg("p"), py::arg("dict"), py::arg("forceReference") = false);
+    }
 
 } // namespace Foam
-
-

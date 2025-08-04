@@ -48,4 +48,4 @@ void declare_dimensioned(py::module &m, std::string className);
 void  AddPyDimensioned(pybind11::module& m);
 
 
-#endif // foam_dict  defined 
+#endif 

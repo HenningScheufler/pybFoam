@@ -41,3 +41,6 @@ def test_ofdict(change_test_dir):
     d.set("wordList2",pybFoam.wordList(["word3","word4"]))
 
     assert  d.get_wordList("wordList2").list() == ["word3", "word4"]
+
+    subDict = d.subDict("subDict")
+    assert subDict.get_word("word2") == "word2"

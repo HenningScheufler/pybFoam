@@ -136,5 +136,7 @@ void AddPyMesh(pybind11::module &m)
         .def("C", &Foam::fvMesh::C, py::return_value_policy::reference)
         .def("Cf", &Foam::fvMesh::Cf, py::return_value_policy::reference)
         .def("Sf", &Foam::fvMesh::Sf, py::return_value_policy::reference)
-        .def("magSf", &Foam::fvMesh::magSf, py::return_value_policy::reference);
+        .def("magSf", &Foam::fvMesh::magSf, py::return_value_policy::reference)
+        .def("setFluxRequired", &Foam::fvMesh::setFluxRequired)
+        ;
 }

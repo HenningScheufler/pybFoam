@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2022, Henning Scheufler
+            Copyright (c) 20212, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
-	unofficial extension to OpenFOAM.
+    unofficial extension to OpenFOAM.
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -15,37 +15,23 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    Foam::pyInterp
-
-Description
-
-Author
-    Henning Scheufler, all rights reserved.
-
-SourceFiles
-
-
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_turbulence
-#define foam_turbulence
+#include "bind_io.hpp"
 
-// System includes
-#include <pybind11/pybind11.h>
-#include "Field.H"
-#include "scalar.H"
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include "messageStream.H"
 
-
-namespace py = pybind11;
 
 namespace Foam
 {
+    void AddIO(pybind11::module &m)
+    {
+        m.def("Info", [](const std::string& message)
+        {
+            Info << word(message) << endl;
+        });
 
-void  AddPyTurbulence(py::module& m);
+    }
+    
 
-}
-
-#endif
+} // namespace Foam

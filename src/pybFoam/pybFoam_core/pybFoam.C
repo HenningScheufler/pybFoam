@@ -18,6 +18,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include <pybind11/pybind11.h>
+#include "bind_io.hpp"
 #include "foam_dict.H"
 #include "foam_mesh.H"
 #include "foam_primitives.H"
@@ -34,6 +35,7 @@ namespace py = pybind11;
 PYBIND11_MODULE(pybFoam_core, m) {
     m.doc() = "python bindings for openfoam"; // optional module docstring
 
+    Foam::AddIO(m);
     AddPyDict(m);
     AddPyMesh(m);
     AddFoamPrimitives(m);
