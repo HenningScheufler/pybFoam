@@ -97,3 +97,7 @@ CMAKE_CXX_STANDARD = "17"
 # Generate stubs for better IDE support
 [tool.scikit-build.experimental]
 generate-type-stubs = true
+
+[tool.pytest.ini_options]
+addopts = "-ra -v"
+testpaths = ["tests"]

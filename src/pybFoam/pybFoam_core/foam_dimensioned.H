@@ -28,23 +28,24 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_fvc
-#define foam_fvc
+#ifndef foam_dimensioned
+#define foam_dimensioned
 
 // System includes
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include "word.H"
-#include "scalar.H"
-#include "vector.H"
-#include "tensor.H"
-#include "symmTensor.H"
+
 
 namespace Foam
 {
     namespace py = pybind11;
 
-    void  AddPyFVC(py::module& m);
+template<class Type>
+void declare_dimensioned(py::module &m, std::string className);
+
+
 }
 
-#endif // foam_fvc  defined 
+void  AddPyDimensioned(pybind11::module& m);
+
+
+#endif // foam_dict  defined 

@@ -54,6 +54,8 @@ void Foam::AddPyFVC(pybind11::module& fvc)
     fvc.def("div", [](const volSymmTensorField& vf){return fvc::div(vf);});
     fvc.def("div", [](const tmp<volSymmTensorField>& vf){return fvc::div(vf);});
 
+    fvc.def("div", [](const surfaceScalarField& sf){return fvc::div(sf);});
+    fvc.def("div", [](const tmp<surfaceScalarField>& sf){return fvc::div(sf);});
     fvc.def("div", [](const surfaceVectorField& sf){return fvc::div(sf);});
     fvc.def("div", [](const tmp<surfaceVectorField>& sf){return fvc::div(sf);});
     fvc.def("div", [](const surfaceTensorField& sf){return fvc::div(sf);});
@@ -142,6 +144,9 @@ void Foam::AddPyFVC(pybind11::module& fvc)
 
     fvc.def("flux", [](const surfaceScalarField& ssf,const volVectorField& vf){return fvc::flux(ssf,vf);});
     fvc.def("flux", [](const surfaceScalarField& ssf,const tmp<volVectorField>& vf){return fvc::flux(ssf,vf);});
+
+    // ddtCorr
+    fvc.def("ddtCorr", [](const volVectorField& vf, const surfaceScalarField& ssf){return fvc::ddtCorr(vf,ssf);});
 }
 
 // }

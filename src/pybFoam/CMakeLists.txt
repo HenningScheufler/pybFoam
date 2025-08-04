@@ -4,6 +4,7 @@
 add_subdirectory(pybFoam_core)
 add_subdirectory(runTimeTables)
 add_subdirectory(fvc)
+add_subdirectory(fvm)
 add_subdirectory(thermo)
 add_subdirectory(turbulence)
 

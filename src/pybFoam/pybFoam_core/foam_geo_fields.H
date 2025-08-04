@@ -90,8 +90,8 @@ GeometricField<Type, PatchField, GeoMesh> read_geoField
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-py::class_< GeometricField<Type, PatchField, GeoMesh>>
-declare_geofields(py::module &m, std::string &className);
+auto
+declare_geofields(py::module &m, std::string className);
 
 template<class Type, template<class> class PatchField, class GeoMesh>
 GeometricField<scalar, PatchField, GeoMesh>

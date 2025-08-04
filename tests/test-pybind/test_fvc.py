@@ -26,17 +26,17 @@ class TestGroup:
         p_rgh = volScalarField.read_field(mesh,"p_rgh")
         U = volVectorField.read_field(mesh,"U")
 
-        grad_p = fvc.grad(p_rgh).geoField()
+        grad_p = fvc.grad(p_rgh)()
         assert pybFoam.sum(grad_p["internalField"]) == vector(0,0,0)
         
-        div_U = fvc.div(U).geoField()
+        div_U = fvc.div(U)()
         assert pybFoam.sum(div_U["internalField"]) == 0
 
-        lap_p = pybFoam.fvc.laplacian(p_rgh).geoField()
+        lap_p = pybFoam.fvc.laplacian(p_rgh)()
         assert pybFoam.sum(lap_p["internalField"]) == 0.0
 
-        phi = pybFoam.fvc.flux(U).geoField()
-        div_phiU = pybFoam.fvc.div(phi,U).geoField()
-        div_phigradP = pybFoam.fvc.div(phi,pybFoam.fvc.grad(p_rgh)).geoField()
+        phi = pybFoam.fvc.flux(U)()
+        div_phiU = pybFoam.fvc.div(phi,U)()
+        div_phigradP = pybFoam.fvc.div(phi,pybFoam.fvc.grad(p_rgh))()
         assert pybFoam.sum(div_phiU["internalField"]) == pybFoam.vector(0,0,0)
         assert pybFoam.sum(div_phigradP["internalField"]) == pybFoam.vector(0,0,0)

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 20212, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -17,30 +17,31 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include <pybind11/pybind11.h>
-#include "foam_dict.H"
-#include "foam_mesh.H"
-#include "foam_primitives.H"
 #include "foam_dimensioned.H"
-#include "foam_fields.H"
-#include "foam_geo_fields.H"
-#include "foam_fvMatrix.H"
-#include "foam_control.H"
-#include "foam_cfdTools.H"
+#include "dimensionedType.H"
 
-namespace py = pybind11;
+namespace Foam
+{
+
+    template<class Type>
+    void declare_dimensioned(py::module &m, std::string className)
+    {
+        py::class_<dimensioned<Type>>(m, className.c_str())
+            .def(py::init<const word&,  const dimensionSet, const Type&>())
+            // .def("name", &dimensioned<Type>::name, py::return_value_policy::reference)
+            // .def("dimensions", &dimensioned<Type>::dimensions)
+            // .def("value", &dimensioned<Type>::value, py::return_value_policy::reference)
+            ;
+    }
+
+}
 
 
-PYBIND11_MODULE(pybFoam_core, m) {
-    m.doc() = "python bindings for openfoam"; // optional module docstring
+void AddPyDimensioned(pybind11::module& m)
+{
 
-    AddPyDict(m);
-    AddPyMesh(m);
-    AddFoamPrimitives(m);
-    AddPyDimensioned(m);
-    Foam::AddFoamFields(m);
-    Foam::AddPyGeoFields(m);
-    Foam::AddPyfvMatrix(m);
-    Foam::AddPyControl(m);
-    Foam::AddPycfdTools(m);
+    Foam::declare_dimensioned<Foam::scalar>(m, "DimensionedScalarField");
+    Foam::declare_dimensioned<Foam::vector>(m, "DimensionedVectorField");
+    Foam::declare_dimensioned<Foam::tensor>(m, "DimensionedTensorField");
+
 }

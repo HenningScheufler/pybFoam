@@ -4,8 +4,12 @@ set(PYBFOAM_CORE_SOURCES
     foam_dict.C
     foam_mesh.C
     foam_primitives.C
+    foam_dimensioned.C
     foam_fields.C
     foam_geo_fields.C
+    foam_fvMatrix.C
+    foam_control.C
+    foam_cfdTools.C
     pybFoam.C
 )
 
@@ -13,9 +17,12 @@ set(PYBFOAM_CORE_HEADERS
     foam_dict.H
     foam_mesh.H
     foam_primitives.H
+    foam_dimensioned.H
     foam_fields.H
     foam_geo_fields.H
-    foam_fvc.H
+    foam_fvMatrix.H
+    foam_control.H
+    foam_cfdTools.H
 )
 
 # Create the pybind11 module

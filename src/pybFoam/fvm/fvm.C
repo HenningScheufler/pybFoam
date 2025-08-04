@@ -18,29 +18,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include <pybind11/pybind11.h>
-#include "foam_dict.H"
-#include "foam_mesh.H"
-#include "foam_primitives.H"
-#include "foam_dimensioned.H"
-#include "foam_fields.H"
-#include "foam_geo_fields.H"
-#include "foam_fvMatrix.H"
-#include "foam_control.H"
-#include "foam_cfdTools.H"
+
+#include "foam_fvm.H"
 
 namespace py = pybind11;
 
 
-PYBIND11_MODULE(pybFoam_core, m) {
-    m.doc() = "python bindings for openfoam"; // optional module docstring
+PYBIND11_MODULE(fvm, fvm) {
+    fvm.doc() = "finite volume method"; // optional module docstring
 
-    AddPyDict(m);
-    AddPyMesh(m);
-    AddFoamPrimitives(m);
-    AddPyDimensioned(m);
-    Foam::AddFoamFields(m);
-    Foam::AddPyGeoFields(m);
-    Foam::AddPyfvMatrix(m);
-    Foam::AddPyControl(m);
-    Foam::AddPycfdTools(m);
+    Foam::AddPyFVM(fvm);
 }

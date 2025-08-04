@@ -19,6 +19,11 @@ except ImportError as e:
     raise ImportError(f"Could not import fvc module. Make sure OpenFOAM environment is sourced: {e}")
 
 try:
+    from . import fvm
+except ImportError as e:
+    raise ImportError(f"Could not import fvm module. Make sure OpenFOAM environment is sourced: {e}")
+
+try:
     from . import runTimeTables
 except ImportError as e:
     raise ImportError(f"Could not import runTimeTables module. Make sure OpenFOAM environment is sourced: {e}")
