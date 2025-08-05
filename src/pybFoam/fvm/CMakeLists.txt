@@ -1,12 +1,12 @@
 # fvm module CMakeLists.txt
 
 set(FVM_SOURCES
-    foam_fvm.C
-    fvm.C
+    bind_fvm.cpp
+    fvm.cpp
 )
 
 set(FVM_HEADERS
-    foam_fvm.H
+    bind_fvm.hpp
 )
 
 # Create the pybind11 module

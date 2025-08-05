@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_thermo.H"
+#include "bind_thermo.hpp"
 #include "instantList.H"
 #include "fluidThermo.H"
 #include "solidThermo.H"
@@ -30,7 +30,7 @@ namespace py = pybind11;
 template <typename... Args>
 using overload_cast_ = py::detail::overload_cast_impl<Args...>;
 
-void Foam::AddPyThermo(py::module& m)
+void Foam::bindThermo(py::module& m)
 {
 
 

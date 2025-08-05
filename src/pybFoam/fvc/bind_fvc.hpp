@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2022, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -15,17 +15,35 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::bind_fvc
+
+Description
+
+Author
+    Henning Scheufler, all rights reserved.
+
+SourceFiles
+
+
 \*---------------------------------------------------------------------------*/
 
+#ifndef bind_fvc
+#define bind_fvc
+
+// System includes
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include "word.H"
+#include "scalar.H"
+#include "vector.H"
+#include "tensor.H"
+#include "symmTensor.H"
 
-#include "foam_turbulence.H"
+namespace Foam
+{
 
-namespace py = pybind11;
-
-
-PYBIND11_MODULE(turbulence, turbulence) {
-    turbulence.doc() = "openfoam turbulence package"; // optional module docstring
-
-    Foam::AddPyTurbulence(turbulence);
+    void  bindFVC(pybind11::module& fvc);
 }
+
+#endif // bind_fvc  defined 

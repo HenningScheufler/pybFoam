@@ -1,12 +1,12 @@
 # thermo module CMakeLists.txt
 
 set(THERMO_SOURCES
-    foam_thermo.C
-    thermo.C
+    bind_thermo.cpp
+    thermo.cpp
 )
 
 set(THERMO_HEADERS
-    foam_thermo.H
+    bind_thermo.hpp
 )
 
 # Create the pybind11 module

@@ -1,12 +1,12 @@
 # turbulence module CMakeLists.txt
 
 set(TURBULENCE_SOURCES
-    foam_turbulence.C
-    turbulence.C
+    bind_turbulence.cpp
+    turbulence.cpp
 )
 
 set(TURBULENCE_HEADERS
-    foam_turbulence.H
+    bind_turbulence.hpp
 )
 
 # Create the pybind11 module

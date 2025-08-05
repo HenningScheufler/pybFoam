@@ -1,12 +1,12 @@
 # fvc module CMakeLists.txt
 
 set(FVC_SOURCES
-    foam_fvc.C
-    fvc.C
+    bind_fvc.cpp
+    fvc.cpp
 )
 
 set(FVC_HEADERS
-    foam_fvc.H
+    bind_fvc.hpp
 )
 
 # Create the pybind11 module

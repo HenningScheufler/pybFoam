@@ -19,13 +19,13 @@ License
 
 #include <pybind11/pybind11.h>
 
-#include "foam_fvc.H"
+#include "bind_fvm.hpp"
 
 namespace py = pybind11;
 
 
-PYBIND11_MODULE(fvc, fvc) {
-    fvc.doc() = "finite volume calculus"; // optional module docstring
+PYBIND11_MODULE(fvm, fvm) {
+    fvm.doc() = "finite volume method"; // optional module docstring
 
-    Foam::AddPyFVC(fvc);
+    Foam::bindFVM(fvm);
 }

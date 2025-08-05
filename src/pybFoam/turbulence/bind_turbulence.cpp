@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_turbulence.H"
+#include "bind_turbulence.hpp"
 #include "instantList.H"
 
 #include "turbulentTransportModel.H"
@@ -35,7 +35,7 @@ namespace py = pybind11;
 template <typename... Args>
 using overload_cast_ = py::detail::overload_cast_impl<Args...>;
 
-void Foam::AddPyTurbulence(py::module& m)
+void Foam::bindTurbulence(py::module& m)
 {
 
     py::class_<incompressible::turbulenceModel>(m, "incompressibleTurbulenceModel")

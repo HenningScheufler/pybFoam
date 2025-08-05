@@ -16,7 +16,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::foam_fvc
+    Foam::bind_fvm
 
 Description
 
@@ -28,23 +28,28 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_fvc
-#define foam_fvc
+#ifndef bind_fvm
+#define bind_fvm
 
 // System includes
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include "word.H"
-#include "scalar.H"
-#include "vector.H"
-#include "tensor.H"
-#include "symmTensor.H"
 
 namespace Foam
 {
     namespace py = pybind11;
 
-    void  AddPyFVC(py::module& m);
+    template<class Type>
+    void bindFvmDdt(py::module_& fvm);
+
+    template<class Type>
+    void bindFvmDiv(py::module_& fvm);
+
+    template<class Type>
+    void bindFvmLaplacian(py::module_& fvm);
+
+    
+
+    void  bindFVM(py::module& m);
 }
 
-#endif // foam_fvc  defined 
+#endif // bind_fvm defined

@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_fvm.H"
+#include "bind_fvm.hpp"
 
 #include "fvm.H"
 
@@ -88,7 +88,7 @@ void bindFvmSources(py::module_& fvm)
 
 } // namespace Foam
 
-void Foam::AddPyFVM(pybind11::module& fvm)
+void Foam::bindFVM(pybind11::module& fvm)
 {
     namespace py = pybind11;
     // functions

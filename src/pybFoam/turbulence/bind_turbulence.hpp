@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2022, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -15,17 +15,37 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::pyInterp
+
+Description
+
+Author
+    Henning Scheufler, all rights reserved.
+
+SourceFiles
+
+
 \*---------------------------------------------------------------------------*/
 
-#include <pybind11/pybind11.h>
+#ifndef bind_turbulence
+#define bind_turbulence
 
-#include "foam_thermo.H"
+// System includes
+#include <pybind11/pybind11.h>
+#include "Field.H"
+#include "scalar.H"
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
+
 
 namespace py = pybind11;
 
+namespace Foam
+{
 
-PYBIND11_MODULE(thermo, thermo) {
-    thermo.doc() = "openfoam thermo package"; // optional module docstring
+void  bindTurbulence(py::module& m);
 
-    Foam::AddPyThermo(thermo);
 }
+
+#endif

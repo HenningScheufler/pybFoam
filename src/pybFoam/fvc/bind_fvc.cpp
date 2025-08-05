@@ -17,21 +17,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_fvc.H"
+#include "bind_fvc.hpp"
 
 #include "fvc.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 
 
-
-
-// namespace Foam
-// {
-
-
-
-void Foam::AddPyFVC(pybind11::module& fvc)
+void Foam::bindFVC(pybind11::module& fvc)
 {
     namespace py = pybind11;
     // functions
@@ -148,5 +141,3 @@ void Foam::AddPyFVC(pybind11::module& fvc)
     // ddtCorr
     fvc.def("ddtCorr", [](const volVectorField& vf, const surfaceScalarField& ssf){return fvc::ddtCorr(vf,ssf);});
 }
-
-// }
