@@ -2,29 +2,29 @@
 
 set(PYBFOAM_CORE_SOURCES
     bind_io.cpp
-    foam_dict.C
-    foam_mesh.C
-    foam_primitives.C
-    foam_dimensioned.C
-    foam_fields.C
-    foam_geo_fields.C
-    foam_fvMatrix.C
-    foam_control.C
-    foam_cfdTools.C
-    pybFoam.C
+    bind_dict.cpp
+    bind_mesh.cpp
+    bind_primitives.cpp
+    bind_dimensioned.cpp
+    bind_fields.cpp
+    bind_geo_fields.cpp
+    bind_fvMatrix.cpp
+    bind_control.cpp
+    bind_cfdTools.cpp
+    pybFoam.cpp
 )
 
 set(PYBFOAM_CORE_HEADERS
     bind_io.hpp
-    foam_dict.H
-    foam_mesh.H
-    foam_primitives.H
-    foam_dimensioned.H
-    foam_fields.H
-    foam_geo_fields.H
-    foam_fvMatrix.H
-    foam_control.H
-    foam_cfdTools.H
+    bind_dict.hpp
+    bind_mesh.hpp
+    bind_primitives.hpp
+    bind_dimensioned.hpp
+    bind_fields.hpp
+    bind_geo_fields.hpp
+    bind_fvMatrix.hpp
+    bind_control.hpp
+    bind_cfdTools.hpp
 )
 
 # Create the pybind11 module

@@ -17,8 +17,8 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_fields.H"
-#include "foam_primitives.H"
+#include "bind_fields.hpp"
+#include "bind_primitives.hpp"
 #include "instantList.H"
 
 
@@ -187,7 +187,7 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
 
 }
 
-void Foam::AddFoamFields(py::module& m)
+void Foam::bindFields(py::module& m)
 {
     py::class_<instantList>(m, "instantList")
         .def("__getitem__", [](const instantList& self, const label idx) {

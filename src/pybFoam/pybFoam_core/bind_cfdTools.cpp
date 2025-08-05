@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_cfdTools.H"
+#include "bind_cfdTools.hpp"
 
 #include "adjustPhi.H"
 #include "findRefCell.H"
@@ -37,7 +37,7 @@ namespace Foam
               { return constrainPressure(p, U, phiHbyA, rAU); }, py::arg("p"), py::arg("U"), py::arg("phiHbyA"), py::arg("rAU"));
     }
 
-    void AddPycfdTools(pybind11::module &m)
+    void bindCfdTools(pybind11::module &m)
     {
         namespace py = pybind11;
 

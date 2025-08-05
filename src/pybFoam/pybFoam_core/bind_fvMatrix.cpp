@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_fvMatrix.H"
+#include "bind_fvMatrix.hpp"
 #include "tmp.H"
 
 
@@ -167,7 +167,7 @@ void declare_solve(py::module &m)
 
 }
 
-void Foam::AddPyfvMatrix(py::module& m)
+void Foam::bindFvMatrix(py::module& m)
 {
     namespace py = pybind11;
 

@@ -28,24 +28,24 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_dimensioned
-#define foam_dimensioned
+#ifndef foam_Control
+#define foam_Control
 
 // System includes
 #include <pybind11/pybind11.h>
 
+#include "pisoControl.H"
+#include "pimpleControl.H"
+#include "simpleControl.H"
+
+namespace py = pybind11;
 
 namespace Foam
 {
-    namespace py = pybind11;
 
-template<class Type>
-void declare_dimensioned(py::module &m, std::string className);
 
+void  bindControl(pybind11::module& m);
 
 }
 
-void  AddPyDimensioned(pybind11::module& m);
-
-
-#endif 
+#endif // foam_geo_fields  defined 

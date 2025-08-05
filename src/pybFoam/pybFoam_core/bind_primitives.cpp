@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_primitives.H"
+#include "bind_primitives.hpp"
 
 #include "instant.H"
 
@@ -85,7 +85,7 @@ py::class_<Type> declare_vectorspace(py::module &m, std::string className) {
 
 }
 
-void AddFoamPrimitives(pybind11::module& m)
+void bindPrimitives(pybind11::module& m)
 {
     namespace py = pybind11;
 

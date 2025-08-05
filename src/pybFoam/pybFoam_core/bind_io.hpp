@@ -40,7 +40,7 @@ namespace py = pybind11;
 namespace Foam
 {
 
-void  AddIO(pybind11::module& m);
+void  bindIO(pybind11::module& m);
 
 }
 

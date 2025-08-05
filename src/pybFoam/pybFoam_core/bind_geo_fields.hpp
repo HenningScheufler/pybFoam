@@ -34,7 +34,7 @@ SourceFiles
 // System includes
 #include <pybind11/pybind11.h>
 
-#include "foam_mesh.H"
+#include "bind_mesh.hpp"
 #include "GeometricField.H"
 #include "volFields.H"
 #include "surfaceFields.H"
@@ -99,7 +99,7 @@ declare_mag(const GeometricField<Type, PatchField, GeoMesh>& geof);
 
 
 
-void  AddPyGeoFields(pybind11::module& m);
+void  bindGeoFields(pybind11::module& m);
 
 }
 

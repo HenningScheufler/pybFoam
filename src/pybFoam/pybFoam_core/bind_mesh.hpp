@@ -28,28 +28,38 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_fvMatrix
-#define foam_fvMatrix
+#ifndef foam_mesh
+#define foam_mesh
 
 // System includes
 #include <pybind11/pybind11.h>
+#include "fvMesh.H"
+#include "Time.H"
+#include "polyMesh.H"
+#include <pybind11/stl.h>
+#include "instantList.H"
+#include "timeSelector.H"
+#include <vector>
+#include "argList.H"
 
-#include "fvMatrix.H"
-
-namespace py = pybind11;
 
 namespace Foam
 {
 
-template<class Type>
-py::class_< fvMatrix<Type>>
-declare_fvMatrix(py::module &m, std::string className);
+    Foam::instantList selectTimes
+    ( 
+        Time& runTime,
+        const std::vector<std::string>& args
+    );
 
-template<class Type>
-void declare_solve(py::module &m);
+    Time* createTime(std::string rootPath = ".",std::string caseName= ".");
 
-void  AddPyfvMatrix(pybind11::module& m);
+    fvMesh* createMesh(const Time& time);
 
 }
 
-#endif // foam_geo_fields  defined 
+
+void  bindMesh(pybind11::module& m);
+
+
+#endif // foam_dict  defined 

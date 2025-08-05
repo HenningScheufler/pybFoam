@@ -28,24 +28,34 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_Control
-#define foam_Control
+#ifndef foam_dict
+#define foam_dict
 
 // System includes
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 
-#include "pisoControl.H"
-#include "pimpleControl.H"
-#include "simpleControl.H"
-
-namespace py = pybind11;
+#include "dictionary.H"
+#include "word.H"
+#include "tensor.H"
+#include "vector.H"
+#include "autoPtr.H"
+#include "IFstream.H"
+#include "Field.H"
 
 namespace Foam
 {
+    
+dictionary read_dictionary(const std::string& file_name);
 
+template<class Type>
+Type get(dictionary& dict, const std::string key);
 
-void  AddPyControl(pybind11::module& m);
 
 }
 
-#endif // foam_geo_fields  defined 
+void  bindDict(pybind11::module& m);
+
+
+#endif // foam_dict  defined 

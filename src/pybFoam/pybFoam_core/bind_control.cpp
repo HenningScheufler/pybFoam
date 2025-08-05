@@ -17,14 +17,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_control.H"
+#include "bind_control.hpp"
 #include "tmp.H"
 
 
 namespace Foam
 {
 
-void AddPyControl(pybind11::module& m)
+void bindControl(pybind11::module& m)
 {
     namespace py = pybind11;
 

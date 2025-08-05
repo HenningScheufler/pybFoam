@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_geo_fields.H"
+#include "bind_geo_fields.hpp"
 #include "tmp.H"
 
 
@@ -273,7 +273,7 @@ declare_mag (const GeometricField<Type, PatchField, GeoMesh>& geof)
 }
 
 
-void Foam::AddPyGeoFields(py::module& m)
+void Foam::bindGeoFields(py::module& m)
 {
     namespace py = pybind11;
 

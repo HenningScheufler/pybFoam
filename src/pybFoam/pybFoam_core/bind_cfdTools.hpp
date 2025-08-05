@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2022, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -15,34 +15,37 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::pyInterp
+
+Description
+
+Author
+    Henning Scheufler, all rights reserved.
+
+SourceFiles
+
+
 \*---------------------------------------------------------------------------*/
 
+#ifndef foam_cfdTools
+#define foam_cfdTools
+
+// System includes
 #include <pybind11/pybind11.h>
-#include "bind_io.hpp"
-#include "foam_dict.H"
-#include "foam_mesh.H"
-#include "foam_primitives.H"
-#include "foam_dimensioned.H"
-#include "foam_fields.H"
-#include "foam_geo_fields.H"
-#include "foam_fvMatrix.H"
-#include "foam_control.H"
-#include "foam_cfdTools.H"
+
 
 namespace py = pybind11;
 
+namespace Foam
+{
 
-PYBIND11_MODULE(pybFoam_core, m) {
-    m.doc() = "python bindings for openfoam"; // optional module docstring
+template<typename RAUType>
+void declare_constrainPressure(pybind11::module& m);
 
-    Foam::AddIO(m);
-    AddPyDict(m);
-    AddPyMesh(m);
-    AddFoamPrimitives(m);
-    AddPyDimensioned(m);
-    Foam::AddFoamFields(m);
-    Foam::AddPyGeoFields(m);
-    Foam::AddPyfvMatrix(m);
-    Foam::AddPyControl(m);
-    Foam::AddPycfdTools(m);
+
+void  bindCfdTools(pybind11::module& m);
+
 }
+
+#endif // foam_geo_fields  defined 

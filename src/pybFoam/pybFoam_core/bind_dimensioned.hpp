@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 20212, Henning Scheufler
+            Copyright (c) 2022, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -15,33 +15,37 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::pyInterp
+
+Description
+
+Author
+    Henning Scheufler, all rights reserved.
+
+SourceFiles
+
+
 \*---------------------------------------------------------------------------*/
 
-#include "foam_dimensioned.H"
-#include "dimensionedType.H"
+#ifndef foam_dimensioned
+#define foam_dimensioned
+
+// System includes
+#include <pybind11/pybind11.h>
+
 
 namespace Foam
 {
+    namespace py = pybind11;
 
-    template<class Type>
-    void declare_dimensioned(py::module &m, std::string className)
-    {
-        py::class_<dimensioned<Type>>(m, className.c_str())
-            .def(py::init<const word&,  const dimensionSet, const Type&>())
-            // .def("name", &dimensioned<Type>::name, py::return_value_policy::reference)
-            // .def("dimensions", &dimensioned<Type>::dimensions)
-            // .def("value", &dimensioned<Type>::value, py::return_value_policy::reference)
-            ;
-    }
+template<class Type>
+void declare_dimensioned(py::module &m, std::string className);
+
 
 }
 
+void  bindDimensioned(pybind11::module& m);
 
-void AddPyDimensioned(pybind11::module& m)
-{
 
-    Foam::declare_dimensioned<Foam::scalar>(m, "DimensionedScalarField");
-    Foam::declare_dimensioned<Foam::vector>(m, "DimensionedVectorField");
-    Foam::declare_dimensioned<Foam::tensor>(m, "DimensionedTensorField");
-
-}
+#endif 

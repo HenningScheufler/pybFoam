@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "foam_dict.H"
+#include "bind_dict.hpp"
 #include "OFstream.H"
 #include "Fstream.H"
 #include "IOobject.H"
@@ -57,7 +57,7 @@ namespace Foam
 }
 
 
-void AddPyDict(pybind11::module& m)
+void bindDict(pybind11::module& m)
 {
     namespace py = pybind11;
 

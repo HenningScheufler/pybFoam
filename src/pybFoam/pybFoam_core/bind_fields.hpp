@@ -28,34 +28,43 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_dict
-#define foam_dict
+#ifndef foam_fields
+#define foam_fields
 
 // System includes
 #include <pybind11/pybind11.h>
+#include "Field.H"
+#include "scalar.H"
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 
-#include "dictionary.H"
-#include "word.H"
-#include "tensor.H"
-#include "vector.H"
-#include "autoPtr.H"
-#include "IFstream.H"
-#include "Field.H"
+
+namespace py = pybind11;
 
 namespace Foam
 {
-    
-dictionary read_dictionary(const std::string& file_name);
+
+
+template<typename Type>
+py::array_t<scalar> toNumpy(const Field<Type>& values);
+
+template< >
+py::array_t<scalar> toNumpy<scalar>(const Field<scalar>& values);
 
 template<class Type>
-Type get(dictionary& dict, const std::string key);
+Type declare_sum(const Field<Type>& values);
 
+template<typename Type>
+void fromNumpy(Field<Type>& values,const py::array_t<scalar> np_arr);
+
+template<>
+void fromNumpy<scalar>(Field<scalar>& values,const py::array_t<scalar> np_arr);
+
+template<class Type>
+py::class_< Field<Type>> declare_fields(py::module &m, std::string &className);
+
+void  bindFields(py::module& m);
 
 }
 
-void  AddPyDict(pybind11::module& m);
-
-
-#endif // foam_dict  defined 
+#endif 

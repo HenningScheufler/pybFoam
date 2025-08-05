@@ -28,43 +28,28 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_fields
-#define foam_fields
+#ifndef foam_fvMatrix
+#define foam_fvMatrix
 
 // System includes
 #include <pybind11/pybind11.h>
-#include "Field.H"
-#include "scalar.H"
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
 
+#include "fvMatrix.H"
 
 namespace py = pybind11;
 
 namespace Foam
 {
 
-
-template<typename Type>
-py::array_t<scalar> toNumpy(const Field<Type>& values);
-
-template< >
-py::array_t<scalar> toNumpy<scalar>(const Field<scalar>& values);
+template<class Type>
+py::class_< fvMatrix<Type>>
+declare_fvMatrix(py::module &m, std::string className);
 
 template<class Type>
-Type declare_sum(const Field<Type>& values);
+void declare_solve(py::module &m);
 
-template<typename Type>
-void fromNumpy(Field<Type>& values,const py::array_t<scalar> np_arr);
-
-template<>
-void fromNumpy<scalar>(Field<scalar>& values,const py::array_t<scalar> np_arr);
-
-template<class Type>
-py::class_< Field<Type>> declare_fields(py::module &m, std::string &className);
-
-void  AddFoamFields(py::module& m);
+void  bindFvMatrix(pybind11::module& m);
 
 }
 
-#endif 
+#endif // foam_geo_fields  defined 
