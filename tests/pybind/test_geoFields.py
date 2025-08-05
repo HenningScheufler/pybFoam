@@ -2,6 +2,7 @@ import pytest
 import pybFoam
 import os
 import oftest
+import numpy as np
 from oftest import run_reset_case
 
 @pytest.fixture(scope="function")
@@ -23,22 +24,22 @@ class TestGroup:
         p_rgh = pybFoam.volScalarField.read_field(mesh,"p_rgh")
 
         p_rgh2 = pybFoam.volScalarField(p_rgh) #pybFoam.volScalarField.read_field(mesh,"p_rgh")
-        assert sum(p_rgh["internalField"].to_numpy()) == 0
+        assert pybFoam.sum(p_rgh["internalField"]) == 0
         p_rgh["internalField"] += 1
-        assert sum(p_rgh["internalField"].to_numpy()) == len(p_rgh["internalField"])
+        assert pybFoam.sum(p_rgh["internalField"]) == len(p_rgh["internalField"])
 
         p_rgh2["internalField"] += 1
 
-        assert sum(p_rgh["leftWall"].to_numpy()) == 0
+        assert pybFoam.sum(p_rgh["leftWall"]) == 0
         p_rgh["leftWall"] += 1
-        assert sum(p_rgh["leftWall"].to_numpy()) == len(p_rgh["leftWall"])
+        assert pybFoam.sum(p_rgh["leftWall"]) == len(p_rgh["leftWall"])
 
         U = pybFoam.volVectorField.read_field(mesh,"U")
-        assert (sum(U["internalField"].to_numpy()) == [0, 0, 0]).all()
+        assert (sum(np.array(U["internalField"])) == [0, 0, 0]).all()
         U["internalField"] += pybFoam.vector(1, 1, 1)
         nElements = len(p_rgh["internalField"])
         assert (
-            sum(U["internalField"].to_numpy()) == [nElements, nElements, nElements]
+            sum(np.array(U["internalField"])) == [nElements, nElements, nElements]
         ).all()
 
     def test_mesh(self,change_test_dir):
@@ -48,7 +49,7 @@ class TestGroup:
 
 
         C = mesh.C()
-        print(C["internalField"].to_numpy())
+        print(C["internalField"])
 
 
     def test_mesh(self,change_test_dir):

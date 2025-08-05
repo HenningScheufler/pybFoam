@@ -132,6 +132,22 @@ void bindMesh(pybind11::module &m)
             return &mesh; }),
              py::return_value_policy::reference_internal)
         .def(py::init(&Foam::createMesh), py::return_value_policy::take_ownership)
+        .def("nCells", [](const Foam::fvMesh& self)
+        {
+            return self.nCells();
+        })
+        .def("nFaces", [](const Foam::fvMesh& self)
+        {
+            return self.nFaces();
+        })
+        .def("nPoints", [](const Foam::fvMesh& self)
+        {
+            return self.nPoints();
+        })
+        .def("nInternalFaces", [](const Foam::fvMesh& self)
+        {
+            return self.nInternalFaces();
+        })
         .def("time", &Foam::fvMesh::time, py::return_value_policy::reference)
         .def("C", &Foam::fvMesh::C, py::return_value_policy::reference)
         .def("Cf", &Foam::fvMesh::Cf, py::return_value_policy::reference)

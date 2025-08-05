@@ -56,6 +56,33 @@ def test_tensor():
     assert ten2 != ten
     assert mag(ten) == 3
 
+def test_scalar_field_buffer():
+    f = scalarField([0]*10 )
+    
+    a = np.array(f)
+    assert a.shape == (10,)
+    assert a.dtype == np.float64
+    assert np.allclose(a, 0.0)  # assuming default constructor zeros it
+    a += 10
+    assert np.allclose(a, 10.0)
+
+def test_vector_field_buffer():
+    f = vectorField([vector(0,0,0) for _ in range(0,4)])
+    a = np.array(f)
+    assert a.shape == (4, 3)
+    assert a.dtype == np.float64
+    assert np.allclose(a, 0.0)
+    a += [10 , 10, 10]
+    assert np.allclose(a, 10.0)
+
+def test_tensor_field_buffer():
+    f = tensorField([tensor(0,0,0,0,0,0,0,0,0) for _ in range(0,2)])
+    a = np.array(f)
+    assert a.shape == (2, 9)
+    assert a.dtype == np.float64
+    assert np.allclose(a, 0.0)
+    a += [10, 10, 10, 10, 10, 10, 10, 10, 10]
+    assert np.allclose(a, 10.0)
 
 def test_scalarField():
 
@@ -73,13 +100,25 @@ def test_scalarField():
     assert sf3[0] == 3
 
     sf_1 = scalarField([1 for i in range(0,6)])
-    assert (sf_1.to_numpy() == np.ones(6)).all()
+    assert (sf_1 == np.ones(6)).all()
+
+    sf_1 += 10
+    assert sf_1[0] == 11
+
+    for scalar in sf_1:
+        assert scalar == 11
+
 
 def test_vectorField():
 
     vf = vectorField()
     assert len(vf) == 0
-    
+
+    vf = vectorField([[0, 0, 0], [1, 1, 1]])
+    assert len(vf) == 2
+    assert vf[0] == vector(0, 0, 0)
+    assert vf[1] == vector(1, 1, 1)
+
     vf2 = vectorField([vector(i,i,i) for i in range(1,7)])
     assert len(vf2) == 6
     assert vf2[1][1] == 2
@@ -98,13 +137,18 @@ def test_vectorField():
     assert vf4[1][1] == 2
 
     vf_1 = vectorField([vector(1,1,1) for i in range(0,6)])
-    assert (vf_1.to_numpy() == np.ones([6,3])).all()
+    assert (vf_1 == np.ones([6,3])).all()
 
 
 def test_tensorField():
 
     tf = tensorField()
     assert len(tf) == 0
+
+    tf = tensorField([[0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 1, 1, 1, 1]])
+    assert len(tf) == 2
+    assert tf[0] == tensor(0, 0, 0, 0, 0, 0, 0, 0, 0)
+    assert tf[1] == tensor(1, 1, 1, 1, 1, 1, 1, 1, 1)
     
     tf2 = tensorField([tensor(i,i,i,i,i,i,i,i,i) for i in range(1,7)])
     assert len(tf2) == 6
@@ -124,4 +168,4 @@ def test_tensorField():
     assert tf4[1][1] == 2
 
     tf_1 = tensorField([tensor(1,1,1,1,1,1,1,1,1) for i in range(0,6)])
-    assert (tf_1.to_numpy() == np.ones([6,9])).all()
+    assert (tf_1 == np.ones([6,9])).all()

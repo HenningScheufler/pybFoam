@@ -29,9 +29,9 @@ def test_ofdict(change_test_dir):
 
     # fields
     assert  d.get_wordList("wordList").list() == ["word1", "word2"]
-    assert (d.get_scalarField("scalarField").to_numpy() == np.ones(2)).all()
-    assert (d.get_vectorField("vectorField").to_numpy() == np.ones([2,3])).all()
-    assert (d.get_tensorField("tensorField").to_numpy() == np.ones([2,9])).all()
+    assert (d.get_scalarField("scalarField") == np.ones(2)).all()
+    assert (d.get_vectorField("vectorField") == np.ones([2,3])).all()
+    assert (d.get_tensorField("tensorField") == np.ones([2,9])).all()
 
     # assumes the other are also correct
     d.set("word",Word("word2"))

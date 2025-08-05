@@ -19,6 +19,7 @@ License
 
 #include "bind_fields.hpp"
 #include "bind_primitives.hpp"
+#include "bind_primitives.hpp"
 #include "instantList.H"
 
 
@@ -26,109 +27,6 @@ namespace py = pybind11;
 
 namespace Foam
 {
-
-
-template<typename Type>
-py::array_t<scalar> toNumpy(const Field<Type>& values)
-{
-    label nElements = values.size();
-    label nComps = pTraits<Type>::nComponents;
-
-    py::array_t<scalar, py::array::c_style> arr({nElements, nComps});
-    auto ra = arr.mutable_unchecked();
-
-    forAll(values,celli)
-    {
-        for (label i = 0; i < pTraits<Type>::nComponents; ++i)
-        {
-            ra(celli, i) = values[celli].component(i);
-        }
-    }
-
-    return arr;
-}
-
-
-template< >
-py::array_t<scalar> toNumpy<scalar>(const Field<scalar>& values)
-{
-    label nElements = values.size();
-
-    py::array_t<scalar, py::array::c_style> arr(nElements);
-    auto ra = arr.mutable_unchecked();
-
-    forAll(values,celli)
-    {
-        ra(celli) = values[celli];
-    }
-
-    return arr;
-}
-
-
-template<typename Type>
-void fromNumpy(Field<Type>& values,const py::array_t<scalar> np_arr)
-{
-    label nComps = pTraits<Type>::nComponents;
-    label nElements = values.size();
-
-    if (np_arr.shape(1) != nComps)
-    {
-        FatalErrorInFunction
-            << "dimensions do not match " << nl
-            << "the expected value: " << nComps << nl
-            << "the provided value: " << np_arr.shape(1) << nl
-            << exit(FatalError);
-    }
-
-    if (np_arr.shape(0) != nElements)
-    {
-        FatalErrorInFunction
-            << "length of numpy array does not match " << nl
-            << "the expected value: " << nElements<< nl
-            << "the provided value: " << np_arr.size() << nl
-            << exit(FatalError);
-    }
-    const auto ra = np_arr.unchecked();
-
-    forAll(values,celli)
-    {
-        for (label i = 0; i < pTraits<Type>::nComponents; ++i)
-        {
-            values[celli].component(i) = ra(celli, i); 
-        }
-    }
-}
-
-
-template<>
-void fromNumpy<scalar>(Field<scalar>& values,const py::array_t<scalar> np_arr)
-{
-    if (np_arr.ndim() != 1)
-    {
-        FatalErrorInFunction
-            << "numpy array is not onedimensional " << nl
-            << "provided array has ndims : " << np_arr.ndim() << nl
-            << exit(FatalError);
-    }
-
-    if (np_arr.size() != values.size())
-    {
-        FatalErrorInFunction
-            << "length of numpy array does not match " << nl
-            << "the expected value: " << values.size()<< nl
-            << "the provided value: " << np_arr.size() << nl
-            << exit(FatalError);
-    }
-
-    const auto ra = np_arr.unchecked();
-
-    forAll(values,celli)
-    {
-        values[celli] = ra(celli); 
-    }
-}
-
 
 template<class Type>
 Type declare_sum(const Field<Type>& values)
@@ -139,7 +37,7 @@ Type declare_sum(const Field<Type>& values)
 
 template<class Type>
 py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
-    auto fieldClass = py::class_< Field<Type>>(m, className.c_str())
+    auto fieldClass = py::class_< Field<Type>>(m, className.c_str(), py::buffer_protocol())
     .def(py::init<>())
     .def(py::init< Field<Type>>())
     .def(py::init< tmp<Field<Type> >>())
@@ -150,6 +48,42 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
             f[i] = vec[i];
         }
         return f;
+    }))
+    .def(py::init([](py::array_t<Foam::scalar, py::array::c_style | py::array::forcecast> arr) {
+        constexpr bool isScalar = std::is_same<Type, Foam::scalar>::value;
+        constexpr int nComps = isScalar ? 1 : Foam::pTraits<Type>::nComponents;
+
+        if (arr.ndim() != (isScalar ? 1 : 2))
+            throw std::runtime_error(
+                "Expected " + std::to_string(isScalar ? 1 : 2) + "D array for this field type");
+
+        if (!isScalar && arr.shape(1) != nComps)
+            throw std::runtime_error(
+                "Expected second dimension to be " + std::to_string(nComps) 
+            );
+
+        size_t n = arr.shape(0);
+        const Foam::scalar* data = arr.data();
+
+        Foam::Field<Type> field(n);
+
+        if constexpr (isScalar) {
+            for (size_t i = 0; i < n; ++i)
+            {
+                field[i] = data[i];
+            }
+        } 
+        else
+        {
+            for (size_t i = 0; i < n; ++i) {
+                Type val;
+                for (int j = 0; j < nComps; ++j)
+                    val[j] = data[i * nComps + j];
+                field[i] = val;
+            }
+        }
+
+        return field;
     }))
     .def("__len__", [](const Field<Type>& self) {
         return self.size();
@@ -178,10 +112,38 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
     {
         return Field<Type>(self * sf);
     })
-    .def("to_numpy",&toNumpy<Type>)
-    .def("from_numpy",&toNumpy<Type>)
+    .def_buffer([](Field<Type>& self) -> py::buffer_info {
+        constexpr bool isScalar = std::is_same<Type, Foam::scalar>::value;
+        constexpr int nComps = isScalar ? 1 : Foam::pTraits<Type>::nComponents;
 
+        std::vector<py::ssize_t> shape;
+        std::vector<py::ssize_t> strides;
+
+        if constexpr (isScalar) {
+            shape = { static_cast<py::ssize_t>(self.size()) };
+            strides = { sizeof(Foam::scalar) };
+        } else {
+            shape = {
+                static_cast<py::ssize_t>(self.size()),
+                static_cast<py::ssize_t>(nComps)
+            };
+            strides = {
+                sizeof(Type),             // Step to next element (next vector/tensor)
+                sizeof(Foam::scalar)      // Step to next component
+            };
+        }
+
+        return py::buffer_info(
+            self.data(),
+            sizeof(Foam::scalar),
+            py::format_descriptor<Foam::scalar>::format(),
+            shape.size(),  // number of dimensions
+            shape,
+            strides
+        );
+    })
     ;
+    
     return fieldClass;
 }
 
