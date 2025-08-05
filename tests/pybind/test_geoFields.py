@@ -24,7 +24,12 @@ def test_geoFieldField(change_test_dir):
     p_rgh["internalField"] += 1
     assert pybFoam.sum(p_rgh["internalField"]) == len(p_rgh["internalField"])
 
-    p_rgh2["internalField"] += 1
+    print("type ", type(p_rgh2.internalField()))
+    np_prgh2 = np.asarray(p_rgh2.internalField())
+    np_prgh2 += 1
+    assert np_prgh2[0] == 1.0
+    assert p_rgh2.internalField()[0] == 1.0
+    assert p_rgh2["internalField"][0] == 1.0
 
     assert pybFoam.sum(p_rgh["leftWall"]) == 0
     p_rgh["leftWall"] += 1

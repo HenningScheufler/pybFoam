@@ -27,11 +27,11 @@ namespace Foam
 // namespace py = pybind11;
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-const Field<Type>& field(const GeometricField<Type, PatchField, GeoMesh>& vf,const fvMesh& mesh, const std::string& name)
+Field<Type>& field(GeometricField<Type, PatchField, GeoMesh>& vf,const fvMesh& mesh, const std::string& name)
 {
     if (name == "internalField")
     {
-        return vf.primitiveField();
+        return vf.primitiveFieldRef();
     }
     else
     {
@@ -42,7 +42,7 @@ const Field<Type>& field(const GeometricField<Type, PatchField, GeoMesh>& vf,con
                 << "patch not found " << nl
                 << exit(FatalError);
         }
-        return vf.boundaryField()[patchId];
+        return vf.boundaryFieldRef()[patchId];
     }
 }
 
@@ -119,25 +119,6 @@ auto declare_geofields(py::module &m, std::string className) {
     .def(py::init<tmp<GeometricField<Type, PatchField, GeoMesh>>>())
     .def(py::init<const word &,tmp<GeometricField<Type, PatchField, GeoMesh>>>())
     .def("correctBoundaryConditions", &Foam::GeometricField<Type, PatchField, GeoMesh>::correctBoundaryConditions)
-    // .def(py::init([]
-    // (
-    //     const Foam::fvMesh& mesh,
-    //     const std::string& name
-    // )
-    // {
-    //     return Foam::GeometricField<Type, PatchField, GeoMesh>
-    //     (
-    //         IOobject
-    //         (
-    //             name,
-    //             mesh.time().timeName(),
-    //             mesh,
-    //             Foam::IOobject::MUST_READ,
-    //             Foam::IOobject::AUTO_WRITE
-    //         ),
-    //         mesh
-    //     );
-    // }))
     .def_static("read_field",[](const fvMesh& mesh,std::string name)
     {
         Foam::GeometricField<Type, PatchField, GeoMesh>* geoField
@@ -168,20 +149,21 @@ auto declare_geofields(py::module &m, std::string className) {
     {
         return mesh.names<Foam::GeometricField<Type, PatchField, GeoMesh>>();
     })
+    // .def("internalField",&Foam::GeometricField<Type, PatchField, GeoMesh>::primitiveFieldRef, py::return_value_policy::reference_internal)
     .def("internalField", [](
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const std::string& name)
+        Foam::GeometricField<Type, PatchField, GeoMesh>& self
+    ) -> Foam::Field<Type>&
     {
-        return self.primitiveField();
-    })
+        return self.primitiveFieldRef();
+    }, py::return_value_policy::reference_internal)
     .def("__getitem__", []
     (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
+        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
         const std::string& name
-    )
+    ) -> Foam::Field<Type>&
     {
         return Foam::field(self,self.mesh(),name);
-    })
+    }, py::return_value_policy::reference_internal)
     .def("__setitem__", []
     (
         Foam::GeometricField<Type, PatchField, GeoMesh>& self,
