@@ -7,8 +7,8 @@ restore0Dir
 touch test.foam
 runApplication blockMesh
 
-runApplication setFields
+# runApplication setFields
 
-runApplication $(getApplication)
-foamSequenceVTKFiles -vtp
+# runApplication $(getApplication)
+# foamSequenceVTKFiles -vtp
 #------------------------------------------------------------------------------

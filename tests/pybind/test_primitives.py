@@ -58,31 +58,34 @@ def test_tensor():
 
 def test_scalar_field_buffer():
     f = scalarField([0]*10 )
-    
-    a = np.array(f)
+
+    a = np.asarray(f)
     assert a.shape == (10,)
     assert a.dtype == np.float64
     assert np.allclose(a, 0.0)  # assuming default constructor zeros it
     a += 10
     assert np.allclose(a, 10.0)
+    assert f[0] == 10.0
 
 def test_vector_field_buffer():
     f = vectorField([vector(0,0,0) for _ in range(0,4)])
-    a = np.array(f)
+    a = np.asarray(f)
     assert a.shape == (4, 3)
     assert a.dtype == np.float64
     assert np.allclose(a, 0.0)
     a += [10 , 10, 10]
     assert np.allclose(a, 10.0)
+    assert f[0][0] == 10.0
 
 def test_tensor_field_buffer():
     f = tensorField([tensor(0,0,0,0,0,0,0,0,0) for _ in range(0,2)])
-    a = np.array(f)
+    a = np.asarray(f)
     assert a.shape == (2, 9)
     assert a.dtype == np.float64
     assert np.allclose(a, 0.0)
     a += [10, 10, 10, 10, 10, 10, 10, 10, 10]
     assert np.allclose(a, 10.0)
+    assert f[0][0] == 10.0
 
 def test_scalarField():
 

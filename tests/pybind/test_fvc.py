@@ -1,6 +1,6 @@
 import pytest
 import pybFoam
-from pybFoam import fvc, volScalarField, volVectorField, fvMesh, Time, vector
+from pybFoam import fvc, volScalarField, volVectorField, fvMesh, Time, vector, createPhi
 import os
 import oftest
 from oftest import run_reset_case
@@ -11,32 +11,26 @@ def change_test_dir(request):
     yield
     os.chdir(request.config.invocation_dir)
 
-class TestGroup: 
+def test_fvc(change_test_dir):
 
-    def test_init(self,run_reset_case):
-        log = oftest.path_log()
-        assert oftest.case_status(log) == 'completed' # checks if run completes
-        # assert run_case.success
+    # init test case
+    time = Time(".", ".")
+    mesh = fvMesh(time)
+    p_rgh = volScalarField.read_field(mesh,"p_rgh")
+    U = volVectorField.read_field(mesh,"U")
+    phi = createPhi(U)
 
-    def test_fvc(self,change_test_dir):
+    grad_p = fvc.grad(p_rgh)()
+    assert pybFoam.sum(grad_p["internalField"]) == vector(0,0,0)
+    
+    div_U = fvc.div(U)()
+    assert pybFoam.sum(div_U["internalField"]) == 0
 
-        # init test case
-        time = Time(".", ".")
-        mesh = fvMesh(time)
-        p_rgh = volScalarField.read_field(mesh,"p_rgh")
-        U = volVectorField.read_field(mesh,"U")
+    lap_p = pybFoam.fvc.laplacian(p_rgh)()
+    assert pybFoam.sum(lap_p["internalField"]) == 0.0
 
-        grad_p = fvc.grad(p_rgh)()
-        assert pybFoam.sum(grad_p["internalField"]) == vector(0,0,0)
-        
-        div_U = fvc.div(U)()
-        assert pybFoam.sum(div_U["internalField"]) == 0
-
-        lap_p = pybFoam.fvc.laplacian(p_rgh)()
-        assert pybFoam.sum(lap_p["internalField"]) == 0.0
-
-        phi = pybFoam.fvc.flux(U)()
-        div_phiU = pybFoam.fvc.div(phi,U)()
-        div_phigradP = pybFoam.fvc.div(phi,pybFoam.fvc.grad(p_rgh))()
-        assert pybFoam.sum(div_phiU["internalField"]) == pybFoam.vector(0,0,0)
-        assert pybFoam.sum(div_phigradP["internalField"]) == pybFoam.vector(0,0,0)
+    phi = pybFoam.fvc.flux(U)()
+    div_phiU = pybFoam.fvc.div(phi,U)()
+    div_phigradP = pybFoam.fvc.div(phi,pybFoam.fvc.grad(p_rgh))()
+    assert pybFoam.sum(div_phiU["internalField"]) == pybFoam.vector(0,0,0)
+    assert pybFoam.sum(div_phigradP["internalField"]) == pybFoam.vector(0,0,0)

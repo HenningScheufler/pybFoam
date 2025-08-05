@@ -16,6 +16,12 @@ FoamFile
 
 scale   0.146;
 
+RES1 23;
+RES2 8;
+RES3 19;
+RES4 42;
+RES5 4;
+
 vertices
 (
     (0 0 0)
@@ -46,11 +52,11 @@ vertices
 
 blocks
 (
-    hex (0 1 5 4 12 13 17 16) (46 16 1) simpleGrading (1 1 1)
-    hex (2 3 7 6 14 15 19 18) (38 16 1) simpleGrading (1 1 1)
-    hex (4 5 9 8 16 17 21 20) (46 84 1) simpleGrading (1 1 1)
-    hex (5 6 10 9 17 18 22 21) (8 84 1) simpleGrading (1 1 1)
-    hex (6 7 11 10 18 19 23 22) (38 84 1) simpleGrading (1 1 1)
+    hex (0 1 5 4 12 13 17 16) ($RES1 $RES2 1) simpleGrading (1 1 1)
+    hex (2 3 7 6 14 15 19 18) ($RES3 $RES2 1) simpleGrading (1 1 1)
+    hex (4 5 9 8 16 17 21 20) ($RES1 $RES4 1) simpleGrading (1 1 1)
+    hex (5 6 10 9 17 18 22 21) ($RES5 $RES4 1) simpleGrading (1 1 1)
+    hex (6 7 11 10 18 19 23 22) ($RES3 $RES4 1) simpleGrading (1 1 1)
 );
 
 edges
