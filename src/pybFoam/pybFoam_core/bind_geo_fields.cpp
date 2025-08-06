@@ -240,6 +240,11 @@ auto declare_geofields(py::module &m, std::string className) {
     })
 
     ;
+
+    m.def("write", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& geofield)
+    {
+        geofield.write();
+    });
     return std::make_tuple(geofieldClass, tmpGeofieldClass);
 }
 
