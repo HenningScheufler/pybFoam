@@ -44,6 +44,11 @@ void bindControl(pybind11::module& m)
         .def("correctNonOrthogonal", &pimpleControl::correctNonOrthogonal)
         .def("momentumPredictor", &pimpleControl::momentumPredictor)
         .def("finalNonOrthogonalIter", &pimpleControl::finalNonOrthogonalIter)
+        .def("nNonOrthCorr", &pimpleControl::nNonOrthCorr)
+        .def("finalInnerIter", &pimpleControl::finalInnerIter)
+        .def("loop", &pimpleControl::loop)
+        .def("turbCorr", &pimpleControl::turbCorr)
+        .def("finalIter", &pimpleControl::finalIter)
         ;
 
     py::class_<simpleControl>(m, "simpleControl")
