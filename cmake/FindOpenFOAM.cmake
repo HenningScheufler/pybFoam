@@ -133,10 +133,14 @@ if(NOT TARGET OpenFOAM::finiteVolume)
     
     target_include_directories(OpenFOAM::finiteVolume INTERFACE
         "${FOAM_SRC}/finiteVolume/lnInclude"
+        "${FOAM_SRC}/dynamicFvMesh/lnInclude"
+        "${FOAM_SRC}/dynamicMesh/lnInclude"
     )
     
     target_link_libraries(OpenFOAM::finiteVolume INTERFACE 
         finiteVolume
+        dynamicMesh
+        dynamicFvMesh
         OpenFOAM::meshTools
         OpenFOAM::fileFormats
         OpenFOAM::core
@@ -180,6 +184,7 @@ if(NOT TARGET OpenFOAM::turbulence)
         turbulenceModels
         incompressibleTurbulenceModels
         compressibleTurbulenceModels
+        # dynamicFvMesh
         OpenFOAM::core
         OpenFOAM::thermo
     )

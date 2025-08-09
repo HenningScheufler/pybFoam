@@ -38,13 +38,27 @@ using overload_cast_ = py::detail::overload_cast_impl<Args...>;
 void Foam::bindTurbulence(py::module& m)
 {
 
+    py::class_<singlePhaseTransportModel>(m, "singlePhaseTransportModel")
+        .def(py::init<const volVectorField&, const surfaceScalarField&>(),
+             py::arg("U"), py::arg("phi"))
+        .def("correct", &singlePhaseTransportModel::correct)
+    ;
+
     py::class_<incompressible::turbulenceModel>(m, "incompressibleTurbulenceModel")
     .def_static("from_registry",[](const fvMesh& mesh)
     {
         const incompressible::turbulenceModel* obj = mesh.findObject<incompressible::turbulenceModel>(incompressible::turbulenceModel::propertiesName);
         return obj;
-    },py::return_value_policy::reference) 
+    }, py::return_value_policy::reference) 
     // from turbulenceModel
+    .def_static("New",[](const volVectorField& U,
+        const surfaceScalarField& phi,
+        const singlePhaseTransportModel& transportModel,
+        const word& propertiesName)
+    {
+        return incompressible::turbulenceModel::New(U, phi, transportModel, propertiesName).ptr();
+    }, py::arg("U"), py::arg("phi"), py::arg("transportModel"), py::arg("propertiesName") = turbulenceModel::propertiesName, py::return_value_policy::take_ownership)
+    .def("correct", &incompressible::turbulenceModel::correct)
     .def("U", &incompressible::turbulenceModel::U)
     .def("alphaRhoPhi", &incompressible::turbulenceModel::alphaRhoPhi)
     .def("phi", &incompressible::turbulenceModel::phi)

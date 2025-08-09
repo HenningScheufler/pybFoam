@@ -20,6 +20,7 @@ License
 #include "bind_mesh.hpp"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "dynamicFvMesh.H"
 
 namespace Foam
 {
@@ -116,9 +117,15 @@ void bindMesh(pybind11::module &m)
                             const Foam::instant &inst,
                             const Foam::label newIndex)
              { self.setTime(inst, newIndex); })
+        .def("setDeltaT", [](Foam::Time &self, const Foam::scalar newDeltaT)
+             { self.setDeltaT(newDeltaT); }, py::arg("newDeltaT"))
         .def("value", &Foam::Time::timeOutputValue)
+        .def("deltaTValue", [](Foam::Time &self) { return self.deltaTValue(); })
         .def("loop", &Foam::Time::loop)
         .def("write", &Foam::Time::write)
+        .def("increment", [](Foam::Time &self)
+             { self++; }
+        )
         .def("printExecutionTime", [](Foam::Time &self)
              { self.printExecutionTime(Foam::Info); } 
             )
@@ -154,5 +161,22 @@ void bindMesh(pybind11::module &m)
         .def("Sf", &Foam::fvMesh::Sf, py::return_value_policy::reference)
         .def("magSf", &Foam::fvMesh::magSf, py::return_value_policy::reference)
         .def("setFluxRequired", &Foam::fvMesh::setFluxRequired)
+        // dynamic mesh support
+        .def("changing", [](Foam::fvMesh &self)
+             { return self.changing(); })
+        ;
+
+
+        py::class_<Foam::dynamicFvMesh, Foam::fvMesh>(m, "dynamicFvMesh")
+        .def_static("New", [](
+            const Foam::argList& args,
+            const Foam::Time& runTime)
+        {
+            return Foam::dynamicFvMesh::New(args, runTime).ptr();
+        }, py::return_value_policy::take_ownership)
+        .def("updateMesh", &Foam::dynamicFvMesh::update)
+        .def("controlledUpdateMesh", &Foam::dynamicFvMesh::controlledUpdate)
+        .def("dynamic", &Foam::dynamicFvMesh::dynamic)
+
         ;
 }
