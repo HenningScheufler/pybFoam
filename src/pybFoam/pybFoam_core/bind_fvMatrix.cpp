@@ -93,6 +93,14 @@ declare_fvMatrix(py::module &m, std::string className)
         {
             self.solve(name);
         })
+        .def("relax", [](fvMatrix<Type> &self, const scalar& alpha)
+        {
+            self.relax(alpha);
+        })
+        .def("relax", [](fvMatrix<Type> &self)
+        {
+            self.relax();
+        })
         .def("setReference",&Foam::fvMatrix<Type>::setReference)
         .def("flux", &fvMatrix<Type>::flux)
         .def("A", &fvMatrix<Type>::A)
