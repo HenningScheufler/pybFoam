@@ -28,6 +28,33 @@ License
 namespace Foam
 {
 
+    std::tuple <scalar, scalar> computeCFLNumber
+    (
+        const surfaceScalarField& phi
+    )
+    {
+        // Get the current time
+        const fvMesh& mesh = phi.mesh();
+        const Time& runTime = mesh.time();
+        scalar CoNum = 0.0;
+        scalar meanCoNum = 0.0;
+        
+        {
+            scalarField sumPhi
+            (
+                fvc::surfaceSum(mag(phi))().primitiveField()
+            );
+
+            CoNum = 0.5*gMax(sumPhi/mesh.V().field())*runTime.deltaTValue();
+
+            meanCoNum =
+                0.5*(gSum(sumPhi)/gSum(mesh.V().field()))*runTime.deltaTValue();
+        }
+
+        return std::make_tuple(CoNum, meanCoNum);
+    }
+    
+
     template <typename RAUType>
     void declare_constrainPressure(pybind11::module &m)
     {
@@ -69,6 +96,7 @@ namespace Foam
             setRefCell(p, dict, pRefCell, pRefValue, forceReference);
             return std::make_tuple(pRefCell, pRefValue);
         }, py::arg("p"), py::arg("dict"), py::arg("forceReference") = false);
+        m.def("computeCFLNumber", &computeCFLNumber);
     }
 
 } // namespace Foam
