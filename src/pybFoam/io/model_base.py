@@ -7,6 +7,10 @@ from pybFoam import dictionary
 from pydantic import BaseModel
 
 type_dispatch = {
+    str: lambda v: v,  # Keep as string
+    int: lambda v: int(v),
+    float: lambda v: float(v),
+    bool: lambda v: bool(v),
     pybFoam.Word: lambda v: pybFoam.Word(v),
     pybFoam.vector: lambda v: pybFoam.vector(*v),
     pybFoam.tensor: lambda v: pybFoam.tensor(*v),
@@ -60,6 +64,8 @@ class IOModelBase(BaseModel):
                     mapping[field] = d.get[typ](field)
                 except Exception:
                     # If the field is missing, set to None (let Pydantic handle required/optional)
+                    # or wrong type 
+                    print(f"Warning: Could not parse field '{field}' of type '{typ}' from OpenFOAM dictionary. Setting to None.")
                     mapping[field] = None
         return cls(**mapping)
 
@@ -74,8 +80,6 @@ class IOModelBase(BaseModel):
             val = data[field]
             if isinstance(typ, type) and issubclass(typ, IOModelBase):
                 mapping[field] = typ._from_mapping(val, source)
-            elif typ in type_dispatch:
-                mapping[field] = type_dispatch[typ](val)
             else:
-                mapping[field] = val
+                mapping[field] = type_dispatch[typ](val)
         return cls(**mapping)

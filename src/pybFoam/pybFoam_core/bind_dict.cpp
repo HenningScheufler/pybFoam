@@ -197,13 +197,17 @@ void bindDict(pybind11::module& m)
         .def("__getitem__", &DictionaryGetProxy::operator[]);
 
     // Register types for get directly
+    DictionaryGetProxy::type_registry()["str"] = [](Foam::dictionary& d, const std::string& key) {
+        return pybind11::cast(static_cast<std::string>(d.get<Foam::word>(Foam::word(key))));
+    };
+    DictionaryGetProxy::register_type<Foam::scalar>("float");
+    DictionaryGetProxy::register_type<Foam::label>("int");
+    DictionaryGetProxy::register_type<bool>("bool");
     DictionaryGetProxy::register_type<Foam::word>("Word");
     DictionaryGetProxy::register_type<Foam::vector>("vector");
     DictionaryGetProxy::register_type<Foam::tensor>("tensor");
-    DictionaryGetProxy::register_type<Foam::scalar>("float");
     DictionaryGetProxy::register_type<Foam::List<Foam::word>>("wordList");
-    DictionaryGetProxy::register_type<Foam::Field<Foam::scalar>>("ndarray"); // numpy scalarField
-    DictionaryGetProxy::register_type<Foam::Field<Foam::scalar>>("scalarField"); // pybFoam.scalarField
+    DictionaryGetProxy::register_type<Foam::Field<Foam::scalar>>("scalarField");
     DictionaryGetProxy::register_type<Foam::Field<Foam::vector>>("vectorField");
     DictionaryGetProxy::register_type<Foam::Field<Foam::tensor>>("tensorField");
 }

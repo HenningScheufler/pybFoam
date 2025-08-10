@@ -66,3 +66,15 @@ def test_parse_ofdict_model(change_test_dir, filename):
     assert (test_dict.tensorField == np.ones([2,9])).all()
     assert test_dict.subDict.word2 == "word2"
 
+class randomClass:
+    pass
+
+def test_exception(change_test_dir):
+
+    d = dictionary.read("controlDict")
+
+    with pytest.raises(RuntimeError, match=r"Unsupported type .*randomClass"):
+        d.get[randomClass]("application")
+
+    assert d.get[Word]("application") == "icoFoam"
+    assert d.get[str]("application") == "icoFoam"
