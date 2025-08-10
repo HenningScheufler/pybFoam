@@ -3,7 +3,7 @@
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
-	unofficial extension to OpenFOAM.
+    unofficial extension to OpenFOAM.
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -23,6 +23,9 @@ License
 #include "IOobject.H"
 #include "dictionaryEntry.H"
 #include "entry.H"
+#include <unordered_map>
+#include <functional>
+
 namespace Foam
 {
 
@@ -57,6 +60,42 @@ namespace Foam
 }
 
 
+class DictionaryGetProxy {
+public:
+    using GetterFunc = std::function<pybind11::object(Foam::dictionary&, const std::string&)>;
+    static std::unordered_map<std::string, GetterFunc>& type_registry() {
+        static std::unordered_map<std::string, GetterFunc> reg;
+        return reg;
+    }
+
+    Foam::dictionary& dict;
+    DictionaryGetProxy(Foam::dictionary& d) : dict(d) {}
+
+    pybind11::object operator[](pybind11::object py_type) {
+        std::string type_name = pybind11::str(py_type.attr("__name__"));
+        auto& reg = type_registry();
+        auto it = reg.find(type_name);
+        if (it == reg.end())
+            throw std::runtime_error("Unsupported type for dictionary.get: " + type_name);
+        struct TypeCaller {
+            Foam::dictionary& dict;
+            GetterFunc func;
+            TypeCaller(Foam::dictionary& d, GetterFunc f) : dict(d), func(f) {}
+            pybind11::object operator()(const std::string& key) {
+                return func(dict, key);
+            }
+        };
+        return pybind11::cpp_function(TypeCaller(dict, it->second));
+    }
+
+    template<typename T>
+    static void register_type(const std::string& py_name) {
+        type_registry()[py_name] = [](Foam::dictionary& d, const std::string& key) {
+            return pybind11::cast(d.get<T>(Foam::word(key)));
+        };
+    }
+};
+
 void bindDict(pybind11::module& m)
 {
     namespace py = pybind11;
@@ -75,6 +114,7 @@ void bindDict(pybind11::module& m)
     // .def(py::init<const Foam::keyType &,const Foam::dictionary &,const Foam::dictionary &>())
     // ;
     
+
     py::class_<Foam::dictionary>(m, "dictionary")
         .def(py::init<const std::string&>())
         .def_static("read", [](const std::string& filename) -> Foam::dictionary* {
@@ -144,5 +184,26 @@ void bindDict(pybind11::module& m)
         .def("add", &Foam::add<Foam::Field<Foam::scalar>>)
         .def("add", &Foam::add<Foam::Field<Foam::vector>>)
         .def("add", &Foam::add<Foam::Field<Foam::tensor>>)
+        .def_property_readonly(
+            "get",
+            [](Foam::dictionary& self) {
+                return DictionaryGetProxy(self);
+            },
+            py::return_value_policy::reference_internal
+        )
         ;
+
+    py::class_<DictionaryGetProxy>(m, "DictionaryGetProxy")
+        .def("__getitem__", &DictionaryGetProxy::operator[]);
+
+    // Register types for get directly
+    DictionaryGetProxy::register_type<Foam::word>("Word");
+    DictionaryGetProxy::register_type<Foam::vector>("vector");
+    DictionaryGetProxy::register_type<Foam::tensor>("tensor");
+    DictionaryGetProxy::register_type<Foam::scalar>("float");
+    DictionaryGetProxy::register_type<Foam::List<Foam::word>>("wordList");
+    DictionaryGetProxy::register_type<Foam::Field<Foam::scalar>>("ndarray"); // numpy scalarField
+    DictionaryGetProxy::register_type<Foam::Field<Foam::scalar>>("scalarField"); // pybFoam.scalarField
+    DictionaryGetProxy::register_type<Foam::Field<Foam::vector>>("vectorField");
+    DictionaryGetProxy::register_type<Foam::Field<Foam::tensor>>("tensorField");
 }
