@@ -2,7 +2,7 @@ import pytest
 from pybFoam import dictionary, vector, tensor, Word
 import os
 import numpy as np
-
+from pydantic import Field
 import pybFoam
 from pybFoam.io.model_base import IOModelBase
 
@@ -18,14 +18,14 @@ class OFTestSubDict(IOModelBase):
 
 class OFTestDict(IOModelBase):
     
-    word: Word
+    word: Word = Field(json_schema_extra={"equals": "word"})
     scalar: float
     vector: vector
     tensor: tensor
-    wordList: pybFoam.wordList
-    scalarField: pybFoam.scalarField
-    vectorField: pybFoam.vectorField
-    tensorField: pybFoam.tensorField
+    wordList: pybFoam.wordList = Field(max_length=2)
+    scalarField: pybFoam.scalarField = Field(max_length=2)
+    vectorField: pybFoam.vectorField = Field(max_length=2)
+    tensorField: pybFoam.tensorField = Field(max_length=2)
     subDict: OFTestSubDict
 
 
