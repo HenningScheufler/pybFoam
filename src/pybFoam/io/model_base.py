@@ -1,4 +1,4 @@
-
+from typing import get_origin, get_args, Optional, Union, Annotated
 import os
 import json
 import yaml
@@ -19,6 +19,16 @@ type_dispatch = {
     pybFoam.vectorField: lambda v: pybFoam.vectorField(v),
     pybFoam.tensorField: lambda v: pybFoam.tensorField(v),
 }
+
+def _unwrap_type(tp):
+    # peel Annotated[T, ...] and Optional[T]/Union[T, None]
+    if get_origin(tp) is Annotated:
+        tp = get_args(tp)[0]
+    if get_origin(tp) in (Optional, Union):
+        args = [a for a in get_args(tp) if a is not type(None)]
+        if args:
+            tp = args[0]
+    return tp
 
 class IOModelBase(BaseModel):
 
@@ -54,19 +64,23 @@ class IOModelBase(BaseModel):
     def from_ofdict(cls, d):
         # Convert OpenFOAM dictionary to a mapping for _from_mapping
         mapping = {}
-        for field, typ in cls.__annotations__.items():
-            if hasattr(d, 'isDict') and d.isDict(field):
+        for name, f in cls.model_fields.items():  # <-- v2 API
+            # Pick the key to read from the OpenFOAM dict
+            key = f.validation_alias or f.alias or name
+            typ = _unwrap_type(f.annotation)
+
+            if hasattr(d, 'isDict') and d.isDict(key):
                 # Always populate nested sub-dictionaries
                 if issubclass(typ, IOModelBase):
-                    mapping[field] = typ.from_ofdict(d.subDict(field))
+                    mapping[name] = typ.from_ofdict(d.subDict(key))
             else:
                 try:
-                    mapping[field] = d.get[typ](field)
+                    mapping[name] = d.get[typ](key)
                 except Exception:
                     # If the field is missing, set to None (let Pydantic handle required/optional)
-                    # or wrong type 
-                    print(f"Warning: Could not parse field '{field}' of type '{typ}' from OpenFOAM dictionary. Setting to None.")
-                    mapping[field] = None
+                    # or wrong type
+                    print(f"Warning: Could not parse field '{name}' of type '{typ}' from OpenFOAM dictionary. Setting to None.")
+                    mapping[name] = None
         return cls(**mapping)
 
     @classmethod
