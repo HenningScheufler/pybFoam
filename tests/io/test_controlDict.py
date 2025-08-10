@@ -1,6 +1,7 @@
 import numpy as np
-from pydantic import Field
+from pydantic import Field, create_model
 from pybFoam.io.model_base import IOModelBase
+from pybFoam.io.system import ControlDictBase
 from pybFoam import Word
 import pytest
 import os
@@ -13,27 +14,14 @@ def change_test_dir(request):
     os.chdir(request.config.invocation_dir)
 
 
-
-class ControlDict(IOModelBase):
-    application: str
-    startFrom: str
-    startTime: float
-    stopAt: str
-    endTime: float
-    deltaT: float
-    writeControl: str
-    writeInterval: float
-    purgeWrite: int
-    writeFormat: str
-    writePrecision: int
-    writeCompression: str
-    timeFormat: str
-    timePrecision: int
-    runTimeModifiable: bool
-
+controlDict = create_model(
+    'ControlDict',
+    maxCo=(float, Field(..., gt=0.0)),  # name=(type, required/Default)
+    __base__=ControlDictBase
+)
 
 def test_parse_controlDict(change_test_dir):
-    model = ControlDict.from_file("controlDict")
+    model = controlDict.from_file("controlDict")
     assert model.application == "icoFoam"
     assert model.startFrom == "startTime"
     assert model.startTime == 0
@@ -49,5 +37,5 @@ def test_parse_controlDict(change_test_dir):
     assert model.timeFormat == "general"
     assert model.timePrecision == 6
     assert model.runTimeModifiable is True
-
+    assert model.maxCo == 0.5  # Check the new field
 

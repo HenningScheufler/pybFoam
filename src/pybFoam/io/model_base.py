@@ -1,4 +1,4 @@
-from typing import get_origin, get_args, Optional, Union, Annotated
+from typing import get_origin, get_args, Optional, Union, Annotated, Literal
 import os
 import json
 import yaml
@@ -28,6 +28,8 @@ def _unwrap_type(tp):
         args = [a for a in get_args(tp) if a is not type(None)]
         if args:
             tp = args[0]
+    if get_origin(tp) is Literal:
+        return str
     return tp
 
 class IOModelBase(BaseModel):
