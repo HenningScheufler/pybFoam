@@ -2,8 +2,6 @@ import pytest
 import pybFoam
 from pybFoam import fvm, volScalarField, volVectorField, fvMesh, Time, fvScalarMatrix, fvVectorMatrix
 import os
-import oftest
-from oftest import run_reset_case
 
 @pytest.fixture(scope="function")
 def change_test_dir(request):

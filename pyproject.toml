@@ -36,6 +36,7 @@ dependencies = [
     "numpy>=1.20",
     "pybind11>=2.6.0",
     "pydantic",
+    "pyyaml"
 ]
 
 [project.optional-dependencies]
@@ -48,25 +49,14 @@ dev = [
     "isort",
     "mypy",
     "cmake>=3.18",
-    "ninja",
     "pybind11-stubgen>=2.5",
 ]
 docs = [
     "sphinx>=4.0",
     "sphinx-rtd-theme",
-    "myst-parser",
-]
-viz = [
-    "matplotlib",
-]
-test = [
-    "oftest",
-    "pytest",
-    "pyfmi",
-    "fmpy",
 ]
 all = [
-    "pybFoam[dev,docs,viz,test]",
+    "pybFoam[dev,docs]",
 ]
 
 [project.urls]

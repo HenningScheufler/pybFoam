@@ -1,9 +1,7 @@
 import pytest
 import pybFoam
 import os
-import oftest
 import numpy as np
-from oftest import run_reset_case
 
 @pytest.fixture(scope="function")
 def change_test_dir(request):
