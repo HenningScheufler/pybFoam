@@ -7,5 +7,6 @@
   "scalarField": [1, 1],
   "vectorField": [[1, 1, 1], [1, 1, 1]],
   "tensorField": [[1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1]],
-  "subDict": {"word2": "word2"}
+  "subDict": {"word2": "word2"},
+  "token": "Gauss linear"
 }

@@ -27,6 +27,7 @@ class OFTestDict(IOModelBase):
     vectorField: pybFoam.vectorField = Field(max_length=2)
     tensorField: pybFoam.tensorField = Field(max_length=2)
     subDict: OFTestSubDict
+    token: str
 
 
 def test_parse_ofdict(change_test_dir):
@@ -50,6 +51,8 @@ def test_parse_ofdict(change_test_dir):
     subDict = d.subDict("subDict")
     assert subDict.get[Word]("word2") == "word2"
 
+    assert d.get[str]("token") == "Gauss linear"
+
 
 import pytest
 
@@ -65,6 +68,7 @@ def test_parse_ofdict_model(change_test_dir, filename):
     assert (test_dict.vectorField == np.ones([2,3])).all()
     assert (test_dict.tensorField == np.ones([2,9])).all()
     assert test_dict.subDict.word2 == "word2"
+    assert test_dict.token == "Gauss linear"
 
 class randomClass:
     pass

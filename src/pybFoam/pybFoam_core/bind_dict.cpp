@@ -198,6 +198,11 @@ void bindDict(pybind11::module& m)
 
     // Register types for get directly
     DictionaryGetProxy::type_registry()["str"] = [](Foam::dictionary& d, const std::string& key) {
+        auto* entry = d.findEntry(Foam::word(key)); 
+        if (entry->isStream())
+        {
+            return pybind11::cast(entry->stream().toString());
+        }
         return pybind11::cast(static_cast<std::string>(d.get<Foam::word>(Foam::word(key))));
     };
     DictionaryGetProxy::register_type<Foam::scalar>("float");
