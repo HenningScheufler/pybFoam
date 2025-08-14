@@ -17,6 +17,7 @@ def change_test_dir(request):
 controlDict = create_model(
     'ControlDict',
     maxCo=(float, Field(..., gt=0.0)),  # name=(type, required/Default)
+    test_token=(str, Field(..., description="A test token for demonstration purposes")),
     __base__=ControlDictBase
 )
 
@@ -38,4 +39,5 @@ def test_parse_controlDict(change_test_dir):
     assert model.timePrecision == 6
     assert model.runTimeModifiable is True
     assert model.maxCo == 0.5  # Check the new field
+    assert model.test_token == "token token"  # Check the new field
 

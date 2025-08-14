@@ -4,7 +4,7 @@ import json
 import yaml
 import pybFoam
 from pybFoam import dictionary
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 type_dispatch = {
     str: lambda v: v,  # Keep as string
@@ -21,7 +21,7 @@ type_dispatch = {
 }
 
 def _unwrap_type(tp):
-    # peel Annotated[T, ...] and Optional[T]/Union[T, None]
+    # peel Annotated[T, ...] and Union[T, None]
     if get_origin(tp) is Annotated:
         tp = get_args(tp)[0]
     if get_origin(tp) in (Optional, Union):
@@ -74,15 +74,14 @@ class IOModelBase(BaseModel):
             if hasattr(d, 'isDict') and d.isDict(key):
                 # Always populate nested sub-dictionaries
                 if issubclass(typ, IOModelBase):
-                    mapping[name] = typ.from_ofdict(d.subDict(key))
+                    mapping[key] = typ.from_ofdict(d.subDict(key))
             else:
                 try:
-                    mapping[name] = d.get[typ](key)
-                except Exception:
-                    # If the field is missing, set to None (let Pydantic handle required/optional)
-                    # or wrong type
+                    mapping[key] = d.get[typ](key)
+                except Exception as e:
+                    # If the field is missing or wrong type, set to None (let Pydantic handle it)
                     print(f"Warning: Could not parse field '{name}' of type '{typ}' from OpenFOAM dictionary. Setting to None.")
-                    mapping[name] = None
+                    mapping[key] = None
         return cls(**mapping)
 
     @classmethod
@@ -90,12 +89,18 @@ class IOModelBase(BaseModel):
         
         mapping = {}
 
-        for field, typ in cls.__annotations__.items():
-            if field not in data:
+        for field_name, field_info in cls.model_fields.items():
+            # Use the field alias if available, otherwise use the field name
+            key = field_info.validation_alias or field_info.alias or field_name
+            
+            if key not in data:
                 continue
-            val = data[field]
+            val = data[key]
+            typ = _unwrap_type(field_info.annotation)
+            
             if isinstance(typ, type) and issubclass(typ, IOModelBase):
-                mapping[field] = typ._from_mapping(val, source)
+                mapping[field_name] = typ._from_mapping(val, source)
             else:
-                mapping[field] = type_dispatch[typ](val)
+                dispatch_type = typ
+                mapping[field_name] = type_dispatch[dispatch_type](val)
         return cls(**mapping)

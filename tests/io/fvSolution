@@ -10,43 +10,43 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      controlDict;
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     icoFoam;
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-06;
+        relTol          0.05;
+    }
 
-startFrom       startTime;
+    pFinal
+    {
+        // $p; not suppoerted yet
+        solver          PCG;
+        preconditioner  DIC;
+        relTol          0;
+        tolerance       1e-06;
+    }
 
-startTime       0;
+    U
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-05;
+        relTol          0;
+    }
+}
 
-stopAt          endTime;
-
-endTime         10;
-
-deltaT          0.05;
-
-writeControl    timeStep;
-
-writeInterval   20;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
-maxCo            0.5;
-
-test_token    token token;
+PISO
+{
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 2;
+}
 
 
 // ************************************************************************* //
