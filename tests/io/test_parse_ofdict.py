@@ -1,3 +1,4 @@
+from typing import Optional
 import pytest
 from pybFoam import dictionary, vector, tensor, Word
 import os
@@ -28,6 +29,8 @@ class OFTestDict(IOModelBase):
     tensorField: pybFoam.tensorField = Field(max_length=2)
     subDict: OFTestSubDict
     token: str
+    optional: Optional[str] = None  # Optional field for testing
+    notSetOptional: Optional[str] # Not set, should be None
 
 
 def test_parse_ofdict(change_test_dir):
@@ -52,6 +55,8 @@ def test_parse_ofdict(change_test_dir):
     assert subDict.get[Word]("word2") == "word2"
 
     assert d.get[str]("token") == "Gauss linear"
+    assert d.get[str]("optional") == "optional"
+    assert d.get[str]("notSetOptional") 
 
 
 import pytest
@@ -69,6 +74,8 @@ def test_parse_ofdict_model(change_test_dir, filename):
     assert (test_dict.tensorField == np.ones([2,9])).all()
     assert test_dict.subDict.word2 == "word2"
     assert test_dict.token == "Gauss linear"
+    assert test_dict.optional == "optional"  # Optional field should be None
+    assert test_dict.notSetOptional is None  # Not set optional field should also be None
 
 class randomClass:
     pass

@@ -15,3 +15,4 @@ tensorField:
 subDict:
   word2: word2
 token: Gauss linear
+optional: optional  # Optional field for testing
