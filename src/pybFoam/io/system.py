@@ -62,4 +62,3 @@ class FvSchemesBase(IOModelBase):
     laplacianSchemes: LaplacianSchemes
     interpolationSchemes: InterpolationSchemes
     snGradSchemes: SnGradSchemes
-    fluxRequired: FluxRequired

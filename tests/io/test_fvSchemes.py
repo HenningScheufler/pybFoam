@@ -18,10 +18,14 @@ ExtendedDIVSchemes = create_model(
     __base__=DIVSchemes  # Extend the original DIVSchemes
 )
 
+class FluxRequired(IOModelBase):
+    default: Optional[str] = Field(default="yes", description="Indicates if fluxes are required, default is 'yes'")
+
 # Create the complete FvSchemes model with the extended DIVSchemes
 FvSchemes = create_model(
     'FvSchemes',
-    divSchemes=(ExtendedDIVSchemes, ...),  # Override the divSchemes field
+    divSchemes=(ExtendedDIVSchemes, ...),  # Override the divSchemes field,
+    fluxRequired=(FluxRequired, ...),  # Add fluxRequired field
     __base__=FvSchemesBase
 )
 
