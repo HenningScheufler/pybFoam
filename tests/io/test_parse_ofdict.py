@@ -30,7 +30,7 @@ class OFTestDict(IOModelBase):
     subDict: OFTestSubDict
     token: str
     optional: Optional[str] = None  # Optional field for testing
-    notSetOptional: Optional[str] # Not set, should be None
+    notSetOptional: Optional[str] = None  # Not set, should be None
 
 
 def test_parse_ofdict(change_test_dir):
@@ -56,7 +56,8 @@ def test_parse_ofdict(change_test_dir):
 
     assert d.get[str]("token") == "Gauss linear"
     assert d.get[str]("optional") == "optional"
-    assert d.get[str]("notSetOptional") 
+    with pytest.raises(KeyError, match=r"Key \'notSetOptional\' not found in dictionary"):
+        d.get[str]("notSetOptional")
 
 
 import pytest
@@ -74,8 +75,8 @@ def test_parse_ofdict_model(change_test_dir, filename):
     assert (test_dict.tensorField == np.ones([2,9])).all()
     assert test_dict.subDict.word2 == "word2"
     assert test_dict.token == "Gauss linear"
-    assert test_dict.optional == "optional"  # Optional field should be None
-    assert test_dict.notSetOptional is None  # Not set optional field should also be None
+    assert test_dict.optional == "optional"
+    assert test_dict.notSetOptional is None
 
 class randomClass:
     pass

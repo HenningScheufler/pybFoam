@@ -82,6 +82,9 @@ public:
             GetterFunc func;
             TypeCaller(Foam::dictionary& d, GetterFunc f) : dict(d), func(f) {}
             pybind11::object operator()(const std::string& key) {
+                if (!dict.found(key)) {
+                    throw pybind11::key_error("Key '" + key + "' not found in dictionary");
+                }
                 return func(dict, key);
             }
         };
