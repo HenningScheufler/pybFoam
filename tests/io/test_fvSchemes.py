@@ -1,8 +1,9 @@
 from typing import Optional
 import pytest
 from pybFoam.io.model_base import IOModelBase
+from pybFoam.io.system import FvSchemesBase, DIVSchemes
 import os
-from pydantic import Field
+from pydantic import Field, create_model
 
 @pytest.fixture(scope="function")
 def change_test_dir(request):
@@ -10,37 +11,19 @@ def change_test_dir(request):
     yield
     os.chdir(request.config.invocation_dir)
 
-class DDTSchemes(IOModelBase):
-    default: Optional[str]
+ExtendedDIVSchemes = create_model(
+    'ExtendedDIVSchemes',
+    div_phi_U=(Optional[str], Field(alias="div(phi,U)", default=None)),
+    div_phi_alpha=(Optional[str], Field(alias="div(phi,alpha)", default=None)),
+    __base__=DIVSchemes  # Extend the original DIVSchemes
+)
 
-class GradSchemes(IOModelBase):
-    default: Optional[str]
-
-class DIVSchemes(IOModelBase):
-    default: Optional[str]
-    div_phi_U: str = Field(alias="div(phi,U)")
-    div_phi_alpha: str = Field(alias="div(phi,alpha)")
-
-class LaplacianSchemes(IOModelBase):
-    default: Optional[str]
-
-class InterpolationSchemes(IOModelBase):
-    default: Optional[str]
-
-class SnGradSchemes(IOModelBase):
-    default: Optional[str]
-
-class FluxRequired(IOModelBase):
-    default: Optional[str]
-
-class FvSchemes(IOModelBase):
-    ddtSchemes: DDTSchemes
-    gradSchemes: GradSchemes
-    divSchemes: DIVSchemes
-    laplacianSchemes: LaplacianSchemes
-    interpolationSchemes: InterpolationSchemes
-    snGradSchemes: SnGradSchemes
-    fluxRequired: FluxRequired
+# Create the complete FvSchemes model with the extended DIVSchemes
+FvSchemes = create_model(
+    'FvSchemes',
+    divSchemes=(ExtendedDIVSchemes, ...),  # Override the divSchemes field
+    __base__=FvSchemesBase
+)
 
 def test_parse_fvSchemes(change_test_dir):
     model = FvSchemes.from_file("fvSchemes")

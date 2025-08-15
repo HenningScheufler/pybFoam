@@ -12,7 +12,7 @@ def change_test_dir(request):
 class MatrixSolver(IOModelBase):
     solver: str
     preconditioner: Optional[str]
-    # smoother: Optional[str]  # Optional, not always present
+    smoother: Optional[str]  # Optional, not always present
     tolerance: float
     relTol: float
 
@@ -20,7 +20,7 @@ class MatrixSolver(IOModelBase):
 class Solvers(IOModelBase):
     p: MatrixSolver
     pFinal: MatrixSolver
-    # U: MatrixSolver
+    U: MatrixSolver
 
     
 class PISO(IOModelBase):
@@ -30,9 +30,6 @@ class PISO(IOModelBase):
 class FvSolution(IOModelBase):
     solvers: Solvers
     PISO: PISO
-    # SIMPLE: dict = None  # Optional, depending on solver
-    # relaxationFactors: dict = None
-    # potentialFlow: dict = None
 
 def test_parse_fvSolution(change_test_dir):
     model = FvSolution.from_file("fvSolution")
@@ -47,10 +44,11 @@ def test_parse_fvSolution(change_test_dir):
     assert model.solvers.pFinal.tolerance == 1e-06
     assert model.solvers.pFinal.relTol == 0.00
 
-    # assert model.solvers.U.solver == "smoothSolver"
-    # assert model.solvers.U.preconditioner == "symGaussSeidel"
-    # assert model.solvers.U.tolerance == 1e-05
-    # assert model.solvers.U.relTol == 0.00
+    assert model.solvers.U.solver == "smoothSolver"
+    assert model.solvers.U.smoother == "symGaussSeidel"
+    assert model.solvers.U.preconditioner is None
+    assert model.solvers.U.tolerance == 1e-05
+    assert model.solvers.U.relTol == 0.00
 
     assert model.PISO.nCorrectors == 2
     assert model.PISO.nNonOrthogonalCorrectors == 2

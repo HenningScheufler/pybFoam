@@ -32,3 +32,34 @@ class ControlDictBase(IOModelBase):
     timeFormat: str
     timePrecision: int
     runTimeModifiable: bool = Field(default=True)  # Default to True if not specified
+
+
+class DDTSchemes(IOModelBase):
+    default: Optional[str]
+
+class GradSchemes(IOModelBase):
+    default: Optional[str]
+
+class DIVSchemes(IOModelBase):
+    default: Optional[str]
+
+class LaplacianSchemes(IOModelBase):
+    default: Optional[str]
+
+class InterpolationSchemes(IOModelBase):
+    default: Optional[str]
+
+class SnGradSchemes(IOModelBase):
+    default: Optional[str]
+
+class FluxRequired(IOModelBase):
+    default: Optional[str]
+
+class FvSchemesBase(IOModelBase):
+    ddtSchemes: DDTSchemes
+    gradSchemes: GradSchemes
+    divSchemes: DIVSchemes
+    laplacianSchemes: LaplacianSchemes
+    interpolationSchemes: InterpolationSchemes
+    snGradSchemes: SnGradSchemes
+    fluxRequired: FluxRequired
