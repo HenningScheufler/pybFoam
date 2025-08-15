@@ -3,16 +3,18 @@ import pytest
 from pybFoam.io.model_base import IOModelBase
 import os
 
+
 @pytest.fixture(scope="function")
 def change_test_dir(request):
     os.chdir(request.fspath.dirname)
     yield
     os.chdir(request.config.invocation_dir)
 
+
 class MatrixSolver(IOModelBase):
     solver: str
-    preconditioner: Optional[str]
-    smoother: Optional[str]  # Optional, not always present
+    preconditioner: Optional[str] = None
+    smoother: Optional[str] = None  # Optional, not always present
     tolerance: float
     relTol: float
 
@@ -22,14 +24,16 @@ class Solvers(IOModelBase):
     pFinal: MatrixSolver
     U: MatrixSolver
 
-    
+
 class PISO(IOModelBase):
     nCorrectors: int
     nNonOrthogonalCorrectors: int
 
+
 class FvSolution(IOModelBase):
     solvers: Solvers
     PISO: PISO
+
 
 def test_parse_fvSolution(change_test_dir):
     model = FvSolution.from_file("fvSolution")

@@ -20,6 +20,7 @@ type_dispatch = {
     pybFoam.tensorField: lambda v: pybFoam.tensorField(v),
 }
 
+
 def _unwrap_type(tp):
     # peel Annotated[T, ...] and Union[T, None]
     if get_origin(tp) is Annotated:
@@ -32,12 +33,12 @@ def _unwrap_type(tp):
         return str
     return tp
 
-class IOModelBase(BaseModel):
 
-    model_config = {"arbitrary_types_allowed": True}
+class IOModelMixin:
+    """
+    Mixin class to provide common functionality for IO models.
+    """
 
-
-    
     @classmethod
     def from_file(cls, path):
         ext = os.path.splitext(path)[1].lower()
@@ -71,7 +72,7 @@ class IOModelBase(BaseModel):
             key = f.validation_alias or f.alias or name
             typ = _unwrap_type(f.annotation)
 
-            if hasattr(d, 'isDict') and d.isDict(key):
+            if hasattr(d, "isDict") and d.isDict(key):
                 # Always populate nested sub-dictionaries
                 if issubclass(typ, IOModelBase):
                     mapping[key] = typ.from_ofdict(d.subDict(key))
@@ -80,27 +81,34 @@ class IOModelBase(BaseModel):
                     mapping[key] = d.get[typ](key)
                 except Exception as e:
                     # If the field is missing or wrong type, set to None (let Pydantic handle it)
-                    print(f"Warning: Could not parse field '{name}' of type '{typ}' from OpenFOAM dictionary. Setting to None.")
-                    mapping[key] = None
+                    print(
+                        f"Warning: Could not parse field '{name}' of type '{typ}' from OpenFOAM dictionary. Setting to None."
+                    )
+                    continue
         return cls(**mapping)
 
     @classmethod
     def _from_mapping(cls, data, source):
-        
+
         mapping = {}
 
         for field_name, field_info in cls.model_fields.items():
             # Use the field alias if available, otherwise use the field name
             key = field_info.validation_alias or field_info.alias or field_name
-            
+
             if key not in data:
                 continue
             val = data[key]
             typ = _unwrap_type(field_info.annotation)
-            
+
             if isinstance(typ, type) and issubclass(typ, IOModelBase):
                 mapping[field_name] = typ._from_mapping(val, source)
             else:
                 dispatch_type = typ
                 mapping[field_name] = type_dispatch[dispatch_type](val)
         return cls(**mapping)
+
+
+class IOModelBase(IOModelMixin, BaseModel):
+
+    model_config = {"arbitrary_types_allowed": True}
