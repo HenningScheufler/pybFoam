@@ -35,6 +35,10 @@ namespace Foam
     )
     {
         autoPtr<IFstream> dictFile(new IFstream(file_name));
+        if (!dictFile->good())
+        {
+            throw std::runtime_error("Could not open dictionary file: " + file_name);
+        }
         dictionary dict(dictFile(), true);
         return dict;
     }

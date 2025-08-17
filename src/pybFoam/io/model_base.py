@@ -80,10 +80,6 @@ class IOModelMixin:
                 try:
                     mapping[key] = d.get[typ](key)
                 except Exception as e:
-                    # If the field is missing or wrong type, set to None (let Pydantic handle it)
-                    print(
-                        f"Warning: Could not parse field '{name}' of type '{typ}' from OpenFOAM dictionary. Setting to None."
-                    )
                     continue
         return cls(**mapping)
 
