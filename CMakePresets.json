@@ -1,0 +1,143 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "default",
+            "displayName": "Default Config",
+            "description": "Default build configuration for pybFoam",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_COMPILER": "g++",
+                "CMAKE_C_COMPILER": "gcc",
+                "CPM_SOURCE_CACHE": "$env{HOME}/.cache/CPM",
+                "CPM_USE_LOCAL_PACKAGES": "ON"
+            },
+            "condition": {
+                "type": "notEquals",
+                "lhs": "$env{FOAM_SRC}",
+                "rhs": ""
+            }
+        },
+        {
+            "name": "debug",
+            "displayName": "Debug Config",
+            "description": "Debug build configuration for pybFoam",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS": "-g -O0 -DDEBUG"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release Config",
+            "description": "Release build configuration for pybFoam",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG"
+            }
+        },
+        {
+            "name": "relwithdebinfo",
+            "displayName": "Release with Debug Info",
+            "description": "Release build with debug information for pybFoam",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "CMAKE_CXX_FLAGS": "-O2 -g"
+            }
+        },
+        {
+            "name": "ninja",
+            "displayName": "Ninja Build",
+            "description": "Fast build using Ninja generator",
+            "inherits": "default",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "clang",
+            "displayName": "Clang Build",
+            "description": "Build with Clang compiler",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_C_COMPILER": "clang"
+            }
+        },
+        {
+            "name": "offline",
+            "displayName": "Offline Build",
+            "description": "Build without downloading dependencies",
+            "inherits": "default",
+            "cacheVariables": {
+                "CPM_USE_LOCAL_PACKAGES": "ON",
+                "CPM_LOCAL_PACKAGES_ONLY": "ON"
+            }
+        },
+        {
+            "name": "no-cache",
+            "displayName": "No Cache Build",
+            "description": "Build without using CPM cache",
+            "inherits": "default",
+            "cacheVariables": {
+                "CPM_SOURCE_CACHE": ""
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default",
+            "configurePreset": "default",
+            "displayName": "Default Build",
+            "description": "Build with default settings"
+        },
+        {
+            "name": "debug",
+            "configurePreset": "debug",
+            "displayName": "Debug Build",
+            "description": "Build in debug mode"
+        },
+        {
+            "name": "release",
+            "configurePreset": "release",
+            "displayName": "Release Build",
+            "description": "Build in release mode"
+        },
+        {
+            "name": "ninja",
+            "configurePreset": "ninja",
+            "displayName": "Ninja Build",
+            "description": "Fast build using Ninja"
+        },
+        {
+            "name": "parallel",
+            "configurePreset": "default",
+            "displayName": "Parallel Build",
+            "description": "Build with maximum parallelism",
+            "jobs": 0
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "default",
+            "configurePreset": "default",
+            "displayName": "Default Test",
+            "description": "Run all tests"
+        },
+        {
+            "name": "verbose",
+            "configurePreset": "default",
+            "displayName": "Verbose Test",
+            "description": "Run tests with verbose output",
+            "output": {
+                "verbosity": "verbose"
+            }
+        }
+    ]
+}

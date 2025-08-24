@@ -1,5 +1,0 @@
-EXE_INC = \
-    -I/media/henning/ssd1linux/miniconda3/envs/py_inter_foam/include/python3.10 \
-
-LIB_LIBS = \
-

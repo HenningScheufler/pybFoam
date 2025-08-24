@@ -1,3 +1,0 @@
-test-pythonNumpy.C
-
-EXE = $(FOAM_USER_APPBIN)/test-pythonNumpy

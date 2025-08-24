@@ -1,0 +1,18 @@
+word: word
+scalar: 1.1
+vector: [1.1, 1.1, 1.1]
+tensor: [1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1]
+wordList:
+  - word1
+  - word2
+scalarField: [1, 1]
+vectorField:
+  - [1, 1, 1]
+  - [1, 1, 1]
+tensorField:
+  - [1, 1, 1, 1, 1, 1, 1, 1, 1]
+  - [1, 1, 1, 1, 1, 1, 1, 1, 1]
+subDict:
+  word2: word2
+token: Gauss linear
+optional: optional  # Optional field for testing

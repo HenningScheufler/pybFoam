@@ -1,0 +1,22 @@
+# Type stubs for pybFoam
+from typing import Any
+
+__version__: str
+
+def read_dictionary(filename: str) -> Any: ...
+
+class dictionary:
+    def __init__(self, *args: Any) -> None: ...
+    @staticmethod
+    def read(filename: str) -> Any: ...
+
+class keyType:
+    def __init__(self, key: str) -> None: ...
+
+class entry:
+    def __init__(self, *args: Any) -> None: ...
+
+class dictionaryEntry(entry):
+    def __init__(self, *args: Any) -> None: ...
+
+# Add other type stubs as needed

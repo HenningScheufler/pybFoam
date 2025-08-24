@@ -1,0 +1,93 @@
+[build-system]
+requires = [
+    "scikit-build-core[pyproject]>=0.4.3",
+    "pybind11>=2.6.0",
+    "cmake>=3.18",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pybFoam"
+version = "0.1.0"
+authors = [
+    {name = "Henning Scheufler", email = "henning.scheufler@dlr.de"},
+]
+description = "python bindings for OpenFOAM"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+keywords = ["OpenFOAM", "simulation", "CFD"]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy>=1.20",
+    "pybind11>=2.6.0",
+    "pydantic",
+    "pyyaml"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "pytest-xdist",
+    "black",
+    "flake8",
+    "isort",
+    "mypy",
+    "cmake>=3.18",
+    "pybind11-stubgen>=2.5",
+]
+docs = [
+    "sphinx>=4.0",
+    "sphinx-rtd-theme",
+]
+all = [
+    "pybFoam[dev,docs]",
+]
+
+[project.urls]
+Homepage = "https://github.com/DLR-RY/pybFoam"
+Repository = "https://github.com/DLR-RY/pybFoam.git"
+Issues = "https://github.com/DLR-RY/pybFoam/issues"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.scikit-build]
+cmake.version = ">=3.18"
+cmake.build-type = "Release"
+build.verbose = true
+# Add build directory to contain CMake files
+build-dir = "_skbuild"
+editable.mode = "redirect"
+editable.verbose = true
+editable.rebuild = false
+
+
+# CMake configuration
+[tool.scikit-build.cmake.define]
+PYBIND11_FINDPYTHON = "ON"
+CMAKE_CXX_STANDARD = "17"
+
+# Generate stubs for better IDE support
+[tool.scikit-build.experimental]
+generate-type-stubs = true
+
+[tool.pytest.ini_options]
+addopts = "-ra -v"
+testpaths = ["tests"]
