@@ -9,14 +9,14 @@ on:
 
 jobs:
   build-test:
-    runs-on: ubuntu-22.04 # may use an older version to test
+    runs-on: ubuntu-24.04 # may use an older version to test
     strategy:
       matrix:
         openfoam-version: [2406, 2412, 2506]
       fail-fast: false
     name: Test with OpenFOAM ${{ matrix.openfoam-version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up OpenFOAM
         uses: gerlero/setup-openfoam@v1
         with:
@@ -28,11 +28,9 @@ jobs:
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install scikit-build-core[pyproject] pybind11 cmake numpy pydantic pyyaml
-          pip install .[dev]
       - name: Build package
         run: |
-          pip install .
+          pip install .[dev]
       - name: Run tests
         run: |
           pytest
