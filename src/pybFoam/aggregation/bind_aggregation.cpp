@@ -35,7 +35,7 @@ aggregationResult<T> aggSum(
     std::optional<Foam::labelList> group = std::nullopt)
 {
     aggregationResult<T> result;
-    auto nGroups = group ? (*group).size() : 1;
+    auto nGroups = group ? max(*group) + 1 : 1;
     result.values = Foam::Field<T>(nGroups, Foam::Zero);
 
     const Foam::label nElements = values.size();
@@ -59,7 +59,7 @@ aggregationResult<T> aggMax(
     std::optional<Foam::labelList> group = std::nullopt)
 {
     aggregationResult<T> result;
-    auto nGroups = group ? (*group).size() : 1;
+    auto nGroups = group ? max(*group) + 1 : 1;
     if constexpr (std::is_same<T, Foam::scalar>::value)
     {
         result.values = Foam::Field<T>(nGroups, -Foam::GREAT);
@@ -97,7 +97,7 @@ aggregationResult<T> aggMin(
     std::optional<Foam::labelList> group = std::nullopt)
 {
     aggregationResult<T> result;
-    auto nGroups = group ? (*group).size() : 1;
+    auto nGroups = group ? max(*group) + 1 : 1;
 
     if constexpr (std::is_same<T, Foam::scalar>::value)
     {
