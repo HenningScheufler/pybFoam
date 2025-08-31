@@ -161,6 +161,72 @@ void Foam::bindFields(py::module& m)
         })
     ;
 
+    py::class_<List<bool>>(m, "boolList")
+        .def(py::init<List<bool> > ())
+        .def(py::init([](std::vector<bool> vec) {
+            List<bool> f(vec.size());
+            forAll(f,i)
+            {
+                f[i] = vec[i];
+            }
+            return f;
+        }))
+        .def("__len__", [](const List<bool>& self) {
+            return self.size();
+        })
+        .def("__getitem__", [](const List<bool>& self, const label idx) {
+            if (idx >= self.size())
+            {
+                throw py::index_error();
+            }
+            return self[idx];
+        })
+        .def("__setitem__", [](List<bool>& self, const label idx,const bool& s) {
+            self[idx] = s;
+        })
+        .def("list",[](List<bool>& self){
+            std::vector<bool> l_out(self.size());
+            forAll(self,i)
+            {
+                l_out[i] = self[i];
+            }
+            return l_out;
+        })
+        ;
+
+    py::class_<List<label>>(m, "labelList")
+        .def(py::init<List<label> > ())
+        .def(py::init([](std::vector<label> vec) {
+            List<label> f(vec.size());
+            forAll(f,i)
+            {
+                f[i] = vec[i];
+            }
+            return f;
+        }))
+        .def("__len__", [](const List<label>& self) {
+            return self.size();
+        })
+        .def("__getitem__", [](const List<label>& self, const label idx) {
+            if (idx >= self.size())
+            {
+                throw py::index_error();
+            }
+            return self[idx];
+        })
+        .def("__setitem__", [](List<label>& self, const label idx,const label& s) {
+            self[idx] = s;
+        })
+        .def("list",[](List<label>& self){
+            std::vector<label> l_out(self.size());
+            forAll(self,i)
+            {
+                l_out[i] = self[i];
+            }
+            return l_out;
+        })
+        ;
+
     py::class_<List<word>>(m, "wordList")
         .def(py::init<List<word> > ())
         .def(py::init([](std::vector<std::string> vec) {
@@ -232,6 +298,8 @@ void Foam::bindFields(py::module& m)
     //     return Field<vector>(self & sf);
     // })
     ;
+
+
 
 
 
