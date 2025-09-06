@@ -12,6 +12,7 @@ def test_mag():
 def test_sum():
     field = scalarField([1, 2, 3])
     assert aggregation.sum(field, boolList([True, True, True]), None).values[0] == 6
+    assert aggregation.sum(field, boolList([True, True, True]), None).group == None
     assert aggregation.sum(field, None, None).values[0] == 6
     assert aggregation.sum(field, boolList([True, False, True]), None).values[0] == 4
 
@@ -26,17 +27,25 @@ def test_sum():
 
     # # with groupby
     field = scalarField([1, 2, 3])
-    assert aggregation.sum(field, None, labelList([0, 1, 1])).values[0] == 1
-    assert aggregation.sum(field, None, labelList([0, 1, 1])).values[1] == 5
+    
+    agg_res = aggregation.sum(field, None, labelList([0, 1, 1]))
+    assert agg_res.values[0] == 1
+    assert agg_res.values[1] == 5
+    assert agg_res.group[0] == 0
+    assert agg_res.group[1] == 1
 
-    assert aggregation.sum(field, boolList([True, False, True]), labelList([0, 1, 1])).values[0] == 1
-    assert aggregation.sum(field, boolList([True, False, True]), labelList([0, 1, 1])).values[1] == 3
+    agg_res = aggregation.sum(field, boolList([True, False, True]), labelList([0, 1, 1]))
+    assert agg_res.values[0] == 1
+    assert agg_res.values[1] == 3
+    assert agg_res.group[0] == 0
+    assert agg_res.group[1] == 1
 
 
 def test_min():
 
     field = scalarField([1, 2, 3])
     assert aggregation.min(field, None, None).values[0] == 1
+    assert aggregation.min(field, None, None).group == None
     assert aggregation.min(field, boolList([True, True, True]), None).values[0] == 1
     assert aggregation.min(field, boolList([True, False, True]), None).values[0] == 1
 
@@ -51,16 +60,21 @@ def test_min():
 
     # # with groupby
     field = scalarField([1, 2, 3])
-    assert aggregation.min(field, None, labelList([0, 1, 1])).values[0] == 1
-    assert aggregation.min(field, None, labelList([0, 1, 1])).values[1] == 2
+    agg_res = aggregation.min(field, None, labelList([0, 1, 1]))
+    assert agg_res.values[0] == 1
+    assert agg_res.values[1] == 2
+    assert agg_res.group[0] == 0
+    assert agg_res.group[1] == 1
 
-    assert aggregation.min(field, boolList([True, False, True]), labelList([0, 1, 1])).values[0] == 1
-    assert aggregation.min(field, boolList([True, False, True]), labelList([0, 1, 1])).values[1] == 3
+    agg_res = aggregation.min(field, boolList([True, False, True]), labelList([0, 1, 1]))
+    assert agg_res.values[0] == 1
+    assert agg_res.values[1] == 3
 
 def test_max():
 
     field = scalarField([1, 2, 3])
     assert aggregation.max(field, None, None).values[0] == 3
+    assert aggregation.max(field, None, None).group == None
     assert aggregation.max(field, boolList([True, True, True]), None).values[0] == 3
     assert aggregation.max(field, boolList([True, False, True]), None).values[0] == 3
 
@@ -77,6 +91,8 @@ def test_max():
     field = scalarField([1, 2, 3])
     assert aggregation.max(field, None, labelList([0, 1, 1])).values[0] == 1
     assert aggregation.max(field, None, labelList([0, 1, 1])).values[1] == 3
+    assert aggregation.max(field, None, labelList([0, 1, 1])).group[0] == 0
+    assert aggregation.max(field, None, labelList([0, 1, 1])).group[1] == 1
 
     assert aggregation.max(field, boolList([True, False, True]), labelList([0, 1, 1])).values[0] == 1
     assert aggregation.max(field, boolList([True, False, True]), labelList([0, 1, 1])).values[1] == 3

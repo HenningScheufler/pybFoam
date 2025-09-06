@@ -37,6 +37,17 @@ aggregationResult<T> aggSum(
     aggregationResult<T> result;
     auto nGroups = group ? max(*group) + 1 : 1;
     result.values = Foam::Field<T>(nGroups, Foam::Zero);
+    // store the group information in the result
+    // ranging from 0 to nGroups-1
+    // if no grouping is done, this remains nullopt
+    if (group)
+    {
+        result.group = Foam::labelList(nGroups);
+        for (Foam::label i = 0; i < nGroups; ++i)
+        {
+            (*result.group)[i] = i;
+        }
+    }
 
     const Foam::label nElements = values.size();
 
@@ -60,6 +71,17 @@ aggregationResult<T> aggMax(
 {
     aggregationResult<T> result;
     auto nGroups = group ? max(*group) + 1 : 1;
+    // store the group information in the result
+    // ranging from 0 to nGroups-1
+    // if no grouping is done, this remains nullopt
+    if (group)
+    {
+        result.group = Foam::labelList(nGroups);
+        for (Foam::label i = 0; i < nGroups; ++i)
+        {
+            (*result.group)[i] = i;
+        }
+    }
     if constexpr (std::is_same<T, Foam::scalar>::value)
     {
         result.values = Foam::Field<T>(nGroups, -Foam::GREAT);
@@ -98,6 +120,17 @@ aggregationResult<T> aggMin(
 {
     aggregationResult<T> result;
     auto nGroups = group ? max(*group) + 1 : 1;
+    // store the group information in the result
+    // ranging from 0 to nGroups-1
+    // if no grouping is done, this remains nullopt
+    if (group)
+    {
+        result.group = Foam::labelList(nGroups);
+        for (Foam::label i = 0; i < nGroups; ++i)
+        {
+            (*result.group)[i] = i;
+        }
+    }
 
     if constexpr (std::is_same<T, Foam::scalar>::value)
     {
