@@ -48,14 +48,19 @@ def test_mesh(change_test_dir):
 
 
     C = mesh.C()
-    print(C["internalField"])
+    assert pybFoam.sum(C["internalField"])[0] > 0
+    assert pybFoam.sum(C["internalField"])[1] > 0
+    assert pybFoam.sum(C["internalField"])[2] > 0
+
+    V = mesh.V()
+    assert pybFoam.sum(V) > 0
 
 
-def test_mesh(change_test_dir):
+# def test_mesh(change_test_dir):
 
-    time = pybFoam.Time(".", ".")
-    times = pybFoam.selectTimes(time,["test_mesh"])
+#     time = pybFoam.Time(".", ".")
+#     times = pybFoam.selectTimes(time,["test_mesh"])
 
-    for t in times:
-        print(t)
+#     for t in times:
+#         print(t)
     
