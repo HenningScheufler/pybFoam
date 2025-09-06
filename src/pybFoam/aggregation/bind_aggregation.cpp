@@ -32,7 +32,8 @@ template <typename T>
 aggregationResult<T> aggSum(
     const Foam::Field<T> &values,
     std::optional<Foam::boolList> mask = std::nullopt,
-    std::optional<Foam::labelList> group = std::nullopt)
+    std::optional<Foam::labelList> group = std::nullopt,
+    std::optional<Foam::scalarField> scalingFactor = std::nullopt)
 {
     aggregationResult<T> result;
     auto nGroups = group ? max(*group) + 1 : 1;
@@ -54,11 +55,72 @@ aggregationResult<T> aggSum(
     for (Foam::label i = 0; i < nElements; ++i)
     {
         Foam::label groupIndex = group ? (*group)[i] : 0;
-        Foam::scalar scale = mask ? (*mask)[i] : 1.0;
-        result.values[groupIndex] += values[i] * scale;
+        Foam::scalar masking = mask ? (*mask)[i] : 1.0;
+        Foam::scalar scaleFactor = scalingFactor ? (*scalingFactor)[i] : 1.0;
+        result.values[groupIndex] += values[i] * masking * scaleFactor;
     }
 
     Foam::reduce(result.values, Foam::sumOp<Foam::Field<T>>());
+
+    return result;
+}
+
+
+template <typename T>
+aggregationResult<T> aggMean(
+    const Foam::Field<T> &values,
+    std::optional<Foam::boolList> mask = std::nullopt,
+    std::optional<Foam::labelList> group = std::nullopt,
+    std::optional<Foam::scalarField> scalingFactor = std::nullopt)
+{
+    aggregationResult<T> result;
+    auto nGroups = group ? max(*group) + 1 : 1;
+    result.values = Foam::Field<T>(nGroups, Foam::Zero);
+    Foam::Field<Foam::scalar> weights(nGroups, 0.0);
+    // store the group information in the result
+    // ranging from 0 to nGroups-1
+    // if no grouping is done, this remains nullopt
+    if (group)
+    {
+        result.group = Foam::labelList(nGroups);
+        for (Foam::label i = 0; i < nGroups; ++i)
+        {
+            (*result.group)[i] = i;
+        }
+    }
+
+    const Foam::label nElements = values.size();
+
+    for (Foam::label i = 0; i < nElements; ++i)
+    {
+        Foam::label groupIndex = group ? (*group)[i] : 0;
+        Foam::scalar masking = mask ? (*mask)[i] : 1.0;
+        Foam::scalar scaleFactor = scalingFactor ? (*scalingFactor)[i] : 1.0;
+        result.values[groupIndex] += values[i] * masking * scaleFactor;
+        weights[groupIndex] += masking * scaleFactor;
+    }
+
+    Foam::reduce(result.values, Foam::sumOp<Foam::Field<T>>());
+    Foam::reduce(weights, Foam::sumOp<Foam::Field<Foam::scalar>>());
+    
+    for (Foam::label i = 0; i < nGroups; ++i)
+    {
+        if (weights[i] > Foam::SMALL)
+        {
+            result.values[i] /= weights[i];
+        }
+        else
+        {
+            if constexpr (std::is_same<T, Foam::scalar>::value)
+            {
+                result.values[i] = Foam::GREAT; // if no valid entries, set to large value
+            }
+            else
+            {
+                result.values[i] = T::one * Foam::GREAT;
+            }
+        }
+    }
 
     return result;
 }
@@ -104,7 +166,6 @@ aggregationResult<T> aggMax(
             }
         }
         result.values[groupIndex] = Foam::max(result.values[groupIndex], values[i]);
-        
     }
 
     Foam::reduce(result.values, Foam::maxOp<Foam::Field<T>>());
@@ -172,8 +233,12 @@ void Foam::bindAggregation(py::module &m)
         .def_readonly("values", &aggregationResult<vector>::values)
         .def_readonly("group", &aggregationResult<vector>::group);
 
-    m.def("sum", &aggSum<scalar>);
-    m.def("sum", &aggSum<vector>);
+    m.def("sum", &aggSum<scalar>, py::arg("values"), py::arg("mask") = std::nullopt, py::arg("group") = std::nullopt, py::kw_only(),py::arg("scalingFactor") = std::nullopt);
+    m.def("sum", &aggSum<vector>, py::arg("values"), py::arg("mask") = std::nullopt, py::arg("group") = std::nullopt, py::kw_only(),py::arg("scalingFactor") = std::nullopt);
+
+
+    m.def("mean", &aggMean<scalar>, py::arg("values"), py::arg("mask") = std::nullopt, py::arg("group") = std::nullopt, py::kw_only(),py::arg("scalingFactor") = std::nullopt);
+    m.def("mean", &aggMean<vector>, py::arg("values"), py::arg("mask") = std::nullopt, py::arg("group") = std::nullopt, py::kw_only(),py::arg("scalingFactor") = std::nullopt);
 
     m.def("max", &aggMax<scalar>);
     m.def("max", &aggMax<vector>);
