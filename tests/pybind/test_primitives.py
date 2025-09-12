@@ -142,6 +142,15 @@ def test_vectorField():
     vf_1 = vectorField([vector(1,1,1) for i in range(0,6)])
     assert (vf_1 == np.ones([6,3])).all()
 
+    # scalar product
+    vf_5 = vectorField([vector(1,2,3) for i in range(0,6)])
+    vf_6 = vectorField([vector(1,1,1) for i in range(0,6)])
+
+    assert (np.asarray(vf_6 & vf_5) == np.array([6,6,6,6,6,6])).all()
+
+    # assert (np.asarray(vector(1,1,1) & vf_5) == np.array([6,6,6,6,6,6])).all() # not supported
+    assert (np.asarray(vf_5 & vector(1,1,1)) == np.array([6,6,6,6,6,6])).all()
+
 
 def test_tensorField():
 

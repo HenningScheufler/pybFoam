@@ -4,7 +4,7 @@ Introduction
 ============
 
 
-pyOFTools is an open-source Python library for pre- and post-processing of OpenFOAM simulation data. It is designed to simplify the workflow of extracting, processing, and analyzing simulation results.
+pybFoam is an open-source Python library for pre- and post-processing of OpenFOAM simulation data. It is designed to simplify the workflow of extracting, processing, and analyzing simulation results.
 
 Key Features
 ------------

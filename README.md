@@ -10,21 +10,10 @@ currently in the pre-alpha release state
 requires OpenFOAM of2012 or higher sourced and installed and python 3.7+ (conda is highly recommended) 
 
 ```
-./build-pybFoam.sh # will install conan zmq oftest
-```
-## Testsuite
-
-oftest is automatically installed and is run with py.test
-
-```
-py.test
+pip install .
 ```
 
-## Build Documentation (WIP)
 
-The documentation is based on the [Jekyll Documentation Theme](https://idratherbewriting.com/documentation-theme-jekyll/)
+## Documentation
 
-```
-cd docs
-jekyll serve
-```
+The documentation is found [here](https://henningscheufler.github.io/pybFoam/index.html)

@@ -195,6 +195,7 @@ void Foam::bindFields(py::module& m)
         ;
 
     py::class_<List<label>>(m, "labelList")
+        .def(py::init<label, label > ())
         .def(py::init<List<label> > ())
         .def(py::init([](std::vector<label> vec) {
             List<label> f(vec.size());
