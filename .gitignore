@@ -136,3 +136,4 @@ __pycache__
 dist/
 build/
 _skbuild/
+docs/_build
