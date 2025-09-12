@@ -2,7 +2,7 @@
 name = "pybFoam"
 version = "0.1.4"
 authors = [
-    {name = "Henning Scheufler", email = "henning.scheufler@dlr.de"},
+    {name = "Henning Scheufler", email = "henning.scheufler@web.de"},
 ]
 description = "python bindings for OpenFOAM"
 readme = "README.md"
@@ -45,16 +45,18 @@ dev = [
 ]
 docs = [
     "sphinx>=4.0",
-    "sphinx-rtd-theme",
+    "sphinx-sitemap",
+    "furo",
+    "sphinxcontrib-mermaid"
 ]
 all = [
     "pybFoam[dev,docs]",
 ]
 
 [project.urls]
-Homepage = "https://github.com/DLR-RY/pybFoam"
-Repository = "https://github.com/DLR-RY/pybFoam.git"
-Issues = "https://github.com/DLR-RY/pybFoam/issues"
+Homepage = "https://github.com/HenningScheufler/pybFoam"
+Repository = "https://github.com/HenningScheufler/pybFoam.git"
+Issues = "https://github.com/HenningScheufler/pybFoam/issues"
 
 [tool.setuptools]
 include-package-data = true
