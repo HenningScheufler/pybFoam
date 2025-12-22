@@ -238,6 +238,21 @@ auto declare_geofields(py::module &m, std::string className) {
     {
         self = vf2;
     })
+    .def("relax", []
+    (
+        Foam::GeometricField<Type, PatchField, GeoMesh>& self
+    )
+    {
+        self.relax();
+    })
+    .def("relax", []
+    (
+        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
+        Foam::scalar relaxFactor
+    )
+    {
+        self.relax(relaxFactor);
+    })
 
     ;
 

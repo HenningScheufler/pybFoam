@@ -53,7 +53,11 @@ void bindControl(pybind11::module& m)
 
     py::class_<simpleControl>(m, "simpleControl")
         .def(py::init<fvMesh&, const word&>(), py::arg("mesh"), py::arg("dictName") = word("SIMPLE"))
-        // .def("correct", &simpleControl::correct)
+        .def("correctNonOrthogonal", &simpleControl::correctNonOrthogonal)
+        .def("momentumPredictor", &simpleControl::momentumPredictor)
+        .def("finalNonOrthogonalIter", &simpleControl::finalNonOrthogonalIter)
+        .def("nNonOrthCorr", &simpleControl::nNonOrthCorr)
+        .def("loop", &simpleControl::loop)
         ;
 }
 
