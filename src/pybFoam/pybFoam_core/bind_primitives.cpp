@@ -104,6 +104,9 @@ void bindPrimitives(pybind11::module& m)
         .def("__str__",[](const Foam::word& self){
             return std::string(self);
         })
+        .def("__repr__",[](const Foam::word& self){
+            return std::string(self);
+        })
         ;
 
 
