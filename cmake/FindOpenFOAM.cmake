@@ -229,6 +229,26 @@ if(NOT TARGET OpenFOAM::lagrangian)
 endif()
 
 # ============================================================================
+# Create OpenFOAM::sampling target
+# ============================================================================
+if(NOT TARGET OpenFOAM::sampling)
+    add_library(OpenFOAM::sampling INTERFACE IMPORTED)
+    
+    target_include_directories(OpenFOAM::sampling INTERFACE
+        "${FOAM_SRC}/sampling/lnInclude"
+        "${FOAM_SRC}/sampling/sampledSurface/sampledSurface"
+    )
+    
+    target_link_libraries(OpenFOAM::sampling INTERFACE 
+        sampling
+        OpenFOAM::finiteVolume
+        OpenFOAM::meshTools
+        OpenFOAM::core
+    )
+    target_link_directories(OpenFOAM::sampling INTERFACE "${FOAM_LIBBIN}")
+endif()
+
+# ============================================================================
 # Create OpenFOAM::api target (combines all libraries)
 # ============================================================================
 if(NOT TARGET OpenFOAM::api)
@@ -243,6 +263,7 @@ if(NOT TARGET OpenFOAM::api)
         OpenFOAM::transport
         OpenFOAM::fileFormats
         OpenFOAM::lagrangian
+        OpenFOAM::sampling
     )
 endif()
 
@@ -267,6 +288,7 @@ set(OPENFOAM_INCLUDE_DIRS
     "${FOAM_SRC}/fileFormats/lnInclude"
     "${FOAM_SRC}/surfMesh/lnInclude"
     "${FOAM_SRC}/lagrangian/basic/lnInclude"
+    "${FOAM_SRC}/sampling/lnInclude"
 )
 
 set(OPENFOAM_LIBRARY_DIRS "${FOAM_LIBBIN}")
@@ -286,6 +308,7 @@ set(OPENFOAM_LIBRARIES
     fileFormats
     surfMesh
     lagrangian
+    sampling
 )
 
 # ============================================================================

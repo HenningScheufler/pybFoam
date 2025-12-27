@@ -89,19 +89,11 @@ void bindMesh(pybind11::module &m)
     namespace py = pybind11;
 
     m.def("selectTimes", &Foam::selectTimes);
+    m.def("createMesh", &Foam::createMesh, py::return_value_policy::take_ownership,
+        "Create a mesh from a Time object");
 
     py::class_<Foam::argList>(m, "argList")
         .def(py::init(&Foam::makeArgList), py::return_value_policy::take_ownership)
-        // .def(py::init<const Foam::argList&, const Foam::HashTable<Foam::string>&, bool, bool, bool>())
-        // .def("check", &Foam::argList::check)
-        // .def("checkRootCase", &Foam::argList::checkRootCase)
-        // .def("printCompat", &Foam::argList::printCompat)
-        // .def("printNotes", &Foam::argList::printNotes)
-        // .def("printUsage", &Foam::argList::printUsage)
-        // .def("printMan", &Foam::argList::printMan)
-        // .def("displayDoc", &Foam::argList::displayDoc)
-        // .def("checkArgs", &Foam::argList::argsMandatory)
-        // .def("setCheckArgs", &Foam::argList::argsMandatory, py::arg("check"))
         ;
 
     py::class_<Foam::Time>(m, "Time")
