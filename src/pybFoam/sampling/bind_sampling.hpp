@@ -32,6 +32,10 @@ Description
 #include "sampledPlane.H"
 #include "sampledPatch.H"
 #include "sampledCuttingPlane.H"
+#include "sampledIsoSurface.H"
+#include "sampledSet.H"
+#include "coordSet.H"
+#include "meshSearch.H"
 #include "interpolation.H"
 
 namespace py = pybind11;
@@ -39,9 +43,8 @@ namespace py = pybind11;
 namespace Foam
 {
     void bindSampledSurface(py::module& m);
-    void bindSampledPlane(py::module& m);
-    void bindSampledPatch(py::module& m);
-    void bindSampledCuttingPlane(py::module& m);
+    void bindSampledSet(py::module& m);
+    void bindMeshSearch(py::module& m);
     void bindInterpolation(py::module& m);
     void bindSamplingFunctions(py::module& m);
 }

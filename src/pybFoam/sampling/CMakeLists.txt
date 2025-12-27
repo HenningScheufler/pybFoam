@@ -10,27 +10,27 @@ set(SAMPLING_HEADERS
 )
 
 # Create the pybind11 module
-pybind11_add_module(sampling ${SAMPLING_SOURCES})
+pybind11_add_module(_sampling ${SAMPLING_SOURCES})
 
 # Set target properties
-set_target_properties(sampling PROPERTIES
+set_target_properties(_sampling PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
     VISIBILITY_INLINES_HIDDEN ON
 )
 
 # Link OpenFOAM libraries - order matters!
-target_link_libraries(sampling PRIVATE
+target_link_libraries(_sampling PRIVATE
     OpenFOAM::finiteVolume
     OpenFOAM::meshTools
     OpenFOAM::core
 )
 
 # Explicitly link the sampling library
-target_link_directories(sampling PRIVATE "${FOAM_LIBBIN}")
-target_link_libraries(sampling PRIVATE -lsampling)
+target_link_directories(_sampling PRIVATE "${FOAM_LIBBIN}")
+target_link_libraries(_sampling PRIVATE -lsampling)
 
 # Add include directories specific to this module
-target_include_directories(sampling PRIVATE
+target_include_directories(_sampling PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     "${FOAM_SRC}/sampling/lnInclude"
 )
@@ -38,13 +38,13 @@ target_include_directories(sampling PRIVATE
 # Install the module
 if(DEFINED SKBUILD)
     # scikit-build-core manages the installation
-    install(TARGETS sampling
+    install(TARGETS _sampling
         LIBRARY DESTINATION pybFoam
         COMPONENT python
     )
 else()
     # Standalone build - install to Python site-packages
-    install(TARGETS sampling
+    install(TARGETS _sampling
         LIBRARY DESTINATION "${Python_SITELIB}/pybFoam"
     )
 endif()

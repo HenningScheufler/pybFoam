@@ -24,13 +24,12 @@ Description
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(sampling, m) {
+PYBIND11_MODULE(_sampling, m) {
     m.doc() = "OpenFOAM sampling and surface functionality";
     
     Foam::bindSampledSurface(m);
-    Foam::bindSampledPlane(m);
-    Foam::bindSampledPatch(m);
-    Foam::bindSampledCuttingPlane(m);
+    Foam::bindMeshSearch(m);
+    Foam::bindSampledSet(m);
     Foam::bindInterpolation(m);
     Foam::bindSamplingFunctions(m);
 }
