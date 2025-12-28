@@ -7,17 +7,17 @@ from pybFoam import dictionary
 from pydantic import BaseModel, Field
 
 type_dispatch = {
-    str: lambda v: v,  # Keep as string
-    int: lambda v: int(v),
-    float: lambda v: float(v),
-    bool: lambda v: bool(v),
-    pybFoam.Word: lambda v: pybFoam.Word(v),
+    str: lambda s: s,  # Keep as string
+    int: lambda i: int(i),
+    float: lambda f: float(f),
+    bool: lambda b: bool(b),
+    pybFoam.Word: lambda w: pybFoam.Word(w),
     pybFoam.vector: lambda v: pybFoam.vector(*v),
-    pybFoam.tensor: lambda v: pybFoam.tensor(*v),
-    pybFoam.wordList: lambda v: pybFoam.wordList(v),
-    pybFoam.scalarField: lambda v: pybFoam.scalarField(v),
+    pybFoam.tensor: lambda t: pybFoam.tensor(*t),
+    pybFoam.wordList: lambda w: pybFoam.wordList(w),
+    pybFoam.scalarField: lambda s: pybFoam.scalarField(s),
     pybFoam.vectorField: lambda v: pybFoam.vectorField(v),
-    pybFoam.tensorField: lambda v: pybFoam.tensorField(v),
+    pybFoam.tensorField: lambda t: pybFoam.tensorField(t),
 }
 
 
