@@ -28,7 +28,7 @@ dependencies = [
     "numpy>=1.20",
     "pybind11>=2.6.0",
     "pydantic",
-    "pyyaml"
+    "pyyaml",
 ]
 
 [project.optional-dependencies]
@@ -49,8 +49,14 @@ docs = [
     "furo",
     "sphinxcontrib-mermaid"
 ]
+benchmark = [
+    "jax",
+    "seaborn",
+    "matplotlib",
+    "PyQt6"
+]
 all = [
-    "pybFoam[dev,docs]",
+    "pybFoam[dev,docs,benchmark]",
 ]
 
 [project.urls]
