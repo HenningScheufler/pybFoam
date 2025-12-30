@@ -24,4 +24,3 @@ from . import fvm
 from . import runTimeTables
 from . import thermo
 from . import turbulence
-from . import aggregation
