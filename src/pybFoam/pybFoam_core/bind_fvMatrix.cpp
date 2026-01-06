@@ -173,6 +173,21 @@ void declare_solve(py::module &m)
     });
 }
 
+template<class Type>
+py::class_<Foam::SolverPerformance<Type>>
+declare_SolverPerformance(py::module &m, std::string className)
+{
+    return py::class_<Foam::SolverPerformance<Type>>(m, className.c_str())
+        .def(py::init<>())
+        .def("solverName", [](const Foam::SolverPerformance<Type>& self) { return self.solverName(); })
+        .def("fieldName", [](const Foam::SolverPerformance<Type>& self) { return self.fieldName(); })
+        .def("initialResidual", [](const Foam::SolverPerformance<Type>& self) { return self.initialResidual(); })
+        .def("finalResidual", [](const Foam::SolverPerformance<Type>& self) { return self.finalResidual(); })
+        .def("nIterations", [](const Foam::SolverPerformance<Type>& self) { return self.nIterations(); })
+        .def("converged", &Foam::SolverPerformance<Type>::converged)
+        .def("singular", &Foam::SolverPerformance<Type>::singular);
+}
+
 }
 
 void Foam::bindFvMatrix(py::module& m)
@@ -183,9 +198,9 @@ void Foam::bindFvMatrix(py::module& m)
     auto fvVectorMatrix = declare_fvMatrix<Foam::vector>(m, std::string("fvVectorMatrix"));
     auto fvTensorMatrix = declare_fvMatrix<Foam::tensor>(m, std::string("fvTensorMatrix"));
 
-    py::class_<Foam::SolverPerformance<Foam::scalar>>(m, "SolverScalarPerformance");
-    py::class_<Foam::SolverPerformance<Foam::vector>>(m, "SolverVectorPerformance");
-    py::class_<Foam::SolverPerformance<Foam::tensor>>(m, "SolverTensorPerformance");
+    declare_SolverPerformance<Foam::scalar>(m, "SolverScalarPerformance");
+    declare_SolverPerformance<Foam::vector>(m, "SolverVectorPerformance");
+    declare_SolverPerformance<Foam::tensor>(m, "SolverTensorPerformance");
 
     declare_solve<Foam::scalar>(m);
     declare_solve<Foam::vector>(m);

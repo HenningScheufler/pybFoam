@@ -20,6 +20,7 @@ License
 #include "bind_io.hpp"
 
 #include "messageStream.H"
+#include "dictionary.H"
 
 
 namespace Foam
@@ -29,6 +30,11 @@ namespace Foam
         m.def("Info", [](const std::string& message)
         {
             Info << word(message) << endl;
+        });
+
+        m.def("Info", [](const dictionary& dict)
+        {
+            Info << dict << endl;
         });
 
     }

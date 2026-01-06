@@ -23,6 +23,8 @@ License
 #include "IOobject.H"
 #include "dictionaryEntry.H"
 #include "entry.H"
+#include "SolverPerformance.H"
+#include "List.H"
 #include <unordered_map>
 #include <functional>
 
@@ -59,6 +61,68 @@ namespace Foam
     void add(dictionary& dict, const std::string key,const Type T)
     {
         dict.add<Type>(word(key),T);
+    }
+
+    // Helper function to lookup List<SolverPerformance<Type>> and return as std::vector
+    // OpenFOAM stores solver performance as List<SolverPerformance<Type>>
+    template<class Type>
+    std::vector<SolverPerformance<Type>> lookupSolverPerformanceList(const dictionary& dict, const std::string& fieldName)
+    {
+        // Check if entry exists first
+        const entry* e = dict.findEntry(word(fieldName), keyType::LITERAL);
+        if (!e)
+        {
+            throw std::runtime_error(
+                "Entry " + fieldName + " not found in dictionary"
+            );
+        }
+        
+        // Enable exception throwing for FatalIOError to catch type mismatches
+        bool previousThrowState = FatalIOError.throwExceptions();
+        
+        try
+        {
+            // The dictionary stores List<SolverPerformance<Type>>
+            List<SolverPerformance<Type>> sp;
+            bool success = dict.readIfPresent(word(fieldName), sp);
+            
+            // Restore previous exception state
+            FatalIOError.throwExceptions(previousThrowState);
+            
+            if (!success || sp.empty())
+            {
+                throw std::runtime_error(
+                    "Entry " + fieldName + " could not be read as List<SolverPerformance<" 
+                    + pTraits<Type>::typeName + ">> type or is empty"
+                );
+            }
+            
+            // Convert to std::vector for Python compatibility
+            std::vector<SolverPerformance<Type>> result;
+            result.reserve(sp.size());
+            for (const auto& item : sp)
+            {
+                result.push_back(item);
+            }
+            
+            return result;
+        }
+        catch (const Foam::error& e)
+        {
+            // Restore previous exception state before rethrowing
+            FatalIOError.throwExceptions(previousThrowState);
+            
+            throw std::runtime_error(
+                "Entry " + fieldName + " could not be read as List<SolverPerformance<" 
+                + pTraits<Type>::typeName + ">> type: " + std::string(e.what())
+            );
+        }
+        catch (...)
+        {
+            // Restore previous exception state before rethrowing
+            FatalIOError.throwExceptions(previousThrowState);
+            throw;
+        }
     }
 
 }
@@ -191,6 +255,9 @@ void bindDict(pybind11::module& m)
         .def("add", &Foam::add<Foam::Field<Foam::scalar>>)
         .def("add", &Foam::add<Foam::Field<Foam::vector>>)
         .def("add", &Foam::add<Foam::Field<Foam::tensor>>)
+        .def("lookupSolverPerformanceScalarList", &Foam::lookupSolverPerformanceList<Foam::scalar>)
+        .def("lookupSolverPerformanceVectorList", &Foam::lookupSolverPerformanceList<Foam::vector>)
+        .def("lookupSolverPerformanceTensorList", &Foam::lookupSolverPerformanceList<Foam::tensor>)
         .def_property_readonly(
             "get",
             [](Foam::dictionary& self) {

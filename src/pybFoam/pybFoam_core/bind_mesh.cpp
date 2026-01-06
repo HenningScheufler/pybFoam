@@ -155,6 +155,9 @@ void bindMesh(pybind11::module &m)
         .def("Sf", &Foam::fvMesh::Sf, py::return_value_policy::reference)
         .def("magSf", &Foam::fvMesh::magSf, py::return_value_policy::reference)
         .def("setFluxRequired", &Foam::fvMesh::setFluxRequired)
+        .def("solverPerformanceDict", [](const Foam::fvMesh &self)
+             { return &self.data().solverPerformanceDict(); },
+             py::return_value_policy::reference)
         // dynamic mesh support
         .def("changing", [](Foam::fvMesh &self)
              { return self.changing(); })
