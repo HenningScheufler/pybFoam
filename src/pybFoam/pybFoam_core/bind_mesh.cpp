@@ -114,6 +114,7 @@ void bindMesh(pybind11::module &m)
         .def("value", &Foam::Time::timeOutputValue)
         .def("deltaTValue", [](Foam::Time &self) { return self.deltaTValue(); })
         .def("loop", &Foam::Time::loop)
+        .def("run", &Foam::Time::run)
         .def("write", &Foam::Time::write)
         .def("increment", [](Foam::Time &self)
              { self++; }
