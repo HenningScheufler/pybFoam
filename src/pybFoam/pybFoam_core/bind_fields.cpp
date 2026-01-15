@@ -21,6 +21,10 @@ License
 #include "bind_primitives.hpp"
 #include "bind_primitives.hpp"
 #include "instantList.H"
+#include "uniformDimensionedFields.H"
+#include "fvMesh.H"
+#include "volFields.H"
+#include "surfaceFields.H"
 
 
 namespace py = pybind11;
@@ -98,10 +102,14 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
     .def("__setitem__", [](Field<Type>& self, const label idx,const Type& s) {
         self[idx] = s;
     })
-    .def("__add__", &Foam::add<Field<Type> >)
+    .def("__add__", [](const Field<Type>& self, const Field<Type>& f) {
+        return Field<Type>(self + f);
+    })
     .def("__add__", [](Field<Type>& self, const Type& s) {return Field<Type>(self + s);})
-    .def("__sub__", &Foam::subtract<Field<Type> >)
-    .def("__sub__", [](Field<Type>& self, const Type& s) {return Field<Type>(self + s);})
+    .def("__sub__", [](const Field<Type>& self, const Field<Type>& f) {
+        return Field<Type>(self - f);
+    })
+    .def("__sub__", [](Field<Type>& self, const Type& s) {return Field<Type>(self - s);})
     .def("__mul__", [](Field<Type>& self, const scalar& s) {return Field<Type>(self * s);})
     .def("__mul__", [](Foam::Field<Type>& self, const Field<scalar>& sf)
     {
@@ -110,7 +118,7 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
     .def("__truediv__", [](Field<Type>& self, const scalar& s) {return Field<Type>(self / s);})
     .def("__truediv__", [](Field<Type>& self, const Field<scalar>& sf)
     {
-        return Field<Type>(self * sf);
+        return Field<Type>(self / sf);
     })
     .def_buffer([](Field<Type>& self) -> py::buffer_info {
         constexpr bool isScalar = std::is_same<Type, Foam::scalar>::value;
@@ -308,4 +316,69 @@ void Foam::bindFields(py::module& m)
     m.def("sum",declare_sum<vector>);
     m.def("sum",declare_sum<tensor>);
     m.def("sum",declare_sum<symmTensor>);
+
+    // ==== uniformDimensionedVectorField bindings ====
+    // Used for reading constant fields like gravity
+    py::class_<Foam::uniformDimensionedVectorField>(m, "uniformDimensionedVectorField")
+        .def(py::init([](const Foam::fvMesh& mesh, const std::string& fieldName) {
+            return Foam::uniformDimensionedVectorField(
+                Foam::IOobject(
+                    fieldName,
+                    mesh.time().constant(),
+                    mesh,
+                    Foam::IOobject::MUST_READ,
+                    Foam::IOobject::NO_WRITE
+                )
+            );
+        }), py::arg("mesh"),
+            py::arg("fieldName"),
+            "Read a uniformDimensionedVectorField from constant/ directory")
+        .def("value", [](const Foam::uniformDimensionedVectorField& self) {
+            return self.value();
+        }, "Get the uniform vector value")
+        .def("name", [](const Foam::uniformDimensionedVectorField& self) {
+            return self.name();
+        }, "Get the field name")
+        .def("dimensions", [](const Foam::uniformDimensionedVectorField& self) {
+            return self.dimensions();
+        }, "Get the field dimensions")
+        .def("__and__", [](const Foam::uniformDimensionedVectorField& self, 
+                           const Foam::volVectorField& vf) {
+            // Use the base class dimensioned<vector> which has operator& defined
+            const Foam::dimensioned<Foam::vector>& dv = self;
+            return dv & vf;
+        }, py::arg("vf"), "Dot product with volVectorField, returns tmp<volScalarField>")
+        .def("__and__", [](const Foam::uniformDimensionedVectorField& self, 
+                           const Foam::surfaceVectorField& vf) {
+            // Use the base class dimensioned<vector> which has operator& defined
+            const Foam::dimensioned<Foam::vector>& dv = self;
+            return dv & vf;
+        }, py::arg("vf"), "Dot product with surfaceVectorField, returns tmp<surfaceScalarField>")
+        ;
+
+    // ==== uniformDimensionedScalarField bindings ====
+    py::class_<Foam::uniformDimensionedScalarField>(m, "uniformDimensionedScalarField")
+        .def(py::init([](const Foam::fvMesh& mesh, const std::string& fieldName) {
+            return Foam::uniformDimensionedScalarField(
+                Foam::IOobject(
+                    fieldName,
+                    mesh.time().constant(),
+                    mesh,
+                    Foam::IOobject::MUST_READ,
+                    Foam::IOobject::NO_WRITE
+                )
+            );
+        }), py::arg("mesh"),
+            py::arg("fieldName"),
+            "Read a uniformDimensionedScalarField from constant/ directory")
+        .def("value", [](const Foam::uniformDimensionedScalarField& self) {
+            return self.value();
+        }, "Get the uniform scalar value")
+        .def("name", [](const Foam::uniformDimensionedScalarField& self) {
+            return self.name();
+        }, "Get the field name")
+        .def("dimensions", [](const Foam::uniformDimensionedScalarField& self) {
+            return self.dimensions();
+        }, "Get the field dimensions")
+        ;
 }

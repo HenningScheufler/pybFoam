@@ -40,7 +40,7 @@ namespace Foam
     namespace py = pybind11;
 
 template<class Type>
-void declare_dimensioned(py::module &m, std::string className);
+auto declare_dimensioned(py::module &m, std::string className);
 
 
 }

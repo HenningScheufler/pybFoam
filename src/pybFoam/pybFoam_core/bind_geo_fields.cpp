@@ -112,6 +112,39 @@ auto declare_geofields(py::module &m, std::string className) {
     {
         return self * vf2;
     })
+    .def("__mul__", []
+    (
+        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
+        const scalar& s
+    )
+    {
+        return self * s;
+    })
+    .def("__rmul__", []
+    (
+        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
+        const scalar& s
+    )
+    {
+        return s * self;
+    })
+    // dimensioned operators (tmp op dimensioned)
+    .def("__mul__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<scalar>& ds)
+    {
+        return self * ds;
+    })
+    .def("__truediv__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<scalar>& ds)
+    {
+        return self / ds;
+    })
+    .def("__add__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<Type>& ds)
+    {
+        return self + ds;
+    })
+    .def("__sub__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<Type>& ds)
+    {
+        return self - ds;
+    })
     ;
 
     auto geofieldClass = py::class_< Foam::GeometricField<Type, PatchField, GeoMesh>>(m, className.c_str())
@@ -221,6 +254,54 @@ auto declare_geofields(py::module &m, std::string className) {
     {
         return self / vf2;
     })
+    .def("__truediv__", []
+    (
+        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
+        const scalar& s
+    )
+    {
+        return self / s;
+    })
+    .def("__mul__", []
+    (
+        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
+        const scalar& s
+    )
+    {
+        return self * s;
+    })
+    .def("__rmul__", []
+    (
+        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
+        const scalar& s
+    )
+    {
+        return s * self;
+    })
+    // dimensioned operators (field op dimensioned)
+    .def("__mul__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<scalar>& ds)
+    {
+        return self * ds;
+    })
+    .def("__truediv__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<scalar>& ds)
+    {
+        return self / ds;
+    })
+    .def("__add__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<Type>& ds)
+    {
+        return self + ds;
+    })
+    .def("__sub__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<Type>& ds)
+    {
+        return self - ds;
+    })
+    .def("__neg__", []
+    (
+        const Foam::GeometricField<Type, PatchField, GeoMesh>& self
+    )
+    {
+        return -self;
+    })
     .def("select", &Foam::GeometricField<Type, PatchField, GeoMesh>::select)
     .def("assign", []
     (
@@ -253,6 +334,13 @@ auto declare_geofields(py::module &m, std::string className) {
     {
         self.relax(relaxFactor);
     })
+    .def("mesh", []
+    (
+        const Foam::GeometricField<Type, PatchField, GeoMesh>& self
+    ) -> const typename GeoMesh::Mesh&
+    {
+        return self.mesh();
+    }, py::return_value_policy::reference)
 
     ;
 
@@ -287,9 +375,33 @@ void Foam::bindGeoFields(py::module& m)
     {
         return self / rhs;
     })
+    .def("__truediv__", [](const tmp<volScalarField>& self, const volScalarField& rhs)
+    {
+        return self / rhs;
+    })
+    .def("__truediv__", [](const tmp<volScalarField>& self, const tmp<volScalarField>& rhs)
+    {
+        return self / rhs;
+    })
     .def("__rtruediv__", [](const tmp<volScalarField>& self, const scalar& lhs)
     {
         return lhs / self;
+    })
+    .def("__add__", [](const tmp<volScalarField>& self, const scalar& rhs)
+    {
+        return self + dimensionedScalar("s", self().dimensions(), rhs);
+    })
+    .def("__radd__", [](const tmp<volScalarField>& self, const scalar& lhs)
+    {
+        return dimensionedScalar("s", self().dimensions(), lhs) + self;
+    })
+    .def("__sub__", [](const tmp<volScalarField>& self, const scalar& rhs)
+    {
+        return self - dimensionedScalar("s", self().dimensions(), rhs);
+    })
+    .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& lhs)
+    {
+        return dimensionedScalar("s", self().dimensions(), lhs) - self;
     })
     .def("__mul__", []
     (
@@ -307,6 +419,15 @@ void Foam::bindGeoFields(py::module& m)
     {
         return self * lhs;
     })
+    // Scalar arithmetic operators for tmp<volScalarField> (needed for Boussinesq)
+    .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& s)
+    {
+        return s - self;
+    })
+    .def("__radd__", [](const tmp<volScalarField>& self, const scalar& s)
+    {
+        return s + self;
+    })
     ;
 
     vsf.def("__mul__", [](const volScalarField& self, const volVectorField& lhs)
@@ -316,9 +437,45 @@ void Foam::bindGeoFields(py::module& m)
     .def("__mul__", [](const volScalarField& self, const tmp<volVectorField>& lhs)
     {
         return self * lhs;
+    })
+    // Scalar arithmetic operators for volScalarField (needed for Boussinesq: 1.0 - beta*(T - TRef))
+    .def("__sub__", [](const volScalarField& self, const scalar& s)
+    {
+        return self - dimensionedScalar("s", self.dimensions(), s);
+    })
+    .def("__rsub__", [](const volScalarField& self, const scalar& s)
+    {
+        return s - self;
+    })
+    .def("__add__", [](const volScalarField& self, const scalar& s)
+    {
+        return self + dimensionedScalar("s", self.dimensions(), s);
+    })
+    .def("__radd__", [](const volScalarField& self, const scalar& s)
+    {
+        return s + self;
+    })
+    .def("__rtruediv__", [](const volScalarField& self, const scalar& s)
+    {
+        return s / self;
     });
 
     auto [ssf, tmp_ssf] = declare_geofields<scalar,fvsPatchField, surfaceMesh>(m, std::string("surfaceScalarField"));
+    
+    // Add division operators for tmp_surfaceScalarField (needed for Boussinesq)
+    tmp_ssf.def("__truediv__", [](const tmp<Foam::GeometricField<scalar, Foam::fvsPatchField, Foam::surfaceMesh>>& self, const scalar& rhs)
+    {
+        return self / rhs;
+    })
+    .def("__truediv__", [](const tmp<surfaceScalarField>& self, const surfaceScalarField& rhs)
+    {
+        return self / rhs;
+    })
+    .def("__truediv__", [](const tmp<surfaceScalarField>& self, const tmp<surfaceScalarField>& rhs)
+    {
+        return self / rhs;
+    });
+    
     auto [svf, tmp_svf] = declare_geofields<vector,fvsPatchField, surfaceMesh>(m, std::string("surfaceVectorField"));
     auto [stf, tmp_stf] = declare_geofields<tensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceTensorField"));
 
