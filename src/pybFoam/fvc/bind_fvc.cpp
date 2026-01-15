@@ -140,4 +140,15 @@ void Foam::bindFVC(pybind11::module& fvc)
 
     // ddtCorr
     fvc.def("ddtCorr", [](const volVectorField& vf, const surfaceScalarField& ssf){return fvc::ddtCorr(vf,ssf);});
+
+    fvc.def("snGrad", [](const volScalarField& vf){return fvc::snGrad(vf);});
+    fvc.def("snGrad", [](const tmp<volScalarField>& vf){return fvc::snGrad(vf);});
+    fvc.def("snGrad", [](const volVectorField& vf){return fvc::snGrad(vf);});
+    fvc.def("snGrad", [](const tmp<volVectorField>& vf){return fvc::snGrad(vf);});
+
+
+    fvc.def("reconstruct", [](const surfaceScalarField& sf){return fvc::reconstruct(sf);});
+    fvc.def("reconstruct", [](const tmp<surfaceScalarField>& sf){return fvc::reconstruct(sf);});
+    fvc.def("reconstruct", [](const surfaceVectorField& sf){return fvc::reconstruct(sf);});
+    fvc.def("reconstruct", [](const tmp<surfaceVectorField>& sf){return fvc::reconstruct(sf);});
 }

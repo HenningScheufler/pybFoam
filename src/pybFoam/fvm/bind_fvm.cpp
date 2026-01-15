@@ -97,6 +97,7 @@ void Foam::bindFVM(pybind11::module& fvm)
     bindFvmDdt<vector>(fvm);
     bindFvmDdt<tensor>(fvm);
 
+    bindFvmDiv<scalar>(fvm);
     bindFvmDiv<vector>(fvm);
     bindFvmDiv<tensor>(fvm);
     bindFvmDiv<symmTensor>(fvm);

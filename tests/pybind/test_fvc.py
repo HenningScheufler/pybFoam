@@ -32,3 +32,38 @@ def test_fvc(change_test_dir):
     div_phigradP = pybFoam.fvc.div(phi,pybFoam.fvc.grad(p_rgh))()
     assert pybFoam.sum(div_phiU["internalField"]) == pybFoam.vector(0,0,0)
     assert pybFoam.sum(div_phigradP["internalField"]) == pybFoam.vector(0,0,0)
+
+
+def test_fvc_snGrad(change_test_dir):
+    """Test fvc.snGrad for surface normal gradient calculation."""
+    time = Time(".", ".")
+    mesh = fvMesh(time)
+    p_rgh = volScalarField.read_field(mesh, "p_rgh")
+    U = volVectorField.read_field(mesh, "U")
+
+    # Test snGrad on volScalarField
+    snGrad_p = fvc.snGrad(p_rgh)
+    assert snGrad_p is not None
+    # Convert tmp to value if needed
+    snGrad_p_val = snGrad_p() if hasattr(snGrad_p, '__call__') else snGrad_p
+    
+    # Test snGrad on volVectorField
+    snGrad_U = fvc.snGrad(U)
+    assert snGrad_U is not None
+    snGrad_U_val = snGrad_U() if hasattr(snGrad_U, '__call__') else snGrad_U
+
+
+def test_fvc_reconstruct(change_test_dir):
+    """Test fvc.reconstruct for reconstructing vector from flux."""
+    time = Time(".", ".")
+    mesh = fvMesh(time)
+    U = volVectorField.read_field(mesh, "U")
+    
+    # Create phi from U
+    phi = pybFoam.fvc.flux(U)()
+    
+    # Test reconstruct on surfaceScalarField (phi)
+    reconstructed = fvc.reconstruct(phi)
+    assert reconstructed is not None
+    # Convert tmp to value if needed
+    reconstructed_val = reconstructed() if hasattr(reconstructed, '__call__') else reconstructed

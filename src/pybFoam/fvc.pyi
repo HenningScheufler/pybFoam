@@ -4,7 +4,40 @@ finite volume calculus
 from __future__ import annotations
 import pybFoam.pybFoam_core
 import typing
-__all__ = ['div', 'flux', 'grad', 'interpolate', 'laplacian']
+__all__ = ['ddtCorr', 'div', 'flux', 'grad', 'interpolate', 'laplacian', 'reconstruct', 'snGrad']
+
+# ==== snGrad - surface normal gradient ====
+@typing.overload
+def snGrad(arg0: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+    ...
+@typing.overload
+def snGrad(arg0: pybFoam.pybFoam_core.tmp_volScalarField) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+    ...
+@typing.overload
+def snGrad(arg0: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_surfaceVectorField:
+    ...
+@typing.overload
+def snGrad(arg0: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_surfaceVectorField:
+    ...
+
+# ==== reconstruct - reconstruct vector from surface flux ====
+@typing.overload
+def reconstruct(arg0: pybFoam.pybFoam_core.surfaceScalarField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+    ...
+@typing.overload
+def reconstruct(arg0: pybFoam.pybFoam_core.tmp_surfaceScalarField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+    ...
+@typing.overload
+def reconstruct(arg0: pybFoam.pybFoam_core.surfaceVectorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+    ...
+@typing.overload
+def reconstruct(arg0: pybFoam.pybFoam_core.tmp_surfaceVectorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+    ...
+
+# ==== ddtCorr ====
+def ddtCorr(arg0: pybFoam.pybFoam_core.volVectorField, arg1: pybFoam.pybFoam_core.surfaceScalarField) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+    ...
+
 @typing.overload
 def div(arg0: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volScalarField:
     ...
