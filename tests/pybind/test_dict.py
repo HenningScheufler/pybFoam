@@ -21,7 +21,7 @@ def test_ofdict(change_test_dir):
 
     # primitives
 
-    
+    assert d.found("word")
     assert d.get_word("word") == "word"
     assert d.get_scalar("scalar") == 1.1
     assert d.get_vector("vector") == vector(1.1,1.1,1.1)

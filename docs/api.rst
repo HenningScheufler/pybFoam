@@ -1,6 +1,6 @@
 API Reference
 =============
 
-.. .. automodule:: pybFoam
-..    :members:
-..    :undoc-members:
+.. automodule:: pybFoam
+   :members:
+   :undoc-members:

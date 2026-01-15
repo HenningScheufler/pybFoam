@@ -145,10 +145,12 @@ public:
         auto it = reg.find(type_name);
         if (it == reg.end())
             throw std::runtime_error("Unsupported type for dictionary.get: " + type_name);
+
         struct TypeCaller {
             Foam::dictionary& dict;
             GetterFunc func;
             TypeCaller(Foam::dictionary& d, GetterFunc f) : dict(d), func(f) {}
+
             pybind11::object operator()(const std::string& key) {
                 if (!dict.found(key)) {
                     throw pybind11::key_error("Key '" + key + "' not found in dictionary");
@@ -156,6 +158,7 @@ public:
                 return func(dict, key);
             }
         };
+
         return pybind11::cpp_function(TypeCaller(dict, it->second));
     }
 
@@ -164,6 +167,36 @@ public:
         type_registry()[py_name] = [](Foam::dictionary& d, const std::string& key) {
             return pybind11::cast(d.get<T>(Foam::word(key)));
         };
+    }
+};
+
+class DictionaryGetOrDefaultProxy {
+public:
+    using GetterFunc = std::function<pybind11::object(Foam::dictionary&, const std::string&)>;
+    
+    Foam::dictionary& dict;
+    DictionaryGetOrDefaultProxy(Foam::dictionary& d) : dict(d) {}
+
+    pybind11::object operator[](pybind11::object py_type) {
+        std::string type_name = pybind11::str(py_type.attr("__name__"));
+        auto& reg = DictionaryGetProxy::type_registry();
+        auto it = reg.find(type_name);
+        if (it == reg.end())
+            throw std::runtime_error("Unsupported type for dictionary.getOrDefault: " + type_name);
+        
+        struct TypeCaller {
+            Foam::dictionary& dict;
+            GetterFunc func;
+            TypeCaller(Foam::dictionary& d, GetterFunc f) : dict(d), func(f) {}
+
+            pybind11::object operator()(const std::string& key, pybind11::object default_value) {
+                if (!dict.found(key)) {
+                    return default_value;
+                }
+                return func(dict, key);
+            }
+        };
+        return pybind11::cpp_function(TypeCaller(dict, it->second));
     }
 };
 
@@ -197,6 +230,10 @@ void bindDict(pybind11::module& m)
         .def("toc", &Foam::dictionary::toc)
         .def("clear", &Foam::dictionary::clear)
         .def("clear", &Foam::dictionary::clear)
+        .def("found", [](const Foam::dictionary& self, const std::string key)
+        {
+            return self.found(Foam::word(key));
+        })
         .def("isDict", [](const Foam::dictionary& self, const std::string key)
         {
             return self.isDict(Foam::word(key));
@@ -265,10 +302,20 @@ void bindDict(pybind11::module& m)
             },
             py::return_value_policy::reference_internal
         )
+        .def_property_readonly(
+            "getOrDefault",
+            [](Foam::dictionary& self) {
+                return DictionaryGetOrDefaultProxy(self);
+            },
+            py::return_value_policy::reference_internal
+        )
         ;
 
     py::class_<DictionaryGetProxy>(m, "DictionaryGetProxy")
         .def("__getitem__", &DictionaryGetProxy::operator[]);
+
+    py::class_<DictionaryGetOrDefaultProxy>(m, "DictionaryGetOrDefaultProxy")
+        .def("__getitem__", &DictionaryGetOrDefaultProxy::operator[]);
 
     // Register types for get directly
     DictionaryGetProxy::type_registry()["str"] = [](Foam::dictionary& d, const std::string& key) {

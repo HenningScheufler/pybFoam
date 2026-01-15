@@ -90,3 +90,33 @@ def test_exception(change_test_dir):
 
     assert d.get[Word]("application") == "icoFoam"
     assert d.get[str]("application") == "icoFoam"
+
+
+def test_getOrDefault(change_test_dir):
+    """Test the dictionary.getOrDefault() method"""
+    d = dictionary.read("TestDict")
+    
+    # Test getting existing keys returns actual values
+    assert d.getOrDefault[Word]("word", "default") == "word"
+    assert d.getOrDefault[Word]("not_excist_word", "default") == "default"
+    assert d.getOrDefault[float]("scalar", 999.9) == 1.1
+    assert d.getOrDefault[vector]("vector", vector(0,0,0)) == vector(1.1,1.1,1.1)
+    
+    # Test getting non-existing keys returns default values
+    assert d.getOrDefault[str]("nonExistent", "myDefault") == "myDefault"
+    assert d.getOrDefault[float]("missingScalar", 42.0) == 42.0
+    assert d.getOrDefault[int]("missingInt", 123) == 123
+    assert d.getOrDefault[Word]("missingWord", Word("defaultWord")) == "defaultWord"
+    
+    # Test with None as default
+    assert d.getOrDefault[str]("notSetOptional", None) is None
+    
+    # Test in subdictionary
+    subDict = d.subDict("subDict")
+    assert subDict.getOrDefault[Word]("word2", "fallback") == "word2"
+    assert subDict.getOrDefault[str]("missing", "fallback") == "fallback"
+    
+    # Test with complex types
+    default_tensor = tensor(0,0,0,0,0,0,0,0,0)
+    assert d.getOrDefault[tensor]("tensor", default_tensor) == tensor(1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1)
+    assert d.getOrDefault[tensor]("missingTensor", default_tensor) == default_tensor
