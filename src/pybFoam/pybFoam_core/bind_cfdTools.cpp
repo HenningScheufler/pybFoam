@@ -53,6 +53,29 @@ namespace Foam
 
         return std::make_tuple(CoNum, meanCoNum);
     }
+
+    std::tuple <scalar, scalar> computeContinuityErrors
+    (
+        const surfaceScalarField& phi
+    )
+    {
+        // Get mesh and time
+        const fvMesh& mesh = phi.mesh();
+        const Time& runTime = mesh.time();
+        
+        // Compute divergence of flux
+        volScalarField contErr(fvc::div(phi));
+
+        // Calculate local continuity error (absolute sum)
+        scalar sumLocalContErr = runTime.deltaTValue()*
+            mag(contErr)().weightedAverage(mesh.V()).value();
+
+        // Calculate global continuity error (signed)
+        scalar globalContErr = runTime.deltaTValue()*
+            contErr.weightedAverage(mesh.V()).value();
+
+        return std::make_tuple(sumLocalContErr, globalContErr);
+    }
     
 
     template <typename RAUType>
@@ -70,6 +93,7 @@ namespace Foam
 
         m.def("adjustPhi", &adjustPhi);
         declare_constrainPressure<volScalarField>(m);
+        declare_constrainPressure<surfaceScalarField>(m);
         m.def("constrainHbyA", &constrainHbyA);
         m.def("createPhi", [](const volVectorField &U)
         {
@@ -97,6 +121,7 @@ namespace Foam
             return std::make_tuple(pRefCell, pRefValue);
         }, py::arg("p"), py::arg("dict"), py::arg("forceReference") = false);
         m.def("computeCFLNumber", &computeCFLNumber);
+        m.def("computeContinuityErrors", &computeContinuityErrors, py::arg("phi"));
     }
 
 } // namespace Foam
