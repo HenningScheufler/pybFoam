@@ -70,11 +70,10 @@ template<class Type, template<class> class PatchField, class GeoMesh>
 auto declare_geofields(py::module &m, std::string className) {
     std::string tmp_className = "tmp_" + className;
     auto tmpGeofieldClass = py::class_< tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>>(m, tmp_className.c_str())
-    .def("__call__",[](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self)
+    .def("__call__",[](tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self)
     {
         return Foam::GeometricField<Type, PatchField, GeoMesh>(self);
-    }, py::return_value_policy::reference_internal
-    )
+    })
     .def("__neg__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) {
         return -self;
     })
@@ -352,9 +351,8 @@ auto declare_geofields(py::module &m, std::string className) {
 }
 
 
-template<class Type, template<class> class PatchField, class GeoMesh>
-GeometricField<scalar, PatchField, GeoMesh>
-declare_mag (const GeometricField<Type, PatchField, GeoMesh>& geof)
+template<class FieldType>
+auto declare_mag (const FieldType& geof)
 {
     return mag(geof);
 }
@@ -481,13 +479,13 @@ void Foam::bindGeoFields(py::module& m)
 
     // // functions
 
-    m.def("mag",declare_mag<scalar, fvPatchField, volMesh>);
-    m.def("mag",declare_mag<vector, fvPatchField, volMesh>);
-    m.def("mag",declare_mag<tensor, fvPatchField, volMesh>);
-    m.def("mag",declare_mag<symmTensor, fvPatchField, volMesh>);
+    m.def("mag",declare_mag<volScalarField>);
+    m.def("mag",declare_mag<volVectorField>);
+    m.def("mag",declare_mag<volTensorField>);
+    m.def("mag",declare_mag<volSymmTensorField>);
 
-    m.def("mag",declare_mag<scalar, fvsPatchField, surfaceMesh>);
-    m.def("mag",declare_mag<vector, fvsPatchField, surfaceMesh>);
-    m.def("mag",declare_mag<tensor, fvsPatchField, surfaceMesh>);
+    m.def("mag",declare_mag<surfaceScalarField>);
+    m.def("mag",declare_mag<surfaceVectorField>);
+    m.def("mag",declare_mag<surfaceTensorField>);
 
 }

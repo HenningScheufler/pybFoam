@@ -234,8 +234,8 @@ void bindSamplingFunctions(py::module& m)
 {
     // Scalar field sampling
     m.def("sampleOnFacesScalar",
-        [](const sampledSurface& surface, const interpolation<scalar>& interpolator) -> scalarField {
-            return surface.sample(interpolator);
+        [](const sampledSurface& surface, const interpolation<scalar>& interpolator) {
+            return scalarField(surface.sample(interpolator));
         },
         py::arg("surface"),
         py::arg("interpolator"),
@@ -243,8 +243,8 @@ void bindSamplingFunctions(py::module& m)
 
     // Vector field sampling
     m.def("sampleOnFacesVector",
-        [](const sampledSurface& surface, const interpolation<vector>& interpolator) -> vectorField {
-            return surface.sample(interpolator);
+        [](const sampledSurface& surface, const interpolation<vector>& interpolator) {
+            return vectorField(surface.sample(interpolator));
         },
         py::arg("surface"),
         py::arg("interpolator"),
@@ -252,8 +252,8 @@ void bindSamplingFunctions(py::module& m)
 
     // Tensor field sampling
     m.def("sampleOnFacesTensor",
-        [](const sampledSurface& surface, const interpolation<tensor>& interpolator) -> tensorField {
-            return surface.sample(interpolator);
+        [](const sampledSurface& surface, const interpolation<tensor>& interpolator) {
+            return tensorField(surface.sample(interpolator));
         },
         py::arg("surface"),
         py::arg("interpolator"),
@@ -261,8 +261,8 @@ void bindSamplingFunctions(py::module& m)
 
     // SymmTensor field sampling
     m.def("sampleOnFacesSymmTensor",
-        [](const sampledSurface& surface, const interpolation<symmTensor>& interpolator) -> symmTensorField {
-            return surface.sample(interpolator);
+        [](const sampledSurface& surface, const interpolation<symmTensor>& interpolator) {
+            return symmTensorField(surface.sample(interpolator));
         },
         py::arg("surface"),
         py::arg("interpolator"),
@@ -270,32 +270,32 @@ void bindSamplingFunctions(py::module& m)
 
     // Interpolate to points (if supported)
     m.def("sampleOnPointsScalar",
-        [](const sampledSurface& surface, const interpolation<scalar>& interpolator) -> scalarField {
-            return surface.interpolate(interpolator);
+        [](const sampledSurface& surface, const interpolation<scalar>& interpolator) {
+            return scalarField(surface.interpolate(interpolator));
         },
         py::arg("surface"),
         py::arg("interpolator"),
         "Interpolate scalar field values onto surface points");
 
     m.def("sampleOnPointsVector",
-        [](const sampledSurface& surface, const interpolation<vector>& interpolator) -> vectorField {
-            return surface.interpolate(interpolator);
+        [](const sampledSurface& surface, const interpolation<vector>& interpolator) {
+            return vectorField(surface.interpolate(interpolator));
         },
         py::arg("surface"),
         py::arg("interpolator"),
         "Interpolate vector field values onto surface points");
 
     m.def("sampleOnPointsTensor",
-        [](const sampledSurface& surface, const interpolation<tensor>& interpolator) -> tensorField {
-            return surface.interpolate(interpolator);
+        [](const sampledSurface& surface, const interpolation<tensor>& interpolator) {
+            return tensorField(surface.interpolate(interpolator));
         },
         py::arg("surface"),
         py::arg("interpolator"),
         "Interpolate tensor field values onto surface points");
 
     m.def("sampleOnPointsSymmTensor",
-        [](const sampledSurface& surface, const interpolation<symmTensor>& interpolator) -> symmTensorField {
-            return surface.interpolate(interpolator);
+        [](const sampledSurface& surface, const interpolation<symmTensor>& interpolator) {
+            return symmTensorField(surface.interpolate(interpolator));
         },
         py::arg("surface"),
         py::arg("interpolator"),

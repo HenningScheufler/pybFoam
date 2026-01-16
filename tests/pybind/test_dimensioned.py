@@ -234,9 +234,6 @@ def test_dimensionSet_combination():
     assert pressure_dims is not None
 
 
-# ============================================================================
-# Physical Use Cases Tests
-# ============================================================================
 
 def test_pressure_scaling(change_test_dir):
     """Test pressure field scaling with dimensioned reference pressure."""
@@ -385,7 +382,7 @@ def test_dimensioned_times_surfaceScalarField(change_test_dir):
     mesh, p_rgh, U = setup_fields()
     
     # Create a surface field
-    phi = pybFoam.fvc.flux(U)()
+    phi = pybFoam.fvc.flux(U)
     
     scale = pybFoam.dimensionedScalar("scale", pybFoam.dimVelocity * pybFoam.dimArea, 2.0)
     
