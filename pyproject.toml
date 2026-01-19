@@ -42,6 +42,8 @@ dev = [
     "mypy",
     "cmake>=3.18",
     "pybind11-stubgen>=2.5",
+    "mypy",
+    "types-PyYAML",
 ]
 docs = [
     "sphinx>=4.0",
@@ -98,5 +100,11 @@ CMAKE_CXX_STANDARD = "17"
 generate-type-stubs = true
 
 [tool.pytest.ini_options]
-addopts = "-ra -v"
+addopts = "-ra -v -s"
 testpaths = ["tests"]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+mypy_path = ["src"] 
+strict = true 
+files = ["src"]

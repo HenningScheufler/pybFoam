@@ -68,12 +68,7 @@ def div(arg0: pybFoam.pybFoam_core.surfaceTensorField) -> pybFoam.pybFoam_core.t
 @typing.overload
 def div(arg0: pybFoam.pybFoam_core.tmp_surfaceTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
     ...
-@typing.overload
-def div(arg0: ..., Foam: ..., Foam: ...) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
-    ...
-@typing.overload
-def div(arg0: ..., Foam: ..., Foam: ...) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
-    ...
+
 @typing.overload
 def div(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
     ...
