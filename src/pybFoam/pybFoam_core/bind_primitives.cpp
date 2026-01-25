@@ -27,6 +27,42 @@ namespace Foam
 namespace py = pybind11;
 
 template<class Type>
+bool eq_type_or_sequence(const Type& self, py::object other)
+{
+    constexpr int N = pTraits<Type>::nComponents;
+
+    // Case 1: Type == Type
+    if (py::isinstance<Type>(other)) {
+        const Type& rhs = other.cast<const Type&>();
+        return Foam::is_equal<Type>(self, rhs);
+    }
+
+    // Case 2: Type == (list/tuple) with N numeric items
+    if (py::isinstance<py::sequence>(other) &&
+        (py::isinstance<py::list>(other) || py::isinstance<py::tuple>(other)))
+    {
+        py::sequence seq = other.cast<py::sequence>();
+        if (seq.size() != N) {
+            return false;   // common Python behavior: different size => not equal
+        }
+
+        for (int i = 0; i < N; ++i) {
+            // If element isn't convertible to scalar, we can't compare
+            // (could throw; better to NotImplemented)
+            try {
+                Foam::scalar v = py::cast<Foam::scalar>(seq[i]);
+                if (self[i] != v) return false;
+            } catch (const py::cast_error&) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+
+}
+
+template<class Type>
 py::class_<Type> declare_vectorspace(py::module &m, std::string className) {
     auto primitiveType = py::class_<Type>(m, className.c_str())
         .def(py::init<Type>())
@@ -67,20 +103,35 @@ py::class_<Type> declare_vectorspace(py::module &m, std::string className) {
         .def("__sub__", &Foam::subtract<Type>)
         .def("__mul__", &Foam::multiply_scalar<Type>)
         .def("__and__", &Foam::inner_product<Type>)
-        .def("__eq__", &Foam::is_equal<Type>)
-        .def("__eq__",[](const Type& self, const std::array<Foam::scalar, pTraits<Type>::nComponents>& v){
-            for(int i = 0;i<pTraits<Type>::nComponents;i++ )
-            {
-                if (self[i] != v[i])
-                {
-                    return false;
-                }
+        .def("__eq__", [](const Type& self, py::object other) {
+            return eq_type_or_sequence<Type>(self, std::move(other));
+        }, py::is_operator())
+        .def("__ne__", [](const Type& self, py::object other) {
+            return !eq_type_or_sequence<Type>(self, std::move(other));
+        }, py::is_operator())
+        .def("__hash__", [](const Type& self) {
+            py::tuple t(pTraits<Type>::nComponents);
+            for (int i = 0; i < pTraits<Type>::nComponents; ++i) {
+                t[i] = py::float_(self[i]);
             }
-            return true;
+            return py::hash(t);
         })
-        .def("__ne__", &Foam::is_notequal<Type>)
         ;
     return primitiveType;
+}
+
+template<class Type, int nComponents>
+py::class_<Type> declare_int_vectorspace(py::module &m, std::string className) {
+    return py::class_<Type>(m, className.c_str())
+        .def("__getitem__", [](const Type& self, const Foam::label idx) {
+            if (idx >= nComponents || idx < 0) throw py::index_error();
+            return self[idx];
+        })
+        .def("__setitem__", [](Type& self, const Foam::label idx, int val) {
+            if (idx >= nComponents || idx < 0) throw py::index_error();
+            self[idx] = val;
+        })
+        .def("__len__", [](const Type&) { return nComponents; });
 }
 
 }
@@ -97,17 +148,41 @@ void bindPrimitives(pybind11::module& m)
 
     // primitive classes
     py::class_<Foam::word>(m, "Word")
+        .def(py::init<Foam::word>())
         .def(py::init<std::string>())
-        .def("__eq__",[](const Foam::word& self, std::string w){
-            return bool(self == w);
-        })
+        // .def("__eq__",[](const Foam::word& self, const Foam::word& w){
+        //     return bool(self == w);
+        // })
+        .def("__eq__",
+            [](const Foam::word& self, py::object other) -> bool {
+                // Word == Word
+                if (py::isinstance<Foam::word>(other)) {
+                    const auto& rhs = other.cast<const Foam::word&>();
+                    return self == rhs;
+                }
+                // Word == str
+                if (py::isinstance<py::str>(other)) {
+                    std::string rhs = other.cast<std::string>();
+                    return self == rhs;
+                }
+                return false;
+        },
+        py::is_operator()
+    )
+        // .def("__eq__",[](const Foam::word& self, const std::string& w){
+        //     return bool(self == w);
+        // })
         .def("__str__",[](const Foam::word& self){
             return std::string(self);
         })
         .def("__repr__",[](const Foam::word& self){
             return std::string(self);
         })
+        .def("__hash__", [](const Foam::word& self) {
+            return py::hash(py::str(std::string(self)));
+        })
         ;
+    py::implicitly_convertible<py::str, Foam::word>();
 
 
     auto vector = Foam::declare_vectorspace<Foam::vector>(m, std::string("vector"));
@@ -129,6 +204,10 @@ void bindPrimitives(pybind11::module& m)
                           Foam::scalar,Foam::scalar,Foam::scalar>())
             .def("__and__",&Foam::inner_product<Foam::symmTensor,Foam::vector>);
 
+    // Integer tensor types - simple bindings
+    Foam::declare_int_vectorspace<Foam::Vector<int>, 3>(m, "VectorInt");
+    Foam::declare_int_vectorspace<Foam::Tensor<int>, 9>(m, "TensorInt");
+    Foam::declare_int_vectorspace<Foam::SymmTensor<int>, 6>(m, "SymmTensorInt");
 
     // functions
     m.def("mag", [](Foam::scalar t){return Foam::mag(t);});

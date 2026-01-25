@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from typing import Any, Dict, List, Sequence
-
+from pybFoam.pybFoam_core import dictionary, Word, labelList, scalarField, vector, wordList
 
 def _ensure_len(v: Sequence[float], n: int, name: str) -> List[float]:
     """Validate that a sequence has exactly n elements and convert to float list."""
@@ -13,7 +13,7 @@ def _ensure_len(v: Sequence[float], n: int, name: str) -> List[float]:
     return [float(x) for x in v]
 
 
-def dict_to_foam(py_dict: Dict[str, Any]):
+def dict_to_foam(py_dict: Dict[str, Any]) -> dictionary:
     """Convert a Python dictionary to an OpenFOAM dictionary object.
     
     This helper converts nested Python dicts and lists into OpenFOAM
@@ -25,7 +25,7 @@ def dict_to_foam(py_dict: Dict[str, Any]):
     Returns:
         OpenFOAM dictionary object
     """
-    from pybFoam import dictionary, Word, vector, wordList
+
     
     foam_dict = dictionary()
     
@@ -40,19 +40,24 @@ def dict_to_foam(py_dict: Dict[str, Any]):
             # Check if it's a vector (3 numbers) or a list of strings
             if len(value) == 3 and all(isinstance(x, (int, float)) for x in value):
                 foam_dict.set(key, vector(float(value[0]), float(value[1]), float(value[2])))
-            elif all(isinstance(x, str) for x in value):
+            elif all(isinstance(x, str) for x in value): # wordList
                 # List of strings -> wordList
                 wlist = wordList(value)
                 foam_dict.set(key, wlist)
-            elif all(isinstance(x, (int, float)) for x in value):
+            elif all(isinstance(x, float) for x in value):
                 # List of numbers
-                foam_dict.set(key, value)
+                sField = scalarField(value)
+                foam_dict.set(key, sField)
+            elif all(isinstance(x, int) for x in value):
+                # List of numbers
+                lList = labelList([int(x) for x in value])
+                foam_dict.set(key, lList) # type: ignore[call-overload]
             else:
                 # Mixed or nested - try as-is
-                foam_dict.set(key, value)
+                foam_dict.set(key, value) # type: ignore[call-overload]
         elif isinstance(value, dict):
             # Nested dictionary
-            foam_dict.set(key, dict_to_foam(value))
+            foam_dict.set(key, dict_to_foam(value)) # type: ignore[call-overload]
         else:
             # Try setting as-is
             foam_dict.set(key, value)

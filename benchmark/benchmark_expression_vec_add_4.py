@@ -101,13 +101,35 @@ df_vector_add = pd.DataFrame(vector_add_data_4)
 df_vector_add["time_per_element [ns]"] = df_vector_add["duration"] / df_vector_add["n_elements"] * 1e9  # time per element in nanoseconds
 print("Vector Addition Benchmark:",df_vector_add)
 
+# Save results to CSV
+df_vector_add.to_csv("results/benchmark_vec_add_4.csv", index=False)
+print("\nResults saved to: results/benchmark_vec_add_4.csv")
+
+# Create pivot table for markdown
+pivot_df = df_vector_add.pivot(index="n_elements", columns="method", values="time_per_element [ns]")
+pivot_df = pivot_df.round(2)
+
+# Save markdown table
+with open("results/benchmark_vec_add_4.md", "w") as f:
+    f.write("# 4-Element Vector Addition Benchmark\n\n")
+    f.write("Expression: `c = a + b + c + a`\n\n")
+    f.write("## Results (time per element in nanoseconds)\n\n")
+    f.write(pivot_df.to_markdown())
+    f.write("\n\n## Summary\n\n")
+    f.write(f"\n### {10_000_000:,} elements:\n\n")
+    if 10_000_000 in pivot_df.index:
+        for method in pivot_df.columns:
+            f.write(f"- **{method}**: {pivot_df.loc[10_000_000, method]:.2f} ns per element\n")
+
+print("Results table saved to: results/benchmark_vec_add_4.md")
+
 sns.lineplot(data=df_vector_add, x="n_elements", y="time_per_element [ns]", hue="method", marker="o")
 plt.xscale("log")
 plt.yscale("log")
 plt.xlabel("Number of Elements")
 plt.ylabel("Time per Element (nanoseconds)")
 plt.title("Expression: c = a + b + c + a")
-plt.savefig("bench_vec_add_4.png")
+plt.savefig("results/bench_vec_add_4.png")
 n_elements = 10_000_000
 timings = df_vector_add[df_vector_add["n_elements"] == n_elements]
 print(f"Timings for {n_elements} elements:")

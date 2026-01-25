@@ -33,12 +33,12 @@ void bindSampledSurface(py::module& m)
     py::class_<sampledSurface>(m, "sampledSurface")
         .def("name", &sampledSurface::name,
             "Get the name of the surface")
-        .def("mesh", 
-            [](const sampledSurface& self) -> const polyMesh& {
-                return self.mesh();
-            },
-            py::return_value_policy::reference,
-            "Get reference to the mesh")
+        // .def("mesh", 
+        //     [](const sampledSurface& self) -> const polyMesh& {
+        //         return self.mesh();
+        //     },
+        //     py::return_value_policy::reference,
+        //     "Get reference to the mesh")
         .def("enabled", &sampledSurface::enabled,
             "Check if surface is enabled")
         .def("invariant", &sampledSurface::invariant,
@@ -55,9 +55,9 @@ void bindSampledSurface(py::module& m)
         .def("points", &sampledSurface::points,
             py::return_value_policy::reference,
             "Get points of surface")
-        .def("faces", &sampledSurface::faces,
-            py::return_value_policy::reference,
-            "Get faces of surface")
+        // .def("faces", &sampledSurface::faces,
+        //     py::return_value_policy::reference,
+        //     "Get faces of surface")
         .def("Sf", &sampledSurface::Sf,
             py::return_value_policy::reference,
             "Get face area vectors")
@@ -71,15 +71,15 @@ void bindSampledSurface(py::module& m)
             "Get total surface area")
         .def("hasFaceIds", &sampledSurface::hasFaceIds,
             "Check if element ids/order of original surface are available")
-        .def_static("New", 
-            [](const word& name, const polyMesh& mesh, const dictionary& dict) {
-                return sampledSurface::New(name, mesh, dict).release();
-            },
-            py::arg("name"),
-            py::arg("mesh"),
-            py::arg("dict"),
-            py::return_value_policy::take_ownership,
-            "Construct a new sampledSurface from dictionary")
+        // .def_static("New", 
+        //     [](const word& name, const fvMesh& mesh, const dictionary& dict) {
+        //         return sampledSurface::New(name, mesh, dict).release();
+        //     },
+        //     py::arg("name"),
+        //     py::arg("mesh"),
+        //     py::arg("dict"),
+        //     py::return_value_policy::take_ownership,
+        //     "Construct a new sampledSurface from dictionary")
         .def_static("New", 
             [](const word& name, const fvMesh& mesh, const dictionary& dict) {
                 return sampledSurface::New(name, static_cast<const polyMesh&>(mesh), dict).release();
@@ -100,9 +100,9 @@ void bindMeshSearch(py::module& m)
             py::arg("mesh"),
             py::return_value_policy::take_ownership,
             "Construct from fvMesh")
-        .def("mesh", &meshSearch::mesh,
-            py::return_value_policy::reference,
-            "Return reference to mesh")
+        // .def("mesh", &meshSearch::mesh,
+        //     py::return_value_policy::reference,
+        //     "Return reference to mesh")
         .def("findNearestCell",
             py::overload_cast<const point&, const label, const bool>(
                 &meshSearch::findNearestCell, py::const_),
@@ -143,12 +143,12 @@ void bindSampledSet(py::module& m)
             [](const sampledSet& self) { return self.points().size(); },
             "Get number of points in the set")
         // sampledSet specific methods
-        .def("mesh", 
-            [](const sampledSet& self) -> const polyMesh& {
-                return self.mesh();
-            },
-            py::return_value_policy::reference,
-            "Get reference to the mesh")
+        // .def("mesh", 
+        //     [](const sampledSet& self) -> const polyMesh& {
+        //         return self.mesh();
+        //     },
+        //     py::return_value_policy::reference,
+        //     "Get reference to the mesh")
         .def("searchEngine", &sampledSet::searchEngine,
             py::return_value_policy::reference,
             "Get reference to the mesh search engine")
@@ -158,9 +158,9 @@ void bindSampledSet(py::module& m)
         .def("cells", &sampledSet::cells,
             py::return_value_policy::reference_internal,
             "Get cell IDs for each point")
-        .def("faces", &sampledSet::faces,
-            py::return_value_policy::reference_internal,
-            "Get face IDs for each point (-1 if not on face)")
+        // .def("faces", &sampledSet::faces,
+        //     py::return_value_policy::reference_internal,
+        //     "Get face IDs for each point (-1 if not on face)")
         .def_static("New",
             [](const word& name, const fvMesh& mesh,
                meshSearch& searchEngine, const dictionary& dict) {

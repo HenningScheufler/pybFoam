@@ -70,10 +70,10 @@ template<class Type, template<class> class PatchField, class GeoMesh>
 auto declare_geofields(py::module &m, std::string className) {
     std::string tmp_className = "tmp_" + className;
     auto tmpGeofieldClass = py::class_< tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>>(m, tmp_className.c_str())
-    .def("__call__",[](tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self)
+    .def("__call__",[](tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) -> Foam::GeometricField<Type, PatchField, GeoMesh>&
     {
-        return Foam::GeometricField<Type, PatchField, GeoMesh>(self);
-    })
+        return self.ref();
+    }, py::return_value_policy::reference_internal)
     .def("__neg__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) {
         return -self;
     })
@@ -389,18 +389,18 @@ void Foam::bindGeoFields(py::module& m)
     {
         return self + dimensionedScalar("s", self().dimensions(), rhs);
     })
-    .def("__radd__", [](const tmp<volScalarField>& self, const scalar& lhs)
-    {
-        return dimensionedScalar("s", self().dimensions(), lhs) + self;
-    })
+    // .def("__radd__", [](const tmp<volScalarField>& self, const scalar& lhs)
+    // {
+    //     return dimensionedScalar("s", self().dimensions(), lhs) + self;
+    // })
     .def("__sub__", [](const tmp<volScalarField>& self, const scalar& rhs)
     {
         return self - dimensionedScalar("s", self().dimensions(), rhs);
     })
-    .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& lhs)
-    {
-        return dimensionedScalar("s", self().dimensions(), lhs) - self;
-    })
+    // .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& lhs)
+    // {
+    //     return dimensionedScalar("s", self().dimensions(), lhs) - self;
+    // })
     .def("__mul__", []
     (
         const tmp<volScalarField>& self,
@@ -418,14 +418,14 @@ void Foam::bindGeoFields(py::module& m)
         return self * lhs;
     })
     // Scalar arithmetic operators for tmp<volScalarField> (needed for Boussinesq)
-    .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& s)
-    {
-        return s - self;
-    })
-    .def("__radd__", [](const tmp<volScalarField>& self, const scalar& s)
-    {
-        return s + self;
-    })
+    // .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& s)
+    // {
+    //     return s - self;
+    // })
+    // .def("__radd__", [](const tmp<volScalarField>& self, const scalar& s)
+    // {
+    //     return s + self;
+    // })
     ;
 
     vsf.def("__mul__", [](const volScalarField& self, const volVectorField& lhs)
@@ -441,18 +441,18 @@ void Foam::bindGeoFields(py::module& m)
     {
         return self - dimensionedScalar("s", self.dimensions(), s);
     })
-    .def("__rsub__", [](const volScalarField& self, const scalar& s)
-    {
-        return s - self;
-    })
+    // .def("__rsub__", [](const volScalarField& self, const scalar& s)
+    // {
+    //     return s - self;
+    // })
     .def("__add__", [](const volScalarField& self, const scalar& s)
     {
         return self + dimensionedScalar("s", self.dimensions(), s);
     })
-    .def("__radd__", [](const volScalarField& self, const scalar& s)
-    {
-        return s + self;
-    })
+    // .def("__radd__", [](const volScalarField& self, const scalar& s)
+    // {
+    //     return s + self;
+    // })
     .def("__rtruediv__", [](const volScalarField& self, const scalar& s)
     {
         return s / self;
@@ -476,6 +476,7 @@ void Foam::bindGeoFields(py::module& m)
     
     auto [svf, tmp_svf] = declare_geofields<vector,fvsPatchField, surfaceMesh>(m, std::string("surfaceVectorField"));
     auto [stf, tmp_stf] = declare_geofields<tensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceTensorField"));
+    auto [sstf, tmp_sstf] = declare_geofields<symmTensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceSymmTensorField"));
 
     // // functions
 

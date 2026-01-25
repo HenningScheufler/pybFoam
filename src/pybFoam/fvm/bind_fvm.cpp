@@ -29,7 +29,7 @@ void bindFvmDdt(py::module_& fvm)
 {
     using Field = GeometricField<Type, fvPatchField, volMesh>;
     fvm.def("ddt", [](const Field& vf) { return fvm::ddt(vf); });
-    fvm.def("ddt", [](const one&, const Field& vf) { return fvm::ddt(one{}, vf); });
+    // fvm.def("ddt", [](const one&, const Field& vf) { return fvm::ddt(one{}, vf); });
     fvm.def("ddt", [](const dimensionedScalar& rho, const Field& vf) { return fvm::ddt(rho, vf); });
     fvm.def("ddt", [](const volScalarField& rho, const Field& vf) { return fvm::ddt(rho, vf); });
     fvm.def("ddt", [](const volScalarField& alpha,const volScalarField& rho, const Field& vf) { return fvm::ddt(alpha,rho, vf); });
@@ -50,8 +50,8 @@ void bindFvmLaplacian(py::module_& fvm)
 
     fvm.def("laplacian", [](const Field& vf) { return fvm::laplacian(vf); });
 
-    fvm.def("laplacian", [](const zero&, const Field& vf) { return fvm::laplacian(zero{}, vf); });
-    fvm.def("laplacian", [](const one&, const Field& vf) { return fvm::laplacian(one{}, vf); });
+    // fvm.def("laplacian", [](const zero&, const Field& vf) { return fvm::laplacian(zero{}, vf); });
+    // fvm.def("laplacian", [](const scalar&, const Field& vf) { return fvm::laplacian(one{}, vf); });
 
     fvm.def("laplacian", [](const dimensionedScalar& gamma, const Field& vf) { return fvm::laplacian(gamma, vf); });
 
@@ -71,18 +71,18 @@ void bindFvmSources(py::module_& fvm)
     using Field = GeometricField<Type, fvPatchField, volMesh>;
 
     fvm.def("Su", [](const dimensioned<Type>& su, const Field& vf) { return fvm::Su(su, vf); });
-    fvm.def("Su", [](const DimensionedField<Type, volMesh>& su, const Field& vf) { return fvm::Su(su, vf); });
-    fvm.def("Su", [](const tmp<DimensionedField<Type, volMesh>>& su, const Field& vf) { return fvm::Su(su, vf); });
+    // fvm.def("Su", [](const DimensionedField<Type, volMesh>& su, const Field& vf) { return fvm::Su(su, vf); });
+    // fvm.def("Su", [](const tmp<DimensionedField<Type, volMesh>>& su, const Field& vf) { return fvm::Su(su, vf); });
     fvm.def("Su", [](const tmp<Field>& su, const Field& vf) { return fvm::Su(su, vf); });
 
     fvm.def("Sp", [](const dimensionedScalar& sp, const Field& vf) { return fvm::Sp(sp, vf); });
-    fvm.def("Sp", [](const DimensionedField<scalar, volMesh>& sp, const Field& vf) { return fvm::Sp(sp, vf); });
-    fvm.def("Sp", [](const tmp<DimensionedField<scalar, volMesh>>& sp, const Field& vf) { return fvm::Sp(sp, vf); });
+    // fvm.def("Sp", [](const DimensionedField<scalar, volMesh>& sp, const Field& vf) { return fvm::Sp(sp, vf); });
+    // fvm.def("Sp", [](const tmp<DimensionedField<scalar, volMesh>>& sp, const Field& vf) { return fvm::Sp(sp, vf); });
     fvm.def("Sp", [](const tmp<volScalarField>& sp, const Field& vf) { return fvm::Sp(sp, vf); });
 
     fvm.def("SuSp", [](const dimensionedScalar& susp, const Field& vf) { return fvm::SuSp(susp, vf); });
-    fvm.def("SuSp", [](const DimensionedField<scalar, volMesh>& susp, const Field& vf) { return fvm::SuSp(susp, vf); });
-    fvm.def("SuSp", [](const tmp<DimensionedField<scalar, volMesh>>& susp, const Field& vf) { return fvm::SuSp(susp, vf); });
+    // fvm.def("SuSp", [](const DimensionedField<scalar, volMesh>& susp, const Field& vf) { return fvm::SuSp(susp, vf); });
+    // fvm.def("SuSp", [](const tmp<DimensionedField<scalar, volMesh>>& susp, const Field& vf) { return fvm::SuSp(susp, vf); });
     fvm.def("SuSp", [](const tmp<volScalarField>& susp, const Field& vf) { return fvm::SuSp(susp, vf); });
 }
 

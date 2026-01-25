@@ -1,26 +1,112 @@
 from ._version import __version__
-import sys
-import os
 
-# Core modules that should always be available
-try:
-    from pybFoam.pybFoam_core import *
-except ImportError as e:
-    print(f"Warning: Could not import pybFoam_core: {e}")
 
-# Optional modules that require OpenFOAM environment
-# These will be imported on-demand
-__all__ = [
-    "__version__",
-    "fvc",
-    "fvm",
-    "runTimeTables",
-    "thermo",
-    "turbulence"
-]
+from pybFoam.pybFoam_core import (
+    Info,
+    keyType,
+    entry,
+    dictionary,
+    DictionaryGetProxy,
+    DictionaryGetOrDefaultProxy,
+    selectTimes,
+    createMesh,
+    argList,
+    Time,
+    fvMesh,
+    dynamicFvMesh,
+    instant,
+    Word,
+    vector,
+    tensor,
+    symmTensor,
+    VectorInt,
+    TensorInt,
+    SymmTensorInt,
+    mag,
+    dimensionSet,
+    dimless,
+    dimMass,
+    dimLength,
+    dimArea,
+    dimTime,
+    dimTemperature,
+    dimMoles,
+    dimCurrent,
+    dimLuminousIntensity,
+    dimVelocity,
+    dimAcceleration,
+    dimForce,
+    dimPressure,
+    dimDensity,
+    dimEnergy,
+    dimPower,
+    dimViscosity,
+    dimensionedScalar,
+    dimensionedVector,
+    dimensionedTensor,
+    dimensionedSymmTensor,
+    instantList,
+    boolList,
+    labelList,
+    wordList,
+    scalarField,
+    tmp_scalarField,
+    vectorField,
+    tmp_vectorField,
+    tensorField,
+    tmp_tensorField,
+    symmTensorField,
+    tmp_symmTensorField,
+    sum,
+    uniformDimensionedVectorField,
+    uniformDimensionedScalarField,
+    tmp_volScalarField,
+    volScalarField,
+    write,
+    tmp_volVectorField,
+    volVectorField,
+    tmp_volTensorField,
+    volTensorField,
+    tmp_volSymmTensorField,
+    volSymmTensorField,
+    tmp_surfaceScalarField,
+    surfaceScalarField,
+    tmp_surfaceVectorField,
+    surfaceVectorField,
+    tmp_surfaceTensorField,
+    surfaceTensorField,
+    tmp_surfaceSymmTensorField,
+    surfaceSymmTensorField,
+    tmp_fvScalarMatrix,
+    fvScalarMatrix,
+    tmp_fvVectorMatrix,
+    fvVectorMatrix,
+    tmp_fvTensorMatrix,
+    fvTensorMatrix,
+    tmp_fvSymmTensorMatrix,
+    fvSymmTensorMatrix,
+    SolverScalarPerformance,
+    SolverVectorPerformance,
+    SolverTensorPerformance,
+    SolverSymmTensorPerformance,
+    solve,
+    pisoControl,
+    pimpleControl,
+    simpleControl,
+    adjustPhi,
+    constrainPressure,
+    constrainHbyA,
+    createPhi,
+    setRefCell,
+    computeCFLNumber,
+    computeContinuityErrors,
+)
 
 from . import fvc
 from . import fvm
 from . import runTimeTables
 from . import thermo
 from . import turbulence
+from . import sampling_bindings
+
+# pybFoam.pybFoam_core.__dict__.keys()

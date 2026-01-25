@@ -6,7 +6,7 @@ Keep the public API small: import configs in the package namespace so
 from __future__ import annotations
 
 
-from pybFoam._sampling import *  # noqa: F403
+from pybFoam.sampling_bindings import *  # noqa: F403
 
 from .surface_configs import (
     SampledSurfaceBaseConfig,

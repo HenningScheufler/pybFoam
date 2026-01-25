@@ -26,47 +26,55 @@ License
 
 namespace Foam
 {
+    // Type aliases to help pybind11-stubgen parse complex template types
+    using volScalarField = GeometricField<scalar, fvPatchField, volMesh>;
+    using volVectorField = GeometricField<vector, fvPatchField, volMesh>;
+    using volTensorField = GeometricField<tensor, fvPatchField, volMesh>;
+    using surfaceScalarField = GeometricField<scalar, fvsPatchField, surfaceMesh>;
+    using surfaceVectorField = GeometricField<vector, fvsPatchField, surfaceMesh>;
 
     template<class Type>
     auto declare_dimensioned(py::module &m, std::string className)
     {
         return py::class_<dimensioned<Type>>(m, className.c_str())
-            .def(py::init<const word&,  const dimensionSet, const Type&>())
-            .def(py::init<const word&, const dimensionSet, const dictionary&>())
+            .def(py::init<const word&,  const dimensionSet, const Type&>(),
+                 py::arg("name"), py::arg("dimensions"), py::arg("value"))
+            .def(py::init<const word&, const dimensionSet, const dictionary&>(),
+                 py::arg("name"), py::arg("dimensions"), py::arg("dict"))
             .def(py::init([](const std::string& name, const dimensionSet& dims, const Type& value) {
                 return dimensioned<Type>(word(name), dims, value);
-            }))
+            }), py::arg("name"), py::arg("dimensions"), py::arg("value"))
             .def("name", [](const dimensioned<Type>& self) { return std::string(self.name()); })
             .def("dimensions", [](const dimensioned<Type>& self) { return self.dimensions(); })
             .def("value", [](const dimensioned<Type>& self) { return self.value(); })
             
-            .def("__mul__", [](const dimensioned<Type>& self, const GeometricField<scalar, fvPatchField, volMesh>& field) {
+            .def("__mul__", [](const dimensioned<Type>& self, const volScalarField& field) {
                 return self * field;
-            }, "dimensioned × volScalarField")
-            .def("__mul__", [](const dimensioned<Type>& self, const tmp<GeometricField<scalar, fvPatchField, volMesh>>& field) {
+            }, py::arg("field"), "Multiply dimensioned value by volScalarField")
+            .def("__mul__", [](const dimensioned<Type>& self, const tmp<volScalarField>& field) {
                 return self * field;
-            }, "dimensioned × tmp<volScalarField>")
+            }, py::arg("field"), "Multiply dimensioned value by tmp<volScalarField>")
             
-            .def("__mul__", [](const dimensioned<Type>& self, const GeometricField<scalar, fvsPatchField, surfaceMesh>& field) {
+            .def("__mul__", [](const dimensioned<Type>& self, const surfaceScalarField& field) {
                 return self * field;
-            }, "dimensioned × surfaceScalarField")
-            .def("__mul__", [](const dimensioned<Type>& self, const tmp<GeometricField<scalar, fvsPatchField, surfaceMesh>>& field) {
+            }, py::arg("field"), "Multiply dimensioned value by surfaceScalarField")
+            .def("__mul__", [](const dimensioned<Type>& self, const tmp<surfaceScalarField>& field) {
                 return self * field;
-            }, "dimensioned × tmp<surfaceScalarField>")
+            }, py::arg("field"), "Multiply dimensioned value by tmp<surfaceScalarField>")
             
             .def("__add__", [](const dimensioned<Type>& self, const GeometricField<Type, fvPatchField, volMesh>& field) {
                 return self + field;
-            }, "dimensioned + volField")
+            }, py::arg("field"), "Add dimensioned value to volField")
             .def("__add__", [](const dimensioned<Type>& self, const tmp<GeometricField<Type, fvPatchField, volMesh>>& field) {
                 return self + field;
-            }, "dimensioned + tmp<volField>")
+            }, py::arg("field"), "Add dimensioned value to tmp<volField>")
     
             .def("__sub__", [](const dimensioned<Type>& self, const GeometricField<Type, fvPatchField, volMesh>& field) {
                 return self - field;
-            }, "dimensioned - volField")
+            }, py::arg("field"), "Subtract volField from dimensioned value")
             .def("__sub__", [](const dimensioned<Type>& self, const tmp<GeometricField<Type, fvPatchField, volMesh>>& field) {
                 return self - field;
-            }, "dimensioned - tmp<volField>")
+            }, py::arg("field"), "Subtract tmp<volField> from dimensioned value")
             ;
     }
 
@@ -116,6 +124,7 @@ void bindDimensioned(pybind11::module& m)
     auto dsf = Foam::declare_dimensioned<Foam::scalar>(m, "dimensionedScalar");
     auto dvf = Foam::declare_dimensioned<Foam::vector>(m, "dimensionedVector");
     auto dtf = Foam::declare_dimensioned<Foam::tensor>(m, "dimensionedTensor");
+    auto dtsf = Foam::declare_dimensioned<Foam::symmTensor>(m, "dimensionedSymmTensor");
 
     // Add scalar-specific cross-type multiplication operators for dimensioned<scalar>
     // (scalar × vector/tensor fields, etc.)
