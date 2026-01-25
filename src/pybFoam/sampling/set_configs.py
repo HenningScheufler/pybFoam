@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Union, Literal
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-
+from pybFoam import vectorField, vector, dictionary
 from .utils import dict_to_foam, _ensure_len
 
 
@@ -41,14 +41,14 @@ class CloudSetConfig(SampledSetBaseConfig):
     
     @field_validator("points")
     @classmethod
-    def validate_points(cls, v):
+    def validate_points(cls, v: List[List[float]]) -> List[List[float]]:
         if not v:
             raise ValueError("points list cannot be empty")
         return [_ensure_len(pt, 3, f"point {i}") for i, pt in enumerate(v)]
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> dictionary:
         """Return OpenFOAM dictionary object."""
-        from pybFoam import vectorField, vector
+
         
         d = self.model_dump(exclude_none=True)
         # Convert points list to vectorField
@@ -75,9 +75,8 @@ class PolyLineSetConfig(SampledSetBaseConfig):
             raise ValueError("polyLine requires at least 2 points")
         return [_ensure_len(pt, 3, f"point {i}") for i, pt in enumerate(v)]
     
-    def to_foam_dict(self) -> Any:
+    def to_foam_dict(self) -> dictionary:
         """Return OpenFOAM dictionary object."""
-        from pybFoam.pybFoam_core import vectorField, vector
         
         d = self.model_dump(exclude_none=True)
         points_list = d.pop("points")
@@ -226,7 +225,7 @@ class PatchCloudSetConfig(SampledSetBaseConfig):
     
     def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
-        from pybFoam.pybFoam_core import vectorField, vector
+
         
         d = self.model_dump(exclude_none=True)
         points_list = d.pop("points")

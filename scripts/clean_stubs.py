@@ -15,102 +15,101 @@ TYPE_REPLACEMENTS = {
     # ===================================================================
     
     # tmp wrapped geometric fields - volume
-    r'Foam::tmp<Foam::GeometricField<double,\s*Foam::fvPatchField,\s*Foam::volMesh>\s*>': 'pybFoam.pybFoam_core.tmp_volScalarField',
-    r'Foam::tmp<Foam::GeometricField<Foam::Vector<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>\s*>': 'pybFoam.pybFoam_core.tmp_volVectorField',
-    r'Foam::tmp<Foam::GeometricField<Foam::Tensor<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>\s*>': 'pybFoam.pybFoam_core.tmp_volTensorField',
-    r'Foam::tmp<Foam::GeometricField<Foam::SymmTensor<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>\s*>': 'pybFoam.pybFoam_core.tmp_volSymmTensorField',
+    r'Foam::tmp<Foam::GeometricField<double,\s*Foam::fvPatchField,\s*Foam::volMesh>>': 'tmp_volScalarField',
+    r'Foam::tmp<Foam::GeometricField<Foam::Vector<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>>': 'tmp_volVectorField',
+    r'Foam::tmp<Foam::GeometricField<Foam::Tensor<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>>': 'tmp_volTensorField',
+    r'Foam::tmp<Foam::GeometricField<Foam::SymmTensor<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>>': 'tmp_volSymmTensorField',
     
     # tmp wrapped geometric fields - surface
-    r'Foam::tmp<Foam::GeometricField<double,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>\s*>': 'pybFoam.pybFoam_core.tmp_surfaceScalarField',
-    r'Foam::tmp<Foam::GeometricField<Foam::Vector<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>\s*>': 'pybFoam.pybFoam_core.tmp_surfaceVectorField',
-    r'Foam::tmp<Foam::GeometricField<Foam::Tensor<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>\s*>': 'pybFoam.pybFoam_core.tmp_surfaceTensorField',
-    r'Foam::tmp<Foam::GeometricField<Foam::SymmTensor<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>\s*>': 'pybFoam.pybFoam_core.tmp_surfaceSymmTensorField',
+    r'Foam::tmp<Foam::GeometricField<double,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>>': 'tmp_surfaceScalarField',
+    r'Foam::tmp<Foam::GeometricField<Foam::Vector<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>>': 'tmp_surfaceVectorField',
+    r'Foam::tmp<Foam::GeometricField<Foam::Tensor<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>>': 'tmp_surfaceTensorField',
+    r'Foam::tmp<Foam::GeometricField<Foam::SymmTensor<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>>': 'tmp_surfaceSymmTensorField',
     
     # tmp wrapped fields with full type names
-    r'Foam::tmp<Foam::Field<double>\s*>': 'pybFoam.pybFoam_core.tmp_scalarField',
-    r'Foam::tmp<Foam::Field<Foam::Vector<double>>\s*>': 'pybFoam.pybFoam_core.tmp_vectorField',
-    r'Foam::tmp<Foam::Field<Foam::Tensor<double>>\s*>': 'pybFoam.pybFoam_core.tmp_tensorField',
-    r'Foam::tmp<Foam::Field<Foam::SymmTensor<double>>\s*>': 'pybFoam.pybFoam_core.tmp_symmTensorField',
+    r'Foam::tmp<Foam::Field<double>>': 'tmp_scalarField',
+    r'Foam::tmp<Foam::Field<Foam::Vector<double>>>': 'tmp_vectorField',
+    r'Foam::tmp<Foam::Field<Foam::Tensor<double>>>': 'tmp_tensorField',
+    r'Foam::tmp<Foam::Field<Foam::SymmTensor<double>>>': 'tmp_symmTensorField',
     
     # ===================================================================
     # GEOMETRIC FIELDS - volume and surface
     # ===================================================================
     
     # Geometric fields - volume
-    r'Foam::GeometricField<double,\s*Foam::fvPatchField,\s*Foam::volMesh>': 'pybFoam.pybFoam_core.volScalarField',
-    r'Foam::GeometricField<Foam::Vector<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>': 'pybFoam.pybFoam_core.volVectorField',
-    r'Foam::GeometricField<Foam::Tensor<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>': 'pybFoam.pybFoam_core.volTensorField',
-    r'Foam::GeometricField<Foam::SymmTensor<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>': 'pybFoam.pybFoam_core.volSymmTensorField',
+    r'Foam::GeometricField<double,\s*Foam::fvPatchField,\s*Foam::volMesh>': 'volScalarField',
+    r'Foam::GeometricField<Foam::Vector<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>': 'volVectorField',
+    r'Foam::GeometricField<Foam::Tensor<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>': 'volTensorField',
+    r'Foam::GeometricField<Foam::SymmTensor<double>,\s*Foam::fvPatchField,\s*Foam::volMesh>': 'volSymmTensorField',
     
     # Geometric fields - surface
-    r'Foam::GeometricField<double,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>': 'pybFoam.pybFoam_core.surfaceScalarField',
-    r'Foam::GeometricField<Foam::Vector<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>': 'pybFoam.pybFoam_core.surfaceVectorField',
-    r'Foam::GeometricField<Foam::Tensor<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>': 'pybFoam.pybFoam_core.surfaceTensorField',
-    r'Foam::GeometricField<Foam::SymmTensor<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>': 'pybFoam.pybFoam_core.surfaceSymmTensorField',
+    r'Foam::GeometricField<double,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>': 'surfaceScalarField',
+    r'Foam::GeometricField<Foam::Vector<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>': 'surfaceVectorField',
+    r'Foam::GeometricField<Foam::Tensor<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>': 'surfaceTensorField',
+    r'Foam::GeometricField<Foam::SymmTensor<double>,\s*Foam::fvsPatchField,\s*Foam::surfaceMesh>': 'surfaceSymmTensorField',
     
     # ===================================================================
     # FIELD TYPES with full type names
     # ===================================================================
     
-    r'Foam::Field<double>': 'pybFoam.pybFoam_core.scalarField',
-    r'Foam::Field<Foam::Vector<double>>': 'pybFoam.pybFoam_core.vectorField',
-    r'Foam::Field<Foam::Tensor<double>>': 'pybFoam.pybFoam_core.tensorField',
-    r'Foam::Field<Foam::SymmTensor<double>>': 'pybFoam.pybFoam_core.symmTensorField',
+    r'Foam::Field<double>': 'scalarField',
+    r'Foam::Field<Foam::Vector<double>>': 'vectorField',
+    r'Foam::Field<Foam::Tensor<double>>': 'tensorField',
+    r'Foam::Field<Foam::SymmTensor<double>>': 'symmTensorField',
     
     # ===================================================================
     # SOLVER PERFORMANCE with full type names
     # ===================================================================
     
-    r'Foam::SolverPerformance<double>': 'pybFoam.pybFoam_core.SolverScalarPerformance',
-    r'Foam::SolverPerformance<Foam::Vector<double>\s*>': 'pybFoam.pybFoam_core.SolverVectorPerformance',
-    r'Foam::SolverPerformance<Foam::Tensor<double>\s*>': 'pybFoam.pybFoam_core.SolverTensorPerformance',
-    r'Foam::SolverPerformance<Foam::SymmTensor<double>\s*>': 'pybFoam.pybFoam_core.SolverSymmTensorPerformance',
+    r'Foam::SolverPerformance<double>': 'SolverScalarPerformance',
+    r'Foam::SolverPerformance<Foam::Vector<double>\s*>': 'SolverVectorPerformance',
+    r'Foam::SolverPerformance<Foam::Tensor<double>\s*>': 'SolverTensorPerformance',
+    r'Foam::SolverPerformance<Foam::SymmTensor<double>\s*>': 'SolverSymmTensorPerformance',
     
     # ===================================================================
     # DIMENSIONED TYPES with full type names
     # ===================================================================
     
-    r'Foam::dimensioned<double>': 'pybFoam.pybFoam_core.dimensionedScalar',
-    r'Foam::dimensioned<Foam::Vector<double>\s*>': 'pybFoam.pybFoam_core.dimensionedVector',
-    r'Foam::dimensioned<Foam::Tensor<double>\s*>': 'pybFoam.pybFoam_core.dimensionedTensor',
-    r'Foam::dimensioned<Foam::SymmTensor<double>\s*>': 'pybFoam.pybFoam_core.dimensionedSymmTensor',
+    r'Foam::dimensioned<double>': 'dimensionedScalar',
+    r'Foam::dimensioned<Foam::Vector<double>\s*>': 'dimensionedVector',
+    r'Foam::dimensioned<Foam::Tensor<double>\s*>': 'dimensionedTensor',
+    r'Foam::dimensioned<Foam::SymmTensor<double>\s*>': 'dimensionedSymmTensor',
     
     # ===================================================================
     # FV MATRIX TYPES with full type names
     # ===================================================================
     
-    r'Foam::fvMatrix<double>': 'pybFoam.pybFoam_core.fvScalarMatrix',
-    r'Foam::fvMatrix<Foam::Vector<double>\s*>': 'pybFoam.pybFoam_core.fvVectorMatrix',
-    r'Foam::fvMatrix<Foam::Tensor<double>\s*>': 'pybFoam.pybFoam_core.fvTensorMatrix',
-    r'Foam::fvMatrix<Foam::SymmTensor<double>\s*>': 'pybFoam.pybFoam_core.fvSymmTensorMatrix',
+    r'Foam::fvMatrix<double>': 'fvScalarMatrix',
+    r'Foam::fvMatrix<Foam::Vector<double>\s*>': 'fvVectorMatrix',
+    r'Foam::fvMatrix<Foam::Tensor<double>\s*>': 'fvTensorMatrix',
+    r'Foam::fvMatrix<Foam::SymmTensor<double>\s*>': 'fvSymmTensorMatrix',
     
     # ===================================================================
     # LISTS
     # ===================================================================
     
-    r'Foam::List<Foam::word>': 'pybFoam.pybFoam_core.wordList',
-    r'Foam::List<Foam::instant>': 'pybFoam.pybFoam_core.instantList',
-    r'Foam::List<int>': 'pybFoam.pybFoam_core.labelList',
-    r'Foam::List<bool>': 'pybFoam.pybFoam_core.boolList',
-    r'Foam::List<Foam::face>': 'pybFoam.pybFoam_core.faceList',
+    r'Foam::List<Foam::word>': 'wordList',
+    r'Foam::List<Foam::instant>': 'instantList',
+    r'Foam::List<int>': 'labelList',
+    r'Foam::List<bool>': 'boolList',
     
     # ===================================================================
     # SIMPLE TYPES - Must come LAST!
     # ===================================================================
     
     # dictionary
-    r'Foam::dictionary': 'pybFoam.pybFoam_core.dictionary',
+    r'Foam::dictionary': 'dictionary',
     
     # Primitives - these come last to avoid breaking complex patterns
-    r'Foam::Vector<double>': 'pybFoam.pybFoam_core.vector',
-    r'Foam::Tensor<double>': 'pybFoam.pybFoam_core.tensor',
-    r'Foam::SymmTensor<double>': 'pybFoam.pybFoam_core.symmTensor',
+    r'Foam::Vector<double>': 'vector',
+    r'Foam::Tensor<double>': 'tensor',
+    r'Foam::SymmTensor<double>': 'symmTensor',
     
     # Simple object types
-    r'Foam::word': 'pybFoam.pybFoam_core.Word',
-    r'Foam::Time': 'pybFoam.pybFoam_core.Time',
-    r'Foam::fvMesh': 'pybFoam.pybFoam_core.fvMesh',
-    r'Foam::instant': 'pybFoam.pybFoam_core.instant',
+    r'Foam::word': 'Word',
+    r'Foam::Time': 'Time',
+    r'Foam::fvMesh': 'fvMesh',
+    r'Foam::instant': 'instant',
 }
 
 
@@ -143,6 +142,12 @@ def main():
         print(f"  Processing {relative_path}...")
         content = stub_file.read_text()
         original = content
+        
+        # Normalize whitespace in C++ templates first
+        # Fix broken scope operators: "Foam: :Type" -> "Foam::Type"
+        content = re.sub(r':\s+:', '::', content)
+        # Remove spaces before closing >
+        content = re.sub(r'\s+>', '>', content)
         
         # Apply all replacements
         for pattern, replacement in TYPE_REPLACEMENTS.items():

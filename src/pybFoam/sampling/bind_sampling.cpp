@@ -55,9 +55,9 @@ void bindSampledSurface(py::module& m)
         .def("points", &sampledSurface::points,
             py::return_value_policy::reference,
             "Get points of surface")
-        .def("faces", &sampledSurface::faces,
-            py::return_value_policy::reference,
-            "Get faces of surface")
+        // .def("faces", &sampledSurface::faces,
+        //     py::return_value_policy::reference,
+        //     "Get faces of surface")
         .def("Sf", &sampledSurface::Sf,
             py::return_value_policy::reference,
             "Get face area vectors")
@@ -158,9 +158,9 @@ void bindSampledSet(py::module& m)
         .def("cells", &sampledSet::cells,
             py::return_value_policy::reference_internal,
             "Get cell IDs for each point")
-        .def("faces", &sampledSet::faces,
-            py::return_value_policy::reference_internal,
-            "Get face IDs for each point (-1 if not on face)")
+        // .def("faces", &sampledSet::faces,
+        //     py::return_value_policy::reference_internal,
+        //     "Get face IDs for each point (-1 if not on face)")
         .def_static("New",
             [](const word& name, const fvMesh& mesh,
                meshSearch& searchEngine, const dictionary& dict) {

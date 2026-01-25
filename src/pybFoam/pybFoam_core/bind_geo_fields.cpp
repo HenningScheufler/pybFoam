@@ -389,18 +389,18 @@ void Foam::bindGeoFields(py::module& m)
     {
         return self + dimensionedScalar("s", self().dimensions(), rhs);
     })
-    .def("__radd__", [](const tmp<volScalarField>& self, const scalar& lhs)
-    {
-        return dimensionedScalar("s", self().dimensions(), lhs) + self;
-    })
+    // .def("__radd__", [](const tmp<volScalarField>& self, const scalar& lhs)
+    // {
+    //     return dimensionedScalar("s", self().dimensions(), lhs) + self;
+    // })
     .def("__sub__", [](const tmp<volScalarField>& self, const scalar& rhs)
     {
         return self - dimensionedScalar("s", self().dimensions(), rhs);
     })
-    .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& lhs)
-    {
-        return dimensionedScalar("s", self().dimensions(), lhs) - self;
-    })
+    // .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& lhs)
+    // {
+    //     return dimensionedScalar("s", self().dimensions(), lhs) - self;
+    // })
     .def("__mul__", []
     (
         const tmp<volScalarField>& self,
@@ -418,14 +418,14 @@ void Foam::bindGeoFields(py::module& m)
         return self * lhs;
     })
     // Scalar arithmetic operators for tmp<volScalarField> (needed for Boussinesq)
-    .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& s)
-    {
-        return s - self;
-    })
-    .def("__radd__", [](const tmp<volScalarField>& self, const scalar& s)
-    {
-        return s + self;
-    })
+    // .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& s)
+    // {
+    //     return s - self;
+    // })
+    // .def("__radd__", [](const tmp<volScalarField>& self, const scalar& s)
+    // {
+    //     return s + self;
+    // })
     ;
 
     vsf.def("__mul__", [](const volScalarField& self, const volVectorField& lhs)
@@ -441,18 +441,18 @@ void Foam::bindGeoFields(py::module& m)
     {
         return self - dimensionedScalar("s", self.dimensions(), s);
     })
-    .def("__rsub__", [](const volScalarField& self, const scalar& s)
-    {
-        return s - self;
-    })
+    // .def("__rsub__", [](const volScalarField& self, const scalar& s)
+    // {
+    //     return s - self;
+    // })
     .def("__add__", [](const volScalarField& self, const scalar& s)
     {
         return self + dimensionedScalar("s", self.dimensions(), s);
     })
-    .def("__radd__", [](const volScalarField& self, const scalar& s)
-    {
-        return s + self;
-    })
+    // .def("__radd__", [](const volScalarField& self, const scalar& s)
+    // {
+    //     return s + self;
+    // })
     .def("__rtruediv__", [](const volScalarField& self, const scalar& s)
     {
         return s / self;

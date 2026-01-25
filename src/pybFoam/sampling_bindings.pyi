@@ -60,10 +60,6 @@ class sampledSet:
         """
         Get cumulative distance along the set
         """
-    def faces(self) -> pybFoam.pybFoam_core.labelList:
-        """
-        Get face IDs for each point (-1 if not on face)
-        """
     def nPoints(self) -> int:
         """
         Get number of points in the set
@@ -109,10 +105,6 @@ class sampledSurface:
     def expire(self) -> bool:
         """
         Mark the surface as needing an update
-        """
-    def faces(self) -> pybFoam.pybFoam_core.faceList:
-        """
-        Get faces of surface
         """
     def hasFaceIds(self) -> bool:
         """

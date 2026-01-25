@@ -9,6 +9,10 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 STUBS_DIR="$PROJECT_ROOT/stubs"
 SRC_DIR="$PROJECT_ROOT/src/pybFoam"
 
+echo "Project Root: $PROJECT_ROOT"
+echo "Source Directory: $SRC_DIR"
+echo "Stubs Directory: $STUBS_DIR"
+
 echo "==================================="
 echo "pybFoam Stub Generator"
 echo "==================================="

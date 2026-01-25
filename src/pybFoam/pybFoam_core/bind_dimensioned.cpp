@@ -124,6 +124,7 @@ void bindDimensioned(pybind11::module& m)
     auto dsf = Foam::declare_dimensioned<Foam::scalar>(m, "dimensionedScalar");
     auto dvf = Foam::declare_dimensioned<Foam::vector>(m, "dimensionedVector");
     auto dtf = Foam::declare_dimensioned<Foam::tensor>(m, "dimensionedTensor");
+    auto dtsf = Foam::declare_dimensioned<Foam::symmTensor>(m, "dimensionedSymmTensor");
 
     // Add scalar-specific cross-type multiplication operators for dimensioned<scalar>
     // (scalar × vector/tensor fields, etc.)

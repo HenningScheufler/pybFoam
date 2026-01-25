@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Union, Literal
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-
+from pybFoam import dictionary
 from .utils import dict_to_foam, _ensure_len
 
 
@@ -27,19 +27,19 @@ class SampledPlaneConfig(SampledSurfaceBaseConfig):
 
     @field_validator("point", "origin")
     @classmethod
-    def point_len(cls, v):
+    def point_len(cls, v: Optional[List[float]]) -> Optional[List[float]]:
         if v is None:
             return v
         return _ensure_len(v, 3, "point/origin")
 
     @field_validator("normal")
     @classmethod
-    def normal_len(cls, v):
+    def normal_len(cls, v: Optional[List[float]]) -> Optional[List[float]]:
         if v is None:
             return v
         return _ensure_len(v, 3, "normal")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> dictionary:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 
@@ -51,12 +51,12 @@ class SampledPatchConfig(SampledSurfaceBaseConfig):
 
     @field_validator("patches")
     @classmethod
-    def patches_list(cls, v):
+    def patches_list(cls, v: Union[str, List[str]]) -> Union[str, List[str]]:
         if isinstance(v, str):
             return v
         return [str(x) for x in v]
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> dictionary:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 

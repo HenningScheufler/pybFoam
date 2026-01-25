@@ -6,7 +6,7 @@ import collections.abc
 import numpy
 import numpy.typing
 import typing
-__all__: list[str] = ['DictionaryGetOrDefaultProxy', 'DictionaryGetProxy', 'Info', 'SolverScalarPerformance', 'SolverSymmTensorPerformance', 'SolverTensorPerformance', 'SolverVectorPerformance', 'SymmTensorInt', 'TensorInt', 'Time', 'VectorInt', 'Word', 'adjustPhi', 'argList', 'boolList', 'computeCFLNumber', 'computeContinuityErrors', 'constrainHbyA', 'constrainPressure', 'createMesh', 'createPhi', 'dictionary', 'dimAcceleration', 'dimArea', 'dimCurrent', 'dimDensity', 'dimEnergy', 'dimForce', 'dimLength', 'dimLuminousIntensity', 'dimMass', 'dimMoles', 'dimPower', 'dimPressure', 'dimTemperature', 'dimTime', 'dimVelocity', 'dimViscosity', 'dimensionSet', 'dimensionedScalar', 'dimensionedTensor', 'dimensionedVector', 'dimless', 'dynamicFvMesh', 'entry', 'fvMesh', 'fvScalarMatrix', 'fvSymmTensorMatrix', 'fvTensorMatrix', 'fvVectorMatrix', 'instant', 'instantList', 'keyType', 'labelList', 'mag', 'pimpleControl', 'pisoControl', 'scalarField', 'selectTimes', 'setRefCell', 'simpleControl', 'solve', 'sum', 'surfaceScalarField', 'surfaceSymmTensorField', 'surfaceTensorField', 'surfaceVectorField', 'symmTensor', 'symmTensorField', 'tensor', 'tensorField', 'tmp_fvScalarMatrix', 'tmp_fvSymmTensorMatrix', 'tmp_fvTensorMatrix', 'tmp_fvVectorMatrix', 'tmp_scalarField', 'tmp_surfaceScalarField', 'tmp_surfaceSymmTensorField', 'tmp_surfaceTensorField', 'tmp_surfaceVectorField', 'tmp_symmTensorField', 'tmp_tensorField', 'tmp_vectorField', 'tmp_volScalarField', 'tmp_volSymmTensorField', 'tmp_volTensorField', 'tmp_volVectorField', 'uniformDimensionedScalarField', 'uniformDimensionedVectorField', 'vector', 'vectorField', 'volScalarField', 'volSymmTensorField', 'volTensorField', 'volVectorField', 'wordList', 'write']
+__all__: list[str] = ['DictionaryGetOrDefaultProxy', 'DictionaryGetProxy', 'Info', 'SolverScalarPerformance', 'SolverSymmTensorPerformance', 'SolverTensorPerformance', 'SolverVectorPerformance', 'SymmTensorInt', 'TensorInt', 'Time', 'VectorInt', 'Word', 'adjustPhi', 'argList', 'boolList', 'computeCFLNumber', 'computeContinuityErrors', 'constrainHbyA', 'constrainPressure', 'createMesh', 'createPhi', 'dictionary', 'dimAcceleration', 'dimArea', 'dimCurrent', 'dimDensity', 'dimEnergy', 'dimForce', 'dimLength', 'dimLuminousIntensity', 'dimMass', 'dimMoles', 'dimPower', 'dimPressure', 'dimTemperature', 'dimTime', 'dimVelocity', 'dimViscosity', 'dimensionSet', 'dimensionedScalar', 'dimensionedSymmTensor', 'dimensionedTensor', 'dimensionedVector', 'dimless', 'dynamicFvMesh', 'entry', 'fvMesh', 'fvScalarMatrix', 'fvSymmTensorMatrix', 'fvTensorMatrix', 'fvVectorMatrix', 'instant', 'instantList', 'keyType', 'labelList', 'mag', 'pimpleControl', 'pisoControl', 'scalarField', 'selectTimes', 'setRefCell', 'simpleControl', 'solve', 'sum', 'surfaceScalarField', 'surfaceSymmTensorField', 'surfaceTensorField', 'surfaceVectorField', 'symmTensor', 'symmTensorField', 'tensor', 'tensorField', 'tmp_fvScalarMatrix', 'tmp_fvSymmTensorMatrix', 'tmp_fvTensorMatrix', 'tmp_fvVectorMatrix', 'tmp_scalarField', 'tmp_surfaceScalarField', 'tmp_surfaceSymmTensorField', 'tmp_surfaceTensorField', 'tmp_surfaceVectorField', 'tmp_symmTensorField', 'tmp_tensorField', 'tmp_vectorField', 'tmp_volScalarField', 'tmp_volSymmTensorField', 'tmp_volTensorField', 'tmp_volVectorField', 'uniformDimensionedScalarField', 'uniformDimensionedVectorField', 'vector', 'vectorField', 'volScalarField', 'volSymmTensorField', 'volTensorField', 'volVectorField', 'wordList', 'write']
 class DictionaryGetOrDefaultProxy:
     def __getitem__(self, arg0: typing.Any) -> typing.Any:
         ...
@@ -117,9 +117,9 @@ class Time:
         ...
     def setDeltaT(self, newDeltaT: typing.SupportsFloat) -> None:
         ...
-    def setTime(self, arg0: pybFoam.pybFoam_core.instant, arg1: typing.SupportsInt) -> None:
+    def setTime(self, arg0: instant, arg1: typing.SupportsInt) -> None:
         ...
-    def timeName(self) -> pybFoam.pybFoam_core.Word:
+    def timeName(self) -> Word:
         ...
     def value(self) -> float:
         ...
@@ -133,9 +133,14 @@ class VectorInt:
     def __setitem__(self, arg0: typing.SupportsInt, arg1: typing.SupportsInt) -> None:
         ...
 class Word:
-    __hash__: typing.ClassVar[None] = None
-    def __eq__(self, arg0: str) -> bool:
+    def __eq__(self, arg0: typing.Any) -> bool:
         ...
+    def __hash__(self) -> int:
+        ...
+    @typing.overload
+    def __init__(self, arg0: Word) -> None:
+        ...
+    @typing.overload
     def __init__(self, arg0: str) -> None:
         ...
     def __repr__(self) -> str:
@@ -177,92 +182,88 @@ class dictionary:
     def add(self, arg0: entry, arg1: bool) -> None:
         ...
     @typing.overload
-    def add(self, key: str, value: pybFoam.pybFoam_core.Word) -> None:
+    def add(self, key: str, value: Word) -> None:
         ...
     @typing.overload
     def add(self, arg0: str, arg1: typing.SupportsFloat) -> None:
         ...
     @typing.overload
-    def add(self, arg0: str, arg1: pybFoam.pybFoam_core.vector) -> None:
+    def add(self, arg0: str, arg1: vector) -> None:
         ...
     @typing.overload
-    def add(self, arg0: str, arg1: pybFoam.pybFoam_core.tensor) -> None:
+    def add(self, arg0: str, arg1: tensor) -> None:
         ...
     @typing.overload
-    def add(self, arg0: str, arg1: pybFoam.pybFoam_core.wordList) -> None:
+    def add(self, arg0: str, arg1: wordList) -> None:
         ...
     @typing.overload
-    def add(self, arg0: str, arg1: pybFoam.pybFoam_core.scalarField) -> None:
+    def add(self, arg0: str, arg1: scalarField) -> None:
         ...
     @typing.overload
-    def add(self, arg0: str, arg1: Foam::Field<pybFoam.pybFoam_core.vector >) -> None:
+    def add(self, arg0: str, arg1: vectorField) -> None:
         ...
     @typing.overload
-    def add(self, arg0: str, arg1: Foam::Field<pybFoam.pybFoam_core.tensor >) -> None:
+    def add(self, arg0: str, arg1: tensorField) -> None:
         ...
-    @typing.overload
-    def clear(self) -> None:
-        ...
-    @typing.overload
     def clear(self) -> None:
         ...
     def found(self, arg0: str) -> bool:
         ...
     def get_scalar(self, arg0: str) -> float:
         ...
-    def get_scalarField(self, arg0: str) -> pybFoam.pybFoam_core.scalarField:
+    def get_scalarField(self, arg0: str) -> scalarField:
         ...
-    def get_tensor(self, arg0: str) -> pybFoam.pybFoam_core.tensor:
+    def get_tensor(self, arg0: str) -> tensor:
         ...
-    def get_tensorField(self, arg0: str) -> Foam::Field<pybFoam.pybFoam_core.tensor >:
+    def get_tensorField(self, arg0: str) -> tensorField:
         ...
-    def get_vector(self, arg0: str) -> pybFoam.pybFoam_core.vector:
+    def get_vector(self, arg0: str) -> vector:
         ...
-    def get_vectorField(self, arg0: str) -> Foam::Field<pybFoam.pybFoam_core.vector >:
+    def get_vectorField(self, arg0: str) -> vectorField:
         ...
-    def get_word(self, arg0: str) -> pybFoam.pybFoam_core.Word:
+    def get_word(self, arg0: str) -> Word:
         ...
-    def get_wordList(self, arg0: str) -> pybFoam.pybFoam_core.wordList:
+    def get_wordList(self, arg0: str) -> wordList:
         ...
     def isDict(self, arg0: str) -> bool:
         ...
-    def lookupSolverPerformanceScalarList(self, arg0: str) -> list[pybFoam.pybFoam_core.SolverScalarPerformance]:
+    def lookupSolverPerformanceScalarList(self, arg0: str) -> list[SolverScalarPerformance]:
         ...
-    def lookupSolverPerformanceTensorList(self, arg0: str) -> list[pybFoam.pybFoam_core.SolverTensorPerformance]:
+    def lookupSolverPerformanceTensorList(self, arg0: str) -> list[SolverTensorPerformance]:
         ...
-    def lookupSolverPerformanceVectorList(self, arg0: str) -> list[pybFoam.pybFoam_core.SolverVectorPerformance]:
+    def lookupSolverPerformanceVectorList(self, arg0: str) -> list[SolverVectorPerformance]:
         ...
     def print(self) -> None:
         ...
     @typing.overload
-    def set(self, arg0: str, arg1: pybFoam.pybFoam_core.Word) -> None:
+    def set(self, arg0: str, arg1: Word) -> None:
         ...
     @typing.overload
     def set(self, arg0: str, arg1: typing.SupportsFloat) -> None:
         ...
     @typing.overload
-    def set(self, arg0: str, arg1: pybFoam.pybFoam_core.vector) -> None:
+    def set(self, arg0: str, arg1: vector) -> None:
         ...
     @typing.overload
-    def set(self, arg0: str, arg1: pybFoam.pybFoam_core.tensor) -> None:
+    def set(self, arg0: str, arg1: tensor) -> None:
         ...
     @typing.overload
-    def set(self, arg0: str, arg1: pybFoam.pybFoam_core.wordList) -> None:
+    def set(self, arg0: str, arg1: wordList) -> None:
         ...
     @typing.overload
-    def set(self, arg0: str, arg1: pybFoam.pybFoam_core.scalarField) -> None:
+    def set(self, arg0: str, arg1: scalarField) -> None:
         ...
     @typing.overload
-    def set(self, arg0: str, arg1: Foam::Field<pybFoam.pybFoam_core.vector >) -> None:
+    def set(self, arg0: str, arg1: vectorField) -> None:
         ...
     @typing.overload
-    def set(self, arg0: str, arg1: Foam::Field<pybFoam.pybFoam_core.tensor >) -> None:
+    def set(self, arg0: str, arg1: tensorField) -> None:
         ...
     def subDict(self, arg0: str) -> dictionary:
         ...
     def subDictOrAdd(self, arg0: str) -> dictionary:
         ...
-    def toc(self) -> pybFoam.pybFoam_core.wordList:
+    def toc(self) -> wordList:
         ...
     def write(self, arg0: str) -> None:
         ...
@@ -285,12 +286,12 @@ class dimensionSet:
         ...
 class dimensionedScalar:
     @typing.overload
-    def __add__(self, field: Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volScalarField:
+    def __add__(self, field: volScalarField) -> tmp_volScalarField:
         """
         Add dimensioned value to volField
         """
     @typing.overload
-    def __add__(self, field: Foam::tmp<Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh> >) -> pybFoam.pybFoam_core.tmp_volScalarField:
+    def __add__(self, field: tmp_volScalarField) -> tmp_volScalarField:
         """
         Add dimensioned value to tmp<volField>
         """
@@ -304,42 +305,42 @@ class dimensionedScalar:
     def __init__(self, name: str, dimensions: dimensionSet, value: typing.SupportsFloat) -> None:
         ...
     @typing.overload
-    def __mul__(self, field: Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volScalarField:
+    def __mul__(self, field: volScalarField) -> tmp_volScalarField:
         """
         Multiply dimensioned value by volScalarField
         """
     @typing.overload
-    def __mul__(self, field: Foam::tmp<Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh> >) -> pybFoam.pybFoam_core.tmp_volScalarField:
+    def __mul__(self, field: tmp_volScalarField) -> tmp_volScalarField:
         """
         Multiply dimensioned value by tmp<volScalarField>
         """
     @typing.overload
-    def __mul__(self, field: Foam::GeometricField<double, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+    def __mul__(self, field: surfaceScalarField) -> tmp_surfaceScalarField:
         """
         Multiply dimensioned value by surfaceScalarField
         """
     @typing.overload
-    def __mul__(self, field: Foam::tmp<Foam::GeometricField<double, Foam: :fvsPatchField, Foam: :surfaceMesh> >) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+    def __mul__(self, field: tmp_surfaceScalarField) -> tmp_surfaceScalarField:
         """
         Multiply dimensioned value by tmp<surfaceScalarField>
         """
     @typing.overload
-    def __mul__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volVectorField:
+    def __mul__(self, arg0: volVectorField) -> tmp_volVectorField:
         """
         dimensioned × volVectorField
         """
     @typing.overload
-    def __mul__(self, arg0: Foam::tmp<Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvPatchField, Foam: :volMesh> >) -> pybFoam.pybFoam_core.tmp_volVectorField:
+    def __mul__(self, arg0: tmp_volVectorField) -> tmp_volVectorField:
         """
         dimensioned × tmp<volVectorField>
         """
     @typing.overload
-    def __sub__(self, field: Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volScalarField:
+    def __sub__(self, field: volScalarField) -> tmp_volScalarField:
         """
         Subtract volField from dimensioned value
         """
     @typing.overload
-    def __sub__(self, field: Foam::tmp<Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh> >) -> pybFoam.pybFoam_core.tmp_volScalarField:
+    def __sub__(self, field: tmp_volScalarField) -> tmp_volScalarField:
         """
         Subtract tmp<volField> from dimensioned value
         """
@@ -349,14 +350,70 @@ class dimensionedScalar:
         ...
     def value(self) -> float:
         ...
-class dimensionedTensor:
+class dimensionedSymmTensor:
     @typing.overload
-    def __add__(self, field: Foam::GeometricField<pybFoam.pybFoam_core.tensor, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volTensorField:
+    def __add__(self, field: volSymmTensorField) -> tmp_volSymmTensorField:
         """
         Add dimensioned value to volField
         """
     @typing.overload
-    def __add__(self, field: Foam::tmp<Foam::GeometricField<pybFoam.pybFoam_core.tensor, Foam: :fvPatchField, Foam: :volMesh> >) -> pybFoam.pybFoam_core.tmp_volTensorField:
+    def __add__(self, field: tmp_volSymmTensorField) -> tmp_volSymmTensorField:
+        """
+        Add dimensioned value to tmp<volField>
+        """
+    @typing.overload
+    def __init__(self, name: Word, dimensions: dimensionSet, value: symmTensor) -> None:
+        ...
+    @typing.overload
+    def __init__(self, name: Word, dimensions: dimensionSet, dict: dictionary) -> None:
+        ...
+    @typing.overload
+    def __init__(self, name: str, dimensions: dimensionSet, value: symmTensor) -> None:
+        ...
+    @typing.overload
+    def __mul__(self, field: volScalarField) -> tmp_volSymmTensorField:
+        """
+        Multiply dimensioned value by volScalarField
+        """
+    @typing.overload
+    def __mul__(self, field: tmp_volScalarField) -> tmp_volSymmTensorField:
+        """
+        Multiply dimensioned value by tmp<volScalarField>
+        """
+    @typing.overload
+    def __mul__(self, field: surfaceScalarField) -> tmp_surfaceSymmTensorField:
+        """
+        Multiply dimensioned value by surfaceScalarField
+        """
+    @typing.overload
+    def __mul__(self, field: tmp_surfaceScalarField) -> tmp_surfaceSymmTensorField:
+        """
+        Multiply dimensioned value by tmp<surfaceScalarField>
+        """
+    @typing.overload
+    def __sub__(self, field: volSymmTensorField) -> tmp_volSymmTensorField:
+        """
+        Subtract volField from dimensioned value
+        """
+    @typing.overload
+    def __sub__(self, field: tmp_volSymmTensorField) -> tmp_volSymmTensorField:
+        """
+        Subtract tmp<volField> from dimensioned value
+        """
+    def dimensions(self) -> dimensionSet:
+        ...
+    def name(self) -> str:
+        ...
+    def value(self) -> symmTensor:
+        ...
+class dimensionedTensor:
+    @typing.overload
+    def __add__(self, field: volTensorField) -> tmp_volTensorField:
+        """
+        Add dimensioned value to volField
+        """
+    @typing.overload
+    def __add__(self, field: tmp_volTensorField) -> tmp_volTensorField:
         """
         Add dimensioned value to tmp<volField>
         """
@@ -370,32 +427,32 @@ class dimensionedTensor:
     def __init__(self, name: str, dimensions: dimensionSet, value: tensor) -> None:
         ...
     @typing.overload
-    def __mul__(self, field: Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volTensorField:
+    def __mul__(self, field: volScalarField) -> tmp_volTensorField:
         """
         Multiply dimensioned value by volScalarField
         """
     @typing.overload
-    def __mul__(self, field: Foam::tmp<Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh> >) -> pybFoam.pybFoam_core.tmp_volTensorField:
+    def __mul__(self, field: tmp_volScalarField) -> tmp_volTensorField:
         """
         Multiply dimensioned value by tmp<volScalarField>
         """
     @typing.overload
-    def __mul__(self, field: Foam::GeometricField<double, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> pybFoam.pybFoam_core.tmp_surfaceTensorField:
+    def __mul__(self, field: surfaceScalarField) -> tmp_surfaceTensorField:
         """
         Multiply dimensioned value by surfaceScalarField
         """
     @typing.overload
-    def __mul__(self, field: Foam::tmp<Foam::GeometricField<double, Foam: :fvsPatchField, Foam: :surfaceMesh> >) -> pybFoam.pybFoam_core.tmp_surfaceTensorField:
+    def __mul__(self, field: tmp_surfaceScalarField) -> tmp_surfaceTensorField:
         """
         Multiply dimensioned value by tmp<surfaceScalarField>
         """
     @typing.overload
-    def __sub__(self, field: Foam::GeometricField<pybFoam.pybFoam_core.tensor, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volTensorField:
+    def __sub__(self, field: volTensorField) -> tmp_volTensorField:
         """
         Subtract volField from dimensioned value
         """
     @typing.overload
-    def __sub__(self, field: Foam::tmp<Foam::GeometricField<pybFoam.pybFoam_core.tensor, Foam: :fvPatchField, Foam: :volMesh> >) -> pybFoam.pybFoam_core.tmp_volTensorField:
+    def __sub__(self, field: tmp_volTensorField) -> tmp_volTensorField:
         """
         Subtract tmp<volField> from dimensioned value
         """
@@ -407,12 +464,12 @@ class dimensionedTensor:
         ...
 class dimensionedVector:
     @typing.overload
-    def __add__(self, field: Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volVectorField:
+    def __add__(self, field: volVectorField) -> tmp_volVectorField:
         """
         Add dimensioned value to volField
         """
     @typing.overload
-    def __add__(self, field: Foam::tmp<Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvPatchField, Foam: :volMesh> >) -> pybFoam.pybFoam_core.tmp_volVectorField:
+    def __add__(self, field: tmp_volVectorField) -> tmp_volVectorField:
         """
         Add dimensioned value to tmp<volField>
         """
@@ -426,32 +483,32 @@ class dimensionedVector:
     def __init__(self, name: str, dimensions: dimensionSet, value: vector) -> None:
         ...
     @typing.overload
-    def __mul__(self, field: Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volVectorField:
+    def __mul__(self, field: volScalarField) -> tmp_volVectorField:
         """
         Multiply dimensioned value by volScalarField
         """
     @typing.overload
-    def __mul__(self, field: Foam::tmp<Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh> >) -> pybFoam.pybFoam_core.tmp_volVectorField:
+    def __mul__(self, field: tmp_volScalarField) -> tmp_volVectorField:
         """
         Multiply dimensioned value by tmp<volScalarField>
         """
     @typing.overload
-    def __mul__(self, field: Foam::GeometricField<double, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> pybFoam.pybFoam_core.tmp_surfaceVectorField:
+    def __mul__(self, field: surfaceScalarField) -> tmp_surfaceVectorField:
         """
         Multiply dimensioned value by surfaceScalarField
         """
     @typing.overload
-    def __mul__(self, field: Foam::tmp<Foam::GeometricField<double, Foam: :fvsPatchField, Foam: :surfaceMesh> >) -> pybFoam.pybFoam_core.tmp_surfaceVectorField:
+    def __mul__(self, field: tmp_surfaceScalarField) -> tmp_surfaceVectorField:
         """
         Multiply dimensioned value by tmp<surfaceScalarField>
         """
     @typing.overload
-    def __sub__(self, field: Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volVectorField:
+    def __sub__(self, field: volVectorField) -> tmp_volVectorField:
         """
         Subtract volField from dimensioned value
         """
     @typing.overload
-    def __sub__(self, field: Foam::tmp<Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvPatchField, Foam: :volMesh> >) -> pybFoam.pybFoam_core.tmp_volVectorField:
+    def __sub__(self, field: tmp_volVectorField) -> tmp_volVectorField:
         """
         Subtract tmp<volField> from dimensioned value
         """
@@ -474,13 +531,13 @@ class dynamicFvMesh(fvMesh):
 class entry:
     pass
 class fvMesh:
-    def C(self) -> pybFoam.pybFoam_core.volVectorField:
+    def C(self) -> volVectorField:
         ...
-    def Cf(self) -> pybFoam.pybFoam_core.surfaceVectorField:
+    def Cf(self) -> surfaceVectorField:
         ...
-    def Sf(self) -> pybFoam.pybFoam_core.surfaceVectorField:
+    def Sf(self) -> surfaceVectorField:
         ...
-    def V(self) -> pybFoam.pybFoam_core.scalarField:
+    def V(self) -> scalarField:
         ...
     @typing.overload
     def __init__(self, arg0: fvMesh) -> None:
@@ -490,7 +547,7 @@ class fvMesh:
         ...
     def changing(self) -> bool:
         ...
-    def magSf(self) -> pybFoam.pybFoam_core.surfaceScalarField:
+    def magSf(self) -> surfaceScalarField:
         ...
     def nCells(self) -> int:
         ...
@@ -500,7 +557,7 @@ class fvMesh:
         ...
     def nPoints(self) -> int:
         ...
-    def setFluxRequired(self, arg0: pybFoam.pybFoam_core.Word) -> None:
+    def setFluxRequired(self, arg0: Word) -> None:
         ...
     def solverPerformanceDict(self) -> dictionary:
         ...
@@ -710,7 +767,7 @@ class instantList:
         ...
 class keyType:
     @typing.overload
-    def __init__(self, arg0: pybFoam.pybFoam_core.Word) -> None:
+    def __init__(self, arg0: Word) -> None:
         ...
     @typing.overload
     def __init__(self, arg0: str) -> None:
@@ -771,18 +828,19 @@ class pisoControl:
         ...
 class scalarField:
     @typing.overload
-    def __add__(self, arg0: scalarField) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __add__(self, arg0: scalarField) -> tmp_scalarField:
         ...
     @typing.overload
-    def __add__(self, arg0: pybFoam.pybFoam_core.tmp_scalarField) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __add__(self, arg0: tmp_scalarField) -> tmp_scalarField:
         ...
     @typing.overload
-    def __add__(self, arg0: typing.SupportsFloat) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __add__(self, arg0: typing.SupportsFloat) -> tmp_scalarField:
         ...
-    def __buffer__(self, flags):
+    def __buffer__(self, flags: int) -> memoryview:
         """
         Return a buffer object that exposes the underlying memory of the object.
         """
+        ...
     def __getitem__(self, arg0: typing.SupportsInt) -> float:
         ...
     @typing.overload
@@ -792,7 +850,7 @@ class scalarField:
     def __init__(self, arg0: scalarField) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: pybFoam.pybFoam_core.tmp_scalarField) -> None:
+    def __init__(self, arg0: tmp_scalarField) -> None:
         ...
     @typing.overload
     def __init__(self, arg0: collections.abc.Sequence[typing.SupportsFloat]) -> None:
@@ -803,37 +861,38 @@ class scalarField:
     def __len__(self) -> int:
         ...
     @typing.overload
-    def __mul__(self, arg0: typing.SupportsFloat) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __mul__(self, arg0: typing.SupportsFloat) -> tmp_scalarField:
         ...
     @typing.overload
-    def __mul__(self, arg0: scalarField) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __mul__(self, arg0: scalarField) -> tmp_scalarField:
         ...
     @typing.overload
-    def __mul__(self, arg0: pybFoam.pybFoam_core.tmp_scalarField) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __mul__(self, arg0: tmp_scalarField) -> tmp_scalarField:
         ...
-    def __release_buffer__(self, buffer):
+    def __release_buffer__(self, buffer: int) -> None:
         """
         Release the buffer object that exposes the underlying memory of the object.
         """
+        ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: typing.SupportsFloat) -> None:
         ...
     @typing.overload
-    def __sub__(self, arg0: scalarField) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __sub__(self, arg0: scalarField) -> tmp_scalarField:
         ...
     @typing.overload
-    def __sub__(self, arg0: pybFoam.pybFoam_core.tmp_scalarField) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __sub__(self, arg0: tmp_scalarField) -> tmp_scalarField:
         ...
     @typing.overload
-    def __sub__(self, arg0: typing.SupportsFloat) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __sub__(self, arg0: typing.SupportsFloat) -> tmp_scalarField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: typing.SupportsFloat) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __truediv__(self, arg0: typing.SupportsFloat) -> tmp_scalarField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: scalarField) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __truediv__(self, arg0: scalarField) -> tmp_scalarField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: pybFoam.pybFoam_core.tmp_scalarField) -> pybFoam.pybFoam_core.tmp_scalarField:
+    def __truediv__(self, arg0: tmp_scalarField) -> tmp_scalarField:
         ...
 class simpleControl:
     def __init__(self, mesh: fvMesh, dictName: Word = ...) -> None:
@@ -951,7 +1010,7 @@ class surfaceSymmTensorField:
     def __add__(self, arg0: tmp_surfaceSymmTensorField) -> tmp_surfaceSymmTensorField:
         ...
     @typing.overload
-    def __add__(self, arg0: pybFoam.pybFoam_core.dimensionedSymmTensor) -> tmp_surfaceSymmTensorField:
+    def __add__(self, arg0: dimensionedSymmTensor) -> tmp_surfaceSymmTensorField:
         ...
     def __getitem__(self, arg0: str) -> symmTensorField:
         ...
@@ -989,7 +1048,7 @@ class surfaceSymmTensorField:
     def __sub__(self, arg0: tmp_surfaceSymmTensorField) -> tmp_surfaceSymmTensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: pybFoam.pybFoam_core.dimensionedSymmTensor) -> tmp_surfaceSymmTensorField:
+    def __sub__(self, arg0: dimensionedSymmTensor) -> tmp_surfaceSymmTensorField:
         ...
     @typing.overload
     def __truediv__(self, arg0: surfaceScalarField) -> tmp_surfaceSymmTensorField:
@@ -1193,7 +1252,6 @@ class surfaceVectorField:
     def select(self, arg0: bool) -> Word:
         ...
 class symmTensor:
-    __hash__: typing.ClassVar[None] = None
     def __add__(self, arg0: symmTensor) -> symmTensor:
         ...
     @typing.overload
@@ -1202,13 +1260,11 @@ class symmTensor:
     @typing.overload
     def __and__(self, arg0: vector) -> vector:
         ...
-    @typing.overload
-    def __eq__(self, arg0: symmTensor) -> bool:
-        ...
-    @typing.overload
-    def __eq__(self, arg0: typing.Annotated[collections.abc.Sequence[typing.SupportsFloat], "FixedSize(6)"]) -> bool:
+    def __eq__(self, arg0: typing.Any) -> bool:
         ...
     def __getitem__(self, arg0: typing.SupportsInt) -> float:
+        ...
+    def __hash__(self) -> int:
         ...
     @typing.overload
     def __init__(self, arg0: symmTensor) -> None:
@@ -1223,7 +1279,7 @@ class symmTensor:
         ...
     def __mul__(self, arg0: typing.SupportsFloat) -> symmTensor:
         ...
-    def __ne__(self, arg0: symmTensor) -> bool:
+    def __ne__(self, arg0: typing.Any) -> bool:
         ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: typing.SupportsFloat) -> None:
         ...
@@ -1233,18 +1289,19 @@ class symmTensor:
         ...
 class symmTensorField:
     @typing.overload
-    def __add__(self, arg0: symmTensorField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __add__(self, arg0: symmTensorField) -> tmp_symmTensorField:
         ...
     @typing.overload
-    def __add__(self, arg0: Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __add__(self, arg0: tmp_symmTensorField) -> tmp_symmTensorField:
         ...
     @typing.overload
-    def __add__(self, arg0: symmTensor) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __add__(self, arg0: symmTensor) -> tmp_symmTensorField:
         ...
-    def __buffer__(self, flags):
+    def __buffer__(self, flags: int) -> memoryview:
         """
         Return a buffer object that exposes the underlying memory of the object.
         """
+        ...
     def __getitem__(self, arg0: typing.SupportsInt) -> symmTensor:
         ...
     @typing.overload
@@ -1254,7 +1311,7 @@ class symmTensorField:
     def __init__(self, arg0: symmTensorField) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >) -> None:
+    def __init__(self, arg0: tmp_symmTensorField) -> None:
         ...
     @typing.overload
     def __init__(self, arg0: collections.abc.Sequence[symmTensor]) -> None:
@@ -1265,40 +1322,40 @@ class symmTensorField:
     def __len__(self) -> int:
         ...
     @typing.overload
-    def __mul__(self, arg0: typing.SupportsFloat) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __mul__(self, arg0: typing.SupportsFloat) -> tmp_symmTensorField:
         ...
     @typing.overload
-    def __mul__(self, arg0: scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __mul__(self, arg0: scalarField) -> tmp_symmTensorField:
         ...
     @typing.overload
-    def __mul__(self, arg0: tmp_scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __mul__(self, arg0: tmp_scalarField) -> tmp_symmTensorField:
         ...
-    def __release_buffer__(self, buffer):
+    def __release_buffer__(self, buffer: int) -> None:
         """
         Release the buffer object that exposes the underlying memory of the object.
         """
+        ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: symmTensor) -> None:
         ...
     @typing.overload
-    def __sub__(self, arg0: symmTensorField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __sub__(self, arg0: symmTensorField) -> tmp_symmTensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __sub__(self, arg0: tmp_symmTensorField) -> tmp_symmTensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: symmTensor) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __sub__(self, arg0: symmTensor) -> tmp_symmTensorField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: typing.SupportsFloat) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __truediv__(self, arg0: typing.SupportsFloat) -> tmp_symmTensorField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __truediv__(self, arg0: scalarField) -> tmp_symmTensorField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: tmp_scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.symmTensor > >:
+    def __truediv__(self, arg0: tmp_scalarField) -> tmp_symmTensorField:
         ...
 class tensor:
-    __hash__: typing.ClassVar[None] = None
     def __add__(self, arg0: tensor) -> tensor:
         ...
     @typing.overload
@@ -1307,13 +1364,11 @@ class tensor:
     @typing.overload
     def __and__(self, arg0: vector) -> vector:
         ...
-    @typing.overload
-    def __eq__(self, arg0: tensor) -> bool:
-        ...
-    @typing.overload
-    def __eq__(self, arg0: typing.Annotated[collections.abc.Sequence[typing.SupportsFloat], "FixedSize(9)"]) -> bool:
+    def __eq__(self, arg0: typing.Any) -> bool:
         ...
     def __getitem__(self, arg0: typing.SupportsInt) -> float:
+        ...
+    def __hash__(self) -> int:
         ...
     @typing.overload
     def __init__(self, arg0: tensor) -> None:
@@ -1328,7 +1383,7 @@ class tensor:
         ...
     def __mul__(self, arg0: typing.SupportsFloat) -> tensor:
         ...
-    def __ne__(self, arg0: tensor) -> bool:
+    def __ne__(self, arg0: typing.Any) -> bool:
         ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: typing.SupportsFloat) -> None:
         ...
@@ -1338,18 +1393,19 @@ class tensor:
         ...
 class tensorField:
     @typing.overload
-    def __add__(self, arg0: tensorField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __add__(self, arg0: tensorField) -> tmp_tensorField:
         ...
     @typing.overload
-    def __add__(self, arg0: Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __add__(self, arg0: tmp_tensorField) -> tmp_tensorField:
         ...
     @typing.overload
-    def __add__(self, arg0: tensor) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __add__(self, arg0: tensor) -> tmp_tensorField:
         ...
-    def __buffer__(self, flags):
+    def __buffer__(self, flags: int) -> memoryview:
         """
         Return a buffer object that exposes the underlying memory of the object.
         """
+        ...
     def __getitem__(self, arg0: typing.SupportsInt) -> tensor:
         ...
     @typing.overload
@@ -1359,7 +1415,7 @@ class tensorField:
     def __init__(self, arg0: tensorField) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >) -> None:
+    def __init__(self, arg0: tmp_tensorField) -> None:
         ...
     @typing.overload
     def __init__(self, arg0: collections.abc.Sequence[tensor]) -> None:
@@ -1370,44 +1426,45 @@ class tensorField:
     def __len__(self) -> int:
         ...
     @typing.overload
-    def __mul__(self, arg0: typing.SupportsFloat) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __mul__(self, arg0: typing.SupportsFloat) -> tmp_tensorField:
         ...
     @typing.overload
-    def __mul__(self, arg0: scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __mul__(self, arg0: scalarField) -> tmp_tensorField:
         ...
     @typing.overload
-    def __mul__(self, arg0: tmp_scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __mul__(self, arg0: tmp_scalarField) -> tmp_tensorField:
         ...
-    def __release_buffer__(self, buffer):
+    def __release_buffer__(self, buffer: int) -> None:
         """
         Release the buffer object that exposes the underlying memory of the object.
         """
+        ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: tensor) -> None:
         ...
     @typing.overload
-    def __sub__(self, arg0: tensorField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __sub__(self, arg0: tensorField) -> tmp_tensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __sub__(self, arg0: tmp_tensorField) -> tmp_tensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: tensor) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __sub__(self, arg0: tensor) -> tmp_tensorField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: typing.SupportsFloat) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __truediv__(self, arg0: typing.SupportsFloat) -> tmp_tensorField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __truediv__(self, arg0: scalarField) -> tmp_tensorField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: tmp_scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.tensor > >:
+    def __truediv__(self, arg0: tmp_scalarField) -> tmp_tensorField:
         ...
 class tmp_fvScalarMatrix:
     @typing.overload
     def __add__(self, arg0: tmp_fvScalarMatrix) -> tmp_fvScalarMatrix:
         ...
     @typing.overload
-    def __add__(self, arg0: pybFoam.pybFoam_core.fvScalarMatrix) -> tmp_fvScalarMatrix:
+    def __add__(self, arg0: fvScalarMatrix) -> tmp_fvScalarMatrix:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_volScalarField) -> tmp_fvScalarMatrix:
@@ -1416,7 +1473,7 @@ class tmp_fvScalarMatrix:
     def __sub__(self, arg0: tmp_fvScalarMatrix) -> tmp_fvScalarMatrix:
         ...
     @typing.overload
-    def __sub__(self, arg0: pybFoam.pybFoam_core.fvScalarMatrix) -> tmp_fvScalarMatrix:
+    def __sub__(self, arg0: fvScalarMatrix) -> tmp_fvScalarMatrix:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_volScalarField) -> tmp_fvScalarMatrix:
@@ -1426,7 +1483,7 @@ class tmp_fvSymmTensorMatrix:
     def __add__(self, arg0: tmp_fvSymmTensorMatrix) -> tmp_fvSymmTensorMatrix:
         ...
     @typing.overload
-    def __add__(self, arg0: pybFoam.pybFoam_core.fvSymmTensorMatrix) -> tmp_fvSymmTensorMatrix:
+    def __add__(self, arg0: fvSymmTensorMatrix) -> tmp_fvSymmTensorMatrix:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_volSymmTensorField) -> tmp_fvSymmTensorMatrix:
@@ -1435,7 +1492,7 @@ class tmp_fvSymmTensorMatrix:
     def __sub__(self, arg0: tmp_fvSymmTensorMatrix) -> tmp_fvSymmTensorMatrix:
         ...
     @typing.overload
-    def __sub__(self, arg0: pybFoam.pybFoam_core.fvSymmTensorMatrix) -> tmp_fvSymmTensorMatrix:
+    def __sub__(self, arg0: fvSymmTensorMatrix) -> tmp_fvSymmTensorMatrix:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_volSymmTensorField) -> tmp_fvSymmTensorMatrix:
@@ -1445,7 +1502,7 @@ class tmp_fvTensorMatrix:
     def __add__(self, arg0: tmp_fvTensorMatrix) -> tmp_fvTensorMatrix:
         ...
     @typing.overload
-    def __add__(self, arg0: pybFoam.pybFoam_core.fvTensorMatrix) -> tmp_fvTensorMatrix:
+    def __add__(self, arg0: fvTensorMatrix) -> tmp_fvTensorMatrix:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_volTensorField) -> tmp_fvTensorMatrix:
@@ -1454,7 +1511,7 @@ class tmp_fvTensorMatrix:
     def __sub__(self, arg0: tmp_fvTensorMatrix) -> tmp_fvTensorMatrix:
         ...
     @typing.overload
-    def __sub__(self, arg0: pybFoam.pybFoam_core.fvTensorMatrix) -> tmp_fvTensorMatrix:
+    def __sub__(self, arg0: fvTensorMatrix) -> tmp_fvTensorMatrix:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_volTensorField) -> tmp_fvTensorMatrix:
@@ -1464,7 +1521,7 @@ class tmp_fvVectorMatrix:
     def __add__(self, arg0: tmp_fvVectorMatrix) -> tmp_fvVectorMatrix:
         ...
     @typing.overload
-    def __add__(self, arg0: pybFoam.pybFoam_core.fvVectorMatrix) -> tmp_fvVectorMatrix:
+    def __add__(self, arg0: fvVectorMatrix) -> tmp_fvVectorMatrix:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_volVectorField) -> tmp_fvVectorMatrix:
@@ -1473,7 +1530,7 @@ class tmp_fvVectorMatrix:
     def __sub__(self, arg0: tmp_fvVectorMatrix) -> tmp_fvVectorMatrix:
         ...
     @typing.overload
-    def __sub__(self, arg0: pybFoam.pybFoam_core.fvVectorMatrix) -> tmp_fvVectorMatrix:
+    def __sub__(self, arg0: fvVectorMatrix) -> tmp_fvVectorMatrix:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_volVectorField) -> tmp_fvVectorMatrix:
@@ -1527,7 +1584,7 @@ class tmp_scalarField:
         ...
 class tmp_surfaceScalarField:
     @typing.overload
-    def __add__(self, arg0: Foam::GeometricField<double, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> tmp_surfaceScalarField:
+    def __add__(self, arg0: surfaceScalarField) -> tmp_surfaceScalarField:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_surfaceScalarField) -> tmp_surfaceScalarField:
@@ -1535,10 +1592,10 @@ class tmp_surfaceScalarField:
     @typing.overload
     def __add__(self, arg0: dimensionedScalar) -> tmp_surfaceScalarField:
         ...
-    def __call__(self) -> pybFoam.pybFoam_core.surfaceScalarField:
+    def __call__(self) -> surfaceScalarField:
         ...
     @typing.overload
-    def __mul__(self, arg0: Foam::GeometricField<double, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> tmp_surfaceScalarField:
+    def __mul__(self, arg0: surfaceScalarField) -> tmp_surfaceScalarField:
         ...
     @typing.overload
     def __mul__(self, arg0: tmp_surfaceScalarField) -> tmp_surfaceScalarField:
@@ -1554,7 +1611,7 @@ class tmp_surfaceScalarField:
     def __rmul__(self, arg0: typing.SupportsFloat) -> tmp_surfaceScalarField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::GeometricField<double, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> tmp_surfaceScalarField:
+    def __sub__(self, arg0: surfaceScalarField) -> tmp_surfaceScalarField:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_surfaceScalarField) -> tmp_surfaceScalarField:
@@ -1576,15 +1633,15 @@ class tmp_surfaceScalarField:
         ...
 class tmp_surfaceSymmTensorField:
     @typing.overload
-    def __add__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.symmTensor, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> tmp_surfaceSymmTensorField:
+    def __add__(self, arg0: surfaceSymmTensorField) -> tmp_surfaceSymmTensorField:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_surfaceSymmTensorField) -> tmp_surfaceSymmTensorField:
         ...
     @typing.overload
-    def __add__(self, arg0: pybFoam.pybFoam_core.dimensionedSymmTensor) -> tmp_surfaceSymmTensorField:
+    def __add__(self, arg0: dimensionedSymmTensor) -> tmp_surfaceSymmTensorField:
         ...
-    def __call__(self) -> pybFoam.pybFoam_core.surfaceSymmTensorField:
+    def __call__(self) -> surfaceSymmTensorField:
         ...
     @typing.overload
     def __mul__(self, arg0: surfaceScalarField) -> tmp_surfaceSymmTensorField:
@@ -1603,19 +1660,19 @@ class tmp_surfaceSymmTensorField:
     def __rmul__(self, arg0: typing.SupportsFloat) -> tmp_surfaceSymmTensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.symmTensor, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> tmp_surfaceSymmTensorField:
+    def __sub__(self, arg0: surfaceSymmTensorField) -> tmp_surfaceSymmTensorField:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_surfaceSymmTensorField) -> tmp_surfaceSymmTensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: pybFoam.pybFoam_core.dimensionedSymmTensor) -> tmp_surfaceSymmTensorField:
+    def __sub__(self, arg0: dimensionedSymmTensor) -> tmp_surfaceSymmTensorField:
         ...
     def __truediv__(self, arg0: dimensionedScalar) -> tmp_surfaceSymmTensorField:
         ...
 class tmp_surfaceTensorField:
     @typing.overload
-    def __add__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.tensor, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> tmp_surfaceTensorField:
+    def __add__(self, arg0: surfaceTensorField) -> tmp_surfaceTensorField:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_surfaceTensorField) -> tmp_surfaceTensorField:
@@ -1623,7 +1680,7 @@ class tmp_surfaceTensorField:
     @typing.overload
     def __add__(self, arg0: dimensionedTensor) -> tmp_surfaceTensorField:
         ...
-    def __call__(self) -> pybFoam.pybFoam_core.surfaceTensorField:
+    def __call__(self) -> surfaceTensorField:
         ...
     @typing.overload
     def __mul__(self, arg0: surfaceScalarField) -> tmp_surfaceTensorField:
@@ -1642,7 +1699,7 @@ class tmp_surfaceTensorField:
     def __rmul__(self, arg0: typing.SupportsFloat) -> tmp_surfaceTensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.tensor, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> tmp_surfaceTensorField:
+    def __sub__(self, arg0: surfaceTensorField) -> tmp_surfaceTensorField:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_surfaceTensorField) -> tmp_surfaceTensorField:
@@ -1654,7 +1711,7 @@ class tmp_surfaceTensorField:
         ...
 class tmp_surfaceVectorField:
     @typing.overload
-    def __add__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> tmp_surfaceVectorField:
+    def __add__(self, arg0: surfaceVectorField) -> tmp_surfaceVectorField:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_surfaceVectorField) -> tmp_surfaceVectorField:
@@ -1662,7 +1719,7 @@ class tmp_surfaceVectorField:
     @typing.overload
     def __add__(self, arg0: dimensionedVector) -> tmp_surfaceVectorField:
         ...
-    def __call__(self) -> pybFoam.pybFoam_core.surfaceVectorField:
+    def __call__(self) -> surfaceVectorField:
         ...
     @typing.overload
     def __mul__(self, arg0: surfaceScalarField) -> tmp_surfaceVectorField:
@@ -1681,7 +1738,7 @@ class tmp_surfaceVectorField:
     def __rmul__(self, arg0: typing.SupportsFloat) -> tmp_surfaceVectorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> tmp_surfaceVectorField:
+    def __sub__(self, arg0: surfaceVectorField) -> tmp_surfaceVectorField:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_surfaceVectorField) -> tmp_surfaceVectorField:
@@ -1843,7 +1900,7 @@ class tmp_vectorField:
         ...
 class tmp_volScalarField:
     @typing.overload
-    def __add__(self, arg0: Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh>) -> tmp_volScalarField:
+    def __add__(self, arg0: volScalarField) -> tmp_volScalarField:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_volScalarField) -> tmp_volScalarField:
@@ -1854,10 +1911,10 @@ class tmp_volScalarField:
     @typing.overload
     def __add__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
         ...
-    def __call__(self) -> pybFoam.pybFoam_core.volScalarField:
+    def __call__(self) -> volScalarField:
         ...
     @typing.overload
-    def __mul__(self, arg0: Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh>) -> tmp_volScalarField:
+    def __mul__(self, arg0: volScalarField) -> tmp_volScalarField:
         ...
     @typing.overload
     def __mul__(self, arg0: tmp_volScalarField) -> tmp_volScalarField:
@@ -1876,24 +1933,12 @@ class tmp_volScalarField:
         ...
     def __neg__(self) -> tmp_volScalarField:
         ...
-    @typing.overload
-    def __radd__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
-        ...
-    @typing.overload
-    def __radd__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
-        ...
     def __rmul__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
-        ...
-    @typing.overload
-    def __rsub__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
-        ...
-    @typing.overload
-    def __rsub__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
         ...
     def __rtruediv__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::GeometricField<double, Foam: :fvPatchField, Foam: :volMesh>) -> tmp_volScalarField:
+    def __sub__(self, arg0: volScalarField) -> tmp_volScalarField:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_volScalarField) -> tmp_volScalarField:
@@ -1918,15 +1963,15 @@ class tmp_volScalarField:
         ...
 class tmp_volSymmTensorField:
     @typing.overload
-    def __add__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.symmTensor, Foam: :fvPatchField, Foam: :volMesh>) -> tmp_volSymmTensorField:
+    def __add__(self, arg0: volSymmTensorField) -> tmp_volSymmTensorField:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_volSymmTensorField) -> tmp_volSymmTensorField:
         ...
     @typing.overload
-    def __add__(self, arg0: pybFoam.pybFoam_core.dimensionedSymmTensor) -> tmp_volSymmTensorField:
+    def __add__(self, arg0: dimensionedSymmTensor) -> tmp_volSymmTensorField:
         ...
-    def __call__(self) -> pybFoam.pybFoam_core.volSymmTensorField:
+    def __call__(self) -> volSymmTensorField:
         ...
     @typing.overload
     def __mul__(self, arg0: volScalarField) -> tmp_volSymmTensorField:
@@ -1945,19 +1990,19 @@ class tmp_volSymmTensorField:
     def __rmul__(self, arg0: typing.SupportsFloat) -> tmp_volSymmTensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.symmTensor, Foam: :fvPatchField, Foam: :volMesh>) -> tmp_volSymmTensorField:
+    def __sub__(self, arg0: volSymmTensorField) -> tmp_volSymmTensorField:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_volSymmTensorField) -> tmp_volSymmTensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: pybFoam.pybFoam_core.dimensionedSymmTensor) -> tmp_volSymmTensorField:
+    def __sub__(self, arg0: dimensionedSymmTensor) -> tmp_volSymmTensorField:
         ...
     def __truediv__(self, arg0: dimensionedScalar) -> tmp_volSymmTensorField:
         ...
 class tmp_volTensorField:
     @typing.overload
-    def __add__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.tensor, Foam: :fvPatchField, Foam: :volMesh>) -> tmp_volTensorField:
+    def __add__(self, arg0: volTensorField) -> tmp_volTensorField:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_volTensorField) -> tmp_volTensorField:
@@ -1965,7 +2010,7 @@ class tmp_volTensorField:
     @typing.overload
     def __add__(self, arg0: dimensionedTensor) -> tmp_volTensorField:
         ...
-    def __call__(self) -> pybFoam.pybFoam_core.volTensorField:
+    def __call__(self) -> volTensorField:
         ...
     @typing.overload
     def __mul__(self, arg0: volScalarField) -> tmp_volTensorField:
@@ -1984,7 +2029,7 @@ class tmp_volTensorField:
     def __rmul__(self, arg0: typing.SupportsFloat) -> tmp_volTensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.tensor, Foam: :fvPatchField, Foam: :volMesh>) -> tmp_volTensorField:
+    def __sub__(self, arg0: volTensorField) -> tmp_volTensorField:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_volTensorField) -> tmp_volTensorField:
@@ -1996,7 +2041,7 @@ class tmp_volTensorField:
         ...
 class tmp_volVectorField:
     @typing.overload
-    def __add__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvPatchField, Foam: :volMesh>) -> tmp_volVectorField:
+    def __add__(self, arg0: volVectorField) -> tmp_volVectorField:
         ...
     @typing.overload
     def __add__(self, arg0: tmp_volVectorField) -> tmp_volVectorField:
@@ -2004,7 +2049,7 @@ class tmp_volVectorField:
     @typing.overload
     def __add__(self, arg0: dimensionedVector) -> tmp_volVectorField:
         ...
-    def __call__(self) -> pybFoam.pybFoam_core.volVectorField:
+    def __call__(self) -> volVectorField:
         ...
     @typing.overload
     def __mul__(self, arg0: volScalarField) -> tmp_volVectorField:
@@ -2023,7 +2068,7 @@ class tmp_volVectorField:
     def __rmul__(self, arg0: typing.SupportsFloat) -> tmp_volVectorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvPatchField, Foam: :volMesh>) -> tmp_volVectorField:
+    def __sub__(self, arg0: volVectorField) -> tmp_volVectorField:
         ...
     @typing.overload
     def __sub__(self, arg0: tmp_volVectorField) -> tmp_volVectorField:
@@ -2052,12 +2097,12 @@ class uniformDimensionedScalarField:
         """
 class uniformDimensionedVectorField:
     @typing.overload
-    def __and__(self, vf: Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvPatchField, Foam: :volMesh>) -> pybFoam.pybFoam_core.tmp_volScalarField:
+    def __and__(self, vf: volVectorField) -> tmp_volScalarField:
         """
         Dot product with volVectorField, returns tmp<volScalarField>
         """
     @typing.overload
-    def __and__(self, vf: Foam::GeometricField<pybFoam.pybFoam_core.vector, Foam: :fvsPatchField, Foam: :surfaceMesh>) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+    def __and__(self, vf: surfaceVectorField) -> tmp_surfaceScalarField:
         """
         Dot product with surfaceVectorField, returns tmp<surfaceScalarField>
         """
@@ -2078,25 +2123,22 @@ class uniformDimensionedVectorField:
         Get the uniform vector value
         """
 class vector:
-    __hash__: typing.ClassVar[None] = None
     def __add__(self, arg0: vector) -> vector:
         ...
     @typing.overload
     def __and__(self, arg0: vector) -> float:
         ...
     @typing.overload
-    def __and__(self, arg0: pybFoam.pybFoam_core.tensor) -> vector:
+    def __and__(self, arg0: tensor) -> vector:
         ...
     @typing.overload
-    def __and__(self, arg0: pybFoam.pybFoam_core.symmTensor) -> vector:
+    def __and__(self, arg0: symmTensor) -> vector:
         ...
-    @typing.overload
-    def __eq__(self, arg0: vector) -> bool:
-        ...
-    @typing.overload
-    def __eq__(self, arg0: typing.Annotated[collections.abc.Sequence[typing.SupportsFloat], "FixedSize(3)"]) -> bool:
+    def __eq__(self, arg0: typing.Any) -> bool:
         ...
     def __getitem__(self, arg0: typing.SupportsInt) -> float:
+        ...
+    def __hash__(self) -> int:
         ...
     @typing.overload
     def __init__(self, arg0: vector) -> None:
@@ -2111,7 +2153,7 @@ class vector:
         ...
     def __mul__(self, arg0: typing.SupportsFloat) -> vector:
         ...
-    def __ne__(self, arg0: vector) -> bool:
+    def __ne__(self, arg0: typing.Any) -> bool:
         ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: typing.SupportsFloat) -> None:
         ...
@@ -2121,13 +2163,13 @@ class vector:
         ...
 class vectorField:
     @typing.overload
-    def __add__(self, arg0: vectorField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __add__(self, arg0: vectorField) -> tmp_vectorField:
         ...
     @typing.overload
-    def __add__(self, arg0: Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __add__(self, arg0: tmp_vectorField) -> tmp_vectorField:
         ...
     @typing.overload
-    def __add__(self, arg0: vector) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __add__(self, arg0: vector) -> tmp_vectorField:
         ...
     @typing.overload
     def __and__(self, arg0: vector) -> tmp_scalarField:
@@ -2136,21 +2178,22 @@ class vectorField:
     def __and__(self, arg0: vectorField) -> tmp_scalarField:
         ...
     @typing.overload
-    def __and__(self, arg0: tensor) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __and__(self, arg0: tensor) -> tmp_vectorField:
         ...
     @typing.overload
-    def __and__(self, arg0: Foam::Field<pybFoam.pybFoam_core.tensor >) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __and__(self, arg0: tensorField) -> tmp_vectorField:
         ...
     @typing.overload
-    def __and__(self, arg0: symmTensor) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __and__(self, arg0: symmTensor) -> tmp_vectorField:
         ...
     @typing.overload
-    def __and__(self, arg0: Foam::Field<pybFoam.pybFoam_core.symmTensor >) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __and__(self, arg0: symmTensorField) -> tmp_vectorField:
         ...
-    def __buffer__(self, flags):
+    def __buffer__(self, flags: int) -> memoryview:
         """
         Return a buffer object that exposes the underlying memory of the object.
         """
+        ...
     def __getitem__(self, arg0: typing.SupportsInt) -> vector:
         ...
     @typing.overload
@@ -2160,7 +2203,7 @@ class vectorField:
     def __init__(self, arg0: vectorField) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >) -> None:
+    def __init__(self, arg0: tmp_vectorField) -> None:
         ...
     @typing.overload
     def __init__(self, arg0: collections.abc.Sequence[vector]) -> None:
@@ -2171,37 +2214,38 @@ class vectorField:
     def __len__(self) -> int:
         ...
     @typing.overload
-    def __mul__(self, arg0: typing.SupportsFloat) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __mul__(self, arg0: typing.SupportsFloat) -> tmp_vectorField:
         ...
     @typing.overload
-    def __mul__(self, arg0: scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __mul__(self, arg0: scalarField) -> tmp_vectorField:
         ...
     @typing.overload
-    def __mul__(self, arg0: tmp_scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __mul__(self, arg0: tmp_scalarField) -> tmp_vectorField:
         ...
-    def __release_buffer__(self, buffer):
+    def __release_buffer__(self, buffer: int) -> None:
         """
         Release the buffer object that exposes the underlying memory of the object.
         """
+        ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: vector) -> None:
         ...
     @typing.overload
-    def __sub__(self, arg0: vectorField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __sub__(self, arg0: vectorField) -> tmp_vectorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __sub__(self, arg0: tmp_vectorField) -> tmp_vectorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: vector) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __sub__(self, arg0: vector) -> tmp_vectorField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: typing.SupportsFloat) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __truediv__(self, arg0: typing.SupportsFloat) -> tmp_vectorField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __truediv__(self, arg0: scalarField) -> tmp_vectorField:
         ...
     @typing.overload
-    def __truediv__(self, arg0: tmp_scalarField) -> Foam::tmp<Foam::Field<pybFoam.pybFoam_core.vector > >:
+    def __truediv__(self, arg0: tmp_scalarField) -> tmp_vectorField:
         ...
 class volScalarField:
     @staticmethod
@@ -2256,11 +2300,7 @@ class volScalarField:
         ...
     def __neg__(self) -> tmp_volScalarField:
         ...
-    def __radd__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
-        ...
     def __rmul__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
-        ...
-    def __rsub__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
         ...
     def __rtruediv__(self, arg0: typing.SupportsFloat) -> tmp_volScalarField:
         ...
@@ -2324,7 +2364,7 @@ class volSymmTensorField:
     def __add__(self, arg0: tmp_volSymmTensorField) -> tmp_volSymmTensorField:
         ...
     @typing.overload
-    def __add__(self, arg0: pybFoam.pybFoam_core.dimensionedSymmTensor) -> tmp_volSymmTensorField:
+    def __add__(self, arg0: dimensionedSymmTensor) -> tmp_volSymmTensorField:
         ...
     def __getitem__(self, arg0: str) -> symmTensorField:
         ...
@@ -2362,7 +2402,7 @@ class volSymmTensorField:
     def __sub__(self, arg0: tmp_volSymmTensorField) -> tmp_volSymmTensorField:
         ...
     @typing.overload
-    def __sub__(self, arg0: pybFoam.pybFoam_core.dimensionedSymmTensor) -> tmp_volSymmTensorField:
+    def __sub__(self, arg0: dimensionedSymmTensor) -> tmp_volSymmTensorField:
         ...
     @typing.overload
     def __truediv__(self, arg0: volScalarField) -> tmp_volSymmTensorField:
@@ -2584,7 +2624,7 @@ class wordList:
 def Info(arg0: str) -> None:
     ...
 @typing.overload
-def Info(arg0: pybFoam.pybFoam_core.dictionary) -> None:
+def Info(arg0: dictionary) -> None:
     ...
 def adjustPhi(arg0: surfaceScalarField, arg1: volVectorField, arg2: volScalarField) -> bool:
     ...
@@ -2600,7 +2640,7 @@ def constrainPressure(p: volScalarField, U: volVectorField, phiHbyA: surfaceScal
 @typing.overload
 def constrainPressure(p: volScalarField, U: volVectorField, phiHbyA: surfaceScalarField, rAU: surfaceScalarField) -> None:
     ...
-def createMesh(arg0: pybFoam.pybFoam_core.Time) -> pybFoam.pybFoam_core.fvMesh:
+def createMesh(arg0: Time) -> fvMesh:
     """
     Create a mesh from a Time object
     """
@@ -2636,7 +2676,7 @@ def mag(arg0: surfaceVectorField) -> tmp_surfaceScalarField:
 @typing.overload
 def mag(arg0: surfaceTensorField) -> tmp_surfaceScalarField:
     ...
-def selectTimes(arg0: pybFoam.pybFoam_core.Time, arg1: collections.abc.Sequence[str]) -> pybFoam.pybFoam_core.instantList:
+def selectTimes(arg0: Time, arg1: collections.abc.Sequence[str]) -> instantList:
     ...
 def setRefCell(p: volScalarField, dict: dictionary, forceReference: bool = False) -> tuple[int, float]:
     ...

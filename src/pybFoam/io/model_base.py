@@ -1,10 +1,10 @@
-from typing import get_origin, get_args, Optional, Union, Annotated, Literal, Any, Type
+from typing import TypeVar, get_origin, get_args, Optional, Union, Annotated, Literal, Any, Type
 import os
 import json
 import yaml
+
 import pybFoam
-import pybFoam.pybFoam_core
-from pybFoam import dictionary
+from pybFoam.pybFoam_core import dictionary
 from pydantic import BaseModel, Field
 
 type_dispatch: dict[Type[Any], Any] = {
@@ -21,8 +21,9 @@ type_dispatch: dict[Type[Any], Any] = {
     pybFoam.pybFoam_core.tensorField: lambda t: pybFoam.pybFoam_core.tensorField(t),
 }
 
+T = TypeVar('T')
 
-def _unwrap_type(tp):
+def _unwrap_type(tp: Type[T] | Any) -> Type[Any]:
     # peel Annotated[T, ...] and Union[T, None]
     if get_origin(tp) is Annotated:
         tp = get_args(tp)[0]
@@ -41,7 +42,7 @@ class IOModelMixin:
     """
 
     @classmethod
-    def from_file(cls, path):
+    def from_file(cls, path: str) -> Any:
         ext = os.path.splitext(path)[1].lower()
         if ext in {".yaml", ".yml"}:
             with open(path) as f:
