@@ -70,10 +70,10 @@ template<class Type, template<class> class PatchField, class GeoMesh>
 auto declare_geofields(py::module &m, std::string className) {
     std::string tmp_className = "tmp_" + className;
     auto tmpGeofieldClass = py::class_< tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>>(m, tmp_className.c_str())
-    .def("__call__",[](tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self)
+    .def("__call__",[](tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) -> Foam::GeometricField<Type, PatchField, GeoMesh>&
     {
-        return Foam::GeometricField<Type, PatchField, GeoMesh>(self);
-    })
+        return self.ref();
+    }, py::return_value_policy::reference_internal)
     .def("__neg__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) {
         return -self;
     })
@@ -476,6 +476,7 @@ void Foam::bindGeoFields(py::module& m)
     
     auto [svf, tmp_svf] = declare_geofields<vector,fvsPatchField, surfaceMesh>(m, std::string("surfaceVectorField"));
     auto [stf, tmp_stf] = declare_geofields<tensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceTensorField"));
+    auto [sstf, tmp_sstf] = declare_geofields<symmTensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceSymmTensorField"));
 
     // // functions
 

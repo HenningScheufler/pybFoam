@@ -52,6 +52,10 @@ pip install .
 For development:
 ```bash
 pip install -e . --no-build-isolation
+# or 
+uv sync --all-extras -v --reinstall -C cmake.define.ENABLE_PYBFOAM_STUBS=ON # to build with stubs
+# or 
+pip install -e .[all] -C cmake.define.ENABLE_PYBFOAM_STUBS=ON # to build with stubs
 ```
 
 ---
@@ -164,6 +168,8 @@ Full documentation is available at: [https://henningscheufler.github.io/pybFoam/
 2. Install development dependencies:
    ```bash
    pip install -e ".[dev]"
+   # or build with stubs
+   pip install -e .[all] -C cmake.define.ENABLE_PYBFOAM_STUBS=ON -v
    ```
 3. Run tests before committing:
    ```bash

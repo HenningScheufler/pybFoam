@@ -197,13 +197,15 @@ void Foam::bindFvMatrix(py::module& m)
     auto fvScalarMatrix = declare_fvMatrix<Foam::scalar>(m, std::string("fvScalarMatrix"));
     auto fvVectorMatrix = declare_fvMatrix<Foam::vector>(m, std::string("fvVectorMatrix"));
     auto fvTensorMatrix = declare_fvMatrix<Foam::tensor>(m, std::string("fvTensorMatrix"));
+    auto fvSymmTensorMatrix = declare_fvMatrix<Foam::symmTensor>(m, std::string("fvSymmTensorMatrix"));
 
     declare_SolverPerformance<Foam::scalar>(m, "SolverScalarPerformance");
     declare_SolverPerformance<Foam::vector>(m, "SolverVectorPerformance");
     declare_SolverPerformance<Foam::tensor>(m, "SolverTensorPerformance");
-
+    declare_SolverPerformance<Foam::symmTensor>(m, "SolverSymmTensorPerformance");
     declare_solve<Foam::scalar>(m);
     declare_solve<Foam::vector>(m);
     declare_solve<Foam::tensor>(m);
+    declare_solve<Foam::symmTensor>(m);
 
 }

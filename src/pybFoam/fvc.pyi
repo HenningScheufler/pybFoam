@@ -2,292 +2,320 @@
 finite volume calculus
 """
 from __future__ import annotations
-import pybFoam.pybFoam_core
+import pybFoam_core
 import typing
-__all__ = ['ddtCorr', 'div', 'flux', 'grad', 'interpolate', 'laplacian', 'reconstruct', 'snGrad']
-
-# ==== snGrad - surface normal gradient ====
+__all__: list[str] = ['ddtCorr', 'div', 'flux', 'grad', 'interpolate', 'laplacian', 'reconstruct', 'snGrad']
+def ddtCorr(arg0: pybFoam_core.volVectorField, arg1: pybFoam_core.surfaceScalarField) -> pybFoam_core.tmp_surfaceScalarField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.volVectorField) -> pybFoam_core.tmp_volScalarField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_volScalarField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.volTensorField) -> pybFoam_core.tmp_volVectorField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.tmp_volTensorField) -> pybFoam_core.tmp_volVectorField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.volSymmTensorField) -> pybFoam_core.tmp_volVectorField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.tmp_volSymmTensorField) -> pybFoam_core.tmp_volVectorField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.surfaceScalarField) -> pybFoam_core.tmp_volScalarField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.tmp_surfaceScalarField) -> pybFoam_core.tmp_volScalarField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.surfaceVectorField) -> pybFoam_core.tmp_volVectorField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.tmp_surfaceVectorField) -> pybFoam_core.tmp_volVectorField:
+    ...
 @typing.overload
-def snGrad(arg0: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+def div(arg0: pybFoam_core.surfaceTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def snGrad(arg0: pybFoam.pybFoam_core.tmp_volScalarField) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+def div(arg0: pybFoam_core.tmp_surfaceTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def snGrad(arg0: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_surfaceVectorField:
+def div(arg0: pybFoam_core.surfaceSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def snGrad(arg0: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_surfaceVectorField:
+def div(arg0: pybFoam_core.tmp_surfaceSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
-
-# ==== reconstruct - reconstruct vector from surface flux ====
 @typing.overload
-def reconstruct(arg0: pybFoam.pybFoam_core.surfaceScalarField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def div(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def reconstruct(arg0: pybFoam.pybFoam_core.tmp_surfaceScalarField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def div(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def reconstruct(arg0: pybFoam.pybFoam_core.surfaceVectorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def div(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def reconstruct(arg0: pybFoam.pybFoam_core.tmp_surfaceVectorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def div(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.tmp_volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
-
-# ==== ddtCorr ====
-def ddtCorr(arg0: pybFoam.pybFoam_core.volVectorField, arg1: pybFoam.pybFoam_core.surfaceScalarField) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+@typing.overload
+def div(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
+    ...
+@typing.overload
+def div(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.tmp_volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
-
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def flux(arg0: pybFoam_core.volVectorField) -> pybFoam_core.tmp_surfaceScalarField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def flux(arg0: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_surfaceScalarField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.volTensorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def flux(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.volVectorField) -> pybFoam_core.tmp_surfaceVectorField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.tmp_volTensorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def flux(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_surfaceVectorField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def grad(arg0: pybFoam_core.volScalarField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.tmp_volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def grad(arg0: pybFoam_core.tmp_volScalarField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.surfaceVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def grad(arg0: pybFoam_core.volVectorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.tmp_surfaceVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def grad(arg0: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.surfaceTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def grad(arg0: pybFoam_core.surfaceScalarField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.tmp_surfaceTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def grad(arg0: pybFoam_core.tmp_surfaceScalarField) -> pybFoam_core.tmp_volVectorField:
     ...
-
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def grad(arg0: pybFoam_core.surfaceVectorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def grad(arg0: pybFoam_core.tmp_surfaceVectorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def interpolate(arg0: pybFoam_core.volScalarField) -> pybFoam_core.tmp_surfaceScalarField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.tmp_volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def interpolate(arg0: pybFoam_core.tmp_volScalarField) -> pybFoam_core.tmp_surfaceScalarField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def interpolate(arg0: pybFoam_core.volVectorField) -> pybFoam_core.tmp_surfaceVectorField:
     ...
 @typing.overload
-def div(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.tmp_volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def interpolate(arg0: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_surfaceVectorField:
     ...
 @typing.overload
-def flux(arg0: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+def interpolate(arg0: pybFoam_core.volTensorField) -> pybFoam_core.tmp_surfaceTensorField:
     ...
 @typing.overload
-def flux(arg0: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+def interpolate(arg0: pybFoam_core.tmp_volTensorField) -> pybFoam_core.tmp_surfaceTensorField:
     ...
 @typing.overload
-def flux(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_surfaceVectorField:
+def interpolate(arg0: pybFoam_core.volSymmTensorField) -> pybFoam_core.tmp_surfaceSymmTensorField:
     ...
 @typing.overload
-def flux(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_surfaceVectorField:
+def interpolate(arg0: pybFoam_core.tmp_volSymmTensorField) -> pybFoam_core.tmp_surfaceSymmTensorField:
     ...
 @typing.overload
-def grad(arg0: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def grad(arg0: pybFoam.pybFoam_core.tmp_volScalarField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def grad(arg0: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def grad(arg0: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def grad(arg0: pybFoam.pybFoam_core.surfaceScalarField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def grad(arg0: pybFoam.pybFoam_core.tmp_surfaceScalarField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def grad(arg0: pybFoam.pybFoam_core.surfaceVectorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def grad(arg0: pybFoam.pybFoam_core.tmp_surfaceVectorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.tmp_volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def interpolate(arg0: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+def laplacian(arg0: pybFoam_core.volScalarField, arg1: pybFoam_core.volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def interpolate(arg0: pybFoam.pybFoam_core.tmp_volScalarField) -> pybFoam.pybFoam_core.tmp_surfaceScalarField:
+def laplacian(arg0: pybFoam_core.volScalarField, arg1: pybFoam_core.tmp_volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def interpolate(arg0: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_surfaceVectorField:
+def laplacian(arg0: pybFoam_core.tmp_volScalarField, arg1: pybFoam_core.volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def interpolate(arg0: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_surfaceVectorField:
+def laplacian(arg0: pybFoam_core.tmp_volScalarField, arg1: pybFoam_core.tmp_volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def interpolate(arg0: pybFoam.pybFoam_core.volTensorField) -> pybFoam.pybFoam_core.tmp_surfaceTensorField:
+def laplacian(arg0: pybFoam_core.volScalarField, arg1: pybFoam_core.volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def interpolate(arg0: pybFoam.pybFoam_core.tmp_volTensorField) -> pybFoam.pybFoam_core.tmp_surfaceTensorField:
+def laplacian(arg0: pybFoam_core.volScalarField, arg1: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def interpolate(arg0: pybFoam.pybFoam_core.volSymmTensorField) -> ...:
+def laplacian(arg0: pybFoam_core.tmp_volScalarField, arg1: pybFoam_core.volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def interpolate(arg0: pybFoam.pybFoam_core.tmp_volSymmTensorField) -> ...:
+def laplacian(arg0: pybFoam_core.tmp_volScalarField, arg1: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def laplacian(arg0: pybFoam_core.volScalarField, arg1: pybFoam_core.volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def laplacian(arg0: pybFoam_core.volScalarField, arg1: pybFoam_core.tmp_volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_volScalarField, arg1: pybFoam_core.volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_volScalarField, arg1: pybFoam_core.tmp_volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.volScalarField, arg1: pybFoam_core.volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.volScalarField, arg1: pybFoam_core.tmp_volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def laplacian(arg0: pybFoam_core.tmp_volScalarField, arg1: pybFoam_core.volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def laplacian(arg0: pybFoam_core.tmp_volScalarField, arg1: pybFoam_core.tmp_volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volScalarField, arg1: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def laplacian(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volScalarField, arg1: pybFoam.pybFoam_core.tmp_volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def laplacian(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.tmp_volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volScalarField, arg1: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_surfaceScalarField, arg1: pybFoam_core.volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volScalarField, arg1: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_surfaceScalarField, arg1: pybFoam_core.tmp_volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volScalarField, arg1: pybFoam.pybFoam_core.volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volScalarField, arg1: pybFoam.pybFoam_core.tmp_volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volScalarField, arg1: pybFoam.pybFoam_core.volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def laplacian(arg0: pybFoam_core.tmp_surfaceScalarField, arg1: pybFoam_core.volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volScalarField, arg1: pybFoam.pybFoam_core.tmp_volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def laplacian(arg0: pybFoam_core.tmp_surfaceScalarField, arg1: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volScalarField, arg1: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def laplacian(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volScalarField, arg1: pybFoam.pybFoam_core.tmp_volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def laplacian(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.tmp_volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volScalarField, arg1: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_surfaceScalarField, arg1: pybFoam_core.volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volScalarField, arg1: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_surfaceScalarField, arg1: pybFoam_core.tmp_volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volScalarField, arg1: pybFoam.pybFoam_core.volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volScalarField, arg1: pybFoam.pybFoam_core.tmp_volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.surfaceScalarField, arg1: pybFoam_core.tmp_volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volScalarField, arg1: pybFoam.pybFoam_core.volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def laplacian(arg0: pybFoam_core.tmp_surfaceScalarField, arg1: pybFoam_core.volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volScalarField, arg1: pybFoam.pybFoam_core.tmp_volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def laplacian(arg0: pybFoam_core.tmp_surfaceScalarField, arg1: pybFoam_core.tmp_volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def laplacian(arg0: pybFoam_core.volTensorField, arg1: pybFoam_core.volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.tmp_volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def laplacian(arg0: pybFoam_core.volTensorField, arg1: pybFoam_core.tmp_volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_volTensorField, arg1: pybFoam_core.volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_volTensorField, arg1: pybFoam_core.tmp_volScalarField) -> pybFoam_core.tmp_volScalarField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.volTensorField, arg1: pybFoam_core.volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.tmp_volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.volTensorField, arg1: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def laplacian(arg0: pybFoam_core.tmp_volTensorField, arg1: pybFoam_core.volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.tmp_volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def laplacian(arg0: pybFoam_core.tmp_volTensorField, arg1: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volTensorField, arg1: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def laplacian(arg0: pybFoam_core.volTensorField, arg1: pybFoam_core.volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volTensorField, arg1: pybFoam.pybFoam_core.tmp_volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def laplacian(arg0: pybFoam_core.volTensorField, arg1: pybFoam_core.tmp_volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volTensorField, arg1: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_volTensorField, arg1: pybFoam_core.volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volTensorField, arg1: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def laplacian(arg0: pybFoam_core.tmp_volTensorField, arg1: pybFoam_core.tmp_volTensorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volTensorField, arg1: pybFoam.pybFoam_core.volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.volTensorField, arg1: pybFoam_core.volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volTensorField, arg1: pybFoam.pybFoam_core.tmp_volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def laplacian(arg0: pybFoam_core.volTensorField, arg1: pybFoam_core.tmp_volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volTensorField, arg1: pybFoam.pybFoam_core.volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def laplacian(arg0: pybFoam_core.tmp_volTensorField, arg1: pybFoam_core.volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.volTensorField, arg1: pybFoam.pybFoam_core.tmp_volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def laplacian(arg0: pybFoam_core.tmp_volTensorField, arg1: pybFoam_core.tmp_volSymmTensorField) -> pybFoam_core.tmp_volSymmTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volTensorField, arg1: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def reconstruct(arg0: pybFoam_core.surfaceScalarField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volTensorField, arg1: pybFoam.pybFoam_core.tmp_volScalarField) -> pybFoam.pybFoam_core.tmp_volScalarField:
+def reconstruct(arg0: pybFoam_core.tmp_surfaceScalarField) -> pybFoam_core.tmp_volVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volTensorField, arg1: pybFoam.pybFoam_core.volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def reconstruct(arg0: pybFoam_core.surfaceVectorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volTensorField, arg1: pybFoam.pybFoam_core.tmp_volVectorField) -> pybFoam.pybFoam_core.tmp_volVectorField:
+def reconstruct(arg0: pybFoam_core.tmp_surfaceVectorField) -> pybFoam_core.tmp_volTensorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volTensorField, arg1: pybFoam.pybFoam_core.volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def snGrad(arg0: pybFoam_core.volScalarField) -> pybFoam_core.tmp_surfaceScalarField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volTensorField, arg1: pybFoam.pybFoam_core.tmp_volTensorField) -> pybFoam.pybFoam_core.tmp_volTensorField:
+def snGrad(arg0: pybFoam_core.tmp_volScalarField) -> pybFoam_core.tmp_surfaceScalarField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volTensorField, arg1: pybFoam.pybFoam_core.volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def snGrad(arg0: pybFoam_core.volVectorField) -> pybFoam_core.tmp_surfaceVectorField:
     ...
 @typing.overload
-def laplacian(arg0: pybFoam.pybFoam_core.tmp_volTensorField, arg1: pybFoam.pybFoam_core.tmp_volSymmTensorField) -> pybFoam.pybFoam_core.tmp_volSymmTensorField:
+def snGrad(arg0: pybFoam_core.tmp_volVectorField) -> pybFoam_core.tmp_surfaceVectorField:
     ...

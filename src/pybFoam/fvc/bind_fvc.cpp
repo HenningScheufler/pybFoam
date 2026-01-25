@@ -23,132 +23,175 @@ License
 #include "volFields.H"
 #include "surfaceFields.H"
 
+namespace Foam
+{
+
+// Template helper functions for binding fvc operations
+
+// Single argument operations (grad, div, laplacian, interpolate, snGrad, reconstruct, flux)
+template<class FieldType>
+void bindUnaryOp(pybind11::module& m, const char* opName)
+{
+    m.def(opName, [](const FieldType& vf){return fvc::grad(vf);});
+    m.def(opName, [](const tmp<FieldType>& vf){return fvc::grad(vf);});
+}
+
+// Specialized template for grad operation
+template<class FieldType>
+void bindGrad(pybind11::module& m)
+{
+    m.def("grad", [](const FieldType& vf){return fvc::grad(vf);});
+    m.def("grad", [](const tmp<FieldType>& vf){return fvc::grad(vf);});
+}
+
+// Specialized template for div operation
+template<class FieldType>
+void bindDiv(pybind11::module& m)
+{
+    m.def("div", [](const FieldType& vf){return fvc::div(vf);});
+    m.def("div", [](const tmp<FieldType>& vf){return fvc::div(vf);});
+}
+
+// Specialized template for div-convection operation (2 arguments)
+template<class FieldType>
+void bindDivConvection(pybind11::module& m)
+{
+    m.def("div", [](const surfaceScalarField& ssf, const FieldType& vf){return fvc::div(ssf, vf);});
+    m.def("div", [](const surfaceScalarField& ssf, const tmp<FieldType>& vf){return fvc::div(ssf, vf);});
+}
+
+// Specialized template for laplacian operation
+template<class FieldType>
+void bindLaplacian(pybind11::module& m)
+{
+    m.def("laplacian", [](const FieldType& vf){return fvc::laplacian(vf);});
+    m.def("laplacian", [](const tmp<FieldType>& vf){return fvc::laplacian(vf);});
+}
+
+// Specialized template for laplacian with diffusivity (2 arguments)
+template<class DiffType, class FieldType>
+void bindLaplacianWithDiff(pybind11::module& m)
+{
+    // DiffType& + FieldType&
+    m.def("laplacian", [](const DiffType& diff, const FieldType& vf){return fvc::laplacian(diff, vf);});
+    // DiffType& + tmp<FieldType>
+    m.def("laplacian", [](const DiffType& diff, const tmp<FieldType>& vf){return fvc::laplacian(diff, vf);});
+    // tmp<DiffType> + FieldType&
+    m.def("laplacian", [](const tmp<DiffType>& diff, const FieldType& vf){return fvc::laplacian(diff, vf);});
+    // tmp<DiffType> + tmp<FieldType>
+    m.def("laplacian", [](const tmp<DiffType>& diff, const tmp<FieldType>& vf){return fvc::laplacian(diff, vf);});
+}
+
+// Specialized template for interpolate operation
+template<class FieldType>
+void bindInterpolate(pybind11::module& m)
+{
+    m.def("interpolate", [](const FieldType& vf){return fvc::interpolate(vf);});
+    m.def("interpolate", [](const tmp<FieldType>& vf){return fvc::interpolate(vf);});
+}
+
+// Specialized template for snGrad operation
+template<class FieldType>
+void bindSnGrad(pybind11::module& m)
+{
+    m.def("snGrad", [](const FieldType& vf){return fvc::snGrad(vf);});
+    m.def("snGrad", [](const tmp<FieldType>& vf){return fvc::snGrad(vf);});
+}
+
+// Specialized template for reconstruct operation
+template<class FieldType>
+void bindReconstruct(pybind11::module& m)
+{
+    m.def("reconstruct", [](const FieldType& sf){return fvc::reconstruct(sf);});
+    m.def("reconstruct", [](const tmp<FieldType>& sf){return fvc::reconstruct(sf);});
+}
+
+// Specialized template for flux operation
+template<class FieldType>
+void bindFlux(pybind11::module& m)
+{
+    m.def("flux", [](const FieldType& vf){return fvc::flux(vf);});
+    m.def("flux", [](const tmp<FieldType>& vf){return fvc::flux(vf);});
+}
+
+// Specialized template for flux with surfaceScalarField (2 arguments)
+template<class FieldType>
+void bindFluxWithPhi(pybind11::module& m)
+{
+    m.def("flux", [](const surfaceScalarField& ssf, const FieldType& vf){return fvc::flux(ssf, vf);});
+    m.def("flux", [](const surfaceScalarField& ssf, const tmp<FieldType>& vf){return fvc::flux(ssf, vf);});
+}
+
+} // End namespace Foam
+
 
 void Foam::bindFVC(pybind11::module& fvc)
 {
     namespace py = pybind11;
-    // functions
 
-    // grad 
-    fvc.def("grad", [](const volScalarField& vf){return fvc::grad(vf);});
-    fvc.def("grad", [](const tmp<volScalarField>& vf){return fvc::grad(vf);});
-    fvc.def("grad", [](const volVectorField& vf){return fvc::grad(vf);});
-    fvc.def("grad", [](const tmp<volVectorField>& vf){return fvc::grad(vf);});
-    fvc.def("grad", [](const surfaceScalarField& sf){return fvc::grad(sf);});
-    fvc.def("grad", [](const tmp<surfaceScalarField>& sf){return fvc::grad(sf);});
-    fvc.def("grad", [](const surfaceVectorField& sf){return fvc::grad(sf);});
-    fvc.def("grad", [](const tmp<surfaceVectorField>& sf){return fvc::grad(sf);});
+    // grad operations
+    bindGrad<volScalarField>(fvc);
+    bindGrad<volVectorField>(fvc);
+    bindGrad<surfaceScalarField>(fvc);
+    bindGrad<surfaceVectorField>(fvc);
 
-    // div
-    fvc.def("div", [](const volVectorField& vf){return fvc::div(vf);});
-    fvc.def("div", [](const tmp<volVectorField>& vf){return fvc::div(vf);});
-    fvc.def("div", [](const volTensorField& vf){return fvc::div(vf);});
-    fvc.def("div", [](const tmp<volTensorField>& vf){return fvc::div(vf);});
-    fvc.def("div", [](const volSymmTensorField& vf){return fvc::div(vf);});
-    fvc.def("div", [](const tmp<volSymmTensorField>& vf){return fvc::div(vf);});
+    // div operations (single argument)
+    bindDiv<volVectorField>(fvc);
+    bindDiv<volTensorField>(fvc);
+    bindDiv<volSymmTensorField>(fvc);
+    bindDiv<surfaceScalarField>(fvc);
+    bindDiv<surfaceVectorField>(fvc);
+    bindDiv<surfaceTensorField>(fvc);
+    bindDiv<surfaceSymmTensorField>(fvc);
 
-    fvc.def("div", [](const surfaceScalarField& sf){return fvc::div(sf);});
-    fvc.def("div", [](const tmp<surfaceScalarField>& sf){return fvc::div(sf);});
-    fvc.def("div", [](const surfaceVectorField& sf){return fvc::div(sf);});
-    fvc.def("div", [](const tmp<surfaceVectorField>& sf){return fvc::div(sf);});
-    fvc.def("div", [](const surfaceTensorField& sf){return fvc::div(sf);});
-    fvc.def("div", [](const tmp<surfaceTensorField>& sf){return fvc::div(sf);});
-    fvc.def("div", [](const surfaceSymmTensorField& sf){return fvc::div(sf);});
-    fvc.def("div", [](const tmp<surfaceSymmTensorField>& sf){return fvc::div(sf);});
+    // div-convection operations (two arguments)
+    bindDivConvection<volVectorField>(fvc);
+    bindDivConvection<volTensorField>(fvc);
+    bindDivConvection<volSymmTensorField>(fvc);
 
-    // div-convection
-    fvc.def("div", [](const surfaceScalarField& ssf,const volVectorField& vf){return fvc::div(ssf,vf);});
-    fvc.def("div", [](const surfaceScalarField& ssf,const tmp<volVectorField>& vf){return fvc::div(ssf,vf);});
-    fvc.def("div", [](const surfaceScalarField& ssf,const volTensorField& vf){return fvc::div(ssf,vf);});
-    fvc.def("div", [](const surfaceScalarField& ssf,const tmp<volTensorField>& vf){return fvc::div(ssf,vf);});
-    fvc.def("div", [](const surfaceScalarField& ssf,const volSymmTensorField& vf){return fvc::div(ssf,vf);});
-    fvc.def("div", [](const surfaceScalarField& ssf,const tmp<volSymmTensorField>& vf){return fvc::div(ssf,vf);});
+    // laplacian operations (single argument)
+    bindLaplacian<volScalarField>(fvc);
+    bindLaplacian<volVectorField>(fvc);
+    bindLaplacian<volTensorField>(fvc);
+    bindLaplacian<volSymmTensorField>(fvc);
 
-    // laplacian
-    fvc.def("laplacian", [](const volScalarField& vf){return fvc::laplacian(vf);});
-    fvc.def("laplacian", [](const tmp<volScalarField>& vf){return fvc::laplacian(vf);});
-    fvc.def("laplacian", [](const volVectorField& vf){return fvc::laplacian(vf);});
-    fvc.def("laplacian", [](const tmp<volVectorField>& vf){return fvc::laplacian(vf);});
-    fvc.def("laplacian", [](const volTensorField& vf){return fvc::laplacian(vf);});
-    fvc.def("laplacian", [](const tmp<volTensorField>& vf){return fvc::laplacian(vf);});
-    fvc.def("laplacian", [](const volSymmTensorField& vf){return fvc::laplacian(vf);});
-    fvc.def("laplacian", [](const tmp<volSymmTensorField>& vf){return fvc::laplacian(vf);});
+    // laplacian with diffusivity (two arguments)
+    // volScalar diffusivity
+    bindLaplacianWithDiff<volScalarField, volScalarField>(fvc);
+    bindLaplacianWithDiff<volScalarField, volVectorField>(fvc);
+    bindLaplacianWithDiff<volScalarField, volTensorField>(fvc);
+    bindLaplacianWithDiff<volScalarField, volSymmTensorField>(fvc);
+    
+    // surfaceScalar diffusivity
+    bindLaplacianWithDiff<surfaceScalarField, volScalarField>(fvc);
+    bindLaplacianWithDiff<surfaceScalarField, volVectorField>(fvc);
+    bindLaplacianWithDiff<surfaceScalarField, volTensorField>(fvc);
+    bindLaplacianWithDiff<surfaceScalarField, volSymmTensorField>(fvc);
+    
+    // volTensor diffusivity
+    bindLaplacianWithDiff<volTensorField, volScalarField>(fvc);
+    bindLaplacianWithDiff<volTensorField, volVectorField>(fvc);
+    bindLaplacianWithDiff<volTensorField, volTensorField>(fvc);
+    bindLaplacianWithDiff<volTensorField, volSymmTensorField>(fvc);
 
-    // laplacian volScalar
-    fvc.def("laplacian", [](const volScalarField& ssf,const volScalarField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volScalarField& ssf,const tmp<volScalarField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volScalarField& ssf,const volVectorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volScalarField& ssf,const tmp<volVectorField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volScalarField& ssf,const volTensorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volScalarField& ssf,const tmp<volTensorField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volScalarField& ssf,const volSymmTensorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volScalarField& ssf,const tmp<volSymmTensorField>& vf){return fvc::laplacian(ssf,vf);});
+    // interpolate operations
+    bindInterpolate<volScalarField>(fvc);
+    bindInterpolate<volVectorField>(fvc);
+    bindInterpolate<volTensorField>(fvc);
+    bindInterpolate<volSymmTensorField>(fvc);
 
-    fvc.def("laplacian", [](const tmp<volScalarField>& ssf,const volScalarField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volScalarField>& ssf,const tmp<volScalarField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volScalarField>& ssf,const volVectorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volScalarField>& ssf,const tmp<volVectorField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volScalarField>& ssf,const volTensorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volScalarField>& ssf,const tmp<volTensorField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volScalarField>& ssf,const volSymmTensorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volScalarField>& ssf,const tmp<volSymmTensorField>& vf){return fvc::laplacian(ssf,vf);});
+    // flux operations
+    bindFlux<volVectorField>(fvc);
+    bindFluxWithPhi<volVectorField>(fvc);
 
-    fvc.def("laplacian", [](const surfaceScalarField& ssf,const volScalarField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const surfaceScalarField& ssf,const tmp<volScalarField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const surfaceScalarField& ssf,const volVectorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const surfaceScalarField& ssf,const tmp<volVectorField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const surfaceScalarField& ssf,const volTensorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const surfaceScalarField& ssf,const tmp<volTensorField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const surfaceScalarField& ssf,const volSymmTensorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const surfaceScalarField& ssf,const tmp<volSymmTensorField>& vf){return fvc::laplacian(ssf,vf);});
+    // snGrad operations
+    bindSnGrad<volScalarField>(fvc);
+    bindSnGrad<volVectorField>(fvc);
 
-    // laplacian tensor
-    fvc.def("laplacian", [](const volTensorField& ssf,const volScalarField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volTensorField& ssf,const tmp<volScalarField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volTensorField& ssf,const volVectorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volTensorField& ssf,const tmp<volVectorField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volTensorField& ssf,const volTensorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volTensorField& ssf,const tmp<volTensorField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volTensorField& ssf,const volSymmTensorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const volTensorField& ssf,const tmp<volSymmTensorField>& vf){return fvc::laplacian(ssf,vf);});
+    // reconstruct operations
+    bindReconstruct<surfaceScalarField>(fvc);
+    bindReconstruct<surfaceVectorField>(fvc);
 
-    fvc.def("laplacian", [](const tmp<volTensorField>& ssf,const volScalarField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volTensorField>& ssf,const tmp<volScalarField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volTensorField>& ssf,const volVectorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volTensorField>& ssf,const tmp<volVectorField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volTensorField>& ssf,const volTensorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volTensorField>& ssf,const tmp<volTensorField>& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volTensorField>& ssf,const volSymmTensorField& vf){return fvc::laplacian(ssf,vf);});
-    fvc.def("laplacian", [](const tmp<volTensorField>& ssf,const tmp<volSymmTensorField>& vf){return fvc::laplacian(ssf,vf);});
-
-    // interpolate
-    fvc.def("interpolate", [](const volScalarField& vf){return fvc::interpolate(vf);});
-    fvc.def("interpolate", [](const tmp<volScalarField>& vf){return fvc::interpolate(vf);});
-    fvc.def("interpolate", [](const volVectorField& vf){return fvc::interpolate(vf);});
-    fvc.def("interpolate", [](const tmp<volVectorField>& vf){return fvc::interpolate(vf);});
-    fvc.def("interpolate", [](const volTensorField& vf){return fvc::interpolate(vf);});
-    fvc.def("interpolate", [](const tmp<volTensorField>& vf){return fvc::interpolate(vf);});
-    fvc.def("interpolate", [](const volSymmTensorField& vf){return fvc::interpolate(vf);});
-    fvc.def("interpolate", [](const tmp<volSymmTensorField>& vf){return fvc::interpolate(vf);});
-
-    // flux
-    fvc.def("flux", [](const volVectorField& vf){return fvc::flux(vf);});
-    fvc.def("flux", [](const tmp<volVectorField>& vf){return fvc::flux(vf);});
-
-    fvc.def("flux", [](const surfaceScalarField& ssf,const volVectorField& vf){return fvc::flux(ssf,vf);});
-    fvc.def("flux", [](const surfaceScalarField& ssf,const tmp<volVectorField>& vf){return fvc::flux(ssf,vf);});
-
-    // ddtCorr
+    // ddtCorr (special case - single binding)
     fvc.def("ddtCorr", [](const volVectorField& vf, const surfaceScalarField& ssf){return fvc::ddtCorr(vf,ssf);});
-
-    fvc.def("snGrad", [](const volScalarField& vf){return fvc::snGrad(vf);});
-    fvc.def("snGrad", [](const tmp<volScalarField>& vf){return fvc::snGrad(vf);});
-    fvc.def("snGrad", [](const volVectorField& vf){return fvc::snGrad(vf);});
-    fvc.def("snGrad", [](const tmp<volVectorField>& vf){return fvc::snGrad(vf);});
-
-
-    fvc.def("reconstruct", [](const surfaceScalarField& sf){return fvc::reconstruct(sf);});
-    fvc.def("reconstruct", [](const tmp<surfaceScalarField>& sf){return fvc::reconstruct(sf);});
-    fvc.def("reconstruct", [](const surfaceVectorField& sf){return fvc::reconstruct(sf);});
-    fvc.def("reconstruct", [](const tmp<surfaceVectorField>& sf){return fvc::reconstruct(sf);});
 }

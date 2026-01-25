@@ -31,10 +31,8 @@ License
 namespace Foam
 {
 
-    dictionary read_dictionary
-    (
-        const std::string& file_name
-    )
+    dictionary read_dictionary(
+        const std::string &file_name)
     {
         autoPtr<IFstream> dictFile(new IFstream(file_name));
         if (!dictFile->good())
@@ -45,77 +43,72 @@ namespace Foam
         return dict;
     }
 
-    template<class Type>
-    Type get(dictionary& dict, const std::string key)
+    template <class Type>
+    Type get(dictionary &dict, const std::string key)
     {
         return dict.get<Type>(word(key));
     }
-    
-    template<class Type>
-    void set(dictionary& dict, const std::string key,const Type T)
+
+    template <class Type>
+    void set(dictionary &dict, const std::string key, const Type T)
     {
-        dict.set<Type>(word(key),T);
+        dict.set<Type>(word(key), T);
     }
 
-    template<class Type>
-    void add(dictionary& dict, const std::string key,const Type T)
+    template <class Type>
+    void add(dictionary &dict, const std::string key, const Type T)
     {
-        dict.add<Type>(word(key),T);
+        dict.add<Type>(word(key), T);
     }
 
     // Helper function to lookup List<SolverPerformance<Type>> and return as std::vector
     // OpenFOAM stores solver performance as List<SolverPerformance<Type>>
-    template<class Type>
-    std::vector<SolverPerformance<Type>> lookupSolverPerformanceList(const dictionary& dict, const std::string& fieldName)
+    template <class Type>
+    std::vector<SolverPerformance<Type>> lookupSolverPerformanceList(const dictionary &dict, const std::string &fieldName)
     {
         // Check if entry exists first
-        const entry* e = dict.findEntry(word(fieldName), keyType::LITERAL);
+        const entry *e = dict.findEntry(word(fieldName), keyType::LITERAL);
         if (!e)
         {
             throw std::runtime_error(
-                "Entry " + fieldName + " not found in dictionary"
-            );
+                "Entry " + fieldName + " not found in dictionary");
         }
-        
+
         // Enable exception throwing for FatalIOError to catch type mismatches
         bool previousThrowState = FatalIOError.throwExceptions();
-        
+
         try
         {
             // The dictionary stores List<SolverPerformance<Type>>
             List<SolverPerformance<Type>> sp;
             bool success = dict.readIfPresent(word(fieldName), sp);
-            
+
             // Restore previous exception state
             FatalIOError.throwExceptions(previousThrowState);
-            
+
             if (!success || sp.empty())
             {
                 throw std::runtime_error(
-                    "Entry " + fieldName + " could not be read as List<SolverPerformance<" 
-                    + pTraits<Type>::typeName + ">> type or is empty"
-                );
+                    "Entry " + fieldName + " could not be read as List<SolverPerformance<" + pTraits<Type>::typeName + ">> type or is empty");
             }
-            
+
             // Convert to std::vector for Python compatibility
             std::vector<SolverPerformance<Type>> result;
             result.reserve(sp.size());
-            for (const auto& item : sp)
+            for (const auto &item : sp)
             {
                 result.push_back(item);
             }
-            
+
             return result;
         }
-        catch (const Foam::error& e)
+        catch (const Foam::error &e)
         {
             // Restore previous exception state before rethrowing
             FatalIOError.throwExceptions(previousThrowState);
-            
+
             throw std::runtime_error(
-                "Entry " + fieldName + " could not be read as List<SolverPerformance<" 
-                + pTraits<Type>::typeName + ">> type: " + std::string(e.what())
-            );
+                "Entry " + fieldName + " could not be read as List<SolverPerformance<" + pTraits<Type>::typeName + ">> type: " + std::string(e.what()));
         }
         catch (...)
         {
@@ -127,32 +120,37 @@ namespace Foam
 
 }
 
-
-class DictionaryGetProxy {
+class DictionaryGetProxy
+{
 public:
-    using GetterFunc = std::function<pybind11::object(Foam::dictionary&, const std::string&)>;
-    static std::unordered_map<std::string, GetterFunc>& type_registry() {
+    using GetterFunc = std::function<pybind11::object(Foam::dictionary &, const std::string &)>;
+    static std::unordered_map<std::string, GetterFunc> &type_registry()
+    {
         static std::unordered_map<std::string, GetterFunc> reg;
         return reg;
     }
 
-    Foam::dictionary& dict;
-    DictionaryGetProxy(Foam::dictionary& d) : dict(d) {}
+    Foam::dictionary &dict;
+    DictionaryGetProxy(Foam::dictionary &d) : dict(d) {}
 
-    pybind11::object operator[](pybind11::object py_type) {
+    pybind11::object operator[](pybind11::object py_type)
+    {
         std::string type_name = pybind11::str(py_type.attr("__name__"));
-        auto& reg = type_registry();
+        auto &reg = type_registry();
         auto it = reg.find(type_name);
         if (it == reg.end())
             throw std::runtime_error("Unsupported type for dictionary.get: " + type_name);
 
-        struct TypeCaller {
-            Foam::dictionary& dict;
+        struct TypeCaller
+        {
+            Foam::dictionary &dict;
             GetterFunc func;
-            TypeCaller(Foam::dictionary& d, GetterFunc f) : dict(d), func(f) {}
+            TypeCaller(Foam::dictionary &d, GetterFunc f) : dict(d), func(f) {}
 
-            pybind11::object operator()(const std::string& key) {
-                if (!dict.found(key)) {
+            pybind11::object operator()(const std::string &key)
+            {
+                if (!dict.found(key))
+                {
                     throw pybind11::key_error("Key '" + key + "' not found in dictionary");
                 }
                 return func(dict, key);
@@ -162,35 +160,42 @@ public:
         return pybind11::cpp_function(TypeCaller(dict, it->second));
     }
 
-    template<typename T>
-    static void register_type(const std::string& py_name) {
-        type_registry()[py_name] = [](Foam::dictionary& d, const std::string& key) {
+    template <typename T>
+    static void register_type(const std::string &py_name)
+    {
+        type_registry()[py_name] = [](Foam::dictionary &d, const std::string &key)
+        {
             return pybind11::cast(d.get<T>(Foam::word(key)));
         };
     }
 };
 
-class DictionaryGetOrDefaultProxy {
+class DictionaryGetOrDefaultProxy
+{
 public:
-    using GetterFunc = std::function<pybind11::object(Foam::dictionary&, const std::string&)>;
-    
-    Foam::dictionary& dict;
-    DictionaryGetOrDefaultProxy(Foam::dictionary& d) : dict(d) {}
+    using GetterFunc = std::function<pybind11::object(Foam::dictionary &, const std::string &)>;
 
-    pybind11::object operator[](pybind11::object py_type) {
+    Foam::dictionary &dict;
+    DictionaryGetOrDefaultProxy(Foam::dictionary &d) : dict(d) {}
+
+    pybind11::object operator[](pybind11::object py_type)
+    {
         std::string type_name = pybind11::str(py_type.attr("__name__"));
-        auto& reg = DictionaryGetProxy::type_registry();
+        auto &reg = DictionaryGetProxy::type_registry();
         auto it = reg.find(type_name);
         if (it == reg.end())
             throw std::runtime_error("Unsupported type for dictionary.getOrDefault: " + type_name);
-        
-        struct TypeCaller {
-            Foam::dictionary& dict;
-            GetterFunc func;
-            TypeCaller(Foam::dictionary& d, GetterFunc f) : dict(d), func(f) {}
 
-            pybind11::object operator()(const std::string& key, pybind11::object default_value) {
-                if (!dict.found(key)) {
+        struct TypeCaller
+        {
+            Foam::dictionary &dict;
+            GetterFunc func;
+            TypeCaller(Foam::dictionary &d, GetterFunc f) : dict(d), func(f) {}
+
+            pybind11::object operator()(const std::string &key, pybind11::object default_value)
+            {
+                if (!dict.found(key))
+                {
                     return default_value;
                 }
                 return func(dict, key);
@@ -200,68 +205,54 @@ public:
     }
 };
 
-void bindDict(pybind11::module& m)
+void bindDict(pybind11::module &m)
 {
     namespace py = pybind11;
 
     py::class_<Foam::keyType>(m, "keyType")
-    .def(py::init<const Foam::word &>())
-    .def(py::init([](const std::string& str) {
-        return new Foam::keyType(Foam::word(str));
-    }))
-    ;
-    
-    py::class_<Foam::entry>(m, "entry")
-    ;
+        .def(py::init<const Foam::word &>())
+        .def(py::init([](const std::string &str)
+                      { return new Foam::keyType(Foam::word(str)); }));
+
+    py::class_<Foam::entry>(m, "entry");
 
     // py::class_<Foam::dictionaryEntry, Foam::entry, Foam::dictionary>(m, "dictionaryEntry")
     // .def(py::init<const Foam::keyType &,const Foam::dictionary &,const Foam::dictionary &>())
     // ;
-    
 
     py::class_<Foam::dictionary>(m, "dictionary")
-        .def(py::init<const std::string&>())
-        .def_static("read", [](const std::string& filename) -> Foam::dictionary* {
+        .def(py::init<const std::string &>())
+        .def_static("read", [](const std::string &filename) -> Foam::dictionary *
+                    {
             // Allocate on heap and return pointer
-            return new Foam::dictionary(Foam::read_dictionary(filename));
-        }, py::return_value_policy::take_ownership)
+            return new Foam::dictionary(Foam::read_dictionary(filename)); }, py::return_value_policy::take_ownership)
         .def(py::init<>())
-        .def(py::init<const Foam::dictionary&>())
+        .def(py::init<const Foam::dictionary &>())
         .def("toc", &Foam::dictionary::toc)
         .def("clear", &Foam::dictionary::clear)
         .def("clear", &Foam::dictionary::clear)
-        .def("found", [](const Foam::dictionary& self, const std::string key)
-        {
-            return self.found(Foam::word(key));
-        })
-        .def("isDict", [](const Foam::dictionary& self, const std::string key)
-        {
-            return self.isDict(Foam::word(key));
-        })
-        .def("subDict", [](Foam::dictionary& self, const std::string key)
-        {
-            return static_cast<Foam::dictionary*>(&self.subDict(Foam::word(key)));
-        },py::return_value_policy::reference_internal)
-        .def("subDictOrAdd", [](Foam::dictionary& self, const std::string key)
-        {
-            return self.subDictOrAdd(Foam::word(key));
-        },py::return_value_policy::reference_internal)
-        .def("write", [](const Foam::dictionary& self,const std::string file_name)
-        {
+        .def("found", [](const Foam::dictionary &self, const std::string key)
+             { return self.found(Foam::word(key)); })
+        .def("isDict", [](const Foam::dictionary &self, const std::string key)
+             { return self.isDict(Foam::word(key)); })
+        .def("subDict", [](Foam::dictionary &self, const std::string key)
+             { return static_cast<Foam::dictionary *>(&self.subDict(Foam::word(key))); }, py::return_value_policy::reference_internal)
+        .def("subDictOrAdd", [](Foam::dictionary &self, const std::string key)
+             { return self.subDictOrAdd(Foam::word(key)); }, py::return_value_policy::reference_internal)
+        .def("write", [](const Foam::dictionary &self, const std::string file_name)
+             {
             Foam::fileName dictFileName(file_name);
             Foam::OFstream os(dictFileName);
             Foam::IOobject::writeBanner(os);
             Foam::IOobject::writeDivider(os);
             self.write(os,false);
-            Foam::IOobject::writeEndDivider(os);
-        })
-        .def("print", [](const Foam::dictionary& self)
-        {
+            Foam::IOobject::writeEndDivider(os); })
+        .def("print", [](const Foam::dictionary &self)
+             {
             Foam::IOobject::writeBanner(Foam::Info);
             Foam::IOobject::writeDivider(Foam::Info);
             self.write(Foam::Info,false);
-            Foam::IOobject::writeEndDivider(Foam::Info);
-        })
+            Foam::IOobject::writeEndDivider(Foam::Info); })
         .def("get_word", &Foam::get<Foam::word>)
         .def("get_scalar", &Foam::get<Foam::scalar>)
         .def("get_vector", &Foam::get<Foam::vector>)
@@ -280,11 +271,10 @@ void bindDict(pybind11::module& m)
         .def("set", &Foam::set<Foam::Field<Foam::vector>>)
         .def("set", &Foam::set<Foam::Field<Foam::tensor>>)
 
-        .def("add", [](Foam::dictionary& self,const Foam::entry& e, bool merge)
-        {
-            self.add(e,merge);
-        })
-        .def("add", &Foam::add<Foam::word>)
+        .def("add", [](Foam::dictionary &self, const Foam::entry &e, bool merge)
+             { self.add(e, merge); })
+        .def("add", [](Foam::dictionary &self, const std::string &key, const Foam::word& value)
+             { Foam::add<Foam::word>(self, key, value); }, py::arg("key"), py::arg("value"))
         .def("add", &Foam::add<Foam::scalar>)
         .def("add", &Foam::add<Foam::vector>)
         .def("add", &Foam::add<Foam::tensor>)
@@ -295,21 +285,10 @@ void bindDict(pybind11::module& m)
         .def("lookupSolverPerformanceScalarList", &Foam::lookupSolverPerformanceList<Foam::scalar>)
         .def("lookupSolverPerformanceVectorList", &Foam::lookupSolverPerformanceList<Foam::vector>)
         .def("lookupSolverPerformanceTensorList", &Foam::lookupSolverPerformanceList<Foam::tensor>)
-        .def_property_readonly(
-            "get",
-            [](Foam::dictionary& self) {
-                return DictionaryGetProxy(self);
-            },
-            py::return_value_policy::reference_internal
-        )
-        .def_property_readonly(
-            "getOrDefault",
-            [](Foam::dictionary& self) {
-                return DictionaryGetOrDefaultProxy(self);
-            },
-            py::return_value_policy::reference_internal
-        )
-        ;
+        .def_property_readonly("get", [](Foam::dictionary &self)
+                               { return DictionaryGetProxy(self); }, py::return_value_policy::reference_internal)
+        .def_property_readonly("getOrDefault", [](Foam::dictionary &self)
+                               { return DictionaryGetOrDefaultProxy(self); }, py::return_value_policy::reference_internal);
 
     py::class_<DictionaryGetProxy>(m, "DictionaryGetProxy")
         .def("__getitem__", &DictionaryGetProxy::operator[]);
@@ -318,8 +297,9 @@ void bindDict(pybind11::module& m)
         .def("__getitem__", &DictionaryGetOrDefaultProxy::operator[]);
 
     // Register types for get directly
-    DictionaryGetProxy::type_registry()["str"] = [](Foam::dictionary& d, const std::string& key) {
-        auto* entry = d.findEntry(Foam::word(key)); 
+    DictionaryGetProxy::type_registry()["str"] = [](Foam::dictionary &d, const std::string &key)
+    {
+        auto *entry = d.findEntry(Foam::word(key));
         if (entry->isStream())
         {
             return pybind11::cast(entry->stream().toString());

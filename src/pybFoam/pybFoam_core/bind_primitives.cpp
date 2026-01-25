@@ -83,6 +83,20 @@ py::class_<Type> declare_vectorspace(py::module &m, std::string className) {
     return primitiveType;
 }
 
+template<class Type, int nComponents>
+py::class_<Type> declare_int_vectorspace(py::module &m, std::string className) {
+    return py::class_<Type>(m, className.c_str())
+        .def("__getitem__", [](const Type& self, const Foam::label idx) {
+            if (idx >= nComponents || idx < 0) throw py::index_error();
+            return self[idx];
+        })
+        .def("__setitem__", [](Type& self, const Foam::label idx, int val) {
+            if (idx >= nComponents || idx < 0) throw py::index_error();
+            self[idx] = val;
+        })
+        .def("__len__", [](const Type&) { return nComponents; });
+}
+
 }
 
 void bindPrimitives(pybind11::module& m)
@@ -129,6 +143,10 @@ void bindPrimitives(pybind11::module& m)
                           Foam::scalar,Foam::scalar,Foam::scalar>())
             .def("__and__",&Foam::inner_product<Foam::symmTensor,Foam::vector>);
 
+    // Integer tensor types - simple bindings
+    Foam::declare_int_vectorspace<Foam::Vector<int>, 3>(m, "VectorInt");
+    Foam::declare_int_vectorspace<Foam::Tensor<int>, 9>(m, "TensorInt");
+    Foam::declare_int_vectorspace<Foam::SymmTensor<int>, 6>(m, "SymmTensorInt");
 
     // functions
     m.def("mag", [](Foam::scalar t){return Foam::mag(t);});

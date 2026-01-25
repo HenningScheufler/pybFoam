@@ -63,6 +63,9 @@ void fromNumpy<scalar>(Field<scalar>& values,const py::array_t<scalar> np_arr);
 template<class Type>
 py::class_< Field<Type>> declare_fields(py::module &m, std::string &className);
 
+template<class Type>
+py::class_<tmp<Field<Type>>> declare_tmp_fields(py::module &m, std::string className);
+
 void  bindFields(py::module& m);
 
 }

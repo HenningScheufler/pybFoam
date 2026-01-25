@@ -55,7 +55,8 @@ benchmark = [
     "jax",
     "seaborn",
     "matplotlib",
-    "PyQt6"
+    "PyQt6",
+    "tabulate"
 ]
 all = [
     "pybFoam[dev,docs,benchmark]",
@@ -75,6 +76,7 @@ requires = [
     "scikit-build-core[pyproject]>=0.4.3",
     "pybind11>=2.6.0",
     "cmake>=3.18",
+    "pybind11-stubgen>=2.5",
 ]
 build-backend = "scikit_build_core.build"
 
@@ -94,6 +96,8 @@ editable.rebuild = false
 [tool.scikit-build.cmake.define]
 PYBIND11_FINDPYTHON = "ON"
 CMAKE_CXX_STANDARD = "17"
+# Stub generation disabled by default
+# Developers enable with: uv sync --all-extras -C cmake.define.ENABLE_PYBFOAM_STUBS=ON
 
 # Generate stubs for better IDE support
 [tool.scikit-build.experimental]

@@ -2,7 +2,7 @@
 available runtime tables
 """
 from __future__ import annotations
-__all__ = ['Function1', 'fvPatchScalarField', 'fvPatchSphericalTensorField', 'fvPatchSymmTensorField', 'fvPatchTensorField', 'fvPatchVectorField']
+__all__: list[str] = ['Function1', 'fvPatchScalarField', 'fvPatchSphericalTensorField', 'fvPatchSymmTensorField', 'fvPatchTensorField', 'fvPatchVectorField']
 def Function1() -> list[str]:
     ...
 def fvPatchScalarField() -> list[str]:

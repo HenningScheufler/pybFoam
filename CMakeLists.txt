@@ -39,8 +39,87 @@ else()
     set(PYTHON_INSTALL_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 endif()
 
+# ===================================================================
+# Stub generation for type hints
+# ===================================================================
+# Generate Python type stubs (.pyi files) using pybind11-stubgen
+# Stubs are generated after all modules build, then cleaned and copied
+# Note: pybind11-stubgen must be installed in the Python environment
+
+option(
+    ENABLE_PYBFOAM_STUBS
+    "Generate stub files and copy to source directory for development"
+    OFF)
+
+message(STATUS "Stub generation for pybFoam: ${ENABLE_PYBFOAM_STUBS}")
+
+# Set variables that subdirectories can use
+if(${ENABLE_PYBFOAM_STUBS})
+    # Determine the module directory and stub output directory
+    if(DEFINED SKBUILD)
+        set(MODULE_DIR "${CMAKE_CURRENT_BINARY_DIR}/src/pybFoam" PARENT_SCOPE)
+    else()
+        set(MODULE_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" PARENT_SCOPE)
+    endif()
+    
+    set(STUB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/stubs" PARENT_SCOPE)
+    set(STUB_TARGET_DIR "${PROJECT_SOURCE_DIR}/src/pybFoam" PARENT_SCOPE)
+    
+    message(STATUS "Stub output directory: ${CMAKE_CURRENT_BINARY_DIR}/stubs")
+    message(STATUS "Stub target directory: ${PROJECT_SOURCE_DIR}/src/pybFoam")
+endif()
+
 # Add subdirectories
 add_subdirectory(src/pybFoam)
+
+# Add stub generation after all targets are created
+if(${ENABLE_PYBFOAM_STUBS})
+    # Clean and copy stubs after all modules are built
+    add_custom_target(generate_and_clean_stubs ALL
+        # Run pybind11-stubgen for each top-level module
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/src/pybFoam"
+                ${Python_EXECUTABLE} -m pybind11_stubgen
+                --output-dir "${CMAKE_CURRENT_BINARY_DIR}/stubs"
+                --print-invalid-expressions-as-is
+                pybFoam_core
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/src/pybFoam"
+                ${Python_EXECUTABLE} -m pybind11_stubgen
+                --output-dir "${CMAKE_CURRENT_BINARY_DIR}/stubs"
+                --print-invalid-expressions-as-is
+                fvc
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/src/pybFoam"
+                ${Python_EXECUTABLE} -m pybind11_stubgen
+                --output-dir "${CMAKE_CURRENT_BINARY_DIR}/stubs"
+                --print-invalid-expressions-as-is
+                fvm
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/src/pybFoam"
+                ${Python_EXECUTABLE} -m pybind11_stubgen
+                --output-dir "${CMAKE_CURRENT_BINARY_DIR}/stubs"
+                --print-invalid-expressions-as-is
+                turbulence
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/src/pybFoam"
+                ${Python_EXECUTABLE} -m pybind11_stubgen
+                --output-dir "${CMAKE_CURRENT_BINARY_DIR}/stubs"
+                --print-invalid-expressions-as-is
+                thermo
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/src/pybFoam"
+                ${Python_EXECUTABLE} -m pybind11_stubgen
+                --output-dir "${CMAKE_CURRENT_BINARY_DIR}/stubs"
+                --print-invalid-expressions-as-is
+                runTimeTables
+        # Clean stubs
+        COMMAND ${Python_EXECUTABLE}
+                ${PROJECT_SOURCE_DIR}/scripts/clean_stubs.py
+        # Copy to source directory
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${CMAKE_CURRENT_BINARY_DIR}/stubs"
+                "${PROJECT_SOURCE_DIR}/src/pybFoam"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating, cleaning, and copying stub files"
+        DEPENDS pybFoam_core fvc fvm turbulence thermo runTimeTables _sampling
+        VERBATIM
+    )
+endif()
 
 # Optional: Add applications and tests only if not building with pip
 if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
