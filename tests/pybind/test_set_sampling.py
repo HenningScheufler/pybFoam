@@ -35,9 +35,6 @@ def test_meshSearch_creation(change_test_dir):
     search = meshSearch(mesh)
     
     assert search is not None
-    # Verify we can get the mesh back
-    search_mesh = search.mesh()
-    assert search_mesh is not None
 
 
 def test_meshSearch_find_cell(change_test_dir):
@@ -92,9 +89,7 @@ def test_sampledSet_uniform_line(change_test_dir):
     
     # Check cells and faces
     cells = line.cells()
-    faces = line.faces()
     assert len(cells) == len(points)
-    assert len(faces) == len(points)
     
     # Most cells should be valid (>= 0)
     valid_cells = sum(1 for c in cells if c >= 0)

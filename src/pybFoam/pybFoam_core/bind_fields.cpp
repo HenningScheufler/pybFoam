@@ -116,6 +116,30 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
         return self - f();
     })
     .def("__sub__", [](Field<Type>& self, const Type& s) {return self - s;})
+    .def("__iadd__", [](Field<Type>& self, const Field<Type>& f) -> Field<Type>& {
+        self += f;
+        return self;
+    }, py::return_value_policy::reference_internal)
+    .def("__iadd__", [](Field<Type>& self, const tmp<Field<Type>>& f) -> Field<Type>& {
+        self += f();
+        return self;
+    }, py::return_value_policy::reference_internal)
+    .def("__iadd__", [](Field<Type>& self, const Type& s) -> Field<Type>& {
+        self += s;
+        return self;
+    }, py::return_value_policy::reference_internal)
+    .def("__isub__", [](Field<Type>& self, const Field<Type>& f) -> Field<Type>& {
+        self -= f;
+        return self;
+    }, py::return_value_policy::reference_internal)
+    .def("__isub__", [](Field<Type>& self, const tmp<Field<Type>>& f) -> Field<Type>& {
+        self -= f();
+        return self;
+    }, py::return_value_policy::reference_internal)
+    .def("__isub__", [](Field<Type>& self, const Type& s) -> Field<Type>& {
+        self -= s;
+        return self;
+    }, py::return_value_policy::reference_internal)
     .def("__mul__", [](Field<Type>& self, const scalar& s) {return self * s;})
     .def("__mul__", [](Foam::Field<Type>& self, const Field<scalar>& sf)
     {
