@@ -75,8 +75,7 @@ zip-safe = false
 requires = [
     "scikit-build-core[pyproject]>=0.4.3",
     "pybind11>=2.6.0",
-    "cmake>=3.18",
-    "pybind11-stubgen>=2.5",
+    "cmake>=3.18"
 ]
 build-backend = "scikit_build_core.build"
 
