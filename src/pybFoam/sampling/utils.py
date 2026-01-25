@@ -13,7 +13,7 @@ def _ensure_len(v: Sequence[float], n: int, name: str) -> List[float]:
     return [float(x) for x in v]
 
 
-def dict_to_foam(py_dict: Dict[str, Any]):
+def dict_to_foam(py_dict: Dict[str, Any]) -> Any:
     """Convert a Python dictionary to an OpenFOAM dictionary object.
     
     This helper converts nested Python dicts and lists into OpenFOAM
@@ -25,7 +25,7 @@ def dict_to_foam(py_dict: Dict[str, Any]):
     Returns:
         OpenFOAM dictionary object
     """
-    from pybFoam import dictionary, Word, vector, wordList
+    from pybFoam.pybFoam_core import dictionary, Word, vector, wordList
     
     foam_dict = dictionary()
     

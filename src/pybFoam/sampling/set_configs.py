@@ -26,10 +26,10 @@ class UniformSetConfig(SampledSetBaseConfig):
     
     @field_validator("start", "end")
     @classmethod
-    def point_len(cls, v):
+    def point_len(cls, v: List[float]) -> List[float]:
         return _ensure_len(v, 3, "start/end point")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 
@@ -70,14 +70,14 @@ class PolyLineSetConfig(SampledSetBaseConfig):
     
     @field_validator("points")
     @classmethod
-    def validate_points(cls, v):
+    def validate_points(cls, v: List[List[float]]) -> List[List[float]]:
         if len(v) < 2:
             raise ValueError("polyLine requires at least 2 points")
         return [_ensure_len(pt, 3, f"point {i}") for i, pt in enumerate(v)]
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
-        from pybFoam import vectorField, vector
+        from pybFoam.pybFoam_core import vectorField, vector
         
         d = self.model_dump(exclude_none=True)
         points_list = d.pop("points")
@@ -100,10 +100,10 @@ class CircleSetConfig(SampledSetBaseConfig):
     
     @field_validator("origin", "circleAxis", "startPoint")
     @classmethod
-    def point_len(cls, v):
+    def point_len(cls, v: List[float]) -> List[float]:
         return _ensure_len(v, 3, "vector")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 
@@ -117,24 +117,24 @@ class ArraySetConfig(SampledSetBaseConfig):
     
     @field_validator("pointsDensity")
     @classmethod
-    def density_len(cls, v):
+    def density_len(cls, v: List[int]) -> List[int]:
         if len(v) != 3:
             raise ValueError("pointsDensity must have 3 integer values")
         return [int(x) for x in v]
     
     @field_validator("spanBox")
     @classmethod
-    def span_len(cls, v):
+    def span_len(cls, v: List[float]) -> List[float]:
         return _ensure_len(v, 3, "spanBox")
     
     @field_validator("origin")
     @classmethod
-    def origin_len(cls, v):
+    def origin_len(cls, v: Optional[List[float]]) -> Optional[List[float]]:
         if v is None:
             return v
         return _ensure_len(v, 3, "origin")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 
@@ -147,10 +147,10 @@ class FaceOnlySetConfig(SampledSetBaseConfig):
     
     @field_validator("start", "end")
     @classmethod
-    def point_len(cls, v):
+    def point_len(cls, v: List[float]) -> List[float]:
         return _ensure_len(v, 3, "point")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 
@@ -163,10 +163,10 @@ class MidPointSetConfig(SampledSetBaseConfig):
     
     @field_validator("start", "end")
     @classmethod
-    def point_len(cls, v):
+    def point_len(cls, v: List[float]) -> List[float]:
         return _ensure_len(v, 3, "point")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 
@@ -179,10 +179,10 @@ class MidPointAndFaceSetConfig(SampledSetBaseConfig):
     
     @field_validator("start", "end")
     @classmethod
-    def point_len(cls, v):
+    def point_len(cls, v: List[float]) -> List[float]:
         return _ensure_len(v, 3, "point")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 
@@ -195,10 +195,10 @@ class CellCentreSetConfig(SampledSetBaseConfig):
     
     @field_validator("start", "end")
     @classmethod
-    def point_len(cls, v):
+    def point_len(cls, v: List[float]) -> List[float]:
         return _ensure_len(v, 3, "point")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 
@@ -212,21 +212,21 @@ class PatchCloudSetConfig(SampledSetBaseConfig):
     
     @field_validator("patches")
     @classmethod
-    def patches_list(cls, v):
+    def patches_list(cls, v: Union[str, List[str]]) -> Union[str, List[str]]:
         if isinstance(v, str):
             return v
         return [str(x) for x in v]
     
     @field_validator("points")
     @classmethod
-    def validate_points(cls, v):
+    def validate_points(cls, v: List[List[float]]) -> List[List[float]]:
         if not v:
             raise ValueError("points list cannot be empty")
         return [_ensure_len(pt, 3, f"point {i}") for i, pt in enumerate(v)]
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
-        from pybFoam import vectorField, vector
+        from pybFoam.pybFoam_core import vectorField, vector
         
         d = self.model_dump(exclude_none=True)
         points_list = d.pop("points")
@@ -247,17 +247,17 @@ class PatchSeedSetConfig(SampledSetBaseConfig):
     
     @field_validator("patches")
     @classmethod
-    def patches_list(cls, v):
+    def patches_list(cls, v: Union[str, List[str]]) -> Union[str, List[str]]:
         if isinstance(v, str):
             return v
         return [str(x) for x in v]
     
     @field_validator("searchDir")
     @classmethod
-    def dir_len(cls, v):
+    def dir_len(cls, v: List[float]) -> List[float]:
         return _ensure_len(v, 3, "searchDir")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 

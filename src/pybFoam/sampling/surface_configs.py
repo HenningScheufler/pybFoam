@@ -77,19 +77,19 @@ class SampledCuttingPlaneConfig(SampledSurfaceBaseConfig):
 
     @field_validator("point", "origin")
     @classmethod
-    def point_len(cls, v):
+    def point_len(cls, v: Optional[List[float]]) -> Optional[List[float]]:
         if v is None:
             return v
         return _ensure_len(v, 3, "point/origin")
 
     @field_validator("normal")
     @classmethod
-    def normal_len(cls, v):
+    def normal_len(cls, v: Optional[List[float]]) -> Optional[List[float]]:
         if v is None:
             return v
         return _ensure_len(v, 3, "normal")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 
@@ -108,7 +108,7 @@ class SampledIsoSurfaceConfig(SampledSurfaceBaseConfig):
     triangulate: Optional[bool] = Field(None, description="triangulate faces (if regularise)")
     mergeTol: Optional[float] = Field(None, description="tolerance for merging points")
     
-    def to_foam_dict(self):
+    def to_foam_dict(self) -> Any:
         """Return OpenFOAM dictionary object."""
         return dict_to_foam(self.model_dump(exclude_none=True))
 
@@ -138,7 +138,7 @@ class SampledFaceZoneConfig(SampledSurfaceBaseConfig):
     triangulate: Optional[bool] = Field(None, description="triangulate faces")
 
 
-class SampledPatchInternalFieldConfig(SampledPatchConfig):
+class SampledPatchInternalFieldConfig(SampledSurfaceBaseConfig):
     type: Literal["patchInternalField"] = Field("patchInternalField", description="patchInternalField sampledSurface type")
     patches: Union[str, List[str]] = Field(..., description="patch selection")
     offsetMode: Optional[Literal["normal", "uniform", "nonuniform"]] = Field(None, description="offset mode")

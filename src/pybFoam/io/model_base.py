@@ -1,23 +1,24 @@
-from typing import get_origin, get_args, Optional, Union, Annotated, Literal
+from typing import get_origin, get_args, Optional, Union, Annotated, Literal, Any, Type
 import os
 import json
 import yaml
 import pybFoam
+import pybFoam.pybFoam_core
 from pybFoam import dictionary
 from pydantic import BaseModel, Field
 
-type_dispatch = {
+type_dispatch: dict[Type[Any], Any] = {
     str: lambda s: s,  # Keep as string
     int: lambda i: int(i),
     float: lambda f: float(f),
     bool: lambda b: bool(b),
-    pybFoam.Word: lambda w: pybFoam.Word(w),
-    pybFoam.vector: lambda v: pybFoam.vector(*v),
-    pybFoam.tensor: lambda t: pybFoam.tensor(*t),
-    pybFoam.wordList: lambda w: pybFoam.wordList(w),
-    pybFoam.scalarField: lambda s: pybFoam.scalarField(s),
-    pybFoam.vectorField: lambda v: pybFoam.vectorField(v),
-    pybFoam.tensorField: lambda t: pybFoam.tensorField(t),
+    pybFoam.pybFoam_core.Word: lambda w: pybFoam.pybFoam_core.Word(w),
+    pybFoam.pybFoam_core.vector: lambda v: pybFoam.pybFoam_core.vector(*v),
+    pybFoam.pybFoam_core.tensor: lambda t: pybFoam.pybFoam_core.tensor(*t),
+    pybFoam.pybFoam_core.wordList: lambda w: pybFoam.pybFoam_core.wordList(w),
+    pybFoam.pybFoam_core.scalarField: lambda s: pybFoam.pybFoam_core.scalarField(s),
+    pybFoam.pybFoam_core.vectorField: lambda v: pybFoam.pybFoam_core.vectorField(v),
+    pybFoam.pybFoam_core.tensorField: lambda t: pybFoam.pybFoam_core.tensorField(t),
 }
 
 
@@ -56,17 +57,17 @@ class IOModelMixin:
             return cls.from_ofdict(d)
 
     @classmethod
-    def from_yaml(cls, y):
+    def from_yaml(cls: Type[Any], y: Any) -> Any:
         return cls._from_mapping(y, source="yaml")
 
     @classmethod
-    def from_json(cls, j):
+    def from_json(cls: Type[Any], j: Any) -> Any:
         return cls._from_mapping(j, source="json")
 
     @classmethod
-    def from_ofdict(cls, d):
+    def from_ofdict(cls: Type[Any], d: Any) -> Any:
         # Convert OpenFOAM dictionary to a mapping for _from_mapping
-        mapping = {}
+        mapping: dict[str, Any] = {}
         for name, f in cls.model_fields.items():  # <-- v2 API
             # Pick the key to read from the OpenFOAM dict
             key = f.validation_alias or f.alias or name
@@ -84,9 +85,9 @@ class IOModelMixin:
         return cls(**mapping)
 
     @classmethod
-    def _from_mapping(cls, data, source):
+    def _from_mapping(cls: Type[Any], data: Any, source: str) -> Any:
 
-        mapping = {}
+        mapping: dict[str, Any] = {}
 
         for field_name, field_info in cls.model_fields.items():
             # Use the field alias if available, otherwise use the field name
