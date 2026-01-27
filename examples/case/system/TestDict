@@ -1,0 +1,43 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      TestDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+word     word;
+
+scalar   1.1;
+
+vector (1.1 1.1 1.1);
+
+tensor (1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1);
+
+
+wordList   (word1 word2);
+
+scalarField   (1 1);
+
+vectorField ((1 1 1) (1 1 1));
+
+tensorField ((1 1 1 1 1 1 1 1 1) (1 1 1 1 1 1 1 1 1));
+
+
+subDict
+{
+    word2     word2;
+}
+
+
+
+// ************************************************************************* //
