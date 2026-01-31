@@ -134,11 +134,41 @@ void generate_snappy_hex_mesh
     );
 
     // Parameters
-    refinementParameters refineParams(refineDict);
-    snapParameters snapParams(snapDict);
+    refinementParameters refineParams(refineDict, dryRun);
+    snapParameters snapParams(snapDict, dryRun);
+
+    // IMPORTANT: Set refinement level of surface to be consistent with shells
+    // This must be done BEFORE creating meshRefinement
+    if (verbose)
+    {
+        Info << "Setting refinement level of surface to be consistent with shells." << endl;
+    }
+    surfaces.setMinLevelFields(shells);
+    if (verbose)
+    {
+        Info << "Checked shell refinement" << endl;
+    }
+
+    // Calculate merge distance (following native snappyHexMesh)
+    const scalar mergeTol = meshRefinement::get<scalar>
+    (
+        meshDict,
+        "mergeTolerance",
+        dryRun
+    );
+    const boundBox& meshBb = mesh.bounds();
+    const scalar mergeDist = mergeTol * meshBb.mag();
+    
+    if (verbose)
+    {
+        Info << nl
+            << "Overall mesh bounding box  : " << meshBb << nl
+            << "Relative tolerance         : " << mergeTol << nl
+            << "Absolute merge distance    : " << mergeDist << nl
+            << endl;
+    }
 
     // Set up mesh refiner
-    const scalar mergeDist = meshDict.getOrDefault("mergeDistance", 1e-6);
     meshRefinement meshRefiner
     (
         mesh,
@@ -297,6 +327,22 @@ void generate_snappy_hex_mesh
     bool wantRefine = meshDict.getOrDefault("castellatedMesh", true);
     bool wantSnap = meshDict.getOrDefault("snap", true);
     bool wantLayers = meshDict.getOrDefault("addLayers", false);
+
+    // IMPORTANT: Set refinement level of surface to be consistent with curvature
+    // This must happen after patches are added but before refinement starts
+    if (verbose)
+    {
+        Info << "Setting refinement level of surface to be consistent with curvature." << endl;
+    }
+    surfaces.setCurvatureMinLevelFields
+    (
+        refineParams.curvature(),
+        refineParams.planarAngle()
+    );
+    if (verbose)
+    {
+        Info << "Checked curvature refinement" << endl;
+    }
 
     if (wantRefine)
     {

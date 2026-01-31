@@ -6,7 +6,6 @@ import pybFoam.bind_checkmesh as checkmesh
 from pathlib import Path
 import subprocess
 import re
-import json
 from typing import Optional, List, Tuple
 
 
@@ -181,41 +180,34 @@ def cube_case():
     return case_path
 
 
-def test_checkmesh_all_options(cube_case):
+def test_checkmesh_all_options(cube_case, tmp_path):
     """Test checkMesh with -allGeometry and -allTopology options, validating dictionary matches parsed OpenFOAM output"""
     
-    # Run actual checkMesh command
+    log_file = tmp_path / "checkmesh.log"
+    
     cmd = ["checkMesh", "-case", str(cube_case), "-allGeometry", "-allTopology"]
     result_cmd = subprocess.run(cmd, capture_output=True, text=True)
     cmd_output = result_cmd.stdout
     
-    # Parse checkMesh output using extraction function
     parsed = parse_checkmesh_output(cmd_output)
     
-    # Write parsed checkMesh output to JSON
-    parsed_output_file = Path(__file__).parent / "checkmesh_parsed.json"
-    with open(parsed_output_file, "w") as f:
-        json.dump(parsed, f, indent=2)
-    print(f"\n✓ Parsed checkMesh output written to {parsed_output_file}")
-    
-    # Verify command succeeded
     assert result_cmd.returncode == 0, f"checkMesh command failed with return code {result_cmd.returncode}"
     assert parsed['passed'], "Command line checkMesh should pass"
     
-    # Run Python binding with same options
     argv = [str(cube_case), "-case", str(cube_case)]
     arglist = pyb.argList(argv)
     time = pyb.Time(arglist)
-    mesh = pyb.fvMesh(time)
+    
+    dict_path = cube_case / "system" / "blockMeshDict"
+    if not dict_path.exists():
+        dict_path = cube_case / "constant" / "blockMeshDict"
+    block_mesh_dict = pyb.dictionary.read(str(dict_path))
+    
+    import pybFoam.meshing as meshing
+    mesh = meshing.generate_blockmesh(time, block_mesh_dict)
     
     result = checkmesh.checkMesh(mesh, check_topology=True, all_topology=True, all_geometry=True, check_quality=False)
-    
-    # Write Python binding result to JSON file
-    output_file = Path(__file__).parent / "checkmesh_output.json"
-    with open(output_file, "w") as f:
-        json.dump(result, f, indent=2)
-    print(f"✓ Python binding result written to {output_file}")
-    
+
     # Verify basic structure
     assert "mesh_stats" in result
     assert "cell_types" in result
@@ -247,29 +239,19 @@ def test_checkmesh_all_options(cube_case):
     assert result["cell_types"]["tetrahedra"] == parsed["cell_types"]["tetrahedra"]
     assert result["cell_types"]["polyhedra"] == parsed["cell_types"]["polyhedra"]
     
-    # Verify geometry metrics (with tolerance for floating point)
-    def approx_equal(a, b, rel_tol=1e-6):
-        """Check if two values are approximately equal"""
-        if isinstance(a, list) and isinstance(b, list):
-            return all(abs(x - y) < abs(x) * rel_tol + 1e-12 for x, y in zip(a, b))
-        return abs(a - b) < abs(a) * rel_tol + 1e-12
+    assert result["geometry"]["min_volume"] == pytest.approx(parsed["geometry"]["min_volume"], rel=1e-6)
+    assert result["geometry"]["max_volume"] == pytest.approx(parsed["geometry"]["max_volume"], rel=1e-6)
+    assert result["geometry"]["total_volume"] == pytest.approx(parsed["geometry"]["total_volume"], rel=1e-6)
+    assert result["geometry"]["min_face_area"] == pytest.approx(parsed["geometry"]["min_face_area"], rel=1e-6)
+    assert result["geometry"]["max_face_area"] == pytest.approx(parsed["geometry"]["max_face_area"], rel=1e-6)
+    assert result["geometry"]["min_edge_length"] == pytest.approx(parsed["geometry"]["min_edge_length"], rel=1e-6)
+    assert result["geometry"]["max_edge_length"] == pytest.approx(parsed["geometry"]["max_edge_length"], rel=1e-6)
     
-    assert approx_equal(result["geometry"]["min_volume"], parsed["geometry"]["min_volume"])
-    assert approx_equal(result["geometry"]["max_volume"], parsed["geometry"]["max_volume"])
-    assert approx_equal(result["geometry"]["total_volume"], parsed["geometry"]["total_volume"])
-    assert approx_equal(result["geometry"]["min_face_area"], parsed["geometry"]["min_face_area"])
-    assert approx_equal(result["geometry"]["max_face_area"], parsed["geometry"]["max_face_area"])
-    assert approx_equal(result["geometry"]["min_edge_length"], parsed["geometry"]["min_edge_length"])
-    assert approx_equal(result["geometry"]["max_edge_length"], parsed["geometry"]["max_edge_length"])
-    
-    # Verify error counts and pass status
     assert result["passed"] == parsed["passed"]
     assert result["topology"]["errors"] == 0
     assert result["geometry"]["errors"] == 0
     assert result["total_errors"] == 0
     assert result["passed"] is True
-    
-    print(f"\n✓ All values from Python dictionary match parsed OpenFOAM checkMesh output")
 
 
 if __name__ == "__main__":

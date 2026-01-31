@@ -1,0 +1,8 @@
+#!/bin/sh
+cd "${0%/*}" || exit
+
+rm -rf constant/polyMesh
+rm -rf constant/triSurface
+rm -f *.log
+rm -f log.*
+rm -f 0/*

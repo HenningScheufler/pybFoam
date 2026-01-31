@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2406                                  |
+|  \\    /   O peration     | Version:  v2406                                 |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -9,36 +9,25 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    arch        "LSB;label=32;scalar=64";
-    class       polyBoundaryMesh;
-    location    "constant/polyMesh";
-    object      boundary;
+    class       dictionary;
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-3
-(
-    movingWall
+solvers
+{
+    "cellDisplacement.*"
     {
-        type            wall;
-        inGroups        1(wall);
-        nFaces          400;
-        startFace       22800;
+        solver          GAMG;
+        tolerance       1e-05;
+        relTol          0;
+        smoother        GaussSeidel;
     }
-    fixedWalls
-    {
-        type            wall;
-        inGroups        1(wall);
-        nFaces          1200;
-        startFace       23200;
-    }
-    frontAndBack
-    {
-        type            wall;
-        inGroups        1(wall);
-        nFaces          800;
-        startFace       24400;
-    }
-)
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors 10;
+}
 
 // ************************************************************************* //
