@@ -167,6 +167,8 @@ def test_tmp_scalar_arithmetic_operators(change_test_dir):
     
     # Set field to known values
     p_rgh["internalField"] += 2.0  # Now all cells have value 2.0
+    # update the boundary fields accordingly so that they are not zero
+    p_rgh.correctBoundaryConditions() 
     
     # Test chained operations with tmp
     # 2.0 * p_rgh returns a tmp, then we multiply by 3.0
