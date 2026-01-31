@@ -100,6 +100,16 @@ from pybFoam.pybFoam_core import (
     setRefCell,
     computeCFLNumber,
     computeContinuityErrors,
+    # polyMesh bindings
+    IOobject,
+    fileName,
+    polyMesh,
+    polyBoundaryMesh,
+    polyPatch,
+    Word,
+    makePointField,
+    makeLabelList,
+    makeFaceList,
 )
 
 from . import fvc
@@ -108,5 +118,6 @@ from . import runTimeTables
 from . import thermo
 from . import turbulence
 from . import sampling_bindings
+from . import meshing
 
 # pybFoam.pybFoam_core.__dict__.keys()

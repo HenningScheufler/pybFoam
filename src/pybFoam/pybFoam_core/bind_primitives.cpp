@@ -166,9 +166,9 @@ void bindPrimitives(pybind11::module& m)
                     return self == rhs;
                 }
                 return false;
-        },
-        py::is_operator()
-    )
+            },
+            py::is_operator()
+        )
         // .def("__eq__",[](const Foam::word& self, const std::string& w){
         //     return bool(self == w);
         // })

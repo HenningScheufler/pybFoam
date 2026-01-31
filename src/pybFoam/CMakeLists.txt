@@ -8,6 +8,7 @@ add_subdirectory(fvm)
 add_subdirectory(thermo)
 add_subdirectory(turbulence)
 add_subdirectory(sampling)
+add_subdirectory(meshing)
 
 # Create a Python module that includes all components
 set(PYBFOAM_PYTHON_FILES
