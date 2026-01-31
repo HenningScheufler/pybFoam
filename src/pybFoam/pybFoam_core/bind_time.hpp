@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2022, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -15,38 +15,49 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::bindTime
+
+Description
+    Python bindings for OpenFOAM Time class and related utilities
+
+Author
+    Henning Scheufler, all rights reserved.
+
 \*---------------------------------------------------------------------------*/
 
+#ifndef foam_bind_time_hpp
+#define foam_bind_time_hpp
+
+// System includes
 #include <pybind11/pybind11.h>
-#include "bind_io.hpp"
-#include "bind_dict.hpp"
-#include "bind_time.hpp"
-#include "bind_polymesh.hpp"
-#include "bind_fvmesh.hpp"
-#include "bind_primitives.hpp"
-#include "bind_dimensioned.hpp"
-#include "bind_fields.hpp"
-#include "bind_geo_fields.hpp"
-#include "bind_fvMatrix.hpp"
-#include "bind_control.hpp"
-#include "bind_cfdTools.hpp"
+#include <pybind11/stl.h>
+#include <vector>
 
-namespace py = pybind11;
+// OpenFOAM includes
+#include "Time.H"
+#include "argList.H"
+#include "instantList.H"
+#include "timeSelector.H"
 
 
-PYBIND11_MODULE(pybFoam_core, m) {
-    m.doc() = "python bindings for openfoam"; // optional module docstring
+namespace Foam
+{
+    // Time-related utility functions
+    Foam::instantList selectTimes(
+        Time& runTime,
+        const std::vector<std::string>& args
+    );
 
-    Foam::bindIO(m);
-    bindDict(m);
-    bindTime(m);
-    Foam::bindPolyMesh(m);
-    bindFvMesh(m);
-    bindPrimitives(m);
-    bindDimensioned(m);
-    Foam::bindFields(m);
-    Foam::bindGeoFields(m);
-    Foam::bindFvMatrix(m);
-    Foam::bindControl(m);
-    Foam::bindCfdTools(m);
+    Time* createTime(std::string rootPath = ".", std::string caseName = ".");
+
+    Time* createTimeArgs(const argList& args);
+
+    argList* makeArgList(const std::vector<std::string>& args);
 }
+
+// Binding function
+void bindTime(pybind11::module& m);
+
+
+#endif // foam_bind_time_hpp

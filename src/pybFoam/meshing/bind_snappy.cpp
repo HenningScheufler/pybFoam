@@ -152,6 +152,33 @@ void generate_snappy_hex_mesh
         dryRun
     );
 
+    // CRITICAL: Calculate initial surface intersections
+    // Without this, the meshRefiner doesn't know what faces to refine!
+    if (verbose)
+    {
+        Info << "Determining initial surface intersections" << endl;
+    }
+    meshRefiner.updateIntersections(identity(mesh.nFaces()));
+    if (verbose)
+    {
+        Info << "Calculated surface intersections" << endl;
+    }
+
+    // Add cellZones from surfaces
+    const labelList namedSurfaces
+    (
+        surfaceZonesInfo::getNamedSurfaces(surfaces.surfZones())
+    );
+    labelList surfaceToCellZone = surfaceZonesInfo::addCellZonesToMesh
+    (
+        surfaces.surfZones(),
+        namedSurfaces,
+        mesh
+    );
+
+    // Add cellZones from refinement parameters
+    refineParams.addCellZonesToMesh(mesh);
+
     // 5. Add patches to the mesh from surface regions
     labelList globalToMasterPatch(surfaces.nRegions(), -1);
     labelList globalToSlavePatch(surfaces.nRegions(), -1);
@@ -225,6 +252,30 @@ void generate_snappy_hex_mesh
                 globalToSlavePatch[globalRegioni] = slavePatchi;
             }
         }
+    }
+
+    // Re-do intersections on meshed boundaries since they use an extrapolated other side
+    {
+        const labelList adaptPatchIDs(meshRefiner.meshedPatches());
+        const polyBoundaryMesh& pbm = mesh.boundaryMesh();
+
+        label nFaces = 0;
+        forAll(adaptPatchIDs, i)
+        {
+            nFaces += pbm[adaptPatchIDs[i]].size();
+        }
+
+        labelList faceLabels(nFaces);
+        nFaces = 0;
+        forAll(adaptPatchIDs, i)
+        {
+            const polyPatch& pp = pbm[adaptPatchIDs[i]];
+            forAll(pp, i)
+            {
+                faceLabels[nFaces++] = pp.start() + i;
+            }
+        }
+        meshRefiner.updateIntersections(faceLabels);
     }
 
     // Decomposition and Distribute
@@ -319,6 +370,19 @@ void generate_snappy_hex_mesh
 
     // Cleanup
     fvMeshTools::removeEmptyPatches(mesh, true);
+
+    // Write the mesh
+    if (verbose)
+    {
+        Info << "Writing mesh to time " << meshRefiner.timeName() << endl;
+    }
+    
+    meshRefiner.write
+    (
+        meshRefinement::debugType(0),
+        meshRefinement::writeType(meshRefinement::WRITEMESH),
+        mesh.time().path()/meshRefiner.timeName()
+    );
 
     if (verbose)
     {

@@ -16,50 +16,36 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::pyInterp
+    Foam::fvMesh bindings
 
 Description
+    Provides Python bindings for OpenFOAM fvMesh class and related
+    functionality including finite volume mesh operations and boundary conditions.
 
 Author
     Henning Scheufler, all rights reserved.
 
-SourceFiles
-
-
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_mesh
-#define foam_mesh
+#ifndef foam_fvmesh
+#define foam_fvmesh
 
 // System includes
 #include <pybind11/pybind11.h>
 #include "fvMesh.H"
 #include "Time.H"
 #include "polyMesh.H"
-#include <pybind11/stl.h>
-#include "instantList.H"
-#include "timeSelector.H"
-#include <vector>
-#include "argList.H"
 
 
 namespace Foam
 {
-
-    Foam::instantList selectTimes
-    ( 
-        Time& runTime,
-        const std::vector<std::string>& args
-    );
-
-    Time* createTime(std::string rootPath = ".",std::string caseName= ".");
-
-    fvMesh* createMesh(const Time& time);
-
+    fvMesh* createMesh(const Time& time, bool autoWrite = false);
+    
+    fvMesh* createMeshFromPolyMesh(polyMesh& polyMeshRef, bool autoWrite = false);
 }
 
 
-void  bindMesh(pybind11::module& m);
+void bindMesh(pybind11::module& m);
 
 
 #endif // foam_dict  defined 

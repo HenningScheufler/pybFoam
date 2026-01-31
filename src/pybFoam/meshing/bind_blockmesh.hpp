@@ -27,7 +27,7 @@ Description
 #include <pybind11/stl.h>
 
 #include "dictionary.H"
-#include "polyMesh.H"
+#include "fvMesh.H"
 #include "Time.H"
 
 namespace py = pybind11;
@@ -39,8 +39,8 @@ namespace Foam
                     Function declarations
 \*---------------------------------------------------------------------------*/
 
-//- Generate blockMesh from OpenFOAM dictionary and return polyMesh
-polyMesh* generateBlockMesh
+//- Generate blockMesh from OpenFOAM dictionary and return fvMesh
+fvMesh* generateBlockMesh
 (
     Time& runTime,
     const dictionary& blockMeshDict,

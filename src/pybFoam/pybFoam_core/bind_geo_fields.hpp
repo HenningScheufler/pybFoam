@@ -34,7 +34,7 @@ SourceFiles
 // System includes
 #include <pybind11/pybind11.h>
 
-#include "bind_mesh.hpp"
+#include "bind_fvmesh.hpp"
 #include "GeometricField.H"
 #include "volFields.H"
 #include "surfaceFields.H"

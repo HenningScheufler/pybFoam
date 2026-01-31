@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "bind_mesh.hpp"
+#include "bind_fvmesh.hpp"
 #include "bind_time.hpp"
 #include "bind_polymesh.hpp"
 #include "volFields.H"
@@ -80,7 +80,7 @@ namespace Foam
 
 }
 
-void bindMesh(pybind11::module &m)
+void bindFvMesh(pybind11::module &m)
 {
     namespace py = pybind11;
 

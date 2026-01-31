@@ -22,6 +22,7 @@ License
 
 #include "IOdictionary.H"
 #include "blockMesh.H"
+#include "fvMesh.H"
 #include "polyMesh.H"
 #include "IOstream.H"
 
@@ -30,7 +31,7 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-Foam::polyMesh* Foam::generateBlockMesh
+Foam::fvMesh* Foam::generateBlockMesh
 (
     Time& runTime,
     const dictionary& blockMeshDict,
@@ -121,6 +122,27 @@ Foam::polyMesh* Foam::generateBlockMesh
             throw std::runtime_error("Failed to write polyMesh");
         }
         
+        // Clear the polyMesh and load fvMesh instead
+        meshPtr.clear();
+
+        if (verbose)
+        {
+            Info<< "Instantiating fvMesh from disk" << nl << endl;
+        }
+
+        fvMesh* fvMeshPtr = new fvMesh
+        (
+            IOobject
+            (
+                "region0",
+                word(timeName),
+                runTime,
+                IOobject::MUST_READ
+            ),
+            false
+        );
+        fvMeshPtr->init(true);
+
         if (verbose)
         {
             Info<< nl << "End" << nl << endl;
@@ -130,7 +152,7 @@ Foam::polyMesh* Foam::generateBlockMesh
         MeshUtils::restoreOutput();
         
         // Return the mesh pointer (ownership transferred to Python)
-        return meshPtr.ptr();
+        return fvMeshPtr;
     }
     catch (const Foam::error& e)
     {
@@ -156,7 +178,7 @@ void Foam::addBlockMeshBindings(py::module_& m)
         py::arg("time_name") = "constant",
         py::return_value_policy::take_ownership,
         R"pbdoc(
-            Generate a block mesh from dictionary and return polyMesh.
+            Generate a block mesh from dictionary and return fvMesh.
             
             Parameters
             ----------
@@ -172,8 +194,8 @@ void Foam::addBlockMeshBindings(py::module_& m)
             
             Returns
             -------
-            polyMesh
-                The generated OpenFOAM polyMesh object.
+            fvMesh
+                The generated OpenFOAM fvMesh object.
             
             Raises
             ------
