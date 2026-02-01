@@ -5,7 +5,7 @@ if(POLICY CMP0169)
     cmake_policy(SET CMP0169 OLD)
 endif()
 
-project(pybFoam VERSION 0.1.10 LANGUAGES CXX)
+project(pybFoam VERSION 0.1.11 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
