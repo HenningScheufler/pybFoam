@@ -48,7 +48,7 @@ def temp_case_python(tmp_path, motorbike_case):
     return temp_dir
 
 
-# @pytest.mark.skip("Long test - enable when needed")
+@pytest.mark.skip("Long test - enable when needed")
 @pytest.mark.parametrize("castellated,snap,layers,test_name", [
     (True, False, False, "castellated_only"),
     (True, True, False, "castellated_and_snap"),
