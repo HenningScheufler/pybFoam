@@ -24,7 +24,7 @@ if(DEFINED SKBUILD)
         DESTINATION pybFoam
         COMPONENT python
     )
-    
+
 else()
     # Standalone build - install to Python site-packages
     install(FILES ${PYBFOAM_PYTHON_FILES}

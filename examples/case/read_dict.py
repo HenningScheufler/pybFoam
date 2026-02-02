@@ -1,6 +1,5 @@
-#%%
+# %%
 from pybFoam import dictionary
-
 
 d = dictionary.read("/home/henning/libsAndApps/pybFoam/examples/case/system/controlDict")
 

@@ -128,7 +128,7 @@ from pydantic import Field
 
 class TransportProperties(IOModelBase):
     nu: float = Field(..., description="Kinematic viscosity")
-    
+
     class Config:
         foam_file_name = "transportProperties"
 
@@ -197,5 +197,3 @@ Full documentation is available at: [https://henningscheufler.github.io/pybFoam/
 See [LICENSE](LICENSE) file for details.
 
 ---
-
-

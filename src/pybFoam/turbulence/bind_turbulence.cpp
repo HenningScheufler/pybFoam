@@ -49,7 +49,7 @@ void Foam::bindTurbulence(py::module& m)
     {
         const incompressible::turbulenceModel* obj = mesh.findObject<incompressible::turbulenceModel>(incompressible::turbulenceModel::propertiesName);
         return obj;
-    }, py::return_value_policy::reference) 
+    }, py::return_value_policy::reference)
     // from turbulenceModel
     .def_static("New",[](const volVectorField& U,
         const surfaceScalarField& phi,
@@ -86,13 +86,13 @@ void Foam::bindTurbulence(py::module& m)
     #endif
     ;
 
-    
+
     py::class_<compressible::turbulenceModel>(m, "compressibleTurbulenceModel",py::module_local())
     .def_static("from_registry",[](const fvMesh& mesh)
     {
         const compressible::turbulenceModel* obj = mesh.findObject<compressible::turbulenceModel>(compressible::turbulenceModel::propertiesName);
         return obj;
-    },py::return_value_policy::reference) 
+    },py::return_value_policy::reference)
     // from turbulenceModel
     .def("U", &compressible::turbulenceModel::U)
     .def("alphaRhoPhi", &compressible::turbulenceModel::alphaRhoPhi)

@@ -140,7 +140,7 @@ void bindPrimitives(pybind11::module& m)
 {
     namespace py = pybind11;
 
-    
+
     py::class_<Foam::instant>(m, "instant")
         .def("__str__",[](const Foam::instant& self){return std::string(self.name());})
     ;

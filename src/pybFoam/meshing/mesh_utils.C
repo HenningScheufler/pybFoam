@@ -26,18 +26,18 @@ License
 py::dict Foam::MeshUtils::extractMeshStats(const polyMesh& mesh)
 {
     py::dict stats;
-    
+
     // Basic mesh statistics
     stats["nPoints"] = mesh.nPoints();
     stats["nCells"] = mesh.nCells();
     stats["nFaces"] = mesh.nFaces();
     stats["nInternalFaces"] = mesh.nInternalFaces();
     stats["nBoundaryFaces"] = mesh.nBoundaryFaces();
-    
+
     // Boundary patch information
     py::list patches;
     const polyBoundaryMesh& boundaryMesh = mesh.boundaryMesh();
-    
+
     forAll(boundaryMesh, patchi)
     {
         const polyPatch& patch = boundaryMesh[patchi];
@@ -48,24 +48,24 @@ py::dict Foam::MeshUtils::extractMeshStats(const polyMesh& mesh)
         patchInfo["startFace"] = patch.start();
         patches.append(patchInfo);
     }
-    
+
     stats["patches"] = patches;
-    
+
     // Mesh bounds
     const boundBox& bb = mesh.bounds();
     py::list minBounds = py::list();
     minBounds.append(bb.min().x());
     minBounds.append(bb.min().y());
     minBounds.append(bb.min().z());
-    
+
     py::list maxBounds = py::list();
     maxBounds.append(bb.max().x());
     maxBounds.append(bb.max().y());
     maxBounds.append(bb.max().z());
-    
+
     stats["bounds_min"] = minBounds;
     stats["bounds_max"] = maxBounds;
-    
+
     return stats;
 }
 
@@ -87,10 +87,10 @@ Foam::autoPtr<Foam::Time> Foam::MeshUtils::createTime
             casePath
         )
     );
-    
+
     // Set time using instant (timeName as word, 0 as index)
     runTimePtr->setTime(Foam::instant(timeName), 0);
-    
+
     return runTimePtr;
 }
 

@@ -43,7 +43,7 @@ Foam::fvMesh* Foam::generateBlockMesh
     {
         // Redirect output if not verbose
         MeshUtils::redirectOutput(verbose);
-        
+
         // Create IOdictionary from regular dictionary
         // blockMesh requires an IOdictionary, not a plain dictionary
         IOdictionary ioMeshDict
@@ -59,21 +59,21 @@ Foam::fvMesh* Foam::generateBlockMesh
             ),
             blockMeshDict
         );
-        
+
         // Create blockMesh object with default topology merge
         if (verbose)
         {
             Info<< "Creating block mesh from dictionary" << nl << endl;
         }
-        
+
         blockMesh blocks(ioMeshDict, "region0", blockMesh::DEFAULT_MERGE, verbose);
-        
+
         if (!blocks.good())
         {
             MeshUtils::restoreOutput();
             throw std::runtime_error("blockMesh: Did not generate any blocks");
         }
-        
+
         // Clean old mesh files
         fileName polyMeshPath = runTime.path()/word(timeName)/"polyMesh";
         if (isDir(polyMeshPath))
@@ -84,16 +84,16 @@ Foam::fvMesh* Foam::generateBlockMesh
             }
             rmDir(polyMeshPath);
         }
-        
+
         // Enable information messages
         blocks.verbose(true);
-        
+
         // Generate the mesh
         if (verbose)
         {
             Info<< "Creating polyMesh from blockMesh" << nl << endl;
         }
-        
+
         autoPtr<polyMesh> meshPtr = blocks.mesh
         (
             IOobject
@@ -103,25 +103,25 @@ Foam::fvMesh* Foam::generateBlockMesh
                 runTime
             )
         );
-        
+
         polyMesh& mesh = meshPtr();
-        
+
         // Set precision for point data
         IOstream::minPrecision(10);
-        
+
         // Write the mesh
         if (verbose)
         {
             Info<< nl << "Writing polyMesh" << endl;
         }
-        
+
         mesh.removeFiles();
         if (!mesh.write())
         {
             MeshUtils::restoreOutput();
             throw std::runtime_error("Failed to write polyMesh");
         }
-        
+
         // Clear the polyMesh and load fvMesh instead
         meshPtr.clear();
 
@@ -147,10 +147,10 @@ Foam::fvMesh* Foam::generateBlockMesh
         {
             Info<< nl << "End" << nl << endl;
         }
-        
+
         // Restore output
         MeshUtils::restoreOutput();
-        
+
         // Return the mesh pointer (ownership transferred to Python)
         return fvMeshPtr;
     }
@@ -179,7 +179,7 @@ void Foam::addBlockMeshBindings(py::module_& m)
         py::return_value_policy::take_ownership,
         R"pbdoc(
             Generate a block mesh from dictionary and return fvMesh.
-            
+
             Parameters
             ----------
             runtime : Time
@@ -191,26 +191,26 @@ void Foam::addBlockMeshBindings(py::module_& m)
                 Enable OpenFOAM output messages (default: False).
             time_name : str, optional
                 Time directory for mesh output (default: "constant").
-            
+
             Returns
             -------
             fvMesh
                 The generated OpenFOAM fvMesh object.
-            
+
             Raises
             ------
             RuntimeError
                 If mesh generation fails.
-            
+
             Examples
             --------
             >>> import pybFoam.mesh_generation as mg
             >>> from pybFoam.core import Time, dictionary
-            >>> 
+            >>>
             >>> # Create Time and dictionary
             >>> time = Time("/path/to/case")
             >>> mesh_dict = dictionary()
-            >>> 
+            >>>
             >>> # Generate mesh
             >>> mesh = mg.generate_blockmesh(time, mesh_dict, verbose=True)
             >>> print(f"Generated {mesh.nCells()} cells")

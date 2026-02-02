@@ -48,4 +48,4 @@ auto declare_dimensioned(py::module &m, std::string className);
 void  bindDimensioned(pybind11::module& m);
 
 
-#endif 
+#endif

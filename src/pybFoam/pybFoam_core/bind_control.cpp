@@ -62,5 +62,3 @@ void bindControl(pybind11::module& m)
 }
 
 } // namespace Foam
-
-

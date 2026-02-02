@@ -1,6 +1,8 @@
-from .model_base import IOModelBase
+from typing import Literal, Optional
+
 from pydantic import Field
-from typing import Optional, Literal
+
+from .model_base import IOModelBase
 
 
 class ControlDictBase(IOModelBase):
@@ -37,23 +39,30 @@ class ControlDictBase(IOModelBase):
 class DDTSchemes(IOModelBase):
     default: Optional[str]
 
+
 class GradSchemes(IOModelBase):
     default: Optional[str]
+
 
 class DIVSchemes(IOModelBase):
     default: Optional[str]
 
+
 class LaplacianSchemes(IOModelBase):
     default: Optional[str]
+
 
 class InterpolationSchemes(IOModelBase):
     default: Optional[str]
 
+
 class SnGradSchemes(IOModelBase):
     default: Optional[str]
 
+
 class FluxRequired(IOModelBase):
     default: Optional[str]
+
 
 class FvSchemesBase(IOModelBase):
     ddtSchemes: DDTSchemes

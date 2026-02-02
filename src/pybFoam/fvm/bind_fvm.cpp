@@ -111,7 +111,7 @@ void Foam::bindFVM(pybind11::module& fvm)
     bindFvmSources<vector>(fvm);
     bindFvmSources<tensor>(fvm);
 
-    
+
 }
 
 // }

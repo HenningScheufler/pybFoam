@@ -1,1 +1,1 @@
-from ..bind_checkmesh import *
+from pybFoam.meshing import *  # noqa: F403

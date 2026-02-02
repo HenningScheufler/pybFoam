@@ -40,7 +40,7 @@ Author
 namespace Foam
 {
     fvMesh* createMesh(const Time& time, bool autoWrite = false);
-    
+
     fvMesh* createMeshFromPolyMesh(polyMesh& polyMeshRef, bool autoWrite = false);
 }
 
@@ -48,4 +48,4 @@ namespace Foam
 void bindFvMesh(pybind11::module& m);
 
 
-#endif // foam_dict  defined 
+#endif // foam_dict  defined

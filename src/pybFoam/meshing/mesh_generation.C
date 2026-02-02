@@ -26,11 +26,11 @@ License
 namespace py = pybind11;
 
 
-PYBIND11_MODULE(bind_checkmesh, m)
+PYBIND11_MODULE(meshing, m)
 {
     m.doc() = R"pbdoc(
         OpenFOAM Meshing Python Bindings
-        
+
         This module provides Python interfaces to OpenFOAM meshing
         utilities including blockMesh, checkMesh and snappyHexMesh.
     )pbdoc";

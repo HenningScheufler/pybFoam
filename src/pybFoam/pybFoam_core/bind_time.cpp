@@ -101,7 +101,7 @@ void bindTime(pybind11::module &m)
              { self++; }
         )
         .def("printExecutionTime", [](Foam::Time &self)
-             { self.printExecutionTime(Foam::Info); } 
+             { self.printExecutionTime(Foam::Info); }
             )
         .def("timeName", [](Foam::Time &self)
              { return self.timeName(); }, py::return_value_policy::reference);

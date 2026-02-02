@@ -1,10 +1,11 @@
-#%%
-from pybFoam import scalarField
+# %%
 import numpy as np
 
-a = scalarField([0.0]*10 )
-b = scalarField([1.0]*10 )
-c = scalarField([2.0]*10 )
+from pybFoam import scalarField
+
+a = scalarField([0.0] * 10)
+b = scalarField([1.0] * 10)
+c = scalarField([2.0] * 10)
 
 
 # %%

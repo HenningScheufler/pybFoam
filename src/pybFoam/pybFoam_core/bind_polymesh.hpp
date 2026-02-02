@@ -45,7 +45,7 @@ Author
 namespace Foam
 {
     // Helper functions for polyMesh creation
-    
+
     polyMesh* createPolyMesh(
         const IOobject& io,
         const pointField& points,

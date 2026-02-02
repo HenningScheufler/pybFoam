@@ -112,4 +112,4 @@ py::class_<Type> declare_vectorspace(py::module &m, std::string &className);
 void  bindPrimitives(py::module& m);
 
 
-#endif 
+#endif

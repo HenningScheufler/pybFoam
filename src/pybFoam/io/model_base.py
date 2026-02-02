@@ -1,11 +1,12 @@
-from typing import TypeVar, get_origin, get_args, Optional, Union, Annotated, Literal, Any, Type
-import os
 import json
+import os
+from typing import Annotated, Any, Literal, Optional, Type, TypeVar, Union, get_args, get_origin
+
 import yaml
+from pydantic import BaseModel
 
 import pybFoam
 from pybFoam.pybFoam_core import dictionary
-from pydantic import BaseModel, Field
 
 type_dispatch: dict[Type[Any], Any] = {
     str: lambda s: s,  # Keep as string
@@ -21,9 +22,10 @@ type_dispatch: dict[Type[Any], Any] = {
     pybFoam.pybFoam_core.tensorField: lambda t: pybFoam.pybFoam_core.tensorField(t),
 }
 
-T = TypeVar('T')
+T = TypeVar("T")
 
-def _unwrap_type(tp: Type[T] | Any) -> Type[Any]:
+
+def _unwrap_type(tp: Union[Type[T], Any]) -> Type[Any]:
     # peel Annotated[T, ...] and Union[T, None]
     if get_origin(tp) is Annotated:
         tp = get_args(tp)[0]
@@ -81,13 +83,12 @@ class IOModelMixin:
             else:
                 try:
                     mapping[key] = d.get[typ](key)
-                except Exception as e:
+                except Exception:
                     continue
         return cls(**mapping)
 
     @classmethod
     def _from_mapping(cls: Type[Any], data: Any, source: str) -> Any:
-
         mapping: dict[str, Any] = {}
 
         for field_name, field_info in cls.model_fields.items():
@@ -108,5 +109,4 @@ class IOModelMixin:
 
 
 class IOModelBase(IOModelMixin, BaseModel):
-
     model_config = {"arbitrary_types_allowed": True}

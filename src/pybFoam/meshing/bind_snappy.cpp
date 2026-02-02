@@ -90,11 +90,11 @@ void generate_snappy_hex_mesh
     const dictionary& refineDict = meshDict.subDict("castellatedMeshControls");
     const dictionary& snapDict = meshDict.subDict("snapControls");
     const dictionary& layerDict = meshDict.subDict("addLayersControls");
-    
+
     // meshQualityControls is optional in some contexts but usually present
-    const dictionary& qualityDict = 
-        meshDict.found("meshQualityControls") 
-        ? meshDict.subDict("meshQualityControls") 
+    const dictionary& qualityDict =
+        meshDict.found("meshQualityControls")
+        ? meshDict.subDict("meshQualityControls")
         : dictionary::null;
 
     // Surfaces
@@ -158,7 +158,7 @@ void generate_snappy_hex_mesh
     );
     const boundBox& meshBb = mesh.bounds();
     const scalar mergeDist = mergeTol * meshBb.mag();
-    
+
     if (verbose)
     {
         Info << nl
@@ -393,7 +393,7 @@ void generate_snappy_hex_mesh
     if (wantLayers)
     {
         layerParameters layerParams(layerDict, mesh.boundaryMesh(), false);
-        
+
         snappyLayerDriver layerDriver
         (
             meshRefiner,
@@ -422,7 +422,7 @@ void generate_snappy_hex_mesh
     {
         Info << "Writing mesh to time " << meshRefiner.timeName() << endl;
     }
-    
+
     meshRefiner.write
     (
         meshRefinement::debugType(0),

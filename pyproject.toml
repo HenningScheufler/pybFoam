@@ -8,7 +8,7 @@ description = "python bindings for OpenFOAM"
 readme = "README.md"
 license = "GPL-3.0-or-later"
 keywords = ["OpenFOAM", "simulation", "CFD"]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: End Users/Desktop",
@@ -17,7 +17,6 @@ classifiers = [
     "Natural Language :: English",
     "Programming Language :: C++",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -36,14 +35,14 @@ dev = [
     "pytest>=6.0",
     "pytest-cov",
     "pytest-xdist",
-    "black",
-    "flake8",
-    "isort",
+    "ruff>=0.14.2",
     "mypy",
     "cmake>=3.18",
     "pybind11-stubgen>=2.5",
     "mypy",
     "types-PyYAML",
+    "poethepoet>=0.37.0",
+    "pre-commit",
 ]
 docs = [
     "sphinx>=4.0",
@@ -108,6 +107,27 @@ testpaths = ["tests"]
 
 [tool.mypy]
 plugins = ["pydantic.mypy"]
-mypy_path = ["src"] 
-strict = true 
-files = ["src"]
+mypy_path = ["src", "tests"]
+files = ["src", "tests"]
+strict = true
+explicit_package_bases = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+extend-exclude = ["build/", "dist/", "_skbuild/", "__pycache__/"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]  # Enable pycodestyle errors, pyflakes, and isort
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["pybFoam"]
+
+[tool.poe.tasks]
+test = "pytest"
+lint = "ruff check"
+format = "ruff format"
+type_check = "mypy"
+build_docs = "sphinx-build -b html docs docs/_build"
+view_docs = { shell = "python -m webbrowser -t docs/_build/index.html" }

@@ -54,11 +54,11 @@ namespace Foam
     {
         // Write the polyMesh to disk
         polyMeshRef.write();
-        
+
         // Get the time and location info from the polyMesh
         const Time& time = polyMeshRef.time();
         const word& regionName = polyMeshRef.name();
-        
+
         // Create fvMesh by reading from disk where polyMesh was written
         fvMesh *mesh(
             new fvMesh(
@@ -69,12 +69,12 @@ namespace Foam
                     IOobject::MUST_READ),
                 false));
         mesh->init(true);
-        
+
         if (autoWrite)
         {
             mesh->write();
         }
-        
+
         return mesh;
     }
 
@@ -84,10 +84,10 @@ void bindFvMesh(pybind11::module &m)
 {
     namespace py = pybind11;
 
-    m.def("createMesh", 
+    m.def("createMesh",
         [](const Foam::Time& time, bool autoWrite) {
             return Foam::createMesh(time, autoWrite);
-        }, 
+        },
         py::arg("time"), py::arg("autoWrite") = false,
         py::return_value_policy::take_ownership,
         "Create a mesh from a Time object");
@@ -118,7 +118,7 @@ void bindFvMesh(pybind11::module &m)
              py::return_value_policy::reference_internal)
         .def(py::init([](const Foam::Time& time, bool autoWrite) {
                  return Foam::createMesh(time, autoWrite);
-             }), 
+             }),
              py::arg("time"), py::arg("autoWrite") = false,
              py::return_value_policy::take_ownership)
         .def_static("fromPolyMesh",

@@ -29,7 +29,7 @@ namespace Foam
 {
     // Bind snappyHexMesh functions
     void addSnappyBindings(pybind11::module& m);
-    
+
     // Core function to run snappyHexMesh phases
     void generate_snappy_hex_mesh
     (

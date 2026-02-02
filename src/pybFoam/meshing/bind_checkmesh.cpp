@@ -49,7 +49,7 @@ void addMeshStats(py::dict& result, const polyMesh& mesh)
     result["internal_faces"] = returnReduce(mesh.nInternalFaces(), sumOp<label>());
     result["cells"] = returnReduce(mesh.nCells(), sumOp<label>());
     result["boundary_patches"] = mesh.boundaryMesh().size();
-    
+
     // Faces per cell - calculate average
     label totalCellFaces = 0;
     forAll(mesh.cells(), cellI)
@@ -62,7 +62,7 @@ void addMeshStats(py::dict& result, const polyMesh& mesh)
         facesPerCell = scalar(totalCellFaces) / scalar(mesh.nCells());
     }
     result["faces_per_cell"] = returnReduce(facesPerCell, maxOp<scalar>());
-    
+
     // Zones
     result["point_zones"] = mesh.pointZones().size();
     result["face_zones"] = mesh.faceZones().size();
@@ -73,7 +73,7 @@ void addMeshStats(py::dict& result, const polyMesh& mesh)
 void addCellTypeCounts(py::dict& result, const polyMesh& mesh)
 {
     label nHex = 0, nPrism = 0, nWedge = 0, nPyr = 0, nTet = 0, nTetWedge = 0, nPoly = 0;
-    
+
     forAll(mesh.cells(), cellI)
     {
         const cellModel& model = mesh.cellShapes()[cellI].model();
@@ -85,7 +85,7 @@ void addCellTypeCounts(py::dict& result, const polyMesh& mesh)
         else if (model == cellModel::ref(cellModel::TETWEDGE)) nTetWedge++;
         else nPoly++;
     }
-    
+
     result["hexahedra"] = returnReduce(nHex, sumOp<label>());
     result["prisms"] = returnReduce(nPrism, sumOp<label>());
     result["wedges"] = returnReduce(nWedge, sumOp<label>());
@@ -111,11 +111,11 @@ void addGeometryMetrics(py::dict& result, const polyMesh& mesh)
     bbMax.append(bb.max().z());
     result["bounding_box_min"] = bbMin;
     result["bounding_box_max"] = bbMax;
-    
+
     // Geometric and solution directions
     result["geometric_directions"] = mesh.nGeometricD();
     result["solution_directions"] = mesh.nSolutionD();
-    
+
     // Cell volumes
     const scalarField& cellVolumes = mesh.cellVolumes();
     if (cellVolumes.size() > 0)
@@ -124,7 +124,7 @@ void addGeometryMetrics(py::dict& result, const polyMesh& mesh)
         result["max_volume"] = returnReduce(max(cellVolumes), maxOp<scalar>());
         result["total_volume"] = returnReduce(sum(cellVolumes), sumOp<scalar>());
     }
-    
+
     // Face areas
     scalarField faceAreaMags(mesh.nFaces());
     forAll(mesh.faceAreas(), faceI)
@@ -136,12 +136,12 @@ void addGeometryMetrics(py::dict& result, const polyMesh& mesh)
         result["min_face_area"] = returnReduce(min(faceAreaMags), minOp<scalar>());
         result["max_face_area"] = returnReduce(max(faceAreaMags), maxOp<scalar>());
     }
-    
+
     // Quality metrics using public mesh data
     const vectorField& faceCentres = mesh.faceCentres();
     const vectorField& cellCentres = mesh.cellCentres();
     const vectorField& faceAreas = mesh.faceAreas();
-    
+
     // Non-orthogonality - compute directly
     scalar maxNonOrtho = 0;
     scalar avgNonOrtho = 0;
@@ -155,7 +155,7 @@ void addGeometryMetrics(py::dict& result, const polyMesh& mesh)
                 vector s = faceAreas[faceI];
                 scalar dMag = mag(d);
                 scalar sMag = mag(s);
-                
+
                 if (dMag > VSMALL && sMag > VSMALL)
                 {
                     scalar nonOrtho = ::asin(min(mag(d ^ s)/(dMag*sMag), 1.0)) * 180.0/constant::mathematical::pi;
@@ -172,7 +172,7 @@ void addGeometryMetrics(py::dict& result, const polyMesh& mesh)
     }
     result["max_non_orthogonality"] = returnReduce(maxNonOrtho, maxOp<scalar>());
     result["avg_non_orthogonality"] = returnReduce(avgNonOrtho, maxOp<scalar>());
-    
+
     // Skewness
     scalar maxSkewness = 0;
     {
@@ -183,7 +183,7 @@ void addGeometryMetrics(py::dict& result, const polyMesh& mesh)
                 vector d = cellCentres[mesh.faceNeighbour()[faceI]] - cellCentres[mesh.faceOwner()[faceI]];
                 vector delta = faceCentres[faceI] - cellCentres[mesh.faceOwner()[faceI]];
                 scalar dMag = mag(d);
-                
+
                 if (dMag > VSMALL)
                 {
                     scalar skew = mag(delta - ((delta & d)/(dMag*dMag))*d)/(dMag + VSMALL);
@@ -193,7 +193,7 @@ void addGeometryMetrics(py::dict& result, const polyMesh& mesh)
         }
     }
     result["max_skewness"] = returnReduce(maxSkewness, maxOp<scalar>());
-    
+
     // Edge lengths
     scalar minEdgeLength = GREAT;
     scalar maxEdgeLength = 0;
@@ -228,10 +228,10 @@ py::dict runCheckTopology(
     std::ostringstream buffer;
     std::streambuf* oldCoutBuffer = Foam::Info.stdStream().rdbuf();
     Foam::Info.stdStream().rdbuf(buffer.rdbuf());
-    
+
     autoPtr<surfaceWriter> surfWriter;
     autoPtr<coordSetWriter> setWriter;
-    
+
     label nErrors = checkTopology
     (
         mesh,
@@ -241,14 +241,14 @@ py::dict runCheckTopology(
         setWriter,
         false  // writeEdges
     );
-    
+
     // Restore output
     Foam::Info.stdStream().rdbuf(oldCoutBuffer);
-    
+
     py::dict result;
     result["errors"] = nErrors;
     result["passed"] = (nErrors == 0);
-    
+
     return result;
 }
 
@@ -261,10 +261,10 @@ py::dict runCheckGeometry(
     std::ostringstream buffer;
     std::streambuf* oldCoutBuffer = Foam::Info.stdStream().rdbuf();
     Foam::Info.stdStream().rdbuf(buffer.rdbuf());
-    
+
     autoPtr<surfaceWriter> surfWriter;
     autoPtr<coordSetWriter> setWriter;
-    
+
     label nErrors = checkGeometry
     (
         mesh,
@@ -272,14 +272,14 @@ py::dict runCheckGeometry(
         surfWriter,
         setWriter
     );
-    
+
     // Restore output
     Foam::Info.stdStream().rdbuf(oldCoutBuffer);
-    
+
     py::dict result;
     result["errors"] = nErrors;
     result["passed"] = (nErrors == 0);
-    
+
     return result;
 }
 
@@ -295,20 +295,20 @@ py::dict runCheckMesh(
     result["topology_errors"] = 0;
     result["geometry_errors"] = 0;
     result["quality_errors"] = 0;
-    
+
     // std::ostringstream buffer;
     // std::streambuf* oldCoutBuffer = Foam::Info.stdStream().rdbuf();
     // Foam::Info.stdStream().rdbuf(buffer.rdbuf());
-    
+
     // Reconstruct globalMeshData
     mesh.globalData();
-    
+
     // Check topology
     if (checkTopologyFlag)
     {
         autoPtr<surfaceWriter> surfWriter;
         autoPtr<coordSetWriter> setWriter;
-        
+
         label topologyErrors = Foam::checkTopology
         (
             mesh,
@@ -320,12 +320,12 @@ py::dict runCheckMesh(
         );
         result["topology_errors"] = topologyErrors;
     }
-    
+
     // Check geometry
     {
         autoPtr<surfaceWriter> surfWriter;
         autoPtr<coordSetWriter> setWriter;
-        
+
         label geometryErrors = Foam::checkGeometry
         (
             mesh,
@@ -335,7 +335,7 @@ py::dict runCheckMesh(
         );
         result["geometry_errors"] = geometryErrors;
     }
-    
+
     // Check quality if requested
     if (checkQuality)
     {
@@ -352,9 +352,9 @@ py::dict runCheckMesh(
                     IOobject::NO_WRITE
                 )
             );
-            
+
             autoPtr<surfaceWriter> surfWriter;
-            
+
             label qualityErrors = checkMeshQuality
             (
                 mesh,
@@ -369,44 +369,44 @@ py::dict runCheckMesh(
             result["quality_errors"] = 0;
         }
     }
-    
+
     int topologyErrors = result["topology_errors"].cast<int>();
     int geometryErrors = result["geometry_errors"].cast<int>();
     int qualityErrors = result["quality_errors"].cast<int>();
     int totalErrors = topologyErrors + geometryErrors + qualityErrors;
-    
+
     result["total_errors"] = totalErrors;
     result["passed"] = (totalErrors == 0);
-    
+
     // Create hierarchical structure matching checkMesh output
-    
+
     // 1. Mesh stats
     py::dict meshStats;
     addMeshStats(meshStats, mesh);
     result["mesh_stats"] = meshStats;
-    
+
     // 2. Cell types
     py::dict cellTypes;
     addCellTypeCounts(cellTypes, mesh);
     result["cell_types"] = cellTypes;
-    
+
     // 3. Topology check results
     py::dict topology;
     topology["errors"] = topologyErrors;
     topology["passed"] = (topologyErrors == 0);
     result["topology"] = topology;
-    
+
     // 4. Geometry metrics
     py::dict geometry;
     addGeometryMetrics(geometry, mesh);
-    
+
     // Additional geometry metrics not in helper
     const vectorField& faceCentres = mesh.faceCentres();
     const vectorField& cellCentres = mesh.cellCentres();
     const vectorField& faceAreas = mesh.faceAreas();
     const scalarField& cellVolumes = mesh.cellVolumes();
     const faceList& faces = mesh.faces();
-    
+
     // Boundary openness
     vector boundaryOpenness = vector::zero;
     forAll(mesh.boundaryMesh(), patchI)
@@ -424,7 +424,7 @@ py::dict runCheckMesh(
     opennessVec.append(boundaryOpenness.y());
     opennessVec.append(boundaryOpenness.z());
     geometry["boundary_openness"] = opennessVec;
-    
+
     // Max cell openness and aspect ratio
     scalar maxCellOpenness = 0;
     scalar maxAspectRatio = 0;
@@ -434,7 +434,7 @@ py::dict runCheckMesh(
         vector cellFaceSum = vector::zero;
         scalar maxArea = 0;
         scalar minArea = GREAT;
-        
+
         forAll(c, i)
         {
             label faceI = c[i];
@@ -452,7 +452,7 @@ py::dict runCheckMesh(
             minArea = min(minArea, areaMag);
         }
         maxCellOpenness = max(maxCellOpenness, mag(cellFaceSum));
-        
+
         if (minArea > VSMALL)
         {
             maxAspectRatio = max(maxAspectRatio, maxArea/minArea);
@@ -460,11 +460,11 @@ py::dict runCheckMesh(
     }
     geometry["max_cell_openness"] = returnReduce(maxCellOpenness, maxOp<scalar>());
     geometry["max_aspect_ratio"] = returnReduce(maxAspectRatio, maxOp<scalar>());
-    
+
     // Face flatness - simplified to 1.0 for all faces if perfect
     geometry["min_face_flatness"] = 1.0;
     geometry["avg_face_flatness"] = 1.0;
-    
+
     // Cell determinant - simplified calculation
     scalar minDeterminant = GREAT;
     scalar avgDeterminant = 0;
@@ -480,7 +480,7 @@ py::dict runCheckMesh(
     }
     geometry["min_cell_determinant"] = returnReduce(minDeterminant, minOp<scalar>());
     geometry["avg_cell_determinant"] = returnReduce(avgDeterminant, maxOp<scalar>());
-    
+
     // Face interpolation weight
     scalar minWeight = GREAT;
     scalar avgWeight = 0;
@@ -493,7 +493,7 @@ py::dict runCheckMesh(
             label nei = mesh.faceNeighbour()[faceI];
             vector d = cellCentres[nei] - cellCentres[own];
             scalar dMag = mag(d);
-            
+
             if (dMag > VSMALL)
             {
                 vector cf = faceCentres[faceI] - cellCentres[own];
@@ -516,7 +516,7 @@ py::dict runCheckMesh(
     }
     geometry["min_face_weight"] = returnReduce(minWeight, minOp<scalar>());
     geometry["avg_face_weight"] = returnReduce(avgWeight, maxOp<scalar>());
-    
+
     // Face volume ratio
     scalar minVolRatio = GREAT;
     scalar avgVolRatio = 0;
@@ -529,7 +529,7 @@ py::dict runCheckMesh(
             label nei = mesh.faceNeighbour()[faceI];
             scalar volOwn = cellVolumes[own];
             scalar volNei = cellVolumes[nei];
-            
+
             if (volOwn > VSMALL && volNei > VSMALL)
             {
                 scalar ratio = min(volOwn/volNei, volNei/volOwn);
@@ -550,22 +550,22 @@ py::dict runCheckMesh(
     }
     geometry["min_face_volume_ratio"] = returnReduce(minVolRatio, minOp<scalar>());
     geometry["avg_face_volume_ratio"] = returnReduce(avgVolRatio, maxOp<scalar>());
-    
+
     geometry["errors"] = geometryErrors;
     geometry["passed"] = (geometryErrors == 0);
-    
+
     result["geometry"] = geometry;
-    
+
     // 5. Quality check results
     py::dict quality;
     quality["errors"] = qualityErrors;
     quality["passed"] = (qualityErrors == 0);
     result["quality"] = quality;
-    
+
     // Overall summary
     result["total_errors"] = totalErrors;
     result["passed"] = (totalErrors == 0);
-    
+
     return result;
 }
 
@@ -576,22 +576,22 @@ void addCheckMeshBindings(py::module& m)
 
     // Bind mesh checking functions
     // Overloads for both polyMesh and fvMesh
-    m.def("printMeshStats", 
-        [](const polyMesh& mesh, bool allTopology) {
+    m.def("printMeshStats",
+        [](const polyMesh& mesh, bool allTopology) -> py::dict {
             return getPrintMeshStats(mesh, allTopology);
         },
         py::arg("mesh"),
         py::arg("all_topology") = false,
         "Print mesh statistics and return as dictionary");
-    
-    m.def("printMeshStats", 
-        [](const fvMesh& mesh, bool allTopology) {
+
+    m.def("printMeshStats",
+        [](const fvMesh& mesh, bool allTopology) -> py::dict {
             return getPrintMeshStats(mesh, allTopology);
         },
         py::arg("mesh"),
         py::arg("all_topology") = false,
         "Print mesh statistics and return as dictionary");
-    
+
     m.def("checkTopology",
         [](const polyMesh& mesh, bool allTopology, bool allGeometry) {
             return runCheckTopology(mesh, allTopology, allGeometry);
@@ -600,7 +600,7 @@ void addCheckMeshBindings(py::module& m)
         py::arg("all_topology") = false,
         py::arg("all_geometry") = false,
         "Check mesh topology and return dictionary with results");
-    
+
     m.def("checkTopology",
         [](const fvMesh& mesh, bool allTopology, bool allGeometry) {
             return runCheckTopology(mesh, allTopology, allGeometry);
@@ -609,7 +609,7 @@ void addCheckMeshBindings(py::module& m)
         py::arg("all_topology") = false,
         py::arg("all_geometry") = false,
         "Check mesh topology and return dictionary with results");
-    
+
     m.def("checkGeometry",
         [](const polyMesh& mesh, bool allGeometry) {
             return runCheckGeometry(mesh, allGeometry);
@@ -617,7 +617,7 @@ void addCheckMeshBindings(py::module& m)
         py::arg("mesh"),
         py::arg("all_geometry") = false,
         "Check mesh geometry and return dictionary with results");
-    
+
     m.def("checkGeometry",
         [](const fvMesh& mesh, bool allGeometry) {
             return runCheckGeometry(mesh, allGeometry);
@@ -625,7 +625,7 @@ void addCheckMeshBindings(py::module& m)
         py::arg("mesh"),
         py::arg("all_geometry") = false,
         "Check mesh geometry and return dictionary with results");
-    
+
     m.def("checkMesh",
         [](const polyMesh& mesh, bool checkTopology, bool allTopology, bool allGeometry, bool checkQuality) {
             return runCheckMesh(mesh, checkTopology, allTopology, allGeometry, checkQuality);
@@ -636,7 +636,7 @@ void addCheckMeshBindings(py::module& m)
         py::arg("all_geometry") = false,
         py::arg("check_quality") = false,
         "Run complete mesh check and return dictionary with detailed results");
-    
+
     m.def("checkMesh",
         [](const fvMesh& mesh, bool checkTopology, bool allTopology, bool allGeometry, bool checkQuality) {
             return runCheckMesh(mesh, checkTopology, allTopology, allGeometry, checkQuality);

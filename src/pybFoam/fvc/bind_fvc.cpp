@@ -161,13 +161,13 @@ void Foam::bindFVC(pybind11::module& fvc)
     bindLaplacianWithDiff<volScalarField, volVectorField>(fvc);
     bindLaplacianWithDiff<volScalarField, volTensorField>(fvc);
     bindLaplacianWithDiff<volScalarField, volSymmTensorField>(fvc);
-    
+
     // surfaceScalar diffusivity
     bindLaplacianWithDiff<surfaceScalarField, volScalarField>(fvc);
     bindLaplacianWithDiff<surfaceScalarField, volVectorField>(fvc);
     bindLaplacianWithDiff<surfaceScalarField, volTensorField>(fvc);
     bindLaplacianWithDiff<surfaceScalarField, volSymmTensorField>(fvc);
-    
+
     // volTensor diffusivity
     bindLaplacianWithDiff<volTensorField, volScalarField>(fvc);
     bindLaplacianWithDiff<volTensorField, volVectorField>(fvc);

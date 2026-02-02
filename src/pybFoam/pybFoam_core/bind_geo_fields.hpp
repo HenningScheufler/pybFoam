@@ -46,7 +46,7 @@ namespace py = pybind11;
 
 namespace Foam
 {
-    
+
 template<typename Type>
 pybind11::array_t<scalar> FieldToNumpy(const Field<Type>& values);
 
@@ -67,7 +67,7 @@ template<class Type, template<class> class PatchField, class GeoMesh>
 const Field<Type>& field
 (
     const GeometricField<Type, PatchField, GeoMesh>& vf,
-    const fvMesh& mesh, 
+    const fvMesh& mesh,
     const std::string& name
 );
 
@@ -103,4 +103,4 @@ void  bindGeoFields(pybind11::module& m);
 
 }
 
-#endif // foam_geo_fields  defined 
+#endif // foam_geo_fields  defined

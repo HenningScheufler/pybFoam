@@ -38,7 +38,7 @@ namespace Foam
         const Time& runTime = mesh.time();
         scalar CoNum = 0.0;
         scalar meanCoNum = 0.0;
-        
+
         {
             scalarField sumPhi
             (
@@ -62,7 +62,7 @@ namespace Foam
         // Get mesh and time
         const fvMesh& mesh = phi.mesh();
         const Time& runTime = mesh.time();
-        
+
         // Compute divergence of flux
         volScalarField contErr(fvc::div(phi));
 
@@ -76,7 +76,7 @@ namespace Foam
 
         return std::make_tuple(sumLocalContErr, globalContErr);
     }
-    
+
 
     template <typename RAUType>
     void declare_constrainPressure(pybind11::module &m)

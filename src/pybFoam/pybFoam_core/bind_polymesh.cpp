@@ -102,12 +102,12 @@ polyMesh* createPolyMeshFromCellShapes(
     for (size_t i = 0; i < cells.size(); ++i) {
         const auto& [cell_type, nodes] = cells[i];
         const cellModel& model = cellModel::ref(Foam::word(cell_type));
-        
+
         labelList cellNodes(nodes.size());
         for (size_t j = 0; j < nodes.size(); ++j) {
             cellNodes[j] = nodes[j];
         }
-        
+
         shapes[i].reset(model, cellNodes);
     }
 
@@ -116,11 +116,11 @@ polyMesh* createPolyMeshFromCellShapes(
     faceListList bFaces(nPatches);
     wordList patchNames(nPatches);
     wordList patchTypes(nPatches, polyPatch::typeName);
-    
+
     for (label patchi = 0; patchi < nPatches; ++patchi) {
         const auto& [name, faces] = boundaryPatches[patchi];
         patchNames[patchi] = Foam::word(name);
-        
+
         faceList pFaces(faces.size());
         for (size_t i = 0; i < faces.size(); ++i) {
             pFaces[i] = Foam::face(faces[i].size());
@@ -160,79 +160,63 @@ void Foam::bindPolyMesh(pybind11::module &m)
 
     // IOobject bindings - bind enums first
     py::class_<Foam::IOobject> ioobject(m, "IOobject");
-    
+
     py::enum_<Foam::IOobject::readOption>(ioobject, "readOption")
         .value("NO_READ", Foam::IOobject::NO_READ)
         .value("MUST_READ", Foam::IOobject::MUST_READ)
         .value("READ_IF_PRESENT", Foam::IOobject::READ_IF_PRESENT)
         .export_values();
-    
+
     py::enum_<Foam::IOobject::writeOption>(ioobject, "writeOption")
         .value("NO_WRITE", Foam::IOobject::NO_WRITE)
         .value("AUTO_WRITE", Foam::IOobject::AUTO_WRITE)
         .export_values();
-    
-    ioobject.def(py::init<const Foam::word&, const Foam::fileName&, const Foam::Time&, 
+
+    ioobject.def(py::init<const Foam::word&, const Foam::fileName&, const Foam::Time&,
                       Foam::IOobject::readOption, Foam::IOobject::writeOption>(),
              py::arg("name"), py::arg("instance"), py::arg("registry"),
              py::arg("readOpt") = Foam::IOobject::NO_READ,
              py::arg("writeOpt") = Foam::IOobject::NO_WRITE);
 
-    // Helper functions to convert Python lists to OpenFOAM types
-    // Note: pointField, labelList are already bound in bind_fields.cpp
-    m.def("makePointField", [](const std::vector<std::vector<double>>& pts) {
-        Foam::pointField pf(pts.size());
-        for (size_t i = 0; i < pts.size(); ++i) {
-            pf[i] = Foam::vector(pts[i][0], pts[i][1], pts[i][2]);
-        }
-        return pf;
-    }, "Create pointField from nested list of coordinates");
-
-    m.def("makeLabelList", [](const std::vector<Foam::label>& labels) {
-        Foam::labelList ll(labels.size());
-        for (size_t i = 0; i < labels.size(); ++i) {
-            ll[i] = labels[i];
-        }
-        return ll;
-    }, "Create labelList from Python list");
-
-    m.def("makeFaceList", [](const std::vector<std::vector<Foam::label>>& faces) {
-        Foam::faceList fl(faces.size());
-        for (size_t i = 0; i < faces.size(); ++i) {
-            fl[i] = Foam::face(faces[i].size());
-            for (size_t j = 0; j < faces[i].size(); ++j) {
-                fl[i][j] = faces[i][j];
-            }
-        }
-        return fl;
-    }, "Create faceList from nested list of face indices");
 
     // polyMesh bindings
     py::class_<Foam::polyMesh>(m, "polyMesh")
         // Constructor from OpenFOAM types (low-level)
         .def(py::init(&Foam::createPolyMesh),
-             py::arg("io"), py::arg("points"), py::arg("faces"), 
+             py::arg("io"), py::arg("points"), py::arg("faces"),
              py::arg("owner"), py::arg("neighbour"), py::arg("syncPar") = true,
              py::return_value_policy::take_ownership,
              "Create polyMesh from OpenFOAM types")
         // Constructor from Python types (low-level)
         .def(py::init(&Foam::createPolyMeshFromPython),
-             py::arg("io"), py::arg("points"), py::arg("faces"), 
+             py::arg("io"), py::arg("points"), py::arg("faces"),
              py::arg("owner"), py::arg("neighbour"), py::arg("syncPar") = true,
              py::return_value_policy::take_ownership,
              "Create polyMesh from Python lists")
         // Constructor from cellShapes (high-level, handles orientation automatically)
         .def(py::init(&Foam::createPolyMeshFromCellShapes),
-             py::arg("io"), py::arg("points"), py::arg("cells"), 
+             py::arg("io"), py::arg("points"), py::arg("cells"),
              py::arg("boundaryPatches"), py::arg("defaultPatchName") = "defaultFaces",
              py::arg("syncPar") = true,
              py::return_value_policy::take_ownership,
              "Create polyMesh from cellShapes (handles face orientation automatically)")
         .def("write", [](Foam::polyMesh& self) { return self.write(); })
-        .def("nCells", &Foam::polyMesh::nCells)
-        .def("nFaces", &Foam::polyMesh::nFaces)
-        .def("nPoints", &Foam::polyMesh::nPoints)
-        .def("nInternalFaces", &Foam::polyMesh::nInternalFaces)
+        .def("nCells", [](const Foam::polyMesh& self)
+        {
+            return self.nCells();
+        })
+        .def("nFaces", [](const Foam::polyMesh& self)
+        {
+            return self.nFaces();
+        })
+        .def("nPoints", [](const Foam::polyMesh& self)
+        {
+            return self.nPoints();
+        })
+        .def("nInternalFaces", [](const Foam::polyMesh& self)
+        {
+            return self.nInternalFaces();
+        })
         .def("facesInstance", &Foam::polyMesh::facesInstance)
         .def_property_readonly("meshSubDir", [](const Foam::polyMesh& self) { return self.meshSubDir; })
         .def("boundaryMesh", &Foam::polyMesh::boundaryMesh, py::return_value_policy::reference)
@@ -268,10 +252,10 @@ void Foam::bindPolyMesh(pybind11::module &m)
         });
 
     py::class_<Foam::polyPatch>(m, "polyPatch")
-        .def(py::init([](const Foam::word& name, Foam::label size, Foam::label start, 
+        .def(py::init([](const Foam::word& name, Foam::label size, Foam::label start,
                          Foam::label index, const Foam::polyBoundaryMesh& bm, const Foam::word& patchType) {
             return new Foam::polyPatch(name, size, start, index, bm, patchType);
-        }), py::arg("name"), py::arg("size"), py::arg("start"), py::arg("index"), 
+        }), py::arg("name"), py::arg("size"), py::arg("start"), py::arg("index"),
             py::arg("boundaryMesh"), py::arg("patchType"),
             py::return_value_policy::take_ownership)
         .def("name", [](const Foam::polyPatch& self) -> const Foam::word& {
