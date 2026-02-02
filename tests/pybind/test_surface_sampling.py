@@ -216,7 +216,7 @@ def test_sampledIsoSurface(change_test_dir: Any) -> None:
 
 
 @pytest.mark.parametrize("scheme", ["cell", "cellPoint", "cellPointFace"])
-def test_interpolation_scalar_schemes(change_test_dir, scheme) -> None:
+def test_interpolation_scalar_schemes(change_test_dir: Any, scheme: str) -> None:
     """Test creation of scalar field interpolation schemes and verify interpolated values."""
     time, mesh = create_time_mesh()  # time must stay alive for mesh lifetime
 
@@ -253,7 +253,7 @@ def test_interpolation_scalar_schemes(change_test_dir, scheme) -> None:
 
     # Test that the interpolation shows correlation with the field formula
     # Calculate expected values for all face centers
-    expected_values = np.array([fc[0] + 2.0 * fc[1] + 3.0 * fc[2] for fc in Cf])
+    expected_values = np.array([fc[0] + 2.0 * fc[1] + 3.0 * fc[2] for fc in Cf])  # type: ignore[attr-defined]
 
     # Check that the correlation is positive and strong (R^2 > 0.5)
     correlation = np.corrcoef(sampled_array, expected_values)[0, 1]
@@ -268,7 +268,7 @@ def test_interpolation_scalar_schemes(change_test_dir, scheme) -> None:
 
 
 @pytest.mark.parametrize("scheme", ["cell", "cellPoint", "cellPointFace"])
-def test_interpolation_vector_schemes(change_test_dir, scheme) -> None:
+def test_interpolation_vector_schemes(change_test_dir: Any, scheme: str) -> None:
     """Test creation of vector field interpolation schemes and verify interpolated values."""
     time, mesh = create_time_mesh()  # time must stay alive for mesh lifetime
 

@@ -3,11 +3,11 @@
 import re
 import subprocess
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import pytest
 
-import pybFoam.bind_checkmesh as checkmesh
+from pybFoam import meshing
 import pybFoam.pybFoam_core as pyb
 
 
@@ -32,7 +32,9 @@ def extract_float_pair(pattern: str, text: str) -> Optional[Tuple[float, float]]
     return None
 
 
-def extract_float_triple(pattern: str, text: str) -> Optional[Tuple[float, float, float]]:
+def extract_float_triple(
+    pattern: str, text: str
+) -> Optional[Tuple[float, float, float]]:
     """Extract three float values from text using a regex pattern"""
     if m := re.search(pattern, text):
         return (float(m.group(1)), float(m.group(2)), float(m.group(3)))
@@ -56,9 +58,15 @@ def extract_bounding_box(text: str) -> Optional[Tuple[List[float], List[float]]]
     return None
 
 
-def parse_checkmesh_output(cmd_output):
+def parse_checkmesh_output(cmd_output: str) -> Any:
     """Parse checkMesh output and return a hierarchical dictionary matching the JSON structure"""
-    parsed = {"mesh_stats": {}, "cell_types": {}, "topology": {}, "geometry": {}, "quality": {}}
+    parsed: dict[str, Any] = {
+        "mesh_stats": dict[str, Any](),
+        "cell_types": dict[str, Any](),
+        "topology": dict[str, Any](),
+        "geometry": dict[str, Any](),
+        "quality": dict[str, Any](),
+    }
 
     # Parse mesh stats using helper functions
     if (val := extract_int(r"points:\s+(\d+)", cmd_output)) is not None:
@@ -69,7 +77,9 @@ def parse_checkmesh_output(cmd_output):
         parsed["mesh_stats"]["internal_faces"] = val
     if (val := extract_int(r"cells:\s+(\d+)", cmd_output)) is not None:
         parsed["mesh_stats"]["cells"] = val
-    if (val := extract_float(r"faces per cell:\s+([-\d.e+\-]+)", cmd_output)) is not None:
+    if (
+        val := extract_float(r"faces per cell:\s+([-\d.e+\-]+)", cmd_output) # type: ignore[assignment]
+    ) is not None:
         parsed["mesh_stats"]["faces_per_cell"] = val
     if (val := extract_int(r"boundary patches:\s+(\d+)", cmd_output)) is not None:
         parsed["mesh_stats"]["boundary_patches"] = val
@@ -108,7 +118,8 @@ def parse_checkmesh_output(cmd_output):
 
     if (
         pair := extract_float_pair(
-            r"Minimum face area = ([-\d.e+\-]+)\.\s+Maximum face area = ([-\d.e+\-]+)\.", cmd_output
+            r"Minimum face area = ([-\d.e+\-]+)\.\s+Maximum face area = ([-\d.e+\-]+)\.",
+            cmd_output,
         )
     ) is not None:
         parsed["geometry"]["min_face_area"] = pair[0]
@@ -126,32 +137,40 @@ def parse_checkmesh_output(cmd_output):
 
     if (
         pair := extract_float_pair(
-            r"Mesh non-orthogonality Max:\s+([-\d.e+\-]+)\s+average:\s+([-\d.e+\-]+)", cmd_output
+            r"Mesh non-orthogonality Max:\s+([-\d.e+\-]+)\s+average:\s+([-\d.e+\-]+)",
+            cmd_output,
         )
     ) is not None:
         parsed["geometry"]["max_non_orthogonality"] = pair[0]
         parsed["geometry"]["avg_non_orthogonality"] = pair[1]
 
-    if (val := extract_float(r"Max skewness = ([-\d.e+\-]+)", cmd_output)) is not None:
+    if (val := extract_float(r"Max skewness = ([-\d.e+\-]+)", cmd_output)) is not None: # type: ignore[assignment]
         parsed["geometry"]["max_skewness"] = val
 
     if (
-        pair := extract_float_pair(r"Min/max edge length = ([-\d.e+\-]+) ([-\d.e+\-]+)", cmd_output)
+        pair := extract_float_pair(
+            r"Min/max edge length = ([-\d.e+\-]+) ([-\d.e+\-]+)", cmd_output
+        )
     ) is not None:
         parsed["geometry"]["min_edge_length"] = pair[0]
         parsed["geometry"]["max_edge_length"] = pair[1]
 
     if (
         vec := extract_vector(
-            r"Boundary openness \(([-\d.e+\-]+) ([-\d.e+\-]+) ([-\d.e+\-]+)\)", cmd_output
+            r"Boundary openness \(([-\d.e+\-]+) ([-\d.e+\-]+) ([-\d.e+\-]+)\)",
+            cmd_output,
         )
     ) is not None:
         parsed["geometry"]["boundary_openness"] = vec
 
-    if (val := extract_float(r"Max cell openness = ([-\d.e+\-]+)", cmd_output)) is not None:
+    if (
+        val := extract_float(r"Max cell openness = ([-\d.e+\-]+)", cmd_output)  # type: ignore[assignment]
+    ) is not None:
         parsed["geometry"]["max_cell_openness"] = val
 
-    if (val := extract_float(r"Max aspect ratio = ([-\d.e+\-]+)", cmd_output)) is not None:
+    if (
+        val := extract_float(r"Max aspect ratio = ([-\d.e+\-]+)", cmd_output) # type: ignore[assignment]
+    ) is not None:
         parsed["geometry"]["max_aspect_ratio"] = val
 
     if (
@@ -164,7 +183,8 @@ def parse_checkmesh_output(cmd_output):
 
     if (
         pair := extract_float_pair(
-            r"Cell determinant.*?minimum:\s+([-\d.e+\-]+)\s+average:\s+([-\d.e+\-]+)", cmd_output
+            r"Cell determinant.*?minimum:\s+([-\d.e+\-]+)\s+average:\s+([-\d.e+\-]+)",
+            cmd_output,
         )
     ) is not None:
         parsed["geometry"]["min_cell_determinant"] = pair[0]
@@ -181,7 +201,8 @@ def parse_checkmesh_output(cmd_output):
 
     if (
         pair := extract_float_pair(
-            r"Face volume ratio.*?minimum:\s+([-\d.e+\-]+)\s+average:\s+([-\d.e+\-]+)", cmd_output
+            r"Face volume ratio.*?minimum:\s+([-\d.e+\-]+)\s+average:\s+([-\d.e+\-]+)",
+            cmd_output,
         )
     ) is not None:
         parsed["geometry"]["min_face_volume_ratio"] = pair[0]
@@ -217,17 +238,7 @@ def test_checkmesh_all_options(cube_case: Path, tmp_path: Path) -> None:
 
     log_file = tmp_path / "checkmesh.log"
 
-    cmd = ["checkMesh", "-case", str(cube_case), "-allGeometry", "-allTopology"]
-    result_cmd = subprocess.run(cmd, capture_output=True, text=True)
-    cmd_output = result_cmd.stdout
-
-    parsed = parse_checkmesh_output(cmd_output)
-
-    assert result_cmd.returncode == 0, (
-        f"checkMesh command failed with return code {result_cmd.returncode}"
-    )
-    assert parsed["passed"], "Command line checkMesh should pass"
-
+    # generate fvMesh
     argv = [str(cube_case), "-case", str(cube_case)]
     arglist = pyb.argList(argv)
     time = pyb.Time(arglist)
@@ -237,12 +248,27 @@ def test_checkmesh_all_options(cube_case: Path, tmp_path: Path) -> None:
         dict_path = cube_case / "constant" / "blockMeshDict"
     block_mesh_dict = pyb.dictionary.read(str(dict_path))
 
-    import pybFoam.meshing as meshing
-
     mesh = meshing.generate_blockmesh(time, block_mesh_dict)
 
-    result = checkmesh.checkMesh(
-        mesh, check_topology=True, all_topology=True, all_geometry=True, check_quality=False
+    # Run checkMesh via command line
+    cmd = ["checkMesh", "-case", str(cube_case), "-allGeometry", "-allTopology"]
+    result_cmd = subprocess.run(cmd, capture_output=True, text=True)
+    cmd_output = result_cmd.stdout
+
+    parsed = parse_checkmesh_output(cmd_output)
+
+    assert (
+        result_cmd.returncode == 0
+    ), f"checkMesh command failed with return code {result_cmd.returncode}"
+    assert parsed["passed"], "Command line checkMesh should pass"
+
+    # Run checkMesh via Python binding
+    result = meshing.checkMesh(
+        mesh,
+        check_topology=True,
+        all_topology=True,
+        all_geometry=True,
+        check_quality=False,
     )
 
     # Verify basic structure
@@ -255,13 +281,22 @@ def test_checkmesh_all_options(cube_case: Path, tmp_path: Path) -> None:
     assert result["mesh_stats"]["points"] == parsed["mesh_stats"]["points"]
     assert result["mesh_stats"]["cells"] == parsed["mesh_stats"]["cells"]
     assert result["mesh_stats"]["faces"] == parsed["mesh_stats"]["faces"]
-    assert result["mesh_stats"]["internal_faces"] == parsed["mesh_stats"]["internal_faces"]
-    assert result["mesh_stats"]["boundary_patches"] == parsed["mesh_stats"]["boundary_patches"]
-    assert result["mesh_stats"]["faces_per_cell"] == parsed["mesh_stats"]["faces_per_cell"]
+    assert (
+        result["mesh_stats"]["internal_faces"] == parsed["mesh_stats"]["internal_faces"]
+    )
+    assert (
+        result["mesh_stats"]["boundary_patches"]
+        == parsed["mesh_stats"]["boundary_patches"]
+    )
+    assert (
+        result["mesh_stats"]["faces_per_cell"] == parsed["mesh_stats"]["faces_per_cell"]
+    )
 
     # Verify zones (only if present in both)
     if "point_zones" in parsed["mesh_stats"]:
-        assert result["mesh_stats"]["point_zones"] == parsed["mesh_stats"]["point_zones"]
+        assert (
+            result["mesh_stats"]["point_zones"] == parsed["mesh_stats"]["point_zones"]
+        )
     if "face_zones" in parsed["mesh_stats"]:
         assert result["mesh_stats"]["face_zones"] == parsed["mesh_stats"]["face_zones"]
     if "cell_zones" in parsed["mesh_stats"]:

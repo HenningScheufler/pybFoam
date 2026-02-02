@@ -38,7 +38,7 @@ FvSchemes = create_model(
 )
 
 
-def test_parse_fvSchemes(change_test_dir):
+def test_parse_fvSchemes(change_test_dir: Any) -> None:
     model = FvSchemes.from_file("fvSchemes")
     assert model.ddtSchemes.default == "Euler"
 

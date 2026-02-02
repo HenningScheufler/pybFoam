@@ -1,6 +1,7 @@
 from __future__ import annotations
 from pybFoam.pybFoam_core import DictionaryGetOrDefaultProxy
 from pybFoam.pybFoam_core import DictionaryGetProxy
+from pybFoam.pybFoam_core import IOobject
 from pybFoam.pybFoam_core import Info
 from pybFoam.pybFoam_core import SolverScalarPerformance
 from pybFoam.pybFoam_core import SolverSymmTensorPerformance
@@ -28,6 +29,7 @@ from pybFoam.pybFoam_core import dimensionedTensor
 from pybFoam.pybFoam_core import dimensionedVector
 from pybFoam.pybFoam_core import dynamicFvMesh
 from pybFoam.pybFoam_core import entry
+from pybFoam.pybFoam_core import fileName
 from pybFoam.pybFoam_core import fvMesh
 from pybFoam.pybFoam_core import fvScalarMatrix
 from pybFoam.pybFoam_core import fvSymmTensorMatrix
@@ -40,6 +42,9 @@ from pybFoam.pybFoam_core import labelList
 from pybFoam.pybFoam_core import mag
 from pybFoam.pybFoam_core import pimpleControl
 from pybFoam.pybFoam_core import pisoControl
+from pybFoam.pybFoam_core import polyBoundaryMesh
+from pybFoam.pybFoam_core import polyMesh
+from pybFoam.pybFoam_core import polyPatch
 from pybFoam.pybFoam_core import scalarField
 from pybFoam.pybFoam_core import selectTimes
 from pybFoam.pybFoam_core import setRefCell
@@ -83,12 +88,13 @@ from pybFoam.pybFoam_core import write
 from . import _version
 from . import fvc
 from . import fvm
+from . import meshing
 from . import pybFoam_core
 from . import runTimeTables
 from . import sampling_bindings
 from . import thermo
 from . import turbulence
-__all__: list[str] = ['DictionaryGetOrDefaultProxy', 'DictionaryGetProxy', 'Info', 'SolverScalarPerformance', 'SolverSymmTensorPerformance', 'SolverTensorPerformance', 'SolverVectorPerformance', 'SymmTensorInt', 'TensorInt', 'Time', 'VectorInt', 'Word', 'adjustPhi', 'argList', 'boolList', 'computeCFLNumber', 'computeContinuityErrors', 'constrainHbyA', 'constrainPressure', 'createMesh', 'createPhi', 'dictionary', 'dimAcceleration', 'dimArea', 'dimCurrent', 'dimDensity', 'dimEnergy', 'dimForce', 'dimLength', 'dimLuminousIntensity', 'dimMass', 'dimMoles', 'dimPower', 'dimPressure', 'dimTemperature', 'dimTime', 'dimVelocity', 'dimViscosity', 'dimensionSet', 'dimensionedScalar', 'dimensionedSymmTensor', 'dimensionedTensor', 'dimensionedVector', 'dimless', 'dynamicFvMesh', 'entry', 'fvMesh', 'fvScalarMatrix', 'fvSymmTensorMatrix', 'fvTensorMatrix', 'fvVectorMatrix', 'fvc', 'fvm', 'instant', 'instantList', 'keyType', 'labelList', 'mag', 'pimpleControl', 'pisoControl', 'pybFoam_core', 'runTimeTables', 'sampling_bindings', 'scalarField', 'selectTimes', 'setRefCell', 'simpleControl', 'solve', 'sum', 'surfaceScalarField', 'surfaceSymmTensorField', 'surfaceTensorField', 'surfaceVectorField', 'symmTensor', 'symmTensorField', 'tensor', 'tensorField', 'thermo', 'tmp_fvScalarMatrix', 'tmp_fvSymmTensorMatrix', 'tmp_fvTensorMatrix', 'tmp_fvVectorMatrix', 'tmp_scalarField', 'tmp_surfaceScalarField', 'tmp_surfaceSymmTensorField', 'tmp_surfaceTensorField', 'tmp_surfaceVectorField', 'tmp_symmTensorField', 'tmp_tensorField', 'tmp_vectorField', 'tmp_volScalarField', 'tmp_volSymmTensorField', 'tmp_volTensorField', 'tmp_volVectorField', 'turbulence', 'uniformDimensionedScalarField', 'uniformDimensionedVectorField', 'vector', 'vectorField', 'volScalarField', 'volSymmTensorField', 'volTensorField', 'volVectorField', 'wordList', 'write']
+__all__: list[str] = ['DictionaryGetOrDefaultProxy', 'DictionaryGetProxy', 'IOobject', 'Info', 'SolverScalarPerformance', 'SolverSymmTensorPerformance', 'SolverTensorPerformance', 'SolverVectorPerformance', 'SymmTensorInt', 'TensorInt', 'Time', 'VectorInt', 'Word', 'adjustPhi', 'argList', 'boolList', 'computeCFLNumber', 'computeContinuityErrors', 'constrainHbyA', 'constrainPressure', 'createMesh', 'createPhi', 'dictionary', 'dimAcceleration', 'dimArea', 'dimCurrent', 'dimDensity', 'dimEnergy', 'dimForce', 'dimLength', 'dimLuminousIntensity', 'dimMass', 'dimMoles', 'dimPower', 'dimPressure', 'dimTemperature', 'dimTime', 'dimVelocity', 'dimViscosity', 'dimensionSet', 'dimensionedScalar', 'dimensionedSymmTensor', 'dimensionedTensor', 'dimensionedVector', 'dimless', 'dynamicFvMesh', 'entry', 'fileName', 'fvMesh', 'fvScalarMatrix', 'fvSymmTensorMatrix', 'fvTensorMatrix', 'fvVectorMatrix', 'fvc', 'fvm', 'instant', 'instantList', 'keyType', 'labelList', 'mag', 'meshing', 'pimpleControl', 'pisoControl', 'polyBoundaryMesh', 'polyMesh', 'polyPatch', 'pybFoam_core', 'runTimeTables', 'sampling_bindings', 'scalarField', 'selectTimes', 'setRefCell', 'simpleControl', 'solve', 'sum', 'surfaceScalarField', 'surfaceSymmTensorField', 'surfaceTensorField', 'surfaceVectorField', 'symmTensor', 'symmTensorField', 'tensor', 'tensorField', 'thermo', 'tmp_fvScalarMatrix', 'tmp_fvSymmTensorMatrix', 'tmp_fvTensorMatrix', 'tmp_fvVectorMatrix', 'tmp_scalarField', 'tmp_surfaceScalarField', 'tmp_surfaceSymmTensorField', 'tmp_surfaceTensorField', 'tmp_surfaceVectorField', 'tmp_symmTensorField', 'tmp_tensorField', 'tmp_vectorField', 'tmp_volScalarField', 'tmp_volSymmTensorField', 'tmp_volTensorField', 'tmp_volVectorField', 'turbulence', 'uniformDimensionedScalarField', 'uniformDimensionedVectorField', 'vector', 'vectorField', 'volScalarField', 'volSymmTensorField', 'volTensorField', 'volVectorField', 'wordList', 'write']
 __version__: str = '0.1.11'
 dimAcceleration: pybFoam_core.dimensionSet  # value = <pybFoam.pybFoam_core.dimensionSet object>
 dimArea: pybFoam_core.dimensionSet  # value = <pybFoam.pybFoam_core.dimensionSet object>

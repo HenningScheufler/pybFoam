@@ -86,7 +86,7 @@ Foam::fvMesh* Foam::generateBlockMesh
         }
 
         // Enable information messages
-        blocks.verbose(true);
+        blocks.verbose(verbose);
 
         // Generate the mesh
         if (verbose)
@@ -116,7 +116,8 @@ Foam::fvMesh* Foam::generateBlockMesh
         }
 
         mesh.removeFiles();
-        if (!mesh.write())
+        sucessful_write = mesh.write();
+        if (!sucessful_write)
         {
             MeshUtils::restoreOutput();
             throw std::runtime_error("Failed to write polyMesh");

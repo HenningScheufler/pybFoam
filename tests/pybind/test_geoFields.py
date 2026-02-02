@@ -42,7 +42,7 @@ def test_geoFieldField(change_test_dir: Any) -> None:
     assert (sum(np.array(U["internalField"])) == [nElements, nElements, nElements]).all()
 
 
-def test_mesh(change_test_dir):
+def test_mesh(change_test_dir: Any) -> None:
     time = pybFoam.Time(".", ".")
     mesh = pybFoam.fvMesh(time)
 
@@ -55,7 +55,7 @@ def test_mesh(change_test_dir):
     assert pybFoam.sum(V) > 0
 
 
-def test_scalar_arithmetic_operators(change_test_dir):
+def test_scalar_arithmetic_operators(change_test_dir: Any) -> None:
     """Test scalar arithmetic operators for volScalarField.
 
     These operators are needed for Boussinesq approximation:
@@ -71,25 +71,25 @@ def test_scalar_arithmetic_operators(change_test_dir):
     # Test scalar * field (rmul)
     result_rmul = 3.0 * p_rgh
     result_rmul_val = result_rmul() if hasattr(result_rmul, "__call__") else result_rmul
-    assert result_rmul_val["internalField"][0] == 6.0
+    assert result_rmul_val["internalField"][0] == 6.0  # type: ignore[index]
 
     # Test field * scalar (mul)
     result_mul = p_rgh * 3.0
     result_mul_val = result_mul() if hasattr(result_mul, "__call__") else result_mul
-    assert result_mul_val["internalField"][0] == 6.0
+    assert result_mul_val["internalField"][0] == 6.0  # type: ignore[index]
 
     # Test field / scalar (truediv)
     result_div = p_rgh / 2.0
     result_div_val = result_div() if hasattr(result_div, "__call__") else result_div
-    assert result_div_val["internalField"][0] == 1.0
+    assert result_div_val["internalField"][0] == 1.0  # type: ignore[index]
 
     # Test -field (neg)
     result_neg = -p_rgh
     result_neg_val = result_neg() if hasattr(result_neg, "__call__") else result_neg
-    assert result_neg_val["internalField"][0] == -2.0
+    assert result_neg_val["internalField"][0] == -2.0  # type: ignore[index]
 
 
-def test_scalar_rsub_radd_operators(change_test_dir):
+def test_scalar_rsub_radd_operators(change_test_dir: Any) -> None:
     """Test scalar rsub and radd operators for volScalarField.
 
     These operators are needed for Boussinesq: rhok = 1.0 - beta*(T-TRef)
@@ -114,15 +114,15 @@ def test_scalar_rsub_radd_operators(change_test_dir):
     # Test field - dimensionedScalar
     result_sub = p_rgh - ds
     result_sub_val = result_sub() if hasattr(result_sub, "__call__") else result_sub
-    assert result_sub_val["internalField"][0] == -8.0  # 2.0 - 10.0 = -8.0
+    assert result_sub_val["internalField"][0] == -8.0  # type: ignore[index]  # 2.0 - 10.0 = -8.0
 
     # Test field + dimensionedScalar
     result_add = p_rgh + ds
     result_add_val = result_add() if hasattr(result_add, "__call__") else result_add
-    assert result_add_val["internalField"][0] == 12.0  # 2.0 + 10.0 = 12.0
+    assert result_add_val["internalField"][0] == 12.0  # type: ignore[index]  # 2.0 + 10.0 = 12.0
 
 
-def test_boussinesq_pattern(change_test_dir):
+def test_boussinesq_pattern(change_test_dir: Any) -> None:
     """Test the Boussinesq pattern: rhok = 1.0 - beta*(T - TRef).
 
     This tests scalar - field for dimensionless fields, which is the
@@ -152,10 +152,10 @@ def test_boussinesq_pattern(change_test_dir):
     # For now, test the simpler operations that we know work
     beta_times_dT = p_rgh * 0.5  # tmp with value 1.0
     result = beta_times_dT() if hasattr(beta_times_dT, "__call__") else beta_times_dT
-    assert result["internalField"][0] == 1.0
+    assert result["internalField"][0] == 1.0  # type: ignore[index]
 
 
-def test_tmp_scalar_arithmetic_operators(change_test_dir):
+def test_tmp_scalar_arithmetic_operators(change_test_dir: Any) -> None:
     """Test scalar arithmetic operators for tmp<volScalarField>.
 
     Test chained operations like: 1.0 - (2.0 * field)
@@ -174,7 +174,7 @@ def test_tmp_scalar_arithmetic_operators(change_test_dir):
     tmp_field = p_rgh * 2.0  # tmp with value 4.0
     result = tmp_field * 1.5  # should be 6.0
     result_val = result() if hasattr(result, "__call__") else result
-    assert result_val["internalField"][0] == 6.0
+    assert result_val["internalField"][0] == 6.0  # type: ignore[index]
 
     # Test scalar / tmp (rtruediv)
     tmp_field2 = p_rgh * 1.0  # tmp with value 2.0
@@ -182,7 +182,7 @@ def test_tmp_scalar_arithmetic_operators(change_test_dir):
     result_rtruediv_val = (
         result_rtruediv() if hasattr(result_rtruediv, "__call__") else result_rtruediv
     )
-    assert result_rtruediv_val["internalField"][0] == 5.0
+    assert result_rtruediv_val["internalField"][0] == 5.0  # type: ignore[index]
 
 
 # def test_mesh(change_test_dir):

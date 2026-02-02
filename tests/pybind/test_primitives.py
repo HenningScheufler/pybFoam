@@ -105,12 +105,12 @@ def test_scalarField() -> None:
     assert sf3[0] == 3
 
     sf_1 = scalarField([1 for i in range(0, 6)])
-    assert (sf_1 == np.ones(6)).all()
+    assert np.all(sf_1 == np.ones(6))
 
     sf_1 += 10
     assert sf_1[0] == 11
 
-    for scalar in sf_1:
+    for scalar in sf_1:  # type: ignore[attr-defined]
         assert scalar == 11
 
 
@@ -141,7 +141,7 @@ def test_vectorField() -> None:
     assert vf4[1][1] == 2
 
     vf_1 = vectorField([vector(1, 1, 1) for i in range(0, 6)])
-    assert (vf_1 == np.ones([6, 3])).all()
+    assert np.all(vf_1 == np.ones([6, 3]))
 
     # scalar product
     vf_5 = vectorField([vector(1, 2, 3) for i in range(0, 6)])
@@ -180,7 +180,7 @@ def test_tensorField() -> None:
     assert tf4[1][1] == 2
 
     tf_1 = tensorField([tensor(1, 1, 1, 1, 1, 1, 1, 1, 1) for i in range(0, 6)])
-    assert (tf_1 == np.ones([6, 9])).all()
+    assert np.all(tf_1 == np.ones([6, 9]))
 
 
 def test_tmp_scalarField() -> None:

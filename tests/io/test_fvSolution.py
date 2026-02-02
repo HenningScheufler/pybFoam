@@ -37,7 +37,7 @@ class FvSolution(IOModelBase):
     PISO: PISO
 
 
-def test_parse_fvSolution(change_test_dir):
+def test_parse_fvSolution(change_test_dir: Any) -> None:
     model = FvSolution.from_file("fvSolution")
 
     assert model.solvers.p.solver == "PCG"

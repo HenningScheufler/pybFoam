@@ -8,11 +8,11 @@ OpenFOAM blockMesh with Python binding implementation.
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Any
 
 import pytest
 
-import pybFoam.bind_checkmesh as checkmesh
-import pybFoam.meshing as meshing
+from pybFoam import meshing
 import pybFoam.pybFoam_core as core
 
 
@@ -41,7 +41,7 @@ def temp_case_python(tmp_path: Path, cube_case: Path) -> Path:
     return temp_dir
 
 
-def run_native_blockmesh(case_path: Path, log_file: Path) -> None:
+def run_native_blockmesh(case_path: Path, log_file: Path) -> subprocess.CompletedProcess[str]:
     """Run native OpenFOAM blockMesh.
 
     Args:
@@ -60,10 +60,8 @@ def run_native_blockmesh(case_path: Path, log_file: Path) -> None:
 
     return result
 
-    return result
 
-
-def run_python_blockmesh(case_path: Path, time: core.Time):
+def run_python_blockmesh(case_path: Path, time: core.Time) -> Any:
     """Run Python binding blockMesh."""
     # Load blockMeshDict
     dict_path = case_path / "system" / "blockMeshDict"
@@ -78,20 +76,20 @@ def run_python_blockmesh(case_path: Path, time: core.Time):
     return mesh
 
 
-def get_mesh_stats(case_path: Path, time: core.Time):
+def get_mesh_stats(case_path: Path, time: core.Time) -> Any:
     """Get mesh statistics using checkMesh binding."""
     # Load mesh
     mesh = core.fvMesh(time)
 
     # Run checkMesh
-    result = checkmesh.checkMesh(
+    result = meshing.checkMesh(
         mesh, check_topology=True, all_topology=True, all_geometry=True, check_quality=False
     )
 
     return result
 
 
-def test_blockmesh_comparison(temp_case_native, temp_case_python, tmp_path) -> None:
+def test_blockmesh_comparison(temp_case_native: Path, temp_case_python: Path, tmp_path: Path) -> None:
     """Test that Python binding produces identical results to native blockMesh."""
 
     native_log = tmp_path / "native_blockmesh.log"

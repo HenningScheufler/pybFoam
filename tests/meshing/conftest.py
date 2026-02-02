@@ -7,11 +7,10 @@ test_snappy_sphere.py and test_snappy_motorbike.py.
 
 import subprocess
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-import pybFoam.bind_checkmesh as checkmesh
-import pybFoam.meshing as meshing
-import pybFoam.pybFoam_core as pyb
+from pybFoam import meshing
+import pybFoam as pyb
 
 
 def modify_snappy_dict(
@@ -50,7 +49,7 @@ def modify_snappy_dict(
         f.write(content)
 
 
-def run_blockmesh(case_path: Path, log_file=None) -> None:
+def run_blockmesh(case_path: Path, log_file: Optional[Path] = None) -> None:
     """Run blockMesh to generate background mesh."""
     if log_file:
         with open(log_file, "w") as f:
@@ -67,7 +66,7 @@ def run_blockmesh(case_path: Path, log_file=None) -> None:
     assert result.returncode == 0, "blockMesh failed"
 
 
-def run_surface_feature_extract(case_path: Path, log_file=None) -> None:
+def run_surface_feature_extract(case_path: Path, log_file: Optional[Path] = None) -> None:
     """Run surfaceFeatureExtract if needed."""
     # Check if eMesh files already exist
     constant_dir = case_path / "constant"
@@ -90,7 +89,7 @@ def run_surface_feature_extract(case_path: Path, log_file=None) -> None:
         # so we don't check returncode strictly
 
 
-def run_native_snappy(case_path: Path, log_file=None) -> Any:
+def run_native_snappy(case_path: Path, log_file: Optional[Path] = None) -> subprocess.CompletedProcess[str]:
     """Run native OpenFOAM snappyHexMesh."""
     if log_file:
         with open(log_file, "w") as f:
@@ -129,7 +128,7 @@ def run_python_snappy(case_path: Path, time: pyb.Time) -> pyb.fvMesh:
     return mesh
 
 
-def get_mesh_stats(case_path: Path, time: pyb.Time) -> Dict[str, Any]:
+def get_mesh_stats(case_path: Path, time: pyb.Time) -> Any:
     """
     Get mesh statistics using checkMesh binding.
 
@@ -139,7 +138,7 @@ def get_mesh_stats(case_path: Path, time: pyb.Time) -> Dict[str, Any]:
     mesh = pyb.fvMesh(time)
 
     # Run checkMesh with all options (output is expected here)
-    result = checkmesh.checkMesh(
+    result = meshing.checkMesh(
         mesh, check_topology=True, all_topology=True, all_geometry=True, check_quality=False
     )
 

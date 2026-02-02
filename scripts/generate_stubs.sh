@@ -49,7 +49,22 @@ echo ""
 
 # Copy stubs to source directory
 echo "Copying stubs to source directory..."
-cp -r "$STUBS_DIR/pybFoam/"* "$SRC_DIR/"
+
+# Copy top-level .pyi files
+cp "$STUBS_DIR/pybFoam/__init__.pyi" "$SRC_DIR/"
+cp "$STUBS_DIR/pybFoam/_version.pyi" "$SRC_DIR/"
+cp "$STUBS_DIR/pybFoam/pybFoam_core.pyi" "$SRC_DIR/"
+cp "$STUBS_DIR/pybFoam/sampling_bindings.pyi" "$SRC_DIR/"
+
+# Copy directory-based module stubs
+cp "$STUBS_DIR/pybFoam/fvm.pyi" "$SRC_DIR/fvm/__init__.pyi"
+cp "$STUBS_DIR/pybFoam/fvc.pyi" "$SRC_DIR/fvc/__init__.pyi"
+
+cp "$STUBS_DIR/pybFoam/meshing.pyi" "$SRC_DIR/meshing/__init__.pyi"
+cp "$STUBS_DIR/pybFoam/thermo.pyi" "$SRC_DIR/thermo/__init__.pyi"
+cp "$STUBS_DIR/pybFoam/turbulence.pyi" "$SRC_DIR/turbulence/__init__.pyi"
+cp "$STUBS_DIR/pybFoam/runTimeTables.pyi" "$SRC_DIR/runTimeTables/__init__.pyi"
+
 echo "✓ Stubs copied to $SRC_DIR"
 echo ""
 

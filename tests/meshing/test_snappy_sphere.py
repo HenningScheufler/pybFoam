@@ -16,7 +16,7 @@ import pybFoam.pybFoam_core as pyb
 
 if TYPE_CHECKING:
     # Import shared utilities from conftest
-    from conftest import (
+    from .conftest import (
         compare_mesh_stats,
         get_mesh_stats,
         modify_snappy_dict,
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     )
 else:
     # Import shared utilities from conftest
-    from conftest import (
+    from .conftest import (
         compare_mesh_stats,
         get_mesh_stats,
         modify_snappy_dict,
@@ -47,7 +47,7 @@ def sphere_simple_case() -> Path:
 
 
 @pytest.fixture
-def temp_case_native(tmp_path, sphere_simple_case):
+def temp_case_native(tmp_path: Path, sphere_simple_case: Path) -> Path:
     """Create a temporary copy of sphere_simple for native OpenFOAM run."""
     temp_dir = tmp_path / "native"
     shutil.copytree(sphere_simple_case, temp_dir)
@@ -55,7 +55,7 @@ def temp_case_native(tmp_path, sphere_simple_case):
 
 
 @pytest.fixture
-def temp_case_python(tmp_path, sphere_simple_case):
+def temp_case_python(tmp_path: Path, sphere_simple_case: Path) -> Path:
     """Create a temporary copy of sphere_simple for Python binding run."""
     temp_dir = tmp_path / "python"
     shutil.copytree(sphere_simple_case, temp_dir)
@@ -71,8 +71,8 @@ def temp_case_python(tmp_path, sphere_simple_case):
     ],
 )
 def test_snappy_phase_comparison(
-    temp_case_native, temp_case_python, castellated, snap, layers, test_name, tmp_path
-):
+    temp_case_native: Path, temp_case_python: Path, castellated: bool, snap: bool, layers: bool, test_name: str, tmp_path: Path
+) -> None:
     """
     Test that Python binding produces identical results to native snappyHexMesh.
 

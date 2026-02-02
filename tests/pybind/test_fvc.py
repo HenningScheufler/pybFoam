@@ -38,7 +38,7 @@ def test_fvc(change_test_dir: Any) -> None:
     assert pybFoam.sum(div_phigradP["internalField"]) == pybFoam.vector(0, 0, 0)
 
 
-def test_fvc_snGrad(change_test_dir):
+def test_fvc_snGrad(change_test_dir: Any) -> None:
     """Test fvc.snGrad for surface normal gradient calculation."""
     time = Time(".", ".")
     mesh = fvMesh(time)
@@ -57,7 +57,7 @@ def test_fvc_snGrad(change_test_dir):
     snGrad_U_val = snGrad_U() if hasattr(snGrad_U, "__call__") else snGrad_U
 
 
-def test_fvc_reconstruct(change_test_dir):
+def test_fvc_reconstruct(change_test_dir: Any) -> None:
     """Test fvc.reconstruct for reconstructing vector from flux."""
     time = Time(".", ".")
     mesh = fvMesh(time)

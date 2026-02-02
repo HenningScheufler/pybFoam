@@ -98,12 +98,12 @@ def test_sampledSet_uniform_line(change_test_dir: Any) -> None:
     assert len(cells) == len(points)
 
     # Most cells should be valid (>= 0)
-    valid_cells = sum(1 for c in cells if c >= 0)
+    valid_cells = sum(1 for c in cells if c >= 0)  # type: ignore[misc, attr-defined]
     assert valid_cells > len(points) * 0.7  # At least 70% valid
 
 
 @pytest.mark.parametrize("axis_name", ["x", "y", "z", "xyz", "distance"])
-def test_sampledSet_uniform_axes(change_test_dir, axis_name) -> None:
+def test_sampledSet_uniform_axes(change_test_dir: Any, axis_name: str) -> None:
     """Test uniform sampledSet with different axis specifications."""
     from pybFoam.sampling import UniformSetConfig
 
@@ -371,7 +371,7 @@ def test_sample_on_cloud_set(change_test_dir: Any) -> None:
 
 
 @pytest.mark.parametrize("scheme", ["cell", "cellPoint", "cellPointFace"])
-def test_multiple_sampling_schemes(change_test_dir, scheme) -> None:
+def test_multiple_sampling_schemes(change_test_dir: Any, scheme: str) -> None:
     """Test different interpolation schemes on sampledSet."""
     time, mesh = create_time_mesh()  # time must stay alive for mesh lifetime
     search = meshSearch(mesh)
