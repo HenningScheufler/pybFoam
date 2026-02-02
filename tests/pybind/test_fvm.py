@@ -28,5 +28,6 @@ def test_fvm(change_test_dir: Any) -> None:
     p_rgh = volScalarField.read_field(mesh, "p_rgh")
     U = volVectorField.read_field(mesh, "U")
 
-    lap_p = fvScalarMatrix(fvm.laplacian(p_rgh))
-    lap_U = fvVectorMatrix(fvm.laplacian(U))
+    fvScalarMatrix(fvm.laplacian(p_rgh))
+    fvVectorMatrix(fvm.laplacian(U))
+

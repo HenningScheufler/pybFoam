@@ -280,7 +280,7 @@ def test_boussinesq_buoyancy_pattern(change_test_dir: Any) -> None:
 
     # Reference temperature
     TRef = pybFoam.dimensionedScalar("TRef", pybFoam.dimTemperature, 300.0)
-
+    
     # Test that dimensioned arithmetic works
     dT_dim = beta.dimensions() * pybFoam.dimTemperature
     assert dT_dim is not None

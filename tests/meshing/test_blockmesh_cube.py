@@ -12,8 +12,8 @@ from typing import Any
 
 import pytest
 
-from pybFoam import meshing
 import pybFoam.pybFoam_core as core
+from pybFoam import meshing
 
 
 @pytest.fixture
@@ -89,7 +89,9 @@ def get_mesh_stats(case_path: Path, time: core.Time) -> Any:
     return result
 
 
-def test_blockmesh_comparison(temp_case_native: Path, temp_case_python: Path, tmp_path: Path) -> None:
+def test_blockmesh_comparison(
+    temp_case_native: Path, temp_case_python: Path, tmp_path: Path
+) -> None:
     """Test that Python binding produces identical results to native blockMesh."""
 
     native_log = tmp_path / "native_blockmesh.log"

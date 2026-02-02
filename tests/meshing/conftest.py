@@ -9,8 +9,8 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from pybFoam import meshing
 import pybFoam as pyb
+from pybFoam import meshing
 
 
 def modify_snappy_dict(
@@ -89,7 +89,9 @@ def run_surface_feature_extract(case_path: Path, log_file: Optional[Path] = None
         # so we don't check returncode strictly
 
 
-def run_native_snappy(case_path: Path, log_file: Optional[Path] = None) -> subprocess.CompletedProcess[str]:
+def run_native_snappy(
+    case_path: Path, log_file: Optional[Path] = None
+) -> subprocess.CompletedProcess[str]:
     """Run native OpenFOAM snappyHexMesh."""
     if log_file:
         with open(log_file, "w") as f:

@@ -7,8 +7,8 @@ from typing import Any, List, Optional, Tuple
 
 import pytest
 
-from pybFoam import meshing
 import pybFoam.pybFoam_core as pyb
+from pybFoam import meshing
 
 
 def extract_int(pattern: str, text: str) -> Optional[int]:
@@ -32,9 +32,7 @@ def extract_float_pair(pattern: str, text: str) -> Optional[Tuple[float, float]]
     return None
 
 
-def extract_float_triple(
-    pattern: str, text: str
-) -> Optional[Tuple[float, float, float]]:
+def extract_float_triple(pattern: str, text: str) -> Optional[Tuple[float, float, float]]:
     """Extract three float values from text using a regex pattern"""
     if m := re.search(pattern, text):
         return (float(m.group(1)), float(m.group(2)), float(m.group(3)))
@@ -78,7 +76,7 @@ def parse_checkmesh_output(cmd_output: str) -> Any:
     if (val := extract_int(r"cells:\s+(\d+)", cmd_output)) is not None:
         parsed["mesh_stats"]["cells"] = val
     if (
-        val := extract_float(r"faces per cell:\s+([-\d.e+\-]+)", cmd_output) # type: ignore[assignment]
+        val := extract_float(r"faces per cell:\s+([-\d.e+\-]+)", cmd_output)  # type: ignore[assignment]
     ) is not None:
         parsed["mesh_stats"]["faces_per_cell"] = val
     if (val := extract_int(r"boundary patches:\s+(\d+)", cmd_output)) is not None:
@@ -144,13 +142,11 @@ def parse_checkmesh_output(cmd_output: str) -> Any:
         parsed["geometry"]["max_non_orthogonality"] = pair[0]
         parsed["geometry"]["avg_non_orthogonality"] = pair[1]
 
-    if (val := extract_float(r"Max skewness = ([-\d.e+\-]+)", cmd_output)) is not None: # type: ignore[assignment]
+    if (val := extract_float(r"Max skewness = ([-\d.e+\-]+)", cmd_output)) is not None:  # type: ignore[assignment]
         parsed["geometry"]["max_skewness"] = val
 
     if (
-        pair := extract_float_pair(
-            r"Min/max edge length = ([-\d.e+\-]+) ([-\d.e+\-]+)", cmd_output
-        )
+        pair := extract_float_pair(r"Min/max edge length = ([-\d.e+\-]+) ([-\d.e+\-]+)", cmd_output)
     ) is not None:
         parsed["geometry"]["min_edge_length"] = pair[0]
         parsed["geometry"]["max_edge_length"] = pair[1]
@@ -169,7 +165,7 @@ def parse_checkmesh_output(cmd_output: str) -> Any:
         parsed["geometry"]["max_cell_openness"] = val
 
     if (
-        val := extract_float(r"Max aspect ratio = ([-\d.e+\-]+)", cmd_output) # type: ignore[assignment]
+        val := extract_float(r"Max aspect ratio = ([-\d.e+\-]+)", cmd_output)  # type: ignore[assignment]
     ) is not None:
         parsed["geometry"]["max_aspect_ratio"] = val
 
@@ -257,9 +253,9 @@ def test_checkmesh_all_options(cube_case: Path, tmp_path: Path) -> None:
 
     parsed = parse_checkmesh_output(cmd_output)
 
-    assert (
-        result_cmd.returncode == 0
-    ), f"checkMesh command failed with return code {result_cmd.returncode}"
+    assert result_cmd.returncode == 0, (
+        f"checkMesh command failed with return code {result_cmd.returncode}"
+    )
     assert parsed["passed"], "Command line checkMesh should pass"
 
     # Run checkMesh via Python binding
@@ -281,22 +277,13 @@ def test_checkmesh_all_options(cube_case: Path, tmp_path: Path) -> None:
     assert result["mesh_stats"]["points"] == parsed["mesh_stats"]["points"]
     assert result["mesh_stats"]["cells"] == parsed["mesh_stats"]["cells"]
     assert result["mesh_stats"]["faces"] == parsed["mesh_stats"]["faces"]
-    assert (
-        result["mesh_stats"]["internal_faces"] == parsed["mesh_stats"]["internal_faces"]
-    )
-    assert (
-        result["mesh_stats"]["boundary_patches"]
-        == parsed["mesh_stats"]["boundary_patches"]
-    )
-    assert (
-        result["mesh_stats"]["faces_per_cell"] == parsed["mesh_stats"]["faces_per_cell"]
-    )
+    assert result["mesh_stats"]["internal_faces"] == parsed["mesh_stats"]["internal_faces"]
+    assert result["mesh_stats"]["boundary_patches"] == parsed["mesh_stats"]["boundary_patches"]
+    assert result["mesh_stats"]["faces_per_cell"] == parsed["mesh_stats"]["faces_per_cell"]
 
     # Verify zones (only if present in both)
     if "point_zones" in parsed["mesh_stats"]:
-        assert (
-            result["mesh_stats"]["point_zones"] == parsed["mesh_stats"]["point_zones"]
-        )
+        assert result["mesh_stats"]["point_zones"] == parsed["mesh_stats"]["point_zones"]
     if "face_zones" in parsed["mesh_stats"]:
         assert result["mesh_stats"]["face_zones"] == parsed["mesh_stats"]["face_zones"]
     if "cell_zones" in parsed["mesh_stats"]:

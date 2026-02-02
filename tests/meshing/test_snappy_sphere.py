@@ -71,7 +71,13 @@ def temp_case_python(tmp_path: Path, sphere_simple_case: Path) -> Path:
     ],
 )
 def test_snappy_phase_comparison(
-    temp_case_native: Path, temp_case_python: Path, castellated: bool, snap: bool, layers: bool, test_name: str, tmp_path: Path
+    temp_case_native: Path,
+    temp_case_python: Path,
+    castellated: bool,
+    snap: bool,
+    layers: bool,
+    test_name: str,
+    tmp_path: Path,
 ) -> None:
     """
     Test that Python binding produces identical results to native snappyHexMesh.

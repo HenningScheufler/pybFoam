@@ -1,6 +1,7 @@
 import os
 from typing import Any, Generator
 
+import numpy as np
 import pytest
 
 import pybFoam
@@ -49,12 +50,12 @@ def test_fvc_snGrad(change_test_dir: Any) -> None:
     snGrad_p = fvc.snGrad(p_rgh)
     assert snGrad_p is not None
     # Convert tmp to value if needed
-    snGrad_p_val = snGrad_p() if hasattr(snGrad_p, "__call__") else snGrad_p
+    assert np.all(np.asarray(snGrad_p()["internalField"]) == 0.0)
 
     # Test snGrad on volVectorField
     snGrad_U = fvc.snGrad(U)
     assert snGrad_U is not None
-    snGrad_U_val = snGrad_U() if hasattr(snGrad_U, "__call__") else snGrad_U
+    assert np.all(np.asarray(snGrad_U()["internalField"]) == [0.0, 0.0, 0.0])
 
 
 def test_fvc_reconstruct(change_test_dir: Any) -> None:
@@ -69,5 +70,6 @@ def test_fvc_reconstruct(change_test_dir: Any) -> None:
     # Test reconstruct on surfaceScalarField (phi)
     reconstructed = fvc.reconstruct(phi)
     assert reconstructed is not None
+    np_recon = np.asarray(reconstructed()["internalField"])
     # Convert tmp to value if needed
-    reconstructed_val = reconstructed() if hasattr(reconstructed, "__call__") else reconstructed
+    assert np.allclose(np_recon, [0.0,0.0,0.0], atol=1e-12)
