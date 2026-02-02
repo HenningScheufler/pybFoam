@@ -72,4 +72,4 @@ def test_fvc_reconstruct(change_test_dir: Any) -> None:
     assert reconstructed is not None
     np_recon = np.asarray(reconstructed()["internalField"])
     # Convert tmp to value if needed
-    assert np.allclose(np_recon, [0.0,0.0,0.0], atol=1e-12)
+    assert np.allclose(np_recon, [0.0, 0.0, 0.0], atol=1e-12)

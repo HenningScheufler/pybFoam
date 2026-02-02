@@ -125,7 +125,8 @@ def parse_checkmesh_output(cmd_output: str) -> Any:
 
     if (
         triple := extract_float_triple(
-            r"Min volume = ([-\d.e+\-]+)\.\s+Max volume = ([-\d.e+\-]+)\.\s+Total volume = ([-\d.e+\-]+)\.",
+            r"Min volume = ([-\d.e+\-]+)\.\s+Max volume = ([-\d.e+\-]+)\."
+            r"\s+Total volume = ([-\d.e+\-]+)\.",
             cmd_output,
         )
     ) is not None:
@@ -230,9 +231,11 @@ def cube_case() -> Path:
 
 
 def test_checkmesh_all_options(cube_case: Path, tmp_path: Path) -> None:
-    """Test checkMesh with -allGeometry and -allTopology options, validating dictionary matches parsed OpenFOAM output"""
+    """
+    Test checkMesh with -allGeometry and -allTopology options.
 
-    log_file = tmp_path / "checkmesh.log"
+    Validates dictionary matches parsed OpenFOAM output.
+    """
 
     # generate fvMesh
     argv = [str(cube_case), "-case", str(cube_case)]

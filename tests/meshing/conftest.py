@@ -82,9 +82,11 @@ def run_surface_feature_extract(case_path: Path, log_file: Optional[Path] = None
                     text=True,
                 )
         else:
-            result = subprocess.run(
+            subprocess.run(
                 ["surfaceFeatureExtract", "-case", str(case_path)], capture_output=True, text=True
             )
+
+        assert result.returncode == 0
         # Note: surfaceFeatureExtract may return non-zero even on success
         # so we don't check returncode strictly
 

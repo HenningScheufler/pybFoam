@@ -1,103 +1,53 @@
 """
 OpenFOAM sampling and surface functionality
 """
-
 from __future__ import annotations
 
 import typing
 
 import pybFoam.pybFoam_core
 
-__all__: list[str] = [
-    "interpolationScalar",
-    "interpolationSymmTensor",
-    "interpolationTensor",
-    "interpolationVector",
-    "meshSearch",
-    "sampleOnFacesScalar",
-    "sampleOnFacesSymmTensor",
-    "sampleOnFacesTensor",
-    "sampleOnFacesVector",
-    "sampleOnPointsScalar",
-    "sampleOnPointsSymmTensor",
-    "sampleOnPointsTensor",
-    "sampleOnPointsVector",
-    "sampleSetScalar",
-    "sampleSetSymmTensor",
-    "sampleSetTensor",
-    "sampleSetVector",
-    "sampledSet",
-    "sampledSurface",
-]
-
+__all__: list[str] = ['interpolationScalar', 'interpolationSymmTensor', 'interpolationTensor', 'interpolationVector', 'meshSearch', 'sampleOnFacesScalar', 'sampleOnFacesSymmTensor', 'sampleOnFacesTensor', 'sampleOnFacesVector', 'sampleOnPointsScalar', 'sampleOnPointsSymmTensor', 'sampleOnPointsTensor', 'sampleOnPointsVector', 'sampleSetScalar', 'sampleSetSymmTensor', 'sampleSetTensor', 'sampleSetVector', 'sampledSet', 'sampledSurface']
 class interpolationScalar:
     @staticmethod
-    def New(
-        interpolationType: pybFoam.pybFoam_core.Word, field: pybFoam.pybFoam_core.volScalarField
-    ) -> interpolationScalar:
+    def New(interpolationType: pybFoam.pybFoam_core.Word, field: pybFoam.pybFoam_core.volScalarField) -> interpolationScalar:
         """
         Create scalar interpolation scheme
         """
-
 class interpolationSymmTensor:
     @staticmethod
-    def New(
-        interpolationType: pybFoam.pybFoam_core.Word, field: pybFoam.pybFoam_core.volSymmTensorField
-    ) -> interpolationSymmTensor:
+    def New(interpolationType: pybFoam.pybFoam_core.Word, field: pybFoam.pybFoam_core.volSymmTensorField) -> interpolationSymmTensor:
         """
         Create symmTensor interpolation scheme
         """
-
 class interpolationTensor:
     @staticmethod
-    def New(
-        interpolationType: pybFoam.pybFoam_core.Word, field: pybFoam.pybFoam_core.volTensorField
-    ) -> interpolationTensor:
+    def New(interpolationType: pybFoam.pybFoam_core.Word, field: pybFoam.pybFoam_core.volTensorField) -> interpolationTensor:
         """
         Create tensor interpolation scheme
         """
-
 class interpolationVector:
     @staticmethod
-    def New(
-        interpolationType: pybFoam.pybFoam_core.Word, field: pybFoam.pybFoam_core.volVectorField
-    ) -> interpolationVector:
+    def New(interpolationType: pybFoam.pybFoam_core.Word, field: pybFoam.pybFoam_core.volVectorField) -> interpolationVector:
         """
         Create vector interpolation scheme
         """
-
 class meshSearch:
     def __init__(self, mesh: pybFoam.pybFoam_core.fvMesh) -> None:
         """
         Construct from fvMesh
         """
-    def findCell(
-        self,
-        location: pybFoam.pybFoam_core.vector,
-        seedCelli: typing.SupportsInt = -1,
-        useTreeSearch: bool = True,
-    ) -> int:
+    def findCell(self, location: pybFoam.pybFoam_core.vector, seedCelli: typing.SupportsInt = -1, useTreeSearch: bool = True) -> int:
         """
         Find cell containing location
         """
-    def findNearestCell(
-        self,
-        location: pybFoam.pybFoam_core.vector,
-        seedCelli: typing.SupportsInt = -1,
-        useTreeSearch: bool = True,
-    ) -> int:
+    def findNearestCell(self, location: pybFoam.pybFoam_core.vector, seedCelli: typing.SupportsInt = -1, useTreeSearch: bool = True) -> int:
         """
         Find nearest cell to location
         """
-
 class sampledSet:
     @staticmethod
-    def New(
-        name: pybFoam.pybFoam_core.Word,
-        mesh: pybFoam.pybFoam_core.fvMesh,
-        searchEngine: meshSearch,
-        dict: pybFoam.pybFoam_core.dictionary,
-    ) -> sampledSet:
+    def New(name: pybFoam.pybFoam_core.Word, mesh: pybFoam.pybFoam_core.fvMesh, searchEngine: meshSearch, dict: pybFoam.pybFoam_core.dictionary) -> sampledSet:
         """
         Construct a new sampledSet from dictionary
         """
@@ -133,14 +83,9 @@ class sampledSet:
         """
         Get segment numbers for each point
         """
-
 class sampledSurface:
     @staticmethod
-    def New(
-        name: pybFoam.pybFoam_core.Word,
-        mesh: pybFoam.pybFoam_core.fvMesh,
-        dict: pybFoam.pybFoam_core.dictionary,
-    ) -> sampledSurface:
+    def New(name: pybFoam.pybFoam_core.Word, mesh: pybFoam.pybFoam_core.fvMesh, dict: pybFoam.pybFoam_core.dictionary) -> sampledSurface:
         """
         Construct a new sampledSurface from dictionary (fvMesh overload)
         """
@@ -196,87 +141,51 @@ class sampledSurface:
         """
         Update the surface as required
         """
-
-def sampleOnFacesScalar(
-    surface: sampledSurface, interpolator: interpolationScalar
-) -> pybFoam.pybFoam_core.scalarField:
+def sampleOnFacesScalar(surface: sampledSurface, interpolator: interpolationScalar) -> pybFoam.pybFoam_core.scalarField:
     """
     Sample scalar field values onto surface faces
     """
-
-def sampleOnFacesSymmTensor(
-    surface: sampledSurface, interpolator: interpolationSymmTensor
-) -> pybFoam.pybFoam_core.symmTensorField:
+def sampleOnFacesSymmTensor(surface: sampledSurface, interpolator: interpolationSymmTensor) -> pybFoam.pybFoam_core.symmTensorField:
     """
     Sample symmTensor field values onto surface faces
     """
-
-def sampleOnFacesTensor(
-    surface: sampledSurface, interpolator: interpolationTensor
-) -> pybFoam.pybFoam_core.tensorField:
+def sampleOnFacesTensor(surface: sampledSurface, interpolator: interpolationTensor) -> pybFoam.pybFoam_core.tensorField:
     """
     Sample tensor field values onto surface faces
     """
-
-def sampleOnFacesVector(
-    surface: sampledSurface, interpolator: interpolationVector
-) -> pybFoam.pybFoam_core.vectorField:
+def sampleOnFacesVector(surface: sampledSurface, interpolator: interpolationVector) -> pybFoam.pybFoam_core.vectorField:
     """
     Sample vector field values onto surface faces
     """
-
-def sampleOnPointsScalar(
-    surface: sampledSurface, interpolator: interpolationScalar
-) -> pybFoam.pybFoam_core.scalarField:
+def sampleOnPointsScalar(surface: sampledSurface, interpolator: interpolationScalar) -> pybFoam.pybFoam_core.scalarField:
     """
     Interpolate scalar field values onto surface points
     """
-
-def sampleOnPointsSymmTensor(
-    surface: sampledSurface, interpolator: interpolationSymmTensor
-) -> pybFoam.pybFoam_core.symmTensorField:
+def sampleOnPointsSymmTensor(surface: sampledSurface, interpolator: interpolationSymmTensor) -> pybFoam.pybFoam_core.symmTensorField:
     """
     Interpolate symmTensor field values onto surface points
     """
-
-def sampleOnPointsTensor(
-    surface: sampledSurface, interpolator: interpolationTensor
-) -> pybFoam.pybFoam_core.tensorField:
+def sampleOnPointsTensor(surface: sampledSurface, interpolator: interpolationTensor) -> pybFoam.pybFoam_core.tensorField:
     """
     Interpolate tensor field values onto surface points
     """
-
-def sampleOnPointsVector(
-    surface: sampledSurface, interpolator: interpolationVector
-) -> pybFoam.pybFoam_core.vectorField:
+def sampleOnPointsVector(surface: sampledSurface, interpolator: interpolationVector) -> pybFoam.pybFoam_core.vectorField:
     """
     Interpolate vector field values onto surface points
     """
-
-def sampleSetScalar(
-    sampledSet: sampledSet, interpolator: interpolationScalar
-) -> pybFoam.pybFoam_core.scalarField:
+def sampleSetScalar(sampledSet: sampledSet, interpolator: interpolationScalar) -> pybFoam.pybFoam_core.scalarField:
     """
     Sample scalar field values onto sampledSet points
     """
-
-def sampleSetSymmTensor(
-    sampledSet: sampledSet, interpolator: interpolationSymmTensor
-) -> pybFoam.pybFoam_core.symmTensorField:
+def sampleSetSymmTensor(sampledSet: sampledSet, interpolator: interpolationSymmTensor) -> pybFoam.pybFoam_core.symmTensorField:
     """
     Sample symmTensor field values onto sampledSet points
     """
-
-def sampleSetTensor(
-    sampledSet: sampledSet, interpolator: interpolationTensor
-) -> pybFoam.pybFoam_core.tensorField:
+def sampleSetTensor(sampledSet: sampledSet, interpolator: interpolationTensor) -> pybFoam.pybFoam_core.tensorField:
     """
     Sample tensor field values onto sampledSet points
     """
-
-def sampleSetVector(
-    sampledSet: sampledSet, interpolator: interpolationVector
-) -> pybFoam.pybFoam_core.vectorField:
+def sampleSetVector(sampledSet: sampledSet, interpolator: interpolationVector) -> pybFoam.pybFoam_core.vectorField:
     """
     Sample vector field values onto sampledSet points
     """

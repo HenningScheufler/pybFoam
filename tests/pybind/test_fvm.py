@@ -30,4 +30,3 @@ def test_fvm(change_test_dir: Any) -> None:
 
     fvScalarMatrix(fvm.laplacian(p_rgh))
     fvVectorMatrix(fvm.laplacian(U))
-

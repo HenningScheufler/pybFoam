@@ -95,7 +95,6 @@ def test_blockmesh_comparison(
     """Test that Python binding produces identical results to native blockMesh."""
 
     native_log = tmp_path / "native_blockmesh.log"
-    python_log = tmp_path / "python_blockmesh.log"
 
     run_native_blockmesh(temp_case_native, native_log)
 
@@ -114,21 +113,26 @@ def test_blockmesh_comparison(
 
     # Compare mesh statistics
     assert native_stats["mesh_stats"]["cells"] == python_stats["mesh_stats"]["cells"], (
-        f"Cell count mismatch: native={native_stats['mesh_stats']['cells']}, python={python_stats['mesh_stats']['cells']}"
+        f"Cell count mismatch: native={native_stats['mesh_stats']['cells']}, "
+        f"python={python_stats['mesh_stats']['cells']}"
     )
 
     assert native_stats["mesh_stats"]["faces"] == python_stats["mesh_stats"]["faces"], (
-        f"Face count mismatch: native={native_stats['mesh_stats']['faces']}, python={python_stats['mesh_stats']['faces']}"
+        f"Face count mismatch: native={native_stats['mesh_stats']['faces']}, "
+        f"python={python_stats['mesh_stats']['faces']}"
     )
 
     assert native_stats["mesh_stats"]["points"] == python_stats["mesh_stats"]["points"], (
-        f"Point count mismatch: native={native_stats['mesh_stats']['points']}, python={python_stats['mesh_stats']['points']}"
+        f"Point count mismatch: native={native_stats['mesh_stats']['points']}, "
+        f"python={python_stats['mesh_stats']['points']}"
     )
 
     assert (
         native_stats["mesh_stats"]["internal_faces"] == python_stats["mesh_stats"]["internal_faces"]
     ), (
-        f"Internal face count mismatch: native={native_stats['mesh_stats']['internal_faces']}, python={python_stats['mesh_stats']['internal_faces']}"
+        f"Internal face count mismatch: "
+        f"native={native_stats['mesh_stats']['internal_faces']}, "
+        f"python={python_stats['mesh_stats']['internal_faces']}"
     )
 
     # Verify both meshes pass checkMesh with same status

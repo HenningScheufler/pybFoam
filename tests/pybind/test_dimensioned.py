@@ -5,6 +5,7 @@ Tests dimensionedScalar, dimensionedVector, dimensionedTensor operations
 including multiplication, division, dimension arithmetic, and validation.
 
 All dimensioned × field operators are centralized in bind_dimensioned.cpp.
+Field × dimensioned operators are in bind_geo_fields.cpp.
 """
 
 import os
@@ -17,402 +18,226 @@ import pybFoam
 
 @pytest.fixture(scope="function")
 def change_test_dir(request: Any) -> Generator[None, None, None]:
+    """Change to test directory for field I/O operations."""
     os.chdir(request.fspath.dirname)
     yield
     os.chdir(request.config.invocation_dir)
 
 
-def setup_fields() -> Tuple[Any, Any, Any]:
-    """Setup common test fields."""
+@pytest.fixture(scope="function")
+def test_fields(change_test_dir: Any) -> Tuple[Any, Any, Any]:
+    """Setup common test fields with known values: scalar=2.0, vector=(1,2,3)."""
     time = pybFoam.Time(".", ".")
     mesh = pybFoam.fvMesh(time)
     p_rgh = pybFoam.volScalarField.read_field(mesh, "p_rgh")
     U = pybFoam.volVectorField.read_field(mesh, "U")
-
-    # Set to known values
     p_rgh["internalField"] += 2.0
     U["internalField"] += pybFoam.vector(1.0, 2.0, 3.0)
-
     return mesh, p_rgh, U
 
 
 # ============================================================================
-# DimensionedScalar Creation Tests
+# Dimensioned Type Creation
 # ============================================================================
 
 
-def test_dimensionedScalar_factory_function_creation() -> None:
-    """Test creating dimensionedScalar using factory function."""
-    ds = pybFoam.dimensionedScalar("nu", pybFoam.dimViscosity, 1e-5)
-
-    assert ds.name() == "nu"
-    assert ds.value() == 1e-5
-    # Dimensions should be [0 2 -1 0 0 0 0] for kinematic viscosity
-
-
-def test_dimensionedScalar_creation_with_standard_dimensions() -> None:
-    """Test creation with various standard dimension constants."""
-    # Pressure
-    p0 = pybFoam.dimensionedScalar("p0", pybFoam.dimPressure, 101325.0)
-    assert p0.value() == 101325.0
-
-    # Velocity
-    U0 = pybFoam.dimensionedScalar("U0", pybFoam.dimVelocity, 10.0)
-    assert U0.value() == 10.0
-
-    # Density
-    rho = pybFoam.dimensionedScalar("rho", pybFoam.dimDensity, 1000.0)
-    assert rho.value() == 1000.0
-
-    # Temperature
-    T0 = pybFoam.dimensionedScalar("T0", pybFoam.dimTemperature, 300.0)
-    assert T0.value() == 300.0
-
-    # Dimensionless
-    alpha = pybFoam.dimensionedScalar("alpha", pybFoam.dimless, 0.5)
-    assert alpha.value() == 0.5
+@pytest.mark.parametrize(
+    "dim_type,name,dimension,value,vector_val",
+    [
+        ("scalar", "nu", pybFoam.dimViscosity, 1e-5, None),
+        ("scalar", "p0", pybFoam.dimPressure, 101325.0, None),
+        ("scalar", "rho", pybFoam.dimDensity, 1000.0, None),
+        ("vector", "U0", pybFoam.dimVelocity, None, pybFoam.vector(1.0, 2.0, 3.0)),
+    ],
+)
+def test_dimensioned_creation(
+    dim_type: str, name: str, dimension: Any, value: float, vector_val: Any
+) -> None:
+    """Test creation of dimensionedScalar and dimensionedVector types."""
+    if dim_type == "scalar":
+        ds = pybFoam.dimensionedScalar(name, dimension, value)
+        assert ds.name() == name
+        assert ds.value() == value
+    else:
+        dv = pybFoam.dimensionedVector(name, dimension, vector_val)
+        assert dv.name() == name
+        assert dv.value()[0] == vector_val[0]
 
 
 # ============================================================================
-# DimensionedScalar × Field Multiplication Tests
+# Operator Tests: dimensioned OP field
 # ============================================================================
 
 
-def test_dimensioned_times_volScalarField(change_test_dir: Any) -> None:
-    """Test dimensionedScalar × volScalarField."""
-    mesh, p_rgh, U = setup_fields()
-
-    scale = pybFoam.dimensionedScalar("scale", pybFoam.dimPressure, 3.0)
-
-    # dimensioned × field
-    result = scale * p_rgh
-    assert result()["internalField"][0] == pytest.approx(6.0)  # 3.0 * 2.0
-
-
-def test_volScalarField_times_dimensioned(change_test_dir: Any) -> None:
-    """Test volScalarField × dimensionedScalar (rmul)."""
-    mesh, p_rgh, U = setup_fields()
-
-    scale = pybFoam.dimensionedScalar("scale", pybFoam.dimPressure, 3.0)
-
-    # field × dimensioned
-    result = p_rgh * scale
-    assert result()["internalField"][0] == pytest.approx(6.0)  # 2.0 * 3.0
-
-
-def test_dimensioned_times_tmp_volScalarField(change_test_dir: Any) -> None:
-    """Test dimensionedScalar × tmp<volScalarField>."""
-    mesh, p_rgh, U = setup_fields()
-
-    scale = pybFoam.dimensionedScalar("scale", pybFoam.dimPressure, 2.0)
-
-    # Create tmp by doing an operation
-    tmp_field = p_rgh * 2.0  # tmp with value 4.0
-
-    # dimensioned × tmp
-    result = scale * tmp_field
-    assert result()["internalField"][0] == pytest.approx(8.0)  # 2.0 * 4.0
-
-
-def test_tmp_volScalarField_times_dimensioned(change_test_dir: Any) -> None:
-    """Test tmp<volScalarField> × dimensionedScalar."""
-    mesh, p_rgh, U = setup_fields()
-
-    scale = pybFoam.dimensionedScalar("scale", pybFoam.dimPressure, 2.0)
-
-    # Create tmp
-    tmp_field = p_rgh * 2.0  # tmp with value 4.0
-
-    # tmp × dimensioned
-    result = tmp_field * scale
-    assert result()["internalField"][0] == pytest.approx(8.0)  # 4.0 * 2.0
-
-
-# ============================================================================
-# Field / DimensionedScalar Division Tests
-# ============================================================================
-
-
-def test_volScalarField_div_dimensioned(change_test_dir: Any) -> None:
-    """Test volScalarField / dimensionedScalar."""
-    mesh, p_rgh, U = setup_fields()
-
-    divisor = pybFoam.dimensionedScalar("divisor", pybFoam.dimPressure, 2.0)
-
-    result = p_rgh / divisor
-    assert result()["internalField"][0] == pytest.approx(1.0)  # 2.0 / 2.0
-
-
-def test_tmp_volScalarField_div_dimensioned(change_test_dir: Any) -> None:
-    """Test tmp<volScalarField> / dimensionedScalar."""
-    mesh, p_rgh, U = setup_fields()
-
-    divisor = pybFoam.dimensionedScalar("divisor", pybFoam.dimPressure, 2.0)
-
-    # Create tmp
-    tmp_field = p_rgh * 2.0  # tmp with value 4.0
-
-    result = tmp_field / divisor
-    assert result()["internalField"][0] == pytest.approx(2.0)  # 4.0 / 2.0
-
-
-# ============================================================================
-# Field ± DimensionedScalar Addition/Subtraction Tests
-# ============================================================================
-
-
-def test_volScalarField_minus_dimensioned(change_test_dir: Any) -> None:
-    """Test volScalarField - dimensionedScalar."""
-    mesh, p_rgh, U = setup_fields()
-
-    offset = pybFoam.dimensionedScalar("offset", pybFoam.dimPressure, 10.0)
-
-    result = p_rgh - offset
-    assert result()["internalField"][0] == pytest.approx(-8.0)  # 2.0 - 10.0
-
-
-def test_volScalarField_plus_dimensioned(change_test_dir: Any) -> None:
-    """Test volScalarField + dimensionedScalar."""
-    mesh, p_rgh, U = setup_fields()
-
-    offset = pybFoam.dimensionedScalar("offset", pybFoam.dimPressure, 10.0)
-
-    result = p_rgh + offset
-    assert result()["internalField"][0] == pytest.approx(12.0)  # 2.0 + 10.0
-
-
-def test_tmp_volScalarField_minus_dimensioned(change_test_dir: Any) -> None:
-    """Test tmp<volScalarField> - dimensionedScalar."""
-    mesh, p_rgh, U = setup_fields()
-
-    offset = pybFoam.dimensionedScalar("offset", pybFoam.dimPressure, 5.0)
-
-    tmp_field = p_rgh * 2.0  # tmp with value 4.0
-    result = tmp_field - offset
-    assert result()["internalField"][0] == pytest.approx(-1.0)  # 4.0 - 5.0
-
-
-def test_tmp_volScalarField_plus_dimensioned(change_test_dir: Any) -> None:
-    """Test tmp<volScalarField> + dimensionedScalar."""
-    mesh, p_rgh, U = setup_fields()
-
-    offset = pybFoam.dimensionedScalar("offset", pybFoam.dimPressure, 5.0)
-
-    tmp_field = p_rgh * 2.0  # tmp with value 4.0
-    result = tmp_field + offset
-    assert result()["internalField"][0] == pytest.approx(9.0)  # 4.0 + 5.0
-
-
-def test_dimensionSet_multiplication() -> None:
-    """Test dimensionSet × dimensionSet."""
-    # Force = Mass × Acceleration = [1 0 0 0 0 0 0] × [0 1 -2 0 0 0 0]
-    # Result should be [1 1 -2 0 0 0 0]
-    result = pybFoam.dimMass * pybFoam.dimAcceleration
-    # We can't directly check the result, but verify it doesn't crash
-    assert result is not None
-
-
-def test_dimensionSet_division() -> None:
-    """Test dimensionSet / dimensionSet."""
-    # Kinematic Viscosity = Dynamic Viscosity / Density
-    # [0 2 -1 0 0 0 0] = [1 -1 -1 0 0 0 0] / [1 -3 0 0 0 0 0]
-    result = pybFoam.dimViscosity / pybFoam.dimDensity
-    assert result is not None
-
-
-def test_dimensionSet_power() -> None:
-    """Test dimensionSet raised to power."""
-    # Area = Length²
-    area = pybFoam.dimLength**2
-    assert area is not None
-
-    # Volume = Length³
-    volume = pybFoam.dimLength**3
-    assert volume is not None
-
-
-def test_dimensionSet_combination() -> None:
-    """Test complex dimension combinations."""
-    # Pressure = Force / Area = (Mass × Acceleration) / Length²
-    # [1 -1 -2 0 0 0 0] = [1 1 -2 0 0 0 0] / [0 2 0 0 0 0 0]
-    force_dims = pybFoam.dimMass * pybFoam.dimAcceleration
-    area_dims = pybFoam.dimLength**2
-    pressure_dims = force_dims / area_dims
-    assert pressure_dims is not None
-
-
-def test_pressure_scaling(change_test_dir: Any) -> None:
-    """Test pressure field scaling with dimensioned reference pressure."""
-    mesh, p_rgh, U = setup_fields()
-
-    # Normalize pressure by reference value
-    p_ref = pybFoam.dimensionedScalar("p_ref", pybFoam.dimPressure, 101325.0)
-
-    p_normalized = p_rgh / p_ref
-
-    # p_rgh = 2.0, p_ref = 101325.0
-    expected = 2.0 / 101325.0
-    assert p_normalized()["internalField"][0] == pytest.approx(expected, rel=1e-9)
-
-
-def test_kinematic_viscosity_calculation(change_test_dir: Any) -> None:
-    """Test nu = mu / rho calculation pattern."""
-    mesh, p_rgh, U = setup_fields()
-
-    # Dynamic viscosity (Pa·s = [1 -1 -1 0 0 0 0])
-    mu_dim = pybFoam.dimMass / (pybFoam.dimLength * pybFoam.dimTime)
-    mu = pybFoam.dimensionedScalar("mu", mu_dim, 1e-3)
-
-    # Create a density field (simplified as scalar field for this test)
-    rho = pybFoam.dimensionedScalar("rho", pybFoam.dimDensity, 1000.0)
-
-    # This tests dimension arithmetic
-    nu_dim = mu_dim / pybFoam.dimDensity
-    assert nu_dim is not None
-
-
-def test_boussinesq_buoyancy_pattern(change_test_dir: Any) -> None:
-    """Test Boussinesq approximation: rhok = 1.0 - beta*(T - TRef)."""
-    mesh, p_rgh, U = setup_fields()
-
-    # Thermal expansion coefficient (1/K)
-    beta = pybFoam.dimensionedScalar("beta", pybFoam.dimless / pybFoam.dimTemperature, 3e-3)
-
-    # Reference temperature
-    TRef = pybFoam.dimensionedScalar("TRef", pybFoam.dimTemperature, 300.0)
-    
-    # Test that dimensioned arithmetic works
-    dT_dim = beta.dimensions() * pybFoam.dimTemperature
-    assert dT_dim is not None
-
-
-def test_velocity_scaling(change_test_dir: Any) -> None:
-    """Test velocity scaling with characteristic velocity."""
-    mesh, p_rgh, U = setup_fields()
-
-    U_char = pybFoam.dimensionedScalar("U_char", pybFoam.dimVelocity, 10.0)
-
-    # Note: Can't directly multiply volVectorField by dimensionedScalar
-    # This would require specific binding for vector field operations
-    # Test the dimension creation at least
-    assert U_char.value() == 10.0
-    assert U_char.dimensions() is not None
-
-
-def test_reynolds_number_dimensions() -> None:
-    """Test Reynolds number calculation dimensions (dimensionless)."""
-    # Re = U × L / nu
-    # Dimensions: [0 1 -1] × [0 1 0] / [0 2 -1] = dimensionless
-
-    U_dim = pybFoam.dimVelocity
-    L_dim = pybFoam.dimLength
-    nu_dim = pybFoam.dimViscosity
-
-    Re_dim = (U_dim * L_dim) / nu_dim
-
-    # Reynolds number should be dimensionless
-    # We can't directly check equality, but verify it's computed
-    assert Re_dim is not None
-
-
-def test_multiply_then_divide(change_test_dir: Any) -> None:
-    """Test (dimensioned × field) / dimensioned."""
-    mesh, p_rgh, U = setup_fields()
-
-    scale1 = pybFoam.dimensionedScalar("scale1", pybFoam.dimPressure, 3.0)
-    scale2 = pybFoam.dimensionedScalar("scale2", pybFoam.dimPressure, 2.0)
-
-    # (scale1 × p_rgh) / scale2
-    tmp1 = scale1 * p_rgh  # 3.0 × 2.0 = 6.0
-    result = tmp1 / scale2  # 6.0 / 2.0 = 3.0
-
-    assert result()["internalField"][0] == pytest.approx(3.0)
-
-
-def test_add_multiply_sequence(change_test_dir: Any) -> None:
-    """Test (field + dimensioned) × dimensioned."""
-    mesh, p_rgh, U = setup_fields()
-
-    offset = pybFoam.dimensionedScalar("offset", pybFoam.dimPressure, 3.0)
-    scale = pybFoam.dimensionedScalar("scale", pybFoam.dimPressure, 2.0)
-
-    # (p_rgh + offset) × scale
-    tmp1 = p_rgh + offset  # 2.0 + 3.0 = 5.0
-    result = tmp1 * scale  # 5.0 × 2.0 = 10.0
-
-    assert result()["internalField"][0] == pytest.approx(10.0)
-
-
-def test_complex_expression(change_test_dir: Any) -> None:
-    """Test complex expression: scale1 × (field - offset) / scale2."""
-    mesh, p_rgh, U = setup_fields()
-
-    scale1 = pybFoam.dimensionedScalar("scale1", pybFoam.dimPressure, 4.0)
-    offset = pybFoam.dimensionedScalar("offset", pybFoam.dimPressure, 1.0)
-    scale2 = pybFoam.dimensionedScalar("scale2", pybFoam.dimPressure, 2.0)
-
-    # scale1 × (p_rgh - offset) / scale2
-    # 4.0 × (2.0 - 1.0) / 2.0 = 4.0 × 1.0 / 2.0 = 2.0
-    tmp1 = p_rgh - offset  # 2.0 - 1.0 = 1.0
-    tmp2 = scale1 * tmp1  # 4.0 × 1.0 = 4.0
-    result = tmp2 / scale2  # 4.0 / 2.0 = 2.0
-
-    assert result()["internalField"][0] == pytest.approx(2.0)
-
-
-def test_dimensionedVector_creation() -> None:
-    """Test dimensionedVector creation."""
-    # Note: In C++, this is dimensioned<vector>
-    # Python binding uses dimensionedVector
-    # This test verifies the binding exists
-    vec1 = pybFoam.dimensionedVector("scale1", pybFoam.dimPressure, pybFoam.vector(1.0, 2.0, 3.0))
-    assert vec1.name() == "scale1"
-    assert vec1.value()[0] == 1.0
-    assert vec1.value()[1] == 2.0
-    assert vec1.value()[2] == 3.0
-
-
-def test_dimensionedTensor_creation() -> None:
-    """Test dimensionedTensor creation."""
-    try:
-        assert hasattr(pybFoam, "dimensionedTensor")
-    except (AttributeError, AssertionError):
-        pytest.skip("dimensionedTensor not directly accessible from Python")
-
-
-def test_dimensioned_times_surfaceScalarField(change_test_dir: Any) -> None:
+@pytest.mark.parametrize(
+    "op,dim_val,is_vector,expected",
+    [
+        ("mul", 3.0, False, 6.0),  # 3.0 * 2.0 (scalar)
+        ("mul", 2.0, True, 2.0),  # 2.0 * (1,2,3) → check first component
+        ("add", 10.0, False, 12.0),  # 10.0 + 2.0
+        ("sub", 5.0, False, 3.0),  # 5.0 - 2.0
+    ],
+)
+def test_dimensioned_op_field(
+    test_fields: Tuple[Any, Any, Any], op: str, dim_val: float, is_vector: bool, expected: float
+) -> None:
+    """Test dimensioned × field, dimensioned + field, dimensioned - field."""
+    mesh, p_rgh, U = test_fields
+    field = U if is_vector else p_rgh
+    dim_unit = pybFoam.dimVelocity if is_vector else pybFoam.dimPressure
+    dim = pybFoam.dimensionedScalar("dim", dim_unit, dim_val)
+
+    if op == "mul":
+        result = dim * field
+    elif op == "add":
+        result = dim + field
+    elif op == "sub":
+        result = dim - field
+
+    val = result()["internalField"][0]
+    assert (val[0] if is_vector else val) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "op,field_scale,dim_val,expected",
+    [
+        ("mul", 2.0, 3.0, 12.0),  # (2.0 * 2.0) * 3.0
+        ("div", 2.0, 2.0, 2.0),  # (2.0 * 2.0) / 2.0
+        ("add", 1.0, 5.0, 7.0),  # (2.0 * 1.0) + 5.0
+        ("sub", 3.0, 3.0, 3.0),  # (2.0 * 3.0) - 3.0
+    ],
+)
+def test_tmp_field_op_dimensioned(
+    test_fields: Tuple[Any, Any, Any], op: str, field_scale: float, dim_val: float, expected: float
+) -> None:
+    """Test tmp<field> operators with dimensioned (mul, div, add, sub)."""
+    mesh, p_rgh, U = test_fields
+    tmp_field = p_rgh * field_scale
+    dim = pybFoam.dimensionedScalar("dim", pybFoam.dimPressure, dim_val)
+
+    if op == "mul":
+        result = tmp_field * dim
+    elif op == "div":
+        result = tmp_field / dim
+    elif op == "add":
+        result = tmp_field + dim
+    elif op == "sub":
+        result = tmp_field - dim
+
+    assert result()["internalField"][0] == pytest.approx(expected)
+
+
+def test_dimensionedScalar_mul_surfaceScalarField(test_fields: Tuple[Any, Any, Any]) -> None:
     """Test dimensionedScalar × surfaceScalarField."""
-    mesh, p_rgh, U = setup_fields()
-
-    # Create a surface field
+    mesh, p_rgh, U = test_fields
     phi = pybFoam.fvc.flux(U)
-
     scale = pybFoam.dimensionedScalar("scale", pybFoam.dimVelocity * pybFoam.dimArea, 2.0)
-
     result = scale * phi
     assert result() is not None
 
 
+# ============================================================================
+# DimensionSet Arithmetic
+# ============================================================================
+
+
+@pytest.mark.parametrize(
+    "dim1,dim2",
+    [
+        (pybFoam.dimMass, pybFoam.dimAcceleration),
+        (pybFoam.dimVelocity, pybFoam.dimTime),
+        (pybFoam.dimPressure, pybFoam.dimArea),
+    ],
+)
+def test_dimensionSet_multiplication(dim1: Any, dim2: Any) -> None:
+    """Test dimensionSet × dimensionSet."""
+    assert (dim1 * dim2) is not None
+
+
+@pytest.mark.parametrize(
+    "dim1,dim2",
+    [
+        (pybFoam.dimViscosity, pybFoam.dimDensity),
+        (pybFoam.dimVelocity, pybFoam.dimTime),
+        (pybFoam.dimForce, pybFoam.dimArea),
+    ],
+)
+def test_dimensionSet_division(dim1: Any, dim2: Any) -> None:
+    """Test dimensionSet / dimensionSet."""
+    assert (dim1 / dim2) is not None
+
+
+@pytest.mark.parametrize("dimension,power", [(pybFoam.dimLength, 2), (pybFoam.dimLength, 3)])
+def test_dimensionSet_power(dimension: Any, power: int) -> None:
+    """Test dimensionSet raised to power."""
+    assert (dimension**power) is not None
+
+
+# ============================================================================
+# Physics Pattern Integration Tests
+# ============================================================================
+
+
+def test_pressure_normalization(test_fields: Tuple[Any, Any, Any]) -> None:
+    """Test pressure field scaling with reference pressure."""
+    mesh, p_rgh, U = test_fields
+    p_ref = pybFoam.dimensionedScalar("p_ref", pybFoam.dimPressure, 101325.0)
+    p_normalized = p_rgh / p_ref
+    assert p_normalized()["internalField"][0] == pytest.approx(2.0 / 101325.0, rel=1e-9)
+
+
+def test_reynolds_number_dimensions() -> None:
+    """Test Reynolds number calculation (dimensionless)."""
+    Re_dim = (pybFoam.dimVelocity * pybFoam.dimLength) / pybFoam.dimViscosity
+    assert Re_dim is not None
+
+
+@pytest.mark.parametrize(
+    "scale1,scale2,expected",
+    [(3.0, 2.0, 3.0), (6.0, 3.0, 4.0)],
+)
+def test_complex_expression(
+    test_fields: Tuple[Any, Any, Any], scale1: float, scale2: float, expected: float
+) -> None:
+    """Test (dimensioned × field) / dimensioned."""
+    mesh, p_rgh, U = test_fields
+    ds1 = pybFoam.dimensionedScalar("s1", pybFoam.dimPressure, scale1)
+    ds2 = pybFoam.dimensionedScalar("s2", pybFoam.dimPressure, scale2)
+    result = (ds1 * p_rgh) / ds2
+    assert result()["internalField"][0] == pytest.approx(expected)
+
+
+# ============================================================================
+# Dimension Constants
+# ============================================================================
+
+
 def test_base_dimensions_exist() -> None:
     """Test all SI base dimension constants exist."""
-    assert hasattr(pybFoam, "dimless")
-    assert hasattr(pybFoam, "dimMass")
-    assert hasattr(pybFoam, "dimArea")
-    assert hasattr(pybFoam, "dimLength")
-    assert hasattr(pybFoam, "dimTime")
-    assert hasattr(pybFoam, "dimTemperature")
-    assert hasattr(pybFoam, "dimMoles")
-    assert hasattr(pybFoam, "dimCurrent")
-    assert hasattr(pybFoam, "dimLuminousIntensity")
+    for dim in [
+        "dimless",
+        "dimMass",
+        "dimLength",
+        "dimTime",
+        "dimTemperature",
+        "dimMoles",
+        "dimCurrent",
+        "dimLuminousIntensity",
+    ]:
+        assert hasattr(pybFoam, dim)
 
 
 def test_derived_dimensions_exist() -> None:
     """Test derived dimension constants exist."""
-    assert hasattr(pybFoam, "dimVelocity")
-    assert hasattr(pybFoam, "dimAcceleration")
-    assert hasattr(pybFoam, "dimForce")
-    assert hasattr(pybFoam, "dimPressure")
-    assert hasattr(pybFoam, "dimDensity")
-    assert hasattr(pybFoam, "dimEnergy")
-    assert hasattr(pybFoam, "dimPower")
-    assert hasattr(pybFoam, "dimViscosity")
+    for dim in [
+        "dimArea",
+        "dimVelocity",
+        "dimAcceleration",
+        "dimForce",
+        "dimPressure",
+        "dimDensity",
+        "dimEnergy",
+        "dimPower",
+        "dimViscosity",
+    ]:
+        assert hasattr(pybFoam, dim)

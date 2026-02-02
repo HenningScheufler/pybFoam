@@ -114,8 +114,8 @@ explicit_package_bases = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py38"
-extend-exclude = ["build/", "dist/", "_skbuild/", "__pycache__/"]
+target-version = "py39"
+extend-exclude = ["build/", "dist/", "_skbuild/", "__pycache__/", "*.pyi"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]  # Enable pycodestyle errors, pyflakes, and isort
@@ -126,7 +126,7 @@ known-first-party = ["pybFoam"]
 
 [tool.poe.tasks]
 test = "pytest"
-lint = "ruff check"
+lint = "ruff check src tests"
 format = "ruff format"
 type_check = "mypy"
 build_docs = "sphinx-build -b html docs docs/_build"

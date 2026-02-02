@@ -116,7 +116,7 @@ Foam::fvMesh* Foam::generateBlockMesh
         }
 
         mesh.removeFiles();
-        sucessful_write = mesh.write();
+        bool sucessful_write = mesh.write();
         if (!sucessful_write)
         {
             MeshUtils::restoreOutput();

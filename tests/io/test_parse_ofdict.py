@@ -62,9 +62,6 @@ def test_parse_ofdict(change_test_dir: Any) -> None:
         d.get[str]("notSetOptional")
 
 
-import pytest
-
-
 @pytest.mark.parametrize("filename", ["TestDict", "TestDict.yaml", "TestDict.json"])
 def test_parse_ofdict_model(change_test_dir: Any, filename: str) -> None:
     test_dict = OFTestDict.from_file(filename)
