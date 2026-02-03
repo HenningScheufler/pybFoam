@@ -93,16 +93,10 @@ def test_snappy_phase_comparison(
     log_dir = tmp_path / "logs"
     log_dir.mkdir(exist_ok=True)
 
-    # Prepare both cases: run blockMesh and surfaceFeatureExtract
+    # Prepare case: run blockMesh
     run_blockmesh(temp_case_native, log_dir / f"{test_name}_native_blockmesh.log")
-    run_surface_feature_extract(
-        temp_case_native, log_dir / f"{test_name}_native_surfaceFeatureExtract.log"
-    )
 
-    run_blockmesh(temp_case_python, log_dir / f"{test_name}_python_blockmesh.log")
-    run_surface_feature_extract(
-        temp_case_python, log_dir / f"{test_name}_python_surfaceFeatureExtract.log"
-    )
+
 
     # Run native snappyHexMesh
     run_native_snappy(temp_case_native, log_dir / f"{test_name}_native_snappyHexMesh.log")
@@ -111,6 +105,9 @@ def test_snappy_phase_comparison(
     argv_python = [str(temp_case_python), "-case", str(temp_case_python)]
     arglist_python = pyb.argList(argv_python)
     time_python = pyb.Time(arglist_python)
+
+    # Prepare case: run blockMesh
+    run_blockmesh(temp_case_python, log_dir / f"{test_name}_python_blockmesh.log")
 
     # Run Python snappyHexMesh
     run_python_snappy(temp_case_python, time_python)

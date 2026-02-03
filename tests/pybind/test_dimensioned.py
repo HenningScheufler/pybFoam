@@ -14,6 +14,7 @@ from typing import Any, Generator, Tuple
 import pytest
 
 import pybFoam
+from pybFoam import Time, fvMesh, volScalarField, volVectorField, vector
 
 
 @pytest.fixture(scope="function")
@@ -25,15 +26,17 @@ def change_test_dir(request: Any) -> Generator[None, None, None]:
 
 
 @pytest.fixture(scope="function")
-def test_fields(change_test_dir: Any) -> Tuple[Any, Any, Any]:
+def test_fields(change_test_dir: Any) -> Tuple[Time, fvMesh, volScalarField, volVectorField]:
     """Setup common test fields with known values: scalar=2.0, vector=(1,2,3)."""
-    time = pybFoam.Time(".", ".")
-    mesh = pybFoam.fvMesh(time)
-    p_rgh = pybFoam.volScalarField.read_field(mesh, "p_rgh")
-    U = pybFoam.volVectorField.read_field(mesh, "U")
+    time = Time(".", ".")
+    mesh = fvMesh(time)
+    p_rgh = volScalarField.read_field(mesh, "p_rgh")
+    U = volVectorField.read_field(mesh, "U")
     p_rgh["internalField"] += 2.0
-    U["internalField"] += pybFoam.vector(1.0, 2.0, 3.0)
-    return mesh, p_rgh, U
+    p_rgh.correctBoundaryConditions()
+    U["internalField"] += vector(1.0, 2.0, 3.0)
+    U.correctBoundaryConditions()
+    return time, mesh, p_rgh, U
 
 
 # ============================================================================
@@ -79,10 +82,10 @@ def test_dimensioned_creation(
     ],
 )
 def test_dimensioned_op_field(
-    test_fields: Tuple[Any, Any, Any], op: str, dim_val: float, is_vector: bool, expected: float
+    test_fields: Tuple[Any, Any, Any, Any], op: str, dim_val: float, is_vector: bool, expected: float
 ) -> None:
     """Test dimensioned × field, dimensioned + field, dimensioned - field."""
-    mesh, p_rgh, U = test_fields
+    time, mesh, p_rgh, U = test_fields
     field = U if is_vector else p_rgh
     dim_unit = pybFoam.dimVelocity if is_vector else pybFoam.dimPressure
     dim = pybFoam.dimensionedScalar("dim", dim_unit, dim_val)
@@ -108,10 +111,10 @@ def test_dimensioned_op_field(
     ],
 )
 def test_tmp_field_op_dimensioned(
-    test_fields: Tuple[Any, Any, Any], op: str, field_scale: float, dim_val: float, expected: float
+    test_fields: Tuple[Any, Any, Any, Any], op: str, field_scale: float, dim_val: float, expected: float
 ) -> None:
     """Test tmp<field> operators with dimensioned (mul, div, add, sub)."""
-    mesh, p_rgh, U = test_fields
+    time, mesh, p_rgh, U = test_fields
     tmp_field = p_rgh * field_scale
     dim = pybFoam.dimensionedScalar("dim", pybFoam.dimPressure, dim_val)
 
@@ -127,9 +130,9 @@ def test_tmp_field_op_dimensioned(
     assert result()["internalField"][0] == pytest.approx(expected)
 
 
-def test_dimensionedScalar_mul_surfaceScalarField(test_fields: Tuple[Any, Any, Any]) -> None:
+def test_dimensionedScalar_mul_surfaceScalarField(test_fields: Tuple[Any, Any, Any, Any]) -> None:
     """Test dimensionedScalar × surfaceScalarField."""
-    mesh, p_rgh, U = test_fields
+    time, mesh, p_rgh, U = test_fields
     phi = pybFoam.fvc.flux(U)
     scale = pybFoam.dimensionedScalar("scale", pybFoam.dimVelocity * pybFoam.dimArea, 2.0)
     result = scale * phi
@@ -178,9 +181,9 @@ def test_dimensionSet_power(dimension: Any, power: int) -> None:
 # ============================================================================
 
 
-def test_pressure_normalization(test_fields: Tuple[Any, Any, Any]) -> None:
+def test_pressure_normalization(test_fields: Tuple[Any, Any, Any, Any]) -> None:
     """Test pressure field scaling with reference pressure."""
-    mesh, p_rgh, U = test_fields
+    time, mesh, p_rgh, U = test_fields
     p_ref = pybFoam.dimensionedScalar("p_ref", pybFoam.dimPressure, 101325.0)
     p_normalized = p_rgh / p_ref
     assert p_normalized()["internalField"][0] == pytest.approx(2.0 / 101325.0, rel=1e-9)
@@ -197,10 +200,10 @@ def test_reynolds_number_dimensions() -> None:
     [(3.0, 2.0, 3.0), (6.0, 3.0, 4.0)],
 )
 def test_complex_expression(
-    test_fields: Tuple[Any, Any, Any], scale1: float, scale2: float, expected: float
+    test_fields: Tuple[Any, Any, Any, Any], scale1: float, scale2: float, expected: float
 ) -> None:
     """Test (dimensioned × field) / dimensioned."""
-    mesh, p_rgh, U = test_fields
+    time, mesh, p_rgh, U = test_fields
     ds1 = pybFoam.dimensionedScalar("s1", pybFoam.dimPressure, scale1)
     ds2 = pybFoam.dimensionedScalar("s2", pybFoam.dimPressure, scale2)
     result = (ds1 * p_rgh) / ds2

@@ -72,6 +72,7 @@ def run_surface_feature_extract(case_path: Path, log_file: Optional[Path] = None
     constant_dir = case_path / "constant"
     emesh_files = list(constant_dir.glob("**/*.eMesh"))
 
+    result = None
     if not emesh_files:
         if log_file:
             with open(log_file, "w") as f:
@@ -82,7 +83,7 @@ def run_surface_feature_extract(case_path: Path, log_file: Optional[Path] = None
                     text=True,
                 )
         else:
-            subprocess.run(
+            result = subprocess.run(
                 ["surfaceFeatureExtract", "-case", str(case_path)], capture_output=True, text=True
             )
 

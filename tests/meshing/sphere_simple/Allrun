@@ -5,8 +5,6 @@ cd "${0%/*}" || exit                                # Run from this directory
 
 touch sphere_simple.foam
 
-runApplication surfaceFeatureExtract
-
 runApplication blockMesh
 
 runApplication snappyHexMesh -overwrite
