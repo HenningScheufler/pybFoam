@@ -146,7 +146,7 @@ void bindFvMesh(pybind11::module &m)
         })
         .def("time", &Foam::fvMesh::time, py::return_value_policy::reference)
         .def("C", &Foam::fvMesh::C, py::return_value_policy::reference)
-        .def("V", [](Foam::fvMesh &self)
+        .def("V", [](Foam::fvMesh &self) -> &Foam::scalarField
              { return self.V().field(); }, py::return_value_policy::reference)
         .def("Cf", &Foam::fvMesh::Cf, py::return_value_policy::reference)
         .def("Sf", &Foam::fvMesh::Sf, py::return_value_policy::reference)
