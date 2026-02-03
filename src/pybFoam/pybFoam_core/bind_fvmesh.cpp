@@ -153,7 +153,14 @@ void bindFvMesh(pybind11::module &m)
         .def("magSf", &Foam::fvMesh::magSf, py::return_value_policy::reference)
         .def("setFluxRequired", &Foam::fvMesh::setFluxRequired)
         .def("solverPerformanceDict", [](const Foam::fvMesh &self)
-             { return &self.data().solverPerformanceDict(); },
+             {
+                #if OPENFOAM >= 2312
+                    return &self.data().solverPerformanceDict();
+                #else
+                    return &self.solverPerformanceDict();
+                #endif
+
+            },
              py::return_value_policy::reference)
         .def("boundary", [](const Foam::fvMesh &self) -> const Foam::fvBoundaryMesh& {
             return self.boundary();

@@ -107,7 +107,11 @@ Foam::fvMesh* Foam::generateBlockMesh
         polyMesh& mesh = meshPtr();
 
         // Set precision for point data
-        IOstream::minPrecision(10);
+        #if OPENFOAM >= 2406
+            IOstream::minPrecision(10);
+        #endif
+
+
 
         // Write the mesh
         if (verbose)
@@ -122,7 +126,6 @@ Foam::fvMesh* Foam::generateBlockMesh
             MeshUtils::restoreOutput();
             throw std::runtime_error("Failed to write polyMesh");
         }
-
         // Clear the polyMesh and load fvMesh instead
         meshPtr.clear();
 

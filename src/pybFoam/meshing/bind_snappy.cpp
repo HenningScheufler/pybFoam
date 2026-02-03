@@ -47,6 +47,60 @@ License
 namespace Foam
 {
 
+// Helper function to create meshRefinement with version-specific parameters
+meshRefinement createMeshRefinement
+(
+    fvMesh& mesh,
+    const scalar mergeDist,
+    const bool overwrite,
+    const refinementSurfaces& surfaces,
+    const refinementFeatures& features,
+    const shellSurfaces& shells,
+    const shellSurfaces& limitShells,
+    const bool dryRun,
+    const dictionary& meshDict
+)
+{
+    #if OPENFOAM >= 2412
+        // Overall mesh generation mode
+        const meshRefinement::MeshType meshType
+        (
+            meshRefinement::MeshTypeNames.getOrDefault
+            (
+                "type",
+                meshDict,
+                meshRefinement::CASTELLATED
+            )
+        );
+        return meshRefinement
+        (
+            mesh,
+            mergeDist,
+            overwrite,
+            surfaces,
+            features,
+            shells,
+            limitShells,
+            labelList(),
+            meshType,
+            dryRun
+        );
+    #else
+        return meshRefinement
+        (
+            mesh,
+            mergeDist,
+            overwrite,
+            surfaces,
+            features,
+            shells,
+            limitShells,
+            labelList(),
+            dryRun
+        );
+    #endif
+}
+
 void generate_snappy_hex_mesh
 (
     fvMesh& mesh,
@@ -169,7 +223,7 @@ void generate_snappy_hex_mesh
     }
 
     // Set up mesh refiner
-    meshRefinement meshRefiner
+    meshRefinement meshRefiner = createMeshRefinement
     (
         mesh,
         mergeDist,
@@ -178,8 +232,8 @@ void generate_snappy_hex_mesh
         features,
         shells,
         limitShells,
-        labelList(),
-        dryRun
+        dryRun,
+        meshDict
     );
 
     // CRITICAL: Calculate initial surface intersections
