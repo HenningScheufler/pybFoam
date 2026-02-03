@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04 # may use an older version to test
     strategy:
       matrix:
-        openfoam-version: [2406, 2412, 2506]
+        openfoam-version: [2306, 2312, 2406, 2412, 2506, 2512]
       fail-fast: false
     name: Test with OpenFOAM ${{ matrix.openfoam-version }}
     steps:

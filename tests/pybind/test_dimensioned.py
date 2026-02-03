@@ -14,7 +14,7 @@ from typing import Any, Generator, Tuple
 import pytest
 
 import pybFoam
-from pybFoam import Time, fvMesh, volScalarField, volVectorField, vector
+from pybFoam import Time, fvMesh, vector, volScalarField, volVectorField
 
 
 @pytest.fixture(scope="function")
@@ -82,7 +82,11 @@ def test_dimensioned_creation(
     ],
 )
 def test_dimensioned_op_field(
-    test_fields: Tuple[Any, Any, Any, Any], op: str, dim_val: float, is_vector: bool, expected: float
+    test_fields: Tuple[Any, Any, Any, Any],
+    op: str,
+    dim_val: float,
+    is_vector: bool,
+    expected: float,
 ) -> None:
     """Test dimensioned × field, dimensioned + field, dimensioned - field."""
     time, mesh, p_rgh, U = test_fields
@@ -111,7 +115,11 @@ def test_dimensioned_op_field(
     ],
 )
 def test_tmp_field_op_dimensioned(
-    test_fields: Tuple[Any, Any, Any, Any], op: str, field_scale: float, dim_val: float, expected: float
+    test_fields: Tuple[Any, Any, Any, Any],
+    op: str,
+    field_scale: float,
+    dim_val: float,
+    expected: float,
 ) -> None:
     """Test tmp<field> operators with dimensioned (mul, div, add, sub)."""
     time, mesh, p_rgh, U = test_fields

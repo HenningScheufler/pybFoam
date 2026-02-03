@@ -23,7 +23,6 @@ if TYPE_CHECKING:
         run_blockmesh,
         run_native_snappy,
         run_python_snappy,
-        run_surface_feature_extract,
     )
 else:
     # Import shared utilities from conftest
@@ -34,7 +33,6 @@ else:
         run_blockmesh,
         run_native_snappy,
         run_python_snappy,
-        run_surface_feature_extract,
     )
 
 
@@ -95,8 +93,6 @@ def test_snappy_phase_comparison(
 
     # Prepare case: run blockMesh
     run_blockmesh(temp_case_native, log_dir / f"{test_name}_native_blockmesh.log")
-
-
 
     # Run native snappyHexMesh
     run_native_snappy(temp_case_native, log_dir / f"{test_name}_native_snappyHexMesh.log")
