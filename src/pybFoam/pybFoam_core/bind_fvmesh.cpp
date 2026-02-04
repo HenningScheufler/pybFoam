@@ -146,8 +146,9 @@ void bindFvMesh(pybind11::module &m)
         })
         .def("time", &Foam::fvMesh::time, py::return_value_policy::reference)
         .def("C", &Foam::fvMesh::C, py::return_value_policy::reference)
-        .def("V", [](Foam::fvMesh &self)
-             { return self.V().field(); }, py::return_value_policy::reference)
+        .def("V", [](const Foam::fvMesh &self) -> const Foam::Field<Foam::scalar>&
+             { return static_cast<const Foam::Field<Foam::scalar>&>(self.V().field()); },
+             py::return_value_policy::reference)
         .def("Cf", &Foam::fvMesh::Cf, py::return_value_policy::reference)
         .def("Sf", &Foam::fvMesh::Sf, py::return_value_policy::reference)
         .def("magSf", &Foam::fvMesh::magSf, py::return_value_policy::reference)
