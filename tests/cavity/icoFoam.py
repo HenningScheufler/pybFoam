@@ -1,21 +1,39 @@
-import pybFoam
 import sys
-import pybFoam 
+from typing import Any, Tuple
+
+import pybFoam
 from pybFoam import (
-    volScalarField, volVectorField, surfaceScalarField, fvScalarMatrix, fvVectorMatrix,
-    fvMesh, Time, fvc, fvm, Word, dictionary, Info,
-    solve, adjustPhi, constrainPressure, createPhi, setRefCell,
-    constrainHbyA, pisoControl
+    Info,
+    Time,
+    Word,
+    adjustPhi,
+    constrainHbyA,
+    constrainPressure,
+    createPhi,
+    dictionary,
+    fvc,
+    fvm,
+    fvMesh,
+    fvScalarMatrix,
+    fvVectorMatrix,
+    pisoControl,
+    setRefCell,
+    solve,
+    surfaceScalarField,
+    volScalarField,
+    volVectorField,
 )
 
-def create_fields(mesh):
+
+def create_fields(mesh: Any) -> Tuple[Any, Any, Any, Any]:
     p = volScalarField.read_field(mesh, "p")
     U = volVectorField.read_field(mesh, "U")
     phi = createPhi(U)
     nu = volScalarField.read_field(mesh, "nu")  # Assumes viscosity is read like a field
     return p, U, phi, nu
 
-def main(argv):
+
+def main(argv: Any) -> None:
     argList = pybFoam.argList(argv)
     runTime = Time(argList)
     mesh = fvMesh(runTime)
@@ -36,10 +54,8 @@ def main(argv):
         # Courant number computation assumed handled elsewhere
         # (optionally bind and call selectCourantNo)
 
-        UEqn = fvVectorMatrix(
-            fvm.ddt(U) + fvm.div(phi, U) - fvm.laplacian(nu, U)
-        )
-        
+        UEqn = fvVectorMatrix(fvm.ddt(U) + fvm.div(phi, U) - fvm.laplacian(nu, U))
+
         if piso.momentumPredictor():
             solve(UEqn + fvc.grad(p))
 
@@ -48,8 +64,7 @@ def main(argv):
             HbyA = volVectorField(constrainHbyA(rAU * UEqn.H(), U, p))
 
             phiHbyA = surfaceScalarField(
-                Word("phiHbyA"),
-                fvc.flux(HbyA) + fvc.interpolate(rAU) * fvc.ddtCorr(U, phi)
+                Word("phiHbyA"), fvc.flux(HbyA) + fvc.interpolate(rAU) * fvc.ddtCorr(U, phi)
             )
 
             adjustPhi(phiHbyA, U, p)
@@ -71,6 +86,7 @@ def main(argv):
         runTime.printExecutionTime()
 
     Info("End")
+
 
 if __name__ == "__main__":
     main(sys.argv)

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 20212, Henning Scheufler
+            Copyright (c) 2022, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -17,10 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "bind_mesh.hpp"
-#include "volFields.H"
-#include "surfaceFields.H"
-#include "dynamicFvMesh.H"
+#include "bind_time.hpp"
 
 namespace Foam
 {
@@ -51,20 +48,6 @@ namespace Foam
         return new Time(Time::controlDictName, args);
     }
 
-    fvMesh *createMesh(const Time &time)
-    {
-        fvMesh *mesh(
-            new fvMesh(
-                IOobject(
-                    "region0",
-                    time.timeName(),
-                    time,
-                    IOobject::MUST_READ),
-                false));
-        mesh->init(true);
-        return mesh;
-    }
-
     argList* makeArgList(
         const std::vector<std::string> &args)
     {
@@ -84,13 +67,11 @@ namespace Foam
 
 }
 
-void bindMesh(pybind11::module &m)
+void bindTime(pybind11::module &m)
 {
     namespace py = pybind11;
 
     m.def("selectTimes", &Foam::selectTimes);
-    m.def("createMesh", &Foam::createMesh, py::return_value_policy::take_ownership,
-        "Create a mesh from a Time object");
 
     py::class_<Foam::argList>(m, "argList")
         .def(py::init(&Foam::makeArgList), py::return_value_policy::take_ownership)
@@ -120,61 +101,8 @@ void bindMesh(pybind11::module &m)
              { self++; }
         )
         .def("printExecutionTime", [](Foam::Time &self)
-             { self.printExecutionTime(Foam::Info); } 
+             { self.printExecutionTime(Foam::Info); }
             )
         .def("timeName", [](Foam::Time &self)
              { return self.timeName(); }, py::return_value_policy::reference);
-
-    py::class_<Foam::fvMesh>(m, "fvMesh")
-        .def(py::init([](const Foam::fvMesh &self)
-                      {
-            Foam::fvMesh& mesh = const_cast<Foam::fvMesh&>(self);
-            return &mesh; }),
-             py::return_value_policy::reference_internal)
-        .def(py::init(&Foam::createMesh), py::return_value_policy::take_ownership)
-        .def("nCells", [](const Foam::fvMesh& self)
-        {
-            return self.nCells();
-        })
-        .def("nFaces", [](const Foam::fvMesh& self)
-        {
-            return self.nFaces();
-        })
-        .def("nPoints", [](const Foam::fvMesh& self)
-        {
-            return self.nPoints();
-        })
-        .def("nInternalFaces", [](const Foam::fvMesh& self)
-        {
-            return self.nInternalFaces();
-        })
-        .def("time", &Foam::fvMesh::time, py::return_value_policy::reference)
-        .def("C", &Foam::fvMesh::C, py::return_value_policy::reference)
-        .def("V", [](Foam::fvMesh &self)
-             { return self.V().field(); }, py::return_value_policy::reference)
-        .def("Cf", &Foam::fvMesh::Cf, py::return_value_policy::reference)
-        .def("Sf", &Foam::fvMesh::Sf, py::return_value_policy::reference)
-        .def("magSf", &Foam::fvMesh::magSf, py::return_value_policy::reference)
-        .def("setFluxRequired", &Foam::fvMesh::setFluxRequired)
-        .def("solverPerformanceDict", [](const Foam::fvMesh &self)
-             { return &self.data().solverPerformanceDict(); },
-             py::return_value_policy::reference)
-        // dynamic mesh support
-        .def("changing", [](Foam::fvMesh &self)
-             { return self.changing(); })
-        ;
-
-
-        py::class_<Foam::dynamicFvMesh, Foam::fvMesh>(m, "dynamicFvMesh")
-        .def_static("New", [](
-            const Foam::argList& args,
-            const Foam::Time& runTime)
-        {
-            return Foam::dynamicFvMesh::New(args, runTime).ptr();
-        }, py::return_value_policy::take_ownership)
-        .def("updateMesh", &Foam::dynamicFvMesh::update)
-        .def("controlledUpdateMesh", &Foam::dynamicFvMesh::controlledUpdate)
-        .def("dynamic", &Foam::dynamicFvMesh::dynamic)
-
-        ;
 }

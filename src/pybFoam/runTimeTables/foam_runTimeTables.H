@@ -38,7 +38,7 @@ SourceFiles
 
 namespace Foam
 {
-    
+
 
 
 }
@@ -46,4 +46,4 @@ namespace Foam
 void  AddPyRunTime(pybind11::module& m);
 
 
-#endif // foam_runTimeTables  defined 
+#endif // foam_runTimeTables  defined

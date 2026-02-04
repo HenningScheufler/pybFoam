@@ -1,0 +1,36 @@
+# Pre-commit configuration for pybFoam
+# See https://pre-commit.com for more information
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: pretty-format-json
+        args: [--autofix, --no-sort-keys]
+
+  # Local hooks using poe commands
+  - repo: local
+    hooks:
+      - id: format
+        name: Ruff Format
+        entry: poe format
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: lint
+        name: Ruff Lint
+        entry: poe lint
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: type-check
+        name: Mypy Type Check
+        entry: poe type_check
+        language: system
+        types: [python]
+        pass_filenames: false

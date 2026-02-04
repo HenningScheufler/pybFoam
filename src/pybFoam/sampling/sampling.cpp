@@ -26,7 +26,7 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(sampling_bindings, m) {
     m.doc() = "OpenFOAM sampling and surface functionality";
-    
+
     Foam::bindSampledSurface(m);
     Foam::bindMeshSearch(m);
     Foam::bindSampledSet(m);

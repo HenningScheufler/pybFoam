@@ -8,28 +8,30 @@
 # )
 import os
 
+
 def configure_threads(n=1):
     multi_thread = True if n > 1 else False
     os.environ["XLA_FLAGS"] = (
-        f"--xla_cpu_multi_thread_eigen={multi_thread} "
-        f"intra_op_parallelism_threads={n}"
+        f"--xla_cpu_multi_thread_eigen={multi_thread} intra_op_parallelism_threads={n}"
     )
     os.environ["NPROC"] = f"{n}"
     os.environ["OMP_NUM_THREADS"] = str(n)
     os.environ["MKL_NUM_THREADS"] = str(n)
     os.environ["OPENBLAS_NUM_THREADS"] = str(n)
 
+
 configure_threads(1)
 
-from pybFoam import scalarField
-import numpy as np
 import timeit
-import time
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+
 import jax
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+from pybFoam import scalarField
 
 
 def pybfoam_expression(n_elements):
@@ -42,7 +44,9 @@ def pybfoam_expression(n_elements):
         x = a * b + c
         y = d - a * c
         return (x * y + b) / (a + 1.0)
+
     return run
+
 
 def numpy_expression(n_elements):
     a = np.full(n_elements, 1.1)
@@ -56,6 +60,7 @@ def numpy_expression(n_elements):
         return (x * y + b) / (a + 1.0)
 
     return run
+
 
 def jax_expression(n_elements):
     a = jnp.full(n_elements, 1.1)
@@ -71,6 +76,7 @@ def jax_expression(n_elements):
 
     return run
 
+
 vector_add_data = {
     "n_elements": [],
     "duration": [],
@@ -78,13 +84,14 @@ vector_add_data = {
     # "jax": []
 }
 
+
 def add_data(n_elements, duration, method):
     vector_add_data["n_elements"].append(n_elements)
     vector_add_data["duration"].append(duration)
     vector_add_data["method"].append(method)
 
-for n_elements in [10, 100, 1000, 10_000, 100_000, 1_000_000, 10_000_000]:
 
+for n_elements in [10, 100, 1000, 10_000, 100_000, 1_000_000, 10_000_000]:
     bench = pybfoam_expression(n_elements)
     n_repeat = 100
     duration = timeit.timeit(bench, number=n_repeat)
@@ -114,8 +121,10 @@ for n_elements in [10, 100, 1000, 10_000, 100_000, 1_000_000, 10_000_000]:
 
 
 df_vector_add = pd.DataFrame(vector_add_data)
-df_vector_add["time_per_element [ns]"] = df_vector_add["duration"] / df_vector_add["n_elements"] * 1e9  # time per element in nanoseconds
-print("Vector Addition Benchmark:",df_vector_add)
+df_vector_add["time_per_element [ns]"] = (
+    df_vector_add["duration"] / df_vector_add["n_elements"] * 1e9
+)  # time per element in nanoseconds
+print("Vector Addition Benchmark:", df_vector_add)
 
 # Save results to CSV
 df_vector_add.to_csv("results/benchmark_complex.csv", index=False)
@@ -143,7 +152,9 @@ with open("results/benchmark_complex.md", "w") as f:
 
 print("Results table saved to: results/benchmark_complex.md")
 
-sns.lineplot(data=df_vector_add, x="n_elements", y="time_per_element [ns]", hue="method", marker="o")
+sns.lineplot(
+    data=df_vector_add, x="n_elements", y="time_per_element [ns]", hue="method", marker="o"
+)
 plt.xscale("log")
 plt.yscale("log")
 plt.xlabel("Number of Elements")
@@ -163,7 +174,6 @@ for _, row in timings.iterrows():
     print(f"{row['method']}: {row['time_per_element [ns]']:.2f} ns per element")
 
 plt.show()
-
 
 
 # %%

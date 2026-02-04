@@ -201,7 +201,7 @@ auto declare_geofields(py::module &m, std::string className) {
         Foam::GeometricField<Type, PatchField, GeoMesh>& self,
         const std::string& name,
         const Foam::Field<Type>& f
-    ) 
+    )
     {
         Foam::field(self,self.mesh(),name,f);
     })
@@ -459,7 +459,7 @@ void Foam::bindGeoFields(py::module& m)
     });
 
     auto [ssf, tmp_ssf] = declare_geofields<scalar,fvsPatchField, surfaceMesh>(m, std::string("surfaceScalarField"));
-    
+
     // Add division operators for tmp_surfaceScalarField (needed for Boussinesq)
     tmp_ssf.def("__truediv__", [](const tmp<Foam::GeometricField<scalar, Foam::fvsPatchField, Foam::surfaceMesh>>& self, const scalar& rhs)
     {
@@ -473,7 +473,7 @@ void Foam::bindGeoFields(py::module& m)
     {
         return self / rhs;
     });
-    
+
     auto [svf, tmp_svf] = declare_geofields<vector,fvsPatchField, surfaceMesh>(m, std::string("surfaceVectorField"));
     auto [stf, tmp_stf] = declare_geofields<tensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceTensorField"));
     auto [sstf, tmp_sstf] = declare_geofields<symmTensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceSymmTensorField"));

@@ -1,27 +1,24 @@
 import pytest
 
 from pybFoam.sampling import (
-    UniformSetConfig,
-    CloudSetConfig,
-    PolyLineSetConfig,
-    CircleSetConfig,
     ArraySetConfig,
+    CellCentreSetConfig,
+    CircleSetConfig,
+    CloudSetConfig,
     FaceOnlySetConfig,
     MidPointSetConfig,
-    CellCentreSetConfig,
     PatchCloudSetConfig,
     PatchSeedSetConfig,
+    PolyLineSetConfig,
+    UniformSetConfig,
     sampled_set_from,
 )
 
 
-def test_uniform_set_valid():
+def test_uniform_set_valid() -> None:
     """Test valid uniform set configuration."""
     config = UniformSetConfig(
-        axis="distance",
-        start=[0.0, 0.0, 0.0],
-        end=[1.0, 1.0, 0.0],
-        nPoints=20
+        axis="distance", start=[0.0, 0.0, 0.0], end=[1.0, 1.0, 0.0], nPoints=20
     )
     d = config.model_dump(exclude_none=True)
     assert d["type"] == "uniform"
@@ -31,61 +28,44 @@ def test_uniform_set_valid():
     assert d["nPoints"] == 20
 
 
-def test_uniform_set_with_tolerance():
+def test_uniform_set_with_tolerance() -> None:
     """Test uniform set with optional tolerance."""
     config = UniformSetConfig(
-        axis="xyz",
-        start=[0.0, 0.0, 0.0],
-        end=[1.0, 0.0, 0.0],
-        nPoints=10,
-        tol=1e-4
+        axis="xyz", start=[0.0, 0.0, 0.0], end=[1.0, 0.0, 0.0], nPoints=10, tol=1e-4
     )
     d = config.model_dump(exclude_none=True)
     assert d["tol"] == 1e-4
 
 
-def test_uniform_set_invalid_point_length():
+def test_uniform_set_invalid_point_length() -> None:
     """Test uniform set with invalid point length."""
     with pytest.raises(ValueError, match="must have length 3"):
         UniformSetConfig(
             axis="x",
             start=[0.0, 0.0],  # Only 2 elements
             end=[1.0, 0.0, 0.0],
-            nPoints=10
+            nPoints=10,
         )
 
 
-def test_cloud_set_valid():
+def test_cloud_set_valid() -> None:
     """Test valid cloud set configuration."""
-    config = CloudSetConfig(
-        axis="xyz",
-        points=[
-            [0.1, 0.1, 0.0],
-            [0.5, 0.5, 0.0],
-            [0.9, 0.9, 0.0]
-        ]
-    )
+    config = CloudSetConfig(axis="xyz", points=[[0.1, 0.1, 0.0], [0.5, 0.5, 0.0], [0.9, 0.9, 0.0]])
     d = config.model_dump(exclude_none=True)
     assert d["type"] == "cloud"
     assert len(d["points"]) == 3
 
 
-def test_cloud_set_empty_points():
+def test_cloud_set_empty_points() -> None:
     """Test cloud set with empty points list."""
     with pytest.raises(ValueError, match="cannot be empty"):
         CloudSetConfig(axis="xyz", points=[])
 
 
-def test_polyline_set_valid():
+def test_polyline_set_valid() -> None:
     """Test valid polyline set configuration."""
     config = PolyLineSetConfig(
-        axis="distance",
-        points=[
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [1.0, 1.0, 0.0]
-        ],
-        nPoints=50
+        axis="distance", points=[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0]], nPoints=50
     )
     d = config.model_dump(exclude_none=True)
     assert d["type"] == "polyLine"
@@ -93,23 +73,23 @@ def test_polyline_set_valid():
     assert d["nPoints"] == 50
 
 
-def test_polyline_set_insufficient_points():
+def test_polyline_set_insufficient_points() -> None:
     """Test polyline set with insufficient points."""
     with pytest.raises(ValueError, match="at least 2 points"):
         PolyLineSetConfig(
             axis="distance",
-            points=[[0.0, 0.0, 0.0]]  # Only 1 point
+            points=[[0.0, 0.0, 0.0]],  # Only 1 point
         )
 
 
-def test_circle_set_valid():
+def test_circle_set_valid() -> None:
     """Test valid circle set configuration."""
     config = CircleSetConfig(
         axis="distance",
         origin=[0.5, 0.5, 0.0],
         circleAxis=[0.0, 0.0, 1.0],
         startPoint=[0.6, 0.5, 0.0],
-        dTheta=10.0
+        dTheta=10.0,
     )
     d = config.model_dump(exclude_none=True)
     assert d["type"] == "circle"
@@ -118,13 +98,10 @@ def test_circle_set_valid():
     assert d["dTheta"] == 10.0
 
 
-def test_array_set_valid():
+def test_array_set_valid() -> None:
     """Test valid array set configuration."""
     config = ArraySetConfig(
-        axis="xyz",
-        pointsDensity=[10, 10, 5],
-        spanBox=[1.0, 1.0, 0.5],
-        origin=[0.0, 0.0, 0.0]
+        axis="xyz", pointsDensity=[10, 10, 5], spanBox=[1.0, 1.0, 0.5], origin=[0.0, 0.0, 0.0]
     )
     d = config.model_dump(exclude_none=True)
     assert d["type"] == "array"
@@ -132,61 +109,46 @@ def test_array_set_valid():
     assert d["spanBox"] == [1.0, 1.0, 0.5]
 
 
-def test_array_set_invalid_density_length():
+def test_array_set_invalid_density_length() -> None:
     """Test array set with invalid density length."""
     with pytest.raises(ValueError, match="must have 3 integer values"):
         ArraySetConfig(
             axis="xyz",
             pointsDensity=[10, 10],  # Only 2 values
-            spanBox=[1.0, 1.0, 0.5]
+            spanBox=[1.0, 1.0, 0.5],
         )
 
 
-def test_face_only_set_valid():
+def test_face_only_set_valid() -> None:
     """Test valid faceOnly set configuration."""
-    config = FaceOnlySetConfig(
-        axis="distance",
-        start=[0.0, 0.0, 0.0],
-        end=[1.0, 1.0, 0.0]
-    )
+    config = FaceOnlySetConfig(axis="distance", start=[0.0, 0.0, 0.0], end=[1.0, 1.0, 0.0])
     d = config.model_dump(exclude_none=True)
     assert d["type"] == "face"
     assert d["start"] == [0.0, 0.0, 0.0]
     assert d["end"] == [1.0, 1.0, 0.0]
 
 
-def test_midpoint_set_valid():
+def test_midpoint_set_valid() -> None:
     """Test valid midPoint set configuration."""
-    config = MidPointSetConfig(
-        axis="distance",
-        start=[0.0, 0.0, 0.0],
-        end=[1.0, 1.0, 0.0]
-    )
+    config = MidPointSetConfig(axis="distance", start=[0.0, 0.0, 0.0], end=[1.0, 1.0, 0.0])
     d = config.model_dump(exclude_none=True)
     assert d["type"] == "midPoint"
 
 
-def test_cell_centre_set_valid():
+def test_cell_centre_set_valid() -> None:
     """Test valid cellCentre set configuration."""
-    config = CellCentreSetConfig(
-        axis="distance",
-        start=[0.1, 0.1, 0.0],
-        end=[0.9, 0.9, 0.0]
-    )
+    config = CellCentreSetConfig(axis="distance", start=[0.1, 0.1, 0.0], end=[0.9, 0.9, 0.0])
     d = config.model_dump(exclude_none=True)
     assert d["type"] == "cellCentre"
 
 
-def test_patch_cloud_set_valid():
+def test_patch_cloud_set_valid() -> None:
     """Test valid patchCloud set configuration."""
     config = PatchCloudSetConfig(
         axis="xyz",
         patches=["inlet", "outlet"],
-        points=[
-            [0.0, 0.0, 0.0],
-            [0.5, 0.5, 0.0]
-        ],
-        maxDistance=0.1
+        points=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.0]],
+        maxDistance=0.1,
     )
     d = config.model_dump(exclude_none=True)
     assert d["type"] == "patchCloud"
@@ -194,13 +156,10 @@ def test_patch_cloud_set_valid():
     assert d["maxDistance"] == 0.1
 
 
-def test_patch_seed_set_valid():
+def test_patch_seed_set_valid() -> None:
     """Test valid patchSeed set configuration."""
     config = PatchSeedSetConfig(
-        axis="distance",
-        patches="inlet",
-        searchDir=[1.0, 0.0, 0.0],
-        maxDistance=1.0
+        axis="distance", patches="inlet", searchDir=[1.0, 0.0, 0.0], maxDistance=1.0
     )
     d = config.model_dump(exclude_none=True)
     assert d["type"] == "patchSeed"
@@ -208,18 +167,13 @@ def test_patch_seed_set_valid():
     assert d["searchDir"] == [1.0, 0.0, 0.0]
 
 
-def test_sampled_set_from_helper():
+def test_sampled_set_from_helper() -> None:
     """Test sampled_set_from helper function."""
-    config = UniformSetConfig(
-        axis="x",
-        start=[0.0, 0.0, 0.0],
-        end=[1.0, 0.0, 0.0],
-        nPoints=10
-    )
+    config = UniformSetConfig(axis="x", start=[0.0, 0.0, 0.0], end=[1.0, 0.0, 0.0], nPoints=10)
     d = sampled_set_from(config)
     assert d["type"] == "uniform"
     assert d["axis"] == "x"
-    
+
     # Test with plain dict
     plain_dict = {"type": "uniform", "axis": "y"}
     result = sampled_set_from(plain_dict)
@@ -227,13 +181,10 @@ def test_sampled_set_from_helper():
 
 
 @pytest.mark.parametrize("axis_type", ["x", "y", "z", "xyz", "distance"])
-def test_uniform_set_axis_types(axis_type):
+def test_uniform_set_axis_types(axis_type: str) -> None:
     """Test uniform set with all valid axis types."""
     config = UniformSetConfig(
-        axis=axis_type,
-        start=[0.0, 0.0, 0.0],
-        end=[1.0, 1.0, 1.0],
-        nPoints=20
+        axis=axis_type, start=[0.0, 0.0, 0.0], end=[1.0, 1.0, 1.0], nPoints=20
     )
     d = config.model_dump(exclude_none=True)
     assert d["axis"] == axis_type

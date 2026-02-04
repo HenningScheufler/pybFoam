@@ -1,27 +1,28 @@
-import numpy as np
-from pydantic import Field, create_model
-from pybFoam.io.model_base import IOModelBase
-from pybFoam.io.system import ControlDictBase
-from pybFoam import Word
-import pytest
 import os
-from pybFoam import dictionary
+from typing import Any, Generator
+
+import pytest
+from pydantic import Field, create_model
+
+from pybFoam.io.system import ControlDictBase
+
 
 @pytest.fixture(scope="function")
-def change_test_dir(request):
+def change_test_dir(request: Any) -> Generator[None, None, None]:
     os.chdir(request.fspath.dirname)
     yield
     os.chdir(request.config.invocation_dir)
 
 
 controlDict = create_model(
-    'ControlDict',
+    "ControlDict",
     maxCo=(float, Field(..., gt=0.0)),  # name=(type, required/Default)
     test_token=(str, Field(..., description="A test token for demonstration purposes")),
-    __base__=ControlDictBase
+    __base__=ControlDictBase,
 )
 
-def test_parse_controlDict(change_test_dir):
+
+def test_parse_controlDict(change_test_dir: Any) -> None:
     model = controlDict.from_file("controlDict")
     assert model.application == "icoFoam"
     assert model.startFrom == "startTime"
@@ -40,4 +41,3 @@ def test_parse_controlDict(change_test_dir):
     assert model.runTimeModifiable is True
     assert model.maxCo == 0.5  # Check the new field
     assert model.test_token == "token token"  # Check the new field
-

@@ -63,7 +63,7 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
 
         if (!isScalar && arr.shape(1) != nComps)
             throw std::runtime_error(
-                "Expected second dimension to be " + std::to_string(nComps) 
+                "Expected second dimension to be " + std::to_string(nComps)
             );
 
         size_t n = arr.shape(0);
@@ -76,7 +76,7 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
             {
                 field[i] = data[i];
             }
-        } 
+        }
         else
         {
             for (size_t i = 0; i < n; ++i) {
@@ -189,14 +189,14 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
         );
     })
     ;
-    
+
     return fieldClass;
 }
 
 template<class Type>
 py::class_<tmp<Field<Type>>> declare_tmp_fields(py::module &m, std::string className) {
     std::string tmp_className = "tmp_" + className;
-    
+
     auto tmpFieldClass = py::class_<tmp<Field<Type>>>(m, tmp_className.c_str())
     .def("__call__",[](tmp<Field<Type>>& self) -> Field<Type>&
     {
@@ -255,7 +255,7 @@ py::class_<tmp<Field<Type>>> declare_tmp_fields(py::module &m, std::string class
         return self() / sf();
     })
     ;
-    
+
     return tmpFieldClass;
 }
 
@@ -273,6 +273,20 @@ void Foam::bindFields(py::module& m)
         })
     ;
 
+    py::class_<faceList>(m, "faceList")
+        .def(py::init<faceList> ())
+        .def(py::init([](const std::vector<std::vector<Foam::label>>& faces) {
+            Foam::faceList fl(faces.size());
+            for (size_t i = 0; i < faces.size(); ++i) {
+                fl[i] = Foam::face(faces[i].size());
+                for (size_t j = 0; j < faces[i].size(); ++j) {
+                    fl[i][j] = faces[i][j];
+                }
+            }
+            return fl;
+        }), py::arg("faces"));
+
+
     py::class_<List<bool>>(m, "boolList")
         .def(py::init<List<bool> > ())
         .def(py::init([](std::vector<bool> vec) {
@@ -282,7 +296,7 @@ void Foam::bindFields(py::module& m)
                 f[i] = vec[i];
             }
             return f;
-        }))
+        }), py::arg("vec"))
         .def("__len__", [](const List<bool>& self) {
             return self.size();
         })
@@ -316,7 +330,7 @@ void Foam::bindFields(py::module& m)
                 f[i] = vec[i];
             }
             return f;
-        }))
+        }), py::arg("vec"))
         .def("__len__", [](const List<label>& self) {
             return self.size();
         })
@@ -460,13 +474,13 @@ void Foam::bindFields(py::module& m)
         .def("dimensions", [](const Foam::uniformDimensionedVectorField& self) {
             return self.dimensions();
         }, "Get the field dimensions")
-        .def("__and__", [](const Foam::uniformDimensionedVectorField& self, 
+        .def("__and__", [](const Foam::uniformDimensionedVectorField& self,
                            const Foam::volVectorField& vf) {
             // Use the base class dimensioned<vector> which has operator& defined
             const Foam::dimensioned<Foam::vector>& dv = self;
             return dv & vf;
         }, py::arg("vf"), "Dot product with volVectorField, returns tmp<volScalarField>")
-        .def("__and__", [](const Foam::uniformDimensionedVectorField& self, 
+        .def("__and__", [](const Foam::uniformDimensionedVectorField& self,
                            const Foam::surfaceVectorField& vf) {
             // Use the base class dimensioned<vector> which has operator& defined
             const Foam::dimensioned<Foam::vector>& dv = self;

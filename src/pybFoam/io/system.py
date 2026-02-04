@@ -1,18 +1,25 @@
-from .model_base import IOModelBase
+from typing import Literal, Optional
+
 from pydantic import Field
-from typing import Optional, Literal
+
+from .model_base import IOModelBase
 
 
 class ControlDictBase(IOModelBase):
     application: str
     startFrom: Literal["startTime", "latestTime", "firstTime"] = Field(
         ...,
-        description="Start time for the simulation, can be 'startTime', 'latestTime' or 'firstTime'",
+        description=(
+            "Start time for the simulation, can be 'startTime', 'latestTime' or 'firstTime'"
+        ),
     )
     startTime: float
     stopAt: Literal["endTime", "writeNow", "noWriteNow", "nextWrite"] = Field(
         ...,
-        description="Stop condition for the simulation, can be 'endTime', 'writeNow', 'nextWrite' or 'noWriteNow'",
+        description=(
+            "Stop condition for the simulation, can be 'endTime', "
+            "'writeNow', 'nextWrite' or 'noWriteNow'"
+        ),
     )
     endTime: float
     deltaT: float
@@ -20,7 +27,10 @@ class ControlDictBase(IOModelBase):
         "timeStep", "runTime", "adjustable", "adjustableRunTime", "clockTime", "cpuTime"
     ] = Field(
         ...,
-        description="Control for writing output, can be 'timeStep', 'runTime', 'adjustable', 'adjustableRunTime', 'clockTime' or 'cpuTime'",
+        description=(
+            "Control for writing output, can be 'timeStep', 'runTime', "
+            "'adjustable', 'adjustableRunTime', 'clockTime' or 'cpuTime'"
+        ),
     )
     writeInterval: float
     purgeWrite: int
@@ -37,23 +47,30 @@ class ControlDictBase(IOModelBase):
 class DDTSchemes(IOModelBase):
     default: Optional[str]
 
+
 class GradSchemes(IOModelBase):
     default: Optional[str]
+
 
 class DIVSchemes(IOModelBase):
     default: Optional[str]
 
+
 class LaplacianSchemes(IOModelBase):
     default: Optional[str]
+
 
 class InterpolationSchemes(IOModelBase):
     default: Optional[str]
 
+
 class SnGradSchemes(IOModelBase):
     default: Optional[str]
 
+
 class FluxRequired(IOModelBase):
     default: Optional[str]
+
 
 class FvSchemesBase(IOModelBase):
     ddtSchemes: DDTSchemes

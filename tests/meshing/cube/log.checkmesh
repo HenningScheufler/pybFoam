@@ -1,0 +1,109 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2406                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _630d60de3b-20240620 OPENFOAM=2406 version=v2406
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -allGeometry -allTopology
+Date   : Jan 30 2026
+Time   : 14:45:10
+Host   : henning-MS-7E26
+PID    : 53963
+I/O    : uncollated
+Case   : /home/henning/libsAndApps/pybFoam/tests/blockmesh/cube
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Check mesh...
+    Enabling all (cell, face, edge, point) topology checks.
+    Enabling all geometry checks.
+
+Time = 0
+
+Mesh stats
+    points:           9261
+    faces:            25200
+    internal faces:   22800
+    cells:            8000
+    faces per cell:   6
+    boundary patches: 3
+    point zones:      0
+    face zones:       0
+    cell zones:       0
+
+Overall number of cells of each type:
+    hexahedra:     8000
+    prisms:        0
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    0
+    polyhedra:     0
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Topological cell zip-up check OK.
+    Face-face connectivity OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points     Surface topology  Bounding box
+    movingWall          400      441      ok (non-closed singly connected)   (0 0.1 0) (0.1 0.1 0.1)
+    fixedWalls          1200     1281     ok (non-closed singly connected)   (0 0 0) (0.1 0.1 0.1)
+    frontAndBack        800      882      ok (non-closed singly connected)   (0 0 0) (0.1 0.1 0.1)
+    ".*"                2400     2402     ok (closed singly connected)       (0 0 0) (0.1 0.1 0.1)
+
+
+Checking faceZone topology for multiply connected surfaces...
+    No faceZones found.
+
+Checking basic cellZone addressing...
+    No cellZones found.
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (0 0 0) (0.1 0.1 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-2.33781e-17 1.807e-17 -1.807e-17) OK.
+    Max cell openness = 1.35525e-16 OK.
+    Max aspect ratio = 1 OK.
+    Minimum face area = 2.5e-05. Maximum face area = 2.5e-05.  Face area magnitudes OK.
+    Min volume = 1.25e-07. Max volume = 1.25e-07.  Total volume = 0.001.  Cell volumes OK.
+    Mesh non-orthogonality Max: 0 average: 0
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.88738e-14 OK.
+    Coupled point location match (average 0) OK.
+    Face tets OK.
+    Min/max edge length = 0.005 0.005 OK.
+    All angles in faces OK.
+    Face flatness (1 = flat, 0 = butterfly) : min = 1  average = 1
+    All face flatness OK.
+    Cell determinant (wellposedness) : minimum: 0.125 average: 0.857375
+    Cell determinant check OK.
+    Concave cell check OK.
+    Face interpolation weight : minimum: 0.5 average: 0.5
+    Face interpolation weight check OK.
+    Face volume ratio : minimum: 1 average: 1
+    Face volume ratio check OK.
+
+Mesh OK.
+
+End

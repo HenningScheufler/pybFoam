@@ -39,7 +39,7 @@ void AddPyRunTime(pybind11::module& m)
 {
     namespace py = pybind11;
 
-    
+
     m.def("Function1", [](){
         declareRunTimeSelectionTableToc(Foam::Function1<Foam::scalar>, dictionary);
     })
@@ -59,5 +59,5 @@ void AddPyRunTime(pybind11::module& m)
         declareRunTimeSelectionTableToc(Foam::fvPatchTensorField, dictionary);
     })
     ;
-   
+
 }

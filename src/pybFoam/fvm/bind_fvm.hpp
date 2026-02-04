@@ -47,7 +47,7 @@ namespace Foam
     template<class Type>
     void bindFvmLaplacian(py::module_& fvm);
 
-    
+
 
     void  bindFVM(py::module& m);
 }

@@ -2,16 +2,104 @@
 python bindings for openfoam
 """
 from __future__ import annotations
+
 import collections.abc
+import typing
+
 import numpy
 import numpy.typing
-import typing
-__all__: list[str] = ['DictionaryGetOrDefaultProxy', 'DictionaryGetProxy', 'Info', 'SolverScalarPerformance', 'SolverSymmTensorPerformance', 'SolverTensorPerformance', 'SolverVectorPerformance', 'SymmTensorInt', 'TensorInt', 'Time', 'VectorInt', 'Word', 'adjustPhi', 'argList', 'boolList', 'computeCFLNumber', 'computeContinuityErrors', 'constrainHbyA', 'constrainPressure', 'createMesh', 'createPhi', 'dictionary', 'dimAcceleration', 'dimArea', 'dimCurrent', 'dimDensity', 'dimEnergy', 'dimForce', 'dimLength', 'dimLuminousIntensity', 'dimMass', 'dimMoles', 'dimPower', 'dimPressure', 'dimTemperature', 'dimTime', 'dimVelocity', 'dimViscosity', 'dimensionSet', 'dimensionedScalar', 'dimensionedSymmTensor', 'dimensionedTensor', 'dimensionedVector', 'dimless', 'dynamicFvMesh', 'entry', 'fvMesh', 'fvScalarMatrix', 'fvSymmTensorMatrix', 'fvTensorMatrix', 'fvVectorMatrix', 'instant', 'instantList', 'keyType', 'labelList', 'mag', 'pimpleControl', 'pisoControl', 'scalarField', 'selectTimes', 'setRefCell', 'simpleControl', 'solve', 'sum', 'surfaceScalarField', 'surfaceSymmTensorField', 'surfaceTensorField', 'surfaceVectorField', 'symmTensor', 'symmTensorField', 'tensor', 'tensorField', 'tmp_fvScalarMatrix', 'tmp_fvSymmTensorMatrix', 'tmp_fvTensorMatrix', 'tmp_fvVectorMatrix', 'tmp_scalarField', 'tmp_surfaceScalarField', 'tmp_surfaceSymmTensorField', 'tmp_surfaceTensorField', 'tmp_surfaceVectorField', 'tmp_symmTensorField', 'tmp_tensorField', 'tmp_vectorField', 'tmp_volScalarField', 'tmp_volSymmTensorField', 'tmp_volTensorField', 'tmp_volVectorField', 'uniformDimensionedScalarField', 'uniformDimensionedVectorField', 'vector', 'vectorField', 'volScalarField', 'volSymmTensorField', 'volTensorField', 'volVectorField', 'wordList', 'write']
+
+__all__: list[str] = ['DictionaryGetOrDefaultProxy', 'DictionaryGetProxy', 'IOobject', 'Info', 'SolverScalarPerformance', 'SolverSymmTensorPerformance', 'SolverTensorPerformance', 'SolverVectorPerformance', 'SymmTensorInt', 'TensorInt', 'Time', 'VectorInt', 'Word', 'adjustPhi', 'argList', 'boolList', 'computeCFLNumber', 'computeContinuityErrors', 'constrainHbyA', 'constrainPressure', 'createMesh', 'createPhi', 'dictionary', 'dimAcceleration', 'dimArea', 'dimCurrent', 'dimDensity', 'dimEnergy', 'dimForce', 'dimLength', 'dimLuminousIntensity', 'dimMass', 'dimMoles', 'dimPower', 'dimPressure', 'dimTemperature', 'dimTime', 'dimVelocity', 'dimViscosity', 'dimensionSet', 'dimensionedScalar', 'dimensionedSymmTensor', 'dimensionedTensor', 'dimensionedVector', 'dimless', 'dynamicFvMesh', 'entry', 'faceList', 'fileName', 'fvBoundaryMesh', 'fvMesh', 'fvPatch', 'fvScalarMatrix', 'fvSymmTensorMatrix', 'fvTensorMatrix', 'fvVectorMatrix', 'instant', 'instantList', 'keyType', 'labelList', 'mag', 'pimpleControl', 'pisoControl', 'polyBoundaryMesh', 'polyMesh', 'polyPatch', 'scalarField', 'selectTimes', 'setRefCell', 'simpleControl', 'solve', 'sum', 'surfaceScalarField', 'surfaceSymmTensorField', 'surfaceTensorField', 'surfaceVectorField', 'symmTensor', 'symmTensorField', 'tensor', 'tensorField', 'tmp_fvScalarMatrix', 'tmp_fvSymmTensorMatrix', 'tmp_fvTensorMatrix', 'tmp_fvVectorMatrix', 'tmp_scalarField', 'tmp_surfaceScalarField', 'tmp_surfaceSymmTensorField', 'tmp_surfaceTensorField', 'tmp_surfaceVectorField', 'tmp_symmTensorField', 'tmp_tensorField', 'tmp_vectorField', 'tmp_volScalarField', 'tmp_volSymmTensorField', 'tmp_volTensorField', 'tmp_volVectorField', 'uniformDimensionedScalarField', 'uniformDimensionedVectorField', 'vector', 'vectorField', 'volScalarField', 'volSymmTensorField', 'volTensorField', 'volVectorField', 'wordList', 'write']
 class DictionaryGetOrDefaultProxy:
     def __getitem__(self, arg0: typing.Any) -> typing.Any:
         ...
 class DictionaryGetProxy:
     def __getitem__(self, arg0: typing.Any) -> typing.Any:
+        ...
+class IOobject:
+    class readOption:
+        """
+        Members:
+
+          NO_READ
+
+          MUST_READ
+
+          READ_IF_PRESENT
+        """
+        MUST_READ: typing.ClassVar[IOobject.readOption]  # value = <readOption.MUST_READ: 1>
+        NO_READ: typing.ClassVar[IOobject.readOption]  # value = NO_READ
+        READ_IF_PRESENT: typing.ClassVar[IOobject.readOption]  # value = <readOption.READ_IF_PRESENT: 4>
+        __members__: typing.ClassVar[dict[str, IOobject.readOption]]  # value = {'NO_READ': NO_READ, 'MUST_READ': <readOption.MUST_READ: 1>, 'READ_IF_PRESENT': <readOption.READ_IF_PRESENT: 4>}
+        def __eq__(self, other: typing.Any) -> bool:
+            ...
+        def __getstate__(self) -> int:
+            ...
+        def __hash__(self) -> int:
+            ...
+        def __index__(self) -> int:
+            ...
+        def __init__(self, value: typing.SupportsInt) -> None:
+            ...
+        def __int__(self) -> int:
+            ...
+        def __ne__(self, other: typing.Any) -> bool:
+            ...
+        def __repr__(self) -> str:
+            ...
+        def __setstate__(self, state: typing.SupportsInt) -> None:
+            ...
+        def __str__(self) -> str:
+            ...
+        @property
+        def name(self) -> str:
+            ...
+        @property
+        def value(self) -> int:
+            ...
+    class writeOption:
+        """
+        Members:
+
+          NO_WRITE
+
+          AUTO_WRITE
+        """
+        AUTO_WRITE: typing.ClassVar[IOobject.writeOption]  # value = <writeOption.AUTO_WRITE: 16>
+        NO_WRITE: typing.ClassVar[IOobject.writeOption]  # value = NO_WRITE
+        __members__: typing.ClassVar[dict[str, IOobject.writeOption]]  # value = {'NO_WRITE': NO_WRITE, 'AUTO_WRITE': <writeOption.AUTO_WRITE: 16>}
+        def __eq__(self, other: typing.Any) -> bool:
+            ...
+        def __getstate__(self) -> int:
+            ...
+        def __hash__(self) -> int:
+            ...
+        def __index__(self) -> int:
+            ...
+        def __init__(self, value: typing.SupportsInt) -> None:
+            ...
+        def __int__(self) -> int:
+            ...
+        def __ne__(self, other: typing.Any) -> bool:
+            ...
+        def __repr__(self) -> str:
+            ...
+        def __setstate__(self, state: typing.SupportsInt) -> None:
+            ...
+        def __str__(self) -> str:
+            ...
+        @property
+        def name(self) -> str:
+            ...
+        @property
+        def value(self) -> int:
+            ...
+    AUTO_WRITE: typing.ClassVar[IOobject.writeOption]  # value = <writeOption.AUTO_WRITE: 16>
+    MUST_READ: typing.ClassVar[IOobject.readOption]  # value = <readOption.MUST_READ: 1>
+    NO_READ: typing.ClassVar[IOobject.readOption]  # value = NO_READ
+    NO_WRITE: typing.ClassVar[IOobject.writeOption]  # value = NO_WRITE
+    READ_IF_PRESENT: typing.ClassVar[IOobject.readOption]  # value = <readOption.READ_IF_PRESENT: 4>
+    def __init__(self, name: Word, instance: fileName, registry: Time, readOpt: IOobject.readOption = NO_READ, writeOpt: IOobject.writeOption = NO_WRITE) -> None:
         ...
 class SolverScalarPerformance:
     def __init__(self) -> None:
@@ -157,7 +245,7 @@ class boolList:
     def __init__(self, arg0: boolList) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: collections.abc.Sequence[bool]) -> None:
+    def __init__(self, vec: collections.abc.Sequence[bool]) -> None:
         ...
     def __len__(self) -> int:
         ...
@@ -530,7 +618,33 @@ class dynamicFvMesh(fvMesh):
         ...
 class entry:
     pass
+class faceList:
+    @typing.overload
+    def __init__(self, arg0: faceList) -> None:
+        ...
+    @typing.overload
+    def __init__(self, faces: collections.abc.Sequence[collections.abc.Sequence[typing.SupportsInt]]) -> None:
+        ...
+class fileName:
+    def __init__(self, arg0: str) -> None:
+        ...
+    def __str__(self) -> str:
+        ...
+class fvBoundaryMesh:
+    def __getitem__(self, arg0: typing.SupportsInt) -> fvPatch:
+        ...
+    def __len__(self) -> int:
+        ...
+    def findPatchID(self, arg0: Word) -> int:
+        ...
+    def size(self) -> int:
+        ...
 class fvMesh:
+    @staticmethod
+    def fromPolyMesh(polyMesh: polyMesh, autoWrite: bool = False) -> fvMesh:
+        """
+        Create fvMesh from polyMesh by writing to disk and reading back
+        """
     def C(self) -> volVectorField:
         ...
     def Cf(self) -> surfaceVectorField:
@@ -543,7 +657,9 @@ class fvMesh:
     def __init__(self, arg0: fvMesh) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Time) -> None:
+    def __init__(self, time: Time, autoWrite: bool = False) -> None:
+        ...
+    def boundary(self) -> fvBoundaryMesh:
         ...
     def changing(self) -> bool:
         ...
@@ -562,6 +678,19 @@ class fvMesh:
     def solverPerformanceDict(self) -> dictionary:
         ...
     def time(self) -> Time:
+        ...
+    def write(self) -> bool:
+        """
+        Write mesh to disk
+        """
+class fvPatch:
+    def index(self) -> int:
+        ...
+    def name(self) -> Word:
+        ...
+    def size(self) -> int:
+        ...
+    def start(self) -> int:
         ...
 class fvScalarMatrix:
     def A(self) -> tmp_volScalarField:
@@ -782,7 +911,7 @@ class labelList:
     def __init__(self, arg0: labelList) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: collections.abc.Sequence[typing.SupportsInt]) -> None:
+    def __init__(self, vec: collections.abc.Sequence[typing.SupportsInt]) -> None:
         ...
     def __len__(self) -> int:
         ...
@@ -826,6 +955,73 @@ class pisoControl:
         ...
     def nNonOrthCorr(self) -> int:
         ...
+class polyBoundaryMesh:
+    def __getitem__(self, arg0: typing.SupportsInt) -> polyPatch:
+        ...
+    def __len__(self) -> int:
+        ...
+    def findPatchID(self, arg0: Word) -> int:
+        ...
+    def size(self) -> int:
+        ...
+class polyMesh:
+    @typing.overload
+    def __init__(self, io: IOobject, points: vectorField, faces: faceList, owner: labelList, neighbour: labelList, syncPar: bool = True) -> None:
+        """
+        Create polyMesh from OpenFOAM types
+        """
+    @typing.overload
+    def __init__(self, io: IOobject, points: collections.abc.Sequence[collections.abc.Sequence[typing.SupportsFloat]], faces: collections.abc.Sequence[collections.abc.Sequence[typing.SupportsInt]], owner: collections.abc.Sequence[typing.SupportsInt], neighbour: collections.abc.Sequence[typing.SupportsInt], syncPar: bool = True) -> None:
+        """
+        Create polyMesh from Python lists
+        """
+    @typing.overload
+    def __init__(self, io: IOobject, points: collections.abc.Sequence[collections.abc.Sequence[typing.SupportsFloat]], cells: collections.abc.Sequence[tuple[str, collections.abc.Sequence[typing.SupportsInt]]], boundaryPatches: collections.abc.Sequence[tuple[str, collections.abc.Sequence[collections.abc.Sequence[typing.SupportsInt]]]], defaultPatchName: str = 'defaultFaces', syncPar: bool = True) -> None:
+        """
+        Create polyMesh from cellShapes (handles face orientation automatically)
+        """
+    def addPatches(self, patches: collections.abc.Sequence[polyPatch], validBoundary: bool = True) -> None:
+        ...
+    def boundaryMesh(self) -> polyBoundaryMesh:
+        ...
+    def faces(self) -> faceList:
+        ...
+    def facesInstance(self) -> fileName:
+        ...
+    def nCells(self) -> int:
+        ...
+    def nFaces(self) -> int:
+        ...
+    def nInternalFaces(self) -> int:
+        ...
+    def nPoints(self) -> int:
+        ...
+    def neighbour(self) -> labelList:
+        ...
+    def owner(self) -> labelList:
+        ...
+    def points(self) -> vectorField:
+        ...
+    def removeBoundary(self) -> None:
+        """
+        Remove boundary patches from mesh
+        """
+    def write(self) -> bool:
+        ...
+    @property
+    def meshSubDir(self) -> Word:
+        ...
+class polyPatch:
+    def __init__(self, name: Word, size: typing.SupportsInt, start: typing.SupportsInt, index: typing.SupportsInt, boundaryMesh: polyBoundaryMesh, patchType: Word) -> None:
+        ...
+    def name(self) -> Word:
+        ...
+    def size(self) -> int:
+        ...
+    def start(self) -> int:
+        ...
+    def type(self) -> Word:
+        ...
 class scalarField:
     @typing.overload
     def __add__(self, arg0: scalarField) -> tmp_scalarField:
@@ -836,12 +1032,16 @@ class scalarField:
     @typing.overload
     def __add__(self, arg0: typing.SupportsFloat) -> tmp_scalarField:
         ...
-    def __buffer__(self, flags: int) -> memoryview:
-        """
-        Return a buffer object that exposes the underlying memory of the object.
-        """
-        ...
     def __getitem__(self, arg0: typing.SupportsInt) -> float:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: scalarField) -> scalarField:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: tmp_scalarField) -> scalarField:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: typing.SupportsFloat) -> scalarField:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -858,6 +1058,15 @@ class scalarField:
     @typing.overload
     def __init__(self, arg0: typing.Annotated[numpy.typing.ArrayLike, numpy.float64]) -> None:
         ...
+    @typing.overload
+    def __isub__(self, arg0: scalarField) -> scalarField:
+        ...
+    @typing.overload
+    def __isub__(self, arg0: tmp_scalarField) -> scalarField:
+        ...
+    @typing.overload
+    def __isub__(self, arg0: typing.SupportsFloat) -> scalarField:
+        ...
     def __len__(self) -> int:
         ...
     @typing.overload
@@ -868,11 +1077,6 @@ class scalarField:
         ...
     @typing.overload
     def __mul__(self, arg0: tmp_scalarField) -> tmp_scalarField:
-        ...
-    def __release_buffer__(self, buffer: int) -> None:
-        """
-        Release the buffer object that exposes the underlying memory of the object.
-        """
         ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: typing.SupportsFloat) -> None:
         ...
@@ -1297,12 +1501,16 @@ class symmTensorField:
     @typing.overload
     def __add__(self, arg0: symmTensor) -> tmp_symmTensorField:
         ...
-    def __buffer__(self, flags: int) -> memoryview:
-        """
-        Return a buffer object that exposes the underlying memory of the object.
-        """
-        ...
     def __getitem__(self, arg0: typing.SupportsInt) -> symmTensor:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: symmTensorField) -> symmTensorField:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: tmp_symmTensorField) -> symmTensorField:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: symmTensor) -> symmTensorField:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -1319,6 +1527,15 @@ class symmTensorField:
     @typing.overload
     def __init__(self, arg0: typing.Annotated[numpy.typing.ArrayLike, numpy.float64]) -> None:
         ...
+    @typing.overload
+    def __isub__(self, arg0: symmTensorField) -> symmTensorField:
+        ...
+    @typing.overload
+    def __isub__(self, arg0: tmp_symmTensorField) -> symmTensorField:
+        ...
+    @typing.overload
+    def __isub__(self, arg0: symmTensor) -> symmTensorField:
+        ...
     def __len__(self) -> int:
         ...
     @typing.overload
@@ -1329,11 +1546,6 @@ class symmTensorField:
         ...
     @typing.overload
     def __mul__(self, arg0: tmp_scalarField) -> tmp_symmTensorField:
-        ...
-    def __release_buffer__(self, buffer: int) -> None:
-        """
-        Release the buffer object that exposes the underlying memory of the object.
-        """
         ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: symmTensor) -> None:
         ...
@@ -1401,12 +1613,16 @@ class tensorField:
     @typing.overload
     def __add__(self, arg0: tensor) -> tmp_tensorField:
         ...
-    def __buffer__(self, flags: int) -> memoryview:
-        """
-        Return a buffer object that exposes the underlying memory of the object.
-        """
-        ...
     def __getitem__(self, arg0: typing.SupportsInt) -> tensor:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: tensorField) -> tensorField:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: tmp_tensorField) -> tensorField:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: tensor) -> tensorField:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -1423,6 +1639,15 @@ class tensorField:
     @typing.overload
     def __init__(self, arg0: typing.Annotated[numpy.typing.ArrayLike, numpy.float64]) -> None:
         ...
+    @typing.overload
+    def __isub__(self, arg0: tensorField) -> tensorField:
+        ...
+    @typing.overload
+    def __isub__(self, arg0: tmp_tensorField) -> tensorField:
+        ...
+    @typing.overload
+    def __isub__(self, arg0: tensor) -> tensorField:
+        ...
     def __len__(self) -> int:
         ...
     @typing.overload
@@ -1433,11 +1658,6 @@ class tensorField:
         ...
     @typing.overload
     def __mul__(self, arg0: tmp_scalarField) -> tmp_tensorField:
-        ...
-    def __release_buffer__(self, buffer: int) -> None:
-        """
-        Release the buffer object that exposes the underlying memory of the object.
-        """
         ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: tensor) -> None:
         ...
@@ -2189,12 +2409,16 @@ class vectorField:
     @typing.overload
     def __and__(self, arg0: symmTensorField) -> tmp_vectorField:
         ...
-    def __buffer__(self, flags: int) -> memoryview:
-        """
-        Return a buffer object that exposes the underlying memory of the object.
-        """
-        ...
     def __getitem__(self, arg0: typing.SupportsInt) -> vector:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: vectorField) -> vectorField:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: tmp_vectorField) -> vectorField:
+        ...
+    @typing.overload
+    def __iadd__(self, arg0: vector) -> vectorField:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -2211,6 +2435,15 @@ class vectorField:
     @typing.overload
     def __init__(self, arg0: typing.Annotated[numpy.typing.ArrayLike, numpy.float64]) -> None:
         ...
+    @typing.overload
+    def __isub__(self, arg0: vectorField) -> vectorField:
+        ...
+    @typing.overload
+    def __isub__(self, arg0: tmp_vectorField) -> vectorField:
+        ...
+    @typing.overload
+    def __isub__(self, arg0: vector) -> vectorField:
+        ...
     def __len__(self) -> int:
         ...
     @typing.overload
@@ -2221,11 +2454,6 @@ class vectorField:
         ...
     @typing.overload
     def __mul__(self, arg0: tmp_scalarField) -> tmp_vectorField:
-        ...
-    def __release_buffer__(self, buffer: int) -> None:
-        """
-        Release the buffer object that exposes the underlying memory of the object.
-        """
         ...
     def __setitem__(self, arg0: typing.SupportsInt, arg1: vector) -> None:
         ...
@@ -2640,7 +2868,7 @@ def constrainPressure(p: volScalarField, U: volVectorField, phiHbyA: surfaceScal
 @typing.overload
 def constrainPressure(p: volScalarField, U: volVectorField, phiHbyA: surfaceScalarField, rAU: surfaceScalarField) -> None:
     ...
-def createMesh(arg0: Time) -> fvMesh:
+def createMesh(time: Time, autoWrite: bool = False) -> fvMesh:
     """
     Create a mesh from a Time object
     """

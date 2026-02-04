@@ -137,3 +137,9 @@ dist/
 build/
 _skbuild/
 docs/_build
+
+# meshing polyMesh
+
+tests/meshing/motorBike/constant/polyMesh
+tests/meshing/sphere_simple/constant/polyMesh
+tests/meshing/cube/constant/polyMesh

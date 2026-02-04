@@ -36,7 +36,7 @@ function(add_pybind11)
             "PYBIND11_TEST OFF"
             "PYBIND11_NOPYTHON OFF"
     )
-    
+
     if(pybind11_ADDED)
         message(STATUS "Added pybind11 ${PYBIND11_VERSION}")
     endif()

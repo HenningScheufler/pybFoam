@@ -71,19 +71,19 @@ endif()
 # ============================================================================
 if(NOT TARGET OpenFOAM::core)
     add_library(OpenFOAM::core INTERFACE IMPORTED)
-    
+
     target_include_directories(OpenFOAM::core INTERFACE
         "${FOAM_SRC}/OpenFOAM/lnInclude"
         "${FOAM_SRC}/OSspecific/POSIX/lnInclude"
     )
-    
+
     target_link_libraries(OpenFOAM::core INTERFACE OpenFOAM)
     target_link_directories(OpenFOAM::core INTERFACE "${FOAM_LIBBIN}")
-    
-    target_compile_definitions(OpenFOAM::core INTERFACE 
-        WM_LABEL_SIZE=$ENV{WM_LABEL_SIZE} 
+
+    target_compile_definitions(OpenFOAM::core INTERFACE
+        WM_LABEL_SIZE=$ENV{WM_LABEL_SIZE}
         NoRepository
-        WM_$ENV{WM_PRECISION_OPTION} 
+        WM_$ENV{WM_PRECISION_OPTION}
         OPENFOAM=$ENV{FOAM_API}
     )
 endif()
@@ -93,13 +93,13 @@ endif()
 # ============================================================================
 if(NOT TARGET OpenFOAM::fileFormats)
     add_library(OpenFOAM::fileFormats INTERFACE IMPORTED)
-    
+
     target_include_directories(OpenFOAM::fileFormats INTERFACE
         "${FOAM_SRC}/fileFormats/lnInclude"
         "${FOAM_SRC}/surfMesh/lnInclude"
     )
-    
-    target_link_libraries(OpenFOAM::fileFormats INTERFACE 
+
+    target_link_libraries(OpenFOAM::fileFormats INTERFACE
         fileFormats
         OpenFOAM::core
     )
@@ -111,13 +111,13 @@ endif()
 # ============================================================================
 if(NOT TARGET OpenFOAM::meshTools)
     add_library(OpenFOAM::meshTools INTERFACE IMPORTED)
-    
+
     target_include_directories(OpenFOAM::meshTools INTERFACE
         "${FOAM_SRC}/meshTools/lnInclude"
         "${FOAM_SRC}/dynamicMesh/lnInclude"
     )
-    
-    target_link_libraries(OpenFOAM::meshTools INTERFACE 
+
+    target_link_libraries(OpenFOAM::meshTools INTERFACE
         meshTools
         surfMesh
         OpenFOAM::core
@@ -130,14 +130,14 @@ endif()
 # ============================================================================
 if(NOT TARGET OpenFOAM::finiteVolume)
     add_library(OpenFOAM::finiteVolume INTERFACE IMPORTED)
-    
+
     target_include_directories(OpenFOAM::finiteVolume INTERFACE
         "${FOAM_SRC}/finiteVolume/lnInclude"
         "${FOAM_SRC}/dynamicFvMesh/lnInclude"
         "${FOAM_SRC}/dynamicMesh/lnInclude"
     )
-    
-    target_link_libraries(OpenFOAM::finiteVolume INTERFACE 
+
+    target_link_libraries(OpenFOAM::finiteVolume INTERFACE
         finiteVolume
         dynamicMesh
         dynamicFvMesh
@@ -153,13 +153,13 @@ endif()
 # ============================================================================
 if(NOT TARGET OpenFOAM::thermo)
     add_library(OpenFOAM::thermo INTERFACE IMPORTED)
-    
+
     target_include_directories(OpenFOAM::thermo INTERFACE
         "${FOAM_SRC}/thermophysicalModels/basic/lnInclude"
         "${FOAM_SRC}/thermophysicalModels/solidThermo/lnInclude"
     )
-    
-    target_link_libraries(OpenFOAM::thermo INTERFACE 
+
+    target_link_libraries(OpenFOAM::thermo INTERFACE
         fluidThermophysicalModels
         solidThermo
         specie
@@ -173,14 +173,14 @@ endif()
 # ============================================================================
 if(NOT TARGET OpenFOAM::turbulence)
     add_library(OpenFOAM::turbulence INTERFACE IMPORTED)
-    
+
     target_include_directories(OpenFOAM::turbulence INTERFACE
         "${FOAM_SRC}/TurbulenceModels/turbulenceModels/lnInclude"
         "${FOAM_SRC}/TurbulenceModels/incompressible/lnInclude"
         "${FOAM_SRC}/TurbulenceModels/compressible/lnInclude"
     )
-    
-    target_link_libraries(OpenFOAM::turbulence INTERFACE 
+
+    target_link_libraries(OpenFOAM::turbulence INTERFACE
         turbulenceModels
         incompressibleTurbulenceModels
         compressibleTurbulenceModels
@@ -196,14 +196,14 @@ endif()
 # ============================================================================
 if(NOT TARGET OpenFOAM::transport)
     add_library(OpenFOAM::transport INTERFACE IMPORTED)
-    
+
     target_include_directories(OpenFOAM::transport INTERFACE
         "${FOAM_SRC}/transportModels"
         "${FOAM_SRC}/transportModels/incompressible/singlePhaseTransportModel"
         "${FOAM_SRC}/transportModels/compressible/lnInclude"
     )
-    
-    target_link_libraries(OpenFOAM::transport INTERFACE 
+
+    target_link_libraries(OpenFOAM::transport INTERFACE
         incompressibleTransportModels
         compressibleTransportModels
         OpenFOAM::core
@@ -216,12 +216,12 @@ endif()
 # ============================================================================
 if(NOT TARGET OpenFOAM::lagrangian)
     add_library(OpenFOAM::lagrangian INTERFACE IMPORTED)
-    
+
     target_include_directories(OpenFOAM::lagrangian INTERFACE
         "${FOAM_SRC}/lagrangian/basic/lnInclude"
     )
-    
-    target_link_libraries(OpenFOAM::lagrangian INTERFACE 
+
+    target_link_libraries(OpenFOAM::lagrangian INTERFACE
         lagrangian
         OpenFOAM::core
     )
@@ -233,13 +233,13 @@ endif()
 # ============================================================================
 if(NOT TARGET OpenFOAM::sampling)
     add_library(OpenFOAM::sampling INTERFACE IMPORTED)
-    
+
     target_include_directories(OpenFOAM::sampling INTERFACE
         "${FOAM_SRC}/sampling/lnInclude"
         "${FOAM_SRC}/sampling/sampledSurface/sampledSurface"
     )
-    
-    target_link_libraries(OpenFOAM::sampling INTERFACE 
+
+    target_link_libraries(OpenFOAM::sampling INTERFACE
         sampling
         OpenFOAM::finiteVolume
         OpenFOAM::meshTools
@@ -253,7 +253,7 @@ endif()
 # ============================================================================
 if(NOT TARGET OpenFOAM::api)
     add_library(OpenFOAM::api INTERFACE IMPORTED)
-    
+
     target_link_libraries(OpenFOAM::api INTERFACE
         OpenFOAM::core
         OpenFOAM::finiteVolume

@@ -8,6 +8,7 @@ add_subdirectory(fvm)
 add_subdirectory(thermo)
 add_subdirectory(turbulence)
 add_subdirectory(sampling)
+add_subdirectory(meshing)
 
 # Create a Python module that includes all components
 set(PYBFOAM_PYTHON_FILES
@@ -23,7 +24,7 @@ if(DEFINED SKBUILD)
         DESTINATION pybFoam
         COMPONENT python
     )
-    
+
 else()
     # Standalone build - install to Python site-packages
     install(FILES ${PYBFOAM_PYTHON_FILES}

@@ -1,7 +1,14 @@
 # Changelog
 
 
-## [0.1.6] 
+## [0.2.0]
+
+## Added
+
+* blockmesh bindings
+* snappy hex mesh bindings
+* check mesh bindings
+
 
 ### Added
 - Initial implementation of sampling module with pybind11 bindings

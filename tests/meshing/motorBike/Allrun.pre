@@ -1,0 +1,19 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+
+# copy motorbike surface from resources directory
+mkdir -p constant/triSurface
+
+cp -f \
+    "$FOAM_TUTORIALS"/resources/geometry/motorBike.obj.gz \
+    constant/triSurface/
+
+runApplication surfaceFeatureExtract
+
+runApplication blockMesh
+
+
+#------------------------------------------------------------------------------

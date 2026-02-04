@@ -19,10 +19,10 @@ Currently in the pre-alpha release state.
 
 ## Requirements
 
-- **OpenFOAM**: v2012 or higher (sourced and installed)
-- **Python**: 3.8 or higher
+- **OpenFOAM**: v2312 or higher (sourced and installed)
+- **Python**: 3.9 or higher
 - **CMake**: 3.18 or higher
-- **C++ Compiler**: C++17 compatible (GCC 7+, Clang 5+)
+- **C++ Compiler**: C++17 compatible (TBD)
 - **Build tools**: pybind11, scikit-build-core
 - **Python packages**: numpy, pydantic
 
@@ -82,20 +82,20 @@ This script:
 import pybFoam as pf
 
 # Create OpenFOAM time and mesh
-time = pf.createTime()
+time = pf.Time(".", ".")
 mesh = pf.fvMesh(time)
 
 # Access fields
-p = pf.volScalarField.read_field(mesh, "p")
+p_rgh = pf.volScalarField.read_field(mesh, "p_rgh")
 U = pf.volVectorField.read_field(mesh, "U")
 
 # Compute gradients using finite volume calculus
-grad_p = pf.fvc.grad(p)
+grad_p = pf.fvc.grad(p_rgh)
 div_U = pf.fvc.div(U)
 
 # Convert to NumPy arrays for analysis
 import numpy as np
-p_array = np.asarray(p["internalField"])
+p_array = np.asarray(p_rgh["internalField"])
 print(f"Pressure range: {p_array.min():.3f} to {p_array.max():.3f}")
 ```
 
@@ -128,7 +128,7 @@ from pydantic import Field
 
 class TransportProperties(IOModelBase):
     nu: float = Field(..., description="Kinematic viscosity")
-    
+
     class Config:
         foam_file_name = "transportProperties"
 
@@ -170,7 +170,7 @@ pytest tests/test_sampling_models.py  # Pydantic config tests
 
 ---
 
-## Documentation
+## Documentation (outdated)
 
 Full documentation is available at: [https://henningscheufler.github.io/pybFoam/](https://henningscheufler.github.io/pybFoam/index.html)
 
@@ -197,5 +197,3 @@ Full documentation is available at: [https://henningscheufler.github.io/pybFoam/
 See [LICENSE](LICENSE) file for details.
 
 ---
-
-

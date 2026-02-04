@@ -46,7 +46,7 @@ SourceFiles
 
 namespace Foam
 {
-    
+
 dictionary read_dictionary(const std::string& file_name);
 
 template<class Type>
@@ -58,4 +58,4 @@ Type get(dictionary& dict, const std::string key);
 void  bindDict(pybind11::module& m);
 
 
-#endif // foam_dict  defined 
+#endif // foam_dict  defined

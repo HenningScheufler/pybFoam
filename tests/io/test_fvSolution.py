@@ -1,11 +1,13 @@
-from typing import Optional
-import pytest
-from pybFoam.io.model_base import IOModelBase
 import os
+from typing import Any, Generator, Optional
+
+import pytest
+
+from pybFoam.io.model_base import IOModelBase
 
 
 @pytest.fixture(scope="function")
-def change_test_dir(request):
+def change_test_dir(request: Any) -> Generator[None, None, None]:
     os.chdir(request.fspath.dirname)
     yield
     os.chdir(request.config.invocation_dir)
@@ -35,7 +37,7 @@ class FvSolution(IOModelBase):
     PISO: PISO
 
 
-def test_parse_fvSolution(change_test_dir):
+def test_parse_fvSolution(change_test_dir: Any) -> None:
     model = FvSolution.from_file("fvSolution")
 
     assert model.solvers.p.solver == "PCG"

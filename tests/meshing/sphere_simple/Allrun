@@ -1,0 +1,12 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+touch sphere_simple.foam
+
+runApplication blockMesh
+
+runApplication snappyHexMesh -overwrite
+
+#------------------------------------------------------------------------------

@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2022, Henning Scheufler
+            Copyright (c) 2021-2026, German Aerospace Center (DLR)
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
-	unofficial extension to OpenFOAM.
+    unofficial extension to OpenFOAM.
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -15,51 +15,35 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    Foam::pyInterp
-
-Description
-
-Author
-    Henning Scheufler, all rights reserved.
-
-SourceFiles
-
-
 \*---------------------------------------------------------------------------*/
 
-#ifndef foam_mesh
-#define foam_mesh
-
-// System includes
 #include <pybind11/pybind11.h>
-#include "fvMesh.H"
-#include "Time.H"
-#include "polyMesh.H"
-#include <pybind11/stl.h>
-#include "instantList.H"
-#include "timeSelector.H"
-#include <vector>
-#include "argList.H"
+
+#include "bind_blockmesh.hpp"
+#include "bind_checkmesh.hpp"
+#include "bind_snappy.hpp"
+
+namespace py = pybind11;
 
 
-namespace Foam
+PYBIND11_MODULE(meshing, m)
 {
+    m.doc() = R"pbdoc(
+        OpenFOAM Meshing Python Bindings
 
-    Foam::instantList selectTimes
-    ( 
-        Time& runTime,
-        const std::vector<std::string>& args
-    );
+        This module provides Python interfaces to OpenFOAM meshing
+        utilities including blockMesh, checkMesh and snappyHexMesh.
+    )pbdoc";
 
-    Time* createTime(std::string rootPath = ".",std::string caseName= ".");
+    // Add blockMesh bindings
+    Foam::addBlockMeshBindings(m);
 
-    fvMesh* createMesh(const Time& time);
+    // Add checkMesh bindings
+    Foam::addCheckMeshBindings(m);
 
+    // Add snappyHexMesh bindings
+    Foam::addSnappyBindings(m);
 }
 
 
-void  bindMesh(pybind11::module& m);
-
-
-#endif // foam_dict  defined 
+// ************************************************************************* //

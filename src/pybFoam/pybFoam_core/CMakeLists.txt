@@ -3,7 +3,9 @@
 set(PYBFOAM_CORE_SOURCES
     bind_io.cpp
     bind_dict.cpp
-    bind_mesh.cpp
+    bind_time.cpp
+    bind_polymesh.cpp
+    bind_fvmesh.cpp
     bind_primitives.cpp
     bind_dimensioned.cpp
     bind_fields.cpp
@@ -17,7 +19,9 @@ set(PYBFOAM_CORE_SOURCES
 set(PYBFOAM_CORE_HEADERS
     bind_io.hpp
     bind_dict.hpp
-    bind_mesh.hpp
+    bind_time.hpp
+    bind_polymesh.hpp
+    bind_fvmesh.hpp
     bind_primitives.hpp
     bind_dimensioned.hpp
     bind_fields.hpp

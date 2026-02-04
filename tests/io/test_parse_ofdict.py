@@ -1,24 +1,27 @@
-from typing import Optional
-import pytest
-from pybFoam import dictionary, vector, tensor, Word
 import os
+from typing import Any, Generator, Optional
+
 import numpy as np
+import pytest
 from pydantic import Field
+
 import pybFoam
+from pybFoam import Word, dictionary, tensor, vector
 from pybFoam.io.model_base import IOModelBase
 
+
 @pytest.fixture(scope="function")
-def change_test_dir(request):
+def change_test_dir(request: Any) -> Generator[None, None, None]:
     os.chdir(request.fspath.dirname)
     yield
     os.chdir(request.config.invocation_dir)
 
-class OFTestSubDict(IOModelBase):
 
+class OFTestSubDict(IOModelBase):
     word2: Word
 
+
 class OFTestDict(IOModelBase):
-    
     word: Word = Field(json_schema_extra={"equals": "word"})
     scalar: float
     vector: vector
@@ -33,8 +36,7 @@ class OFTestDict(IOModelBase):
     notSetOptional: Optional[str] = None  # Not set, should be None
 
 
-def test_parse_ofdict(change_test_dir):
-
+def test_parse_ofdict(change_test_dir: Any) -> None:
     d = dictionary.read("TestDict")
 
     l_word = d.toc()
@@ -42,14 +44,14 @@ def test_parse_ofdict(change_test_dir):
 
     assert d.get[Word]("word") == "word"
     assert d.get[float]("scalar") == 1.1
-    assert d.get[vector]("vector") == vector(1.1,1.1,1.1)
-    assert d.get[tensor]("tensor") == tensor(1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1)
+    assert d.get[vector]("vector") == vector(1.1, 1.1, 1.1)
+    assert d.get[tensor]("tensor") == tensor(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1)
 
     # fields (now using proxy get interface)
     assert d.get[pybFoam.wordList]("wordList").list() == ["word1", "word2"]
     assert (d.get[pybFoam.scalarField]("scalarField") == np.ones(2)).all()
-    assert (d.get[pybFoam.vectorField]("vectorField") == np.ones([2,3])).all()
-    assert (d.get[pybFoam.tensorField]("tensorField") == np.ones([2,9])).all()
+    assert (d.get[pybFoam.vectorField]("vectorField") == np.ones([2, 3])).all()
+    assert (d.get[pybFoam.tensorField]("tensorField") == np.ones([2, 9])).all()
 
     subDict = d.subDict("subDict")
     assert subDict.get[Word]("word2") == "word2"
@@ -60,29 +62,28 @@ def test_parse_ofdict(change_test_dir):
         d.get[str]("notSetOptional")
 
 
-import pytest
-
 @pytest.mark.parametrize("filename", ["TestDict", "TestDict.yaml", "TestDict.json"])
-def test_parse_ofdict_model(change_test_dir, filename):
+def test_parse_ofdict_model(change_test_dir: Any, filename: str) -> None:
     test_dict = OFTestDict.from_file(filename)
     assert test_dict.word == "word"
     assert test_dict.scalar == 1.1
-    assert test_dict.vector == vector(1.1,1.1,1.1)
-    assert test_dict.tensor == tensor(1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1)
+    assert test_dict.vector == vector(1.1, 1.1, 1.1)
+    assert test_dict.tensor == tensor(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1)
     assert test_dict.wordList.list() == ["word1", "word2"]
     assert (test_dict.scalarField == np.ones(2)).all()
-    assert (test_dict.vectorField == np.ones([2,3])).all()
-    assert (test_dict.tensorField == np.ones([2,9])).all()
+    assert (test_dict.vectorField == np.ones([2, 3])).all()
+    assert (test_dict.tensorField == np.ones([2, 9])).all()
     assert test_dict.subDict.word2 == "word2"
     assert test_dict.token == "Gauss linear"
     assert test_dict.optional == "optional"
     assert test_dict.notSetOptional is None
 
+
 class randomClass:
     pass
 
-def test_exception(change_test_dir):
 
+def test_exception(change_test_dir: Any) -> None:
     d = dictionary.read("controlDict")
 
     with pytest.raises(RuntimeError, match=r"Unsupported type .*randomClass"):
@@ -92,31 +93,33 @@ def test_exception(change_test_dir):
     assert d.get[str]("application") == "icoFoam"
 
 
-def test_getOrDefault(change_test_dir):
+def test_getOrDefault(change_test_dir: Any) -> None:
     """Test the dictionary.getOrDefault() method"""
     d = dictionary.read("TestDict")
-    
+
     # Test getting existing keys returns actual values
     assert d.getOrDefault[Word]("word", "default") == "word"
     assert d.getOrDefault[Word]("not_excist_word", "default") == "default"
     assert d.getOrDefault[float]("scalar", 999.9) == 1.1
-    assert d.getOrDefault[vector]("vector", vector(0,0,0)) == vector(1.1,1.1,1.1)
-    
+    assert d.getOrDefault[vector]("vector", vector(0, 0, 0)) == vector(1.1, 1.1, 1.1)
+
     # Test getting non-existing keys returns default values
     assert d.getOrDefault[str]("nonExistent", "myDefault") == "myDefault"
     assert d.getOrDefault[float]("missingScalar", 42.0) == 42.0
     assert d.getOrDefault[int]("missingInt", 123) == 123
     assert d.getOrDefault[Word]("missingWord", Word("defaultWord")) == "defaultWord"
-    
+
     # Test with None as default
     assert d.getOrDefault[str]("notSetOptional", None) is None
-    
+
     # Test in subdictionary
     subDict = d.subDict("subDict")
     assert subDict.getOrDefault[Word]("word2", "fallback") == "word2"
     assert subDict.getOrDefault[str]("missing", "fallback") == "fallback"
-    
+
     # Test with complex types
-    default_tensor = tensor(0,0,0,0,0,0,0,0,0)
-    assert d.getOrDefault[tensor]("tensor", default_tensor) == tensor(1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1)
+    default_tensor = tensor(0, 0, 0, 0, 0, 0, 0, 0, 0)
+    assert d.getOrDefault[tensor]("tensor", default_tensor) == tensor(
+        1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1
+    )
     assert d.getOrDefault[tensor]("missingTensor", default_tensor) == default_tensor

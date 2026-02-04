@@ -2,8 +2,11 @@
 OpenFOAM sampling and surface functionality
 """
 from __future__ import annotations
-import pybFoam.pybFoam_core
+
 import typing
+
+import pybFoam.pybFoam_core
+
 __all__: list[str] = ['interpolationScalar', 'interpolationSymmTensor', 'interpolationTensor', 'interpolationVector', 'meshSearch', 'sampleOnFacesScalar', 'sampleOnFacesSymmTensor', 'sampleOnFacesTensor', 'sampleOnFacesVector', 'sampleOnPointsScalar', 'sampleOnPointsSymmTensor', 'sampleOnPointsTensor', 'sampleOnPointsVector', 'sampleSetScalar', 'sampleSetSymmTensor', 'sampleSetTensor', 'sampleSetVector', 'sampledSet', 'sampledSurface']
 class interpolationScalar:
     @staticmethod

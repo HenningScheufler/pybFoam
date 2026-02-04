@@ -20,7 +20,9 @@ License
 #include <pybind11/pybind11.h>
 #include "bind_io.hpp"
 #include "bind_dict.hpp"
-#include "bind_mesh.hpp"
+#include "bind_time.hpp"
+#include "bind_polymesh.hpp"
+#include "bind_fvmesh.hpp"
 #include "bind_primitives.hpp"
 #include "bind_dimensioned.hpp"
 #include "bind_fields.hpp"
@@ -37,7 +39,9 @@ PYBIND11_MODULE(pybFoam_core, m) {
 
     Foam::bindIO(m);
     bindDict(m);
-    bindMesh(m);
+    bindTime(m);
+    Foam::bindPolyMesh(m);
+    bindFvMesh(m);
     bindPrimitives(m);
     bindDimensioned(m);
     Foam::bindFields(m);
