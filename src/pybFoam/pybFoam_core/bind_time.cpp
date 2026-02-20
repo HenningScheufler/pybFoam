@@ -18,6 +18,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "bind_time.hpp"
+#include "dictionary.H"
 
 namespace Foam
 {
@@ -104,5 +105,8 @@ void bindTime(pybind11::module &m)
              { self.printExecutionTime(Foam::Info); }
             )
         .def("timeName", [](Foam::Time &self)
-             { return self.timeName(); }, py::return_value_policy::reference);
+             { return self.timeName(); }, py::return_value_policy::reference)
+        .def("controlDict", [](Foam::Time &self) -> Foam::dictionary& {
+             return const_cast<Foam::dictionary&>(self.controlDict());
+        }, py::return_value_policy::reference_internal);
 }

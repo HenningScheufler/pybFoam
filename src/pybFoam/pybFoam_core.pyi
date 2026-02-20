@@ -663,6 +663,10 @@ class fvMesh:
         ...
     def changing(self) -> bool:
         ...
+    def faces(self) -> faceList:
+        """
+        Get mesh faces
+        """
     def magSf(self) -> surfaceScalarField:
         ...
     def nCells(self) -> int:
@@ -673,9 +677,24 @@ class fvMesh:
         ...
     def nPoints(self) -> int:
         ...
+    def neighbour(self) -> labelList:
+        """
+        Get face neighbour cells
+        """
+    def owner(self) -> labelList:
+        """
+        Get face owner cells
+        """
+    def points(self) -> vectorField:
+        """
+        Get mesh points
+        """
     def setFluxRequired(self, arg0: Word) -> None:
         ...
     def solverPerformanceDict(self) -> dictionary:
+        ...
+    def solverDict(self, arg0: str) -> dictionary:
+        """Return solver settings dictionary for the named field from fvSolution.solvers."""
         ...
     def time(self) -> Time:
         ...

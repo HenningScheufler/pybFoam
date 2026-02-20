@@ -25,6 +25,7 @@ License
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "face.H"
 
 
 namespace py = pybind11;
@@ -109,6 +110,22 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
         return self + f();
     })
     .def("__add__", [](Field<Type>& self, const Type& s) {return self + s;})
+    // ---- diagnostic variants (mirror nb_scalarfield for fair comparison) ----
+    // 1) identical to __add__: returns tmp<Field<Type>>
+    .def("add_tmp",    [](const Field<Type>& self, const Field<Type>& f) {
+        return self + f;
+    })
+    // 2) move ScalarField out of tmp<> before Python wraps it
+    .def("add_direct", [](const Field<Type>& self, const Field<Type>& f) -> Field<Type> {
+        tmp<Field<Type>> t = self + f;
+        return std::move(t.ref());
+    })
+    // 3) write into caller-supplied buffer, zero allocation
+    .def("add_inplace", [](const Field<Type>& self, const Field<Type>& f, Field<Type>& out) {
+        const label n = self.size();
+        if (out.size() != n) out.setSize(n);
+        for (label i = 0; i < n; ++i) out[i] = self[i] + f[i];
+    })
     .def("__sub__", [](const Field<Type>& self, const Field<Type>& f) {
         return self - f;
     })
@@ -284,7 +301,16 @@ void Foam::bindFields(py::module& m)
                 }
             }
             return fl;
-        }), py::arg("faces"));
+        }), py::arg("faces"))
+        .def("__len__", [](const Foam::faceList& self) {
+            return self.size();
+        })
+        .def("__getitem__", [](const Foam::faceList& self, Foam::label i) -> const Foam::face& {
+            if (i < 0 || i >= self.size()) {
+                throw py::index_error();
+            }
+            return self[i];
+        }, py::return_value_policy::reference_internal);
 
 
     py::class_<List<bool>>(m, "boolList")
@@ -353,6 +379,18 @@ void Foam::bindFields(py::module& m)
             return l_out;
         })
         ;
+
+    // Bind face class (inherits from labelList) - must come after labelList
+    py::class_<Foam::face, Foam::labelList>(m, "face")
+        .def("__len__", [](const Foam::face& self) {
+            return self.size();
+        })
+        .def("__getitem__", [](const Foam::face& self, Foam::label i) -> Foam::label {
+            if (i < 0 || i >= self.size()) {
+                throw py::index_error();
+            }
+            return self[i];
+        });
 
     py::class_<List<word>>(m, "wordList")
         .def(py::init<List<word> > ())

@@ -151,6 +151,9 @@ auto declare_geofields(py::module &m, std::string className) {
     .def(py::init<tmp<GeometricField<Type, PatchField, GeoMesh>>>())
     .def(py::init<const word &,tmp<GeometricField<Type, PatchField, GeoMesh>>>())
     .def("correctBoundaryConditions", &Foam::GeometricField<Type, PatchField, GeoMesh>::correctBoundaryConditions)
+    .def("name", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self) -> std::string {
+        return self.name();
+    })
     .def_static("read_field",[](const fvMesh& mesh,std::string name)
     {
         Foam::GeometricField<Type, PatchField, GeoMesh>* geoField
@@ -456,7 +459,19 @@ void Foam::bindGeoFields(py::module& m)
     .def("__rtruediv__", [](const volScalarField& self, const scalar& s)
     {
         return s / self;
-    });
+    })
+    .def("oldTime", [](volScalarField& self) -> volScalarField&
+    {
+        return self.oldTime();
+    }, py::return_value_policy::reference_internal)
+    ;
+
+    vvf
+    .def("oldTime", [](volVectorField& self) -> volVectorField&
+    {
+        return self.oldTime();
+    }, py::return_value_policy::reference_internal)
+    ;
 
     auto [ssf, tmp_ssf] = declare_geofields<scalar,fvsPatchField, surfaceMesh>(m, std::string("surfaceScalarField"));
 

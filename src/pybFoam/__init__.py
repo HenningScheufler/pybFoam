@@ -105,7 +105,7 @@ from pybFoam.pybFoam_core import (
     write,
 )
 
-from . import fvc, fvm, meshing, runTimeTables, sampling_bindings, thermo, turbulence
+from . import fvc, fvm, meshing, runTimeTables, sampling_bindings, thermo, turbulence, vof
 from ._version import __version__
 
 __all__ = [
@@ -237,6 +237,7 @@ __all__ = [
     "sampling_bindings",
     "thermo",
     "turbulence",
+    "vof",
     # Version
     "__version__",
 ]

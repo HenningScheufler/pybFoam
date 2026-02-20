@@ -98,7 +98,7 @@ namespace Foam
         m.def("createPhi", [](const volVectorField &U)
         {
             const fvMesh& mesh = U.mesh();
-            surfaceScalarField phi
+            surfaceScalarField* phi = new surfaceScalarField
             (
                 IOobject
                 (
@@ -110,8 +110,9 @@ namespace Foam
                 ),
                 fvc::flux(U)
             );
+            mesh.objectRegistry::store(phi);
             return phi;
-        }, py::arg("U"));
+        }, py::arg("U"), py::return_value_policy::reference);
 
         m.def("setRefCell", [](volScalarField &p, const Foam::dictionary &dict, const bool forceReference)
         {
@@ -120,6 +121,14 @@ namespace Foam
             setRefCell(p, dict, pRefCell, pRefValue, forceReference);
             return std::make_tuple(pRefCell, pRefValue);
         }, py::arg("p"), py::arg("dict"), py::arg("forceReference") = false);
+        // Two-field variant: setRefCell(p, p_rgh, dict) -- used in VoF solvers
+        m.def("setRefCell", [](volScalarField &p, volScalarField &p_rgh, const Foam::dictionary &dict, const bool forceReference)
+        {
+            label pRefCell = 0;
+            scalar pRefValue = 0.0;
+            setRefCell(p, p_rgh, dict, pRefCell, pRefValue, forceReference);
+            return std::make_tuple(pRefCell, pRefValue);
+        }, py::arg("p"), py::arg("p_rgh"), py::arg("dict"), py::arg("forceReference") = false);
         m.def("computeCFLNumber", &computeCFLNumber);
         m.def("computeContinuityErrors", &computeContinuityErrors, py::arg("phi"));
     }

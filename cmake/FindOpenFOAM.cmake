@@ -212,6 +212,37 @@ if(NOT TARGET OpenFOAM::transport)
 endif()
 
 # ============================================================================
+# Create OpenFOAM::vof target (VoF / two-phase flow libraries)
+# ============================================================================
+if(NOT TARGET OpenFOAM::vof)
+    add_library(OpenFOAM::vof INTERFACE IMPORTED)
+
+    target_include_directories(OpenFOAM::vof INTERFACE
+        "${FOAM_SRC}/transportModels"
+        "${FOAM_SRC}/transportModels/incompressible/lnInclude"
+        "${FOAM_SRC}/transportModels/interfaceProperties/lnInclude"
+        "${FOAM_SRC}/transportModels/twoPhaseMixture/lnInclude"
+        "${FOAM_SRC}/transportModels/immiscibleIncompressibleTwoPhaseMixture/lnInclude"
+        "${FOAM_SRC}/phaseSystemModels/twoPhaseInter/incompressibleInterPhaseTransportModel/lnInclude"
+        "${FOAM_SRC}/phaseSystemModels/twoPhaseInter/VoFphaseIncompressibleTurbulenceModels/lnInclude"
+        "${FOAM_SRC}/TurbulenceModels/phaseIncompressible/lnInclude"
+    )
+
+    target_link_libraries(OpenFOAM::vof INTERFACE
+        incompressibleTransportModels
+        interfaceProperties
+        immiscibleIncompressibleTwoPhaseMixture
+        twoPhaseProperties
+        VoFphaseTurbulentTransportModels
+        incompressibleInterPhaseTransportModels
+        OpenFOAM::turbulence
+        OpenFOAM::finiteVolume
+        OpenFOAM::core
+    )
+    target_link_directories(OpenFOAM::vof INTERFACE "${FOAM_LIBBIN}")
+endif()
+
+# ============================================================================
 # Create OpenFOAM::lagrangian target
 # ============================================================================
 if(NOT TARGET OpenFOAM::lagrangian)

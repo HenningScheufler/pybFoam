@@ -28,6 +28,7 @@ License
 #include "fvBoundaryMesh.H"
 #include "fvPatch.H"
 #include "IOobject.H"
+#include "fvSolution.H"
 
 namespace Foam
 {
@@ -166,8 +167,32 @@ void bindFvMesh(pybind11::module &m)
         .def("boundary", [](const Foam::fvMesh &self) -> const Foam::fvBoundaryMesh& {
             return self.boundary();
         }, py::return_value_policy::reference_internal)
+        // Add polyMesh access methods
+        .def("points", [](const Foam::fvMesh& self) -> const Foam::pointField& {
+            return self.points();
+        }, py::return_value_policy::reference_internal,
+           "Get mesh points")
+        .def("faces", [](const Foam::fvMesh& self) -> const Foam::faceList& {
+            return self.faces();
+        }, py::return_value_policy::reference_internal,
+           "Get mesh faces")
+        .def("owner", [](const Foam::fvMesh& self) -> const Foam::labelList& {
+            return self.faceOwner();
+        }, py::return_value_policy::reference_internal,
+           "Get face owner cells")
+        .def("neighbour", [](const Foam::fvMesh& self) -> const Foam::labelList& {
+            return self.faceNeighbour();
+        }, py::return_value_policy::reference_internal,
+           "Get face neighbour cells")
         .def("write", [](Foam::fvMesh& self) { return self.write(); },
              "Write mesh to disk")
+        // Solver settings lookup (reads from system/fvSolution.solvers.<name>)
+        .def("solverDict",
+            [](const Foam::fvMesh& self, const std::string& name) -> const Foam::dictionary& {
+                return self.solution().solverDict(Foam::word(name));
+            },
+            py::return_value_policy::reference_internal,
+            "Return solver dictionary for the named field from fvSolution.solvers")
         // dynamic mesh support
         .def("changing", [](Foam::fvMesh &self)
              { return self.changing(); })

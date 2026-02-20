@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.3.0]
+
+* VoF bindings
 
 ## [0.2.0]
 
