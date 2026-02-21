@@ -32,16 +32,18 @@ SourceFiles
 #define bind_io
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 
+#include <string>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
 
-void  bindIO(pybind11::module& m);
+void  bindIO(nanobind::module_& m);
 
-}
+} // namespace Foam
 
 #endif // foam_geo_fields  defined

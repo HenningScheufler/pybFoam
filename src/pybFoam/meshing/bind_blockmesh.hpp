@@ -23,14 +23,14 @@ Description
 #ifndef bindBlockmesh_H
 #define bindBlockmesh_H
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 
 #include "dictionary.H"
 #include "fvMesh.H"
 #include "Time.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
@@ -49,7 +49,7 @@ fvMesh* generateBlockMesh
 );
 
 //- Add Python bindings for blockMesh functions
-void addBlockMeshBindings(py::module_& m);
+void addBlockMeshBindings(nb::module_& m);
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -9,8 +9,8 @@ set(THERMO_HEADERS
     bind_thermo.hpp
 )
 
-# Create the pybind11 module
-pybind11_add_module(thermo ${THERMO_SOURCES})
+# Create the nanobind module
+nanobind_add_module(thermo ${THERMO_SOURCES})
 
 # Set target properties
 set_target_properties(thermo PROPERTIES

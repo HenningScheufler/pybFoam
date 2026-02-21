@@ -31,7 +31,8 @@ Author
 #define foam_bind_fvmesh
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 #include "fvMesh.H"
 #include "Time.H"
 #include "polyMesh.H"
@@ -45,7 +46,7 @@ namespace Foam
 }
 
 
-void bindFvMesh(pybind11::module& m);
+void bindFvMesh(nanobind::module_& m);
 
 
 #endif // foam_dict  defined

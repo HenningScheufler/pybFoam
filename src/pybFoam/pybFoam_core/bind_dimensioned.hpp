@@ -32,20 +32,23 @@ SourceFiles
 #define foam_dimensioned
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 
+#include <string>
+
+namespace nb = nanobind;
 
 namespace Foam
 {
-    namespace py = pybind11;
 
 template<class Type>
-auto declare_dimensioned(py::module &m, std::string className);
+auto declare_dimensioned(nb::module_ &m, std::string className);
 
 
 }
 
-void  bindDimensioned(pybind11::module& m);
+void  bindDimensioned(nanobind::module_& m);
 
 
 #endif

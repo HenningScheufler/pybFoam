@@ -1,6 +1,6 @@
 [project]
 name = "pybFoam"
-version = "0.2.0"
+version = "0.3.0"
 authors = [
     {name = "Henning Scheufler", email = "henning.scheufler@web.de"},
 ]
@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
     "numpy>=1.20",
-    "pybind11>=2.6.0",
+    "nanobind>=1.8.0",
     "pydantic",
     "pyyaml",
 ]
@@ -38,7 +38,6 @@ dev = [
     "ruff>=0.14.2",
     "mypy",
     "cmake>=3.18",
-    "pybind11-stubgen>=2.5",
     "mypy",
     "types-PyYAML",
     "poethepoet>=0.37.0",
@@ -73,7 +72,7 @@ zip-safe = false
 [build-system]
 requires = [
     "scikit-build-core[pyproject]>=0.4.3",
-    "pybind11>=2.6.0",
+    "nanobind>=1.8.0",
     "cmake>=3.18"
 ]
 build-backend = "scikit_build_core.build"
@@ -92,7 +91,6 @@ editable.rebuild = false
 
 # CMake configuration
 [tool.scikit-build.cmake.define]
-PYBIND11_FINDPYTHON = "ON"
 CMAKE_CXX_STANDARD = "17"
 # Stub generation disabled by default
 # Developers enable with: uv sync --all-extras -C cmake.define.ENABLE_PYBFOAM_STUBS=ON

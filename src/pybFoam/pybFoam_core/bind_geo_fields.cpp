@@ -67,13 +67,13 @@ void field(GeometricField<Type, PatchField, GeoMesh>& vf,const fvMesh& mesh, con
 }
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-auto declare_geofields(py::module &m, std::string className) {
+auto declare_geofields(nb::module_ &m, std::string className) {
     std::string tmp_className = "tmp_" + className;
-    auto tmpGeofieldClass = py::class_< tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>>(m, tmp_className.c_str())
+    auto tmpGeofieldClass = nb::class_< tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>>(m, tmp_className.c_str())
     .def("__call__",[](tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) -> Foam::GeometricField<Type, PatchField, GeoMesh>&
     {
         return self.ref();
-    }, py::return_value_policy::reference_internal)
+    }, nb::rv_policy::reference_internal)
     .def("__neg__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) {
         return -self;
     })
@@ -146,10 +146,10 @@ auto declare_geofields(py::module &m, std::string className) {
     })
     ;
 
-    auto geofieldClass = py::class_< Foam::GeometricField<Type, PatchField, GeoMesh>>(m, className.c_str())
-    .def(py::init<GeometricField<Type, PatchField, GeoMesh>>())
-    .def(py::init<tmp<GeometricField<Type, PatchField, GeoMesh>>>())
-    .def(py::init<const word &,tmp<GeometricField<Type, PatchField, GeoMesh>>>())
+    auto geofieldClass = nb::class_< Foam::GeometricField<Type, PatchField, GeoMesh>>(m, className.c_str())
+    .def(nb::init<GeometricField<Type, PatchField, GeoMesh>>())
+    .def(nb::init<tmp<GeometricField<Type, PatchField, GeoMesh>>>())
+    .def(nb::init<const word &,tmp<GeometricField<Type, PatchField, GeoMesh>>>())
     .def("correctBoundaryConditions", &Foam::GeometricField<Type, PatchField, GeoMesh>::correctBoundaryConditions)
     .def_static("read_field",[](const fvMesh& mesh,std::string name)
     {
@@ -170,24 +170,24 @@ auto declare_geofields(py::module &m, std::string className) {
         );
         mesh.objectRegistry::store(geoField);
         return geoField;
-    },py::return_value_policy::reference)
+    },nb::rv_policy::reference)
     .def_static("from_registry",[](const fvMesh& mesh,std::string name)
     {
         const Foam::GeometricField<Type, PatchField, GeoMesh>* obj =
             mesh.findObject<Foam::GeometricField<Type, PatchField, GeoMesh>>(name);
         return obj;
-    },py::return_value_policy::reference)
+    },nb::rv_policy::reference)
     .def_static("list_objects",[](const fvMesh& mesh)
     {
         return mesh.names<Foam::GeometricField<Type, PatchField, GeoMesh>>();
     })
-    // .def("internalField",&Foam::GeometricField<Type, PatchField, GeoMesh>::primitiveFieldRef, py::return_value_policy::reference_internal)
+    // .def("internalField",&Foam::GeometricField<Type, PatchField, GeoMesh>::primitiveFieldRef, nb::rv_policy::reference_internal)
     .def("internalField", [](
         Foam::GeometricField<Type, PatchField, GeoMesh>& self
     ) -> Foam::Field<Type>&
     {
         return self.primitiveFieldRef();
-    }, py::return_value_policy::reference_internal)
+    }, nb::rv_policy::reference_internal)
     .def("__getitem__", []
     (
         Foam::GeometricField<Type, PatchField, GeoMesh>& self,
@@ -195,7 +195,7 @@ auto declare_geofields(py::module &m, std::string className) {
     ) -> Foam::Field<Type>&
     {
         return Foam::field(self,self.mesh(),name);
-    }, py::return_value_policy::reference_internal)
+    }, nb::rv_policy::reference_internal)
     .def("__setitem__", []
     (
         Foam::GeometricField<Type, PatchField, GeoMesh>& self,
@@ -339,7 +339,7 @@ auto declare_geofields(py::module &m, std::string className) {
     ) -> const typename GeoMesh::Mesh&
     {
         return self.mesh();
-    }, py::return_value_policy::reference)
+    }, nb::rv_policy::reference)
 
     ;
 
@@ -361,9 +361,8 @@ auto declare_mag (const FieldType& geof)
 }
 
 
-void Foam::bindGeoFields(py::module& m)
+void Foam::bindGeoFields(nb::module_& m)
 {
-    namespace py = pybind11;
 
     auto [vsf, tmp_vsf] = declare_geofields<scalar,fvPatchField, volMesh>(m, std::string("volScalarField"));
     auto [vvf, tmp_vvf] = declare_geofields<vector,fvPatchField, volMesh>(m, std::string("volVectorField"));

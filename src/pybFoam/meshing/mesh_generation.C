@@ -17,16 +17,16 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include "bind_blockmesh.hpp"
 #include "bind_checkmesh.hpp"
 #include "bind_snappy.hpp"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 
-PYBIND11_MODULE(meshing, m)
+NB_MODULE(meshing, m)
 {
     m.doc() = R"pbdoc(
         OpenFOAM Meshing Python Bindings

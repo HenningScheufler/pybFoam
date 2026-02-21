@@ -32,19 +32,19 @@ SourceFiles
 #define foam_Control
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include "pisoControl.H"
 #include "pimpleControl.H"
 #include "simpleControl.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
 
 
-void  bindControl(pybind11::module& m);
+void  bindControl(nanobind::module_& m);
 
 }
 

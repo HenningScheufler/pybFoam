@@ -17,14 +17,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include "bind_fvc.hpp"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 
-PYBIND11_MODULE(fvc, fvc) {
+NB_MODULE(fvc, fvc) {
     fvc.doc() = "finite volume calculus"; // optional module docstring
 
     Foam::bindFVC(fvc);

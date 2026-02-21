@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 #include "bind_io.hpp"
 #include "bind_dict.hpp"
 #include "bind_time.hpp"
@@ -31,10 +31,10 @@ License
 #include "bind_control.hpp"
 #include "bind_cfdTools.hpp"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 
-PYBIND11_MODULE(pybFoam_core, m) {
+NB_MODULE(pybFoam_core, m) {
     m.doc() = "python bindings for openfoam"; // optional module docstring
 
     Foam::bindIO(m);

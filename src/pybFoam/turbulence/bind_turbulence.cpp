@@ -30,26 +30,23 @@ License
 #include "volFields.H"
 #include "GeometricFields.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-template <typename... Args>
-using overload_cast_ = py::detail::overload_cast_impl<Args...>;
-
-void Foam::bindTurbulence(py::module& m)
+void Foam::bindTurbulence(nb::module_& m)
 {
 
-    py::class_<singlePhaseTransportModel>(m, "singlePhaseTransportModel")
-        .def(py::init<const volVectorField&, const surfaceScalarField&>(),
-             py::arg("U"), py::arg("phi"))
+    nb::class_<singlePhaseTransportModel>(m, "singlePhaseTransportModel")
+        .def(nb::init<const volVectorField&, const surfaceScalarField&>(),
+             nb::arg("U"), nb::arg("phi"))
         .def("correct", &singlePhaseTransportModel::correct)
     ;
 
-    py::class_<incompressible::turbulenceModel>(m, "incompressibleTurbulenceModel")
+    nb::class_<incompressible::turbulenceModel>(m, "incompressibleTurbulenceModel")
     .def_static("from_registry",[](const fvMesh& mesh)
     {
         const incompressible::turbulenceModel* obj = mesh.findObject<incompressible::turbulenceModel>(incompressible::turbulenceModel::propertiesName);
         return obj;
-    }, py::return_value_policy::reference)
+    }, nb::rv_policy::reference)
     // from turbulenceModel
     .def_static("New",[](const volVectorField& U,
         const surfaceScalarField& phi,
@@ -57,7 +54,7 @@ void Foam::bindTurbulence(py::module& m)
         const word& propertiesName)
     {
         return incompressible::turbulenceModel::New(U, phi, transportModel, propertiesName).ptr();
-    }, py::arg("U"), py::arg("phi"), py::arg("transportModel"), py::arg("propertiesName") = turbulenceModel::propertiesName, py::return_value_policy::take_ownership)
+    }, nb::arg("U"), nb::arg("phi"), nb::arg("transportModel"), nb::arg("propertiesName") = turbulenceModel::propertiesName, nb::rv_policy::take_ownership)
     .def("correct", &incompressible::turbulenceModel::correct)
     .def("U", &incompressible::turbulenceModel::U)
     .def("alphaRhoPhi", &incompressible::turbulenceModel::alphaRhoPhi)
@@ -67,32 +64,32 @@ void Foam::bindTurbulence(py::module& m)
     .def("epsilon", &incompressible::turbulenceModel::epsilon)
     .def("omega", &incompressible::turbulenceModel::omega)
     .def("R", &incompressible::turbulenceModel::R)
-    .def("nu", overload_cast_< >()(&incompressible::turbulenceModel::nu, py::const_))
-    .def("nu", overload_cast_<const label >()(&incompressible::turbulenceModel::nu, py::const_))
-    .def("nut", overload_cast_< >()(&incompressible::turbulenceModel::nut, py::const_))
-    .def("nut", overload_cast_<const label >()(&incompressible::turbulenceModel::nut, py::const_))
-    .def("mu", overload_cast_< >()(&incompressible::turbulenceModel::mu, py::const_))
-    .def("mu", overload_cast_<const label >()(&incompressible::turbulenceModel::mu, py::const_))
-    .def("mut", overload_cast_< >()(&incompressible::turbulenceModel::mut, py::const_))
-    .def("mut", overload_cast_<const label >()(&incompressible::turbulenceModel::mut, py::const_))
-    .def("muEff", overload_cast_< >()(&incompressible::turbulenceModel::muEff, py::const_))
-    .def("muEff", overload_cast_<const label >()(&incompressible::turbulenceModel::muEff, py::const_))
-    .def("nuEff", overload_cast_< >()(&incompressible::turbulenceModel::nuEff, py::const_))
-    .def("nuEff", overload_cast_<const label >()(&incompressible::turbulenceModel::nuEff, py::const_))
-    .def("devRhoReff", overload_cast_< >()(&incompressible::turbulenceModel::devRhoReff, py::const_))
-    .def("divDevReff", overload_cast_<volVectorField&>()(&incompressible::turbulenceModel::divDevReff, py::const_))
+    .def("nu", [](const incompressible::turbulenceModel& self) { return self.nu(); })
+    .def("nu", [](const incompressible::turbulenceModel& self, const label i) { return self.nu(i); })
+    .def("nut", [](const incompressible::turbulenceModel& self) { return self.nut(); })
+    .def("nut", [](const incompressible::turbulenceModel& self, const label i) { return self.nut(i); })
+    .def("mu", [](const incompressible::turbulenceModel& self) { return self.mu(); })
+    .def("mu", [](const incompressible::turbulenceModel& self, const label i) { return self.mu(i); })
+    .def("mut", [](const incompressible::turbulenceModel& self) { return self.mut(); })
+    .def("mut", [](const incompressible::turbulenceModel& self, const label i) { return self.mut(i); })
+    .def("muEff", [](const incompressible::turbulenceModel& self) { return self.muEff(); })
+    .def("muEff", [](const incompressible::turbulenceModel& self, const label i) { return self.muEff(i); })
+    .def("nuEff", [](const incompressible::turbulenceModel& self) { return self.nuEff(); })
+    .def("nuEff", [](const incompressible::turbulenceModel& self, const label i) { return self.nuEff(i); })
+    .def("devRhoReff", [](const incompressible::turbulenceModel& self) { return self.devRhoReff(); })
+    .def("divDevReff", [](const incompressible::turbulenceModel& self, volVectorField& U) { return self.divDevReff(U); })
     #if OPENFOAM > 2106
-        .def("devRhoReff", overload_cast_<const volVectorField&>()(&incompressible::turbulenceModel::devRhoReff, py::const_))
+        .def("devRhoReff", [](const incompressible::turbulenceModel& self, const volVectorField& U) { return self.devRhoReff(U); })
     #endif
     ;
 
 
-    py::class_<compressible::turbulenceModel>(m, "compressibleTurbulenceModel",py::module_local())
+    nb::class_<compressible::turbulenceModel>(m, "compressibleTurbulenceModel")
     .def_static("from_registry",[](const fvMesh& mesh)
     {
         const compressible::turbulenceModel* obj = mesh.findObject<compressible::turbulenceModel>(compressible::turbulenceModel::propertiesName);
         return obj;
-    },py::return_value_policy::reference)
+    },nb::rv_policy::reference)
     // from turbulenceModel
     .def("U", &compressible::turbulenceModel::U)
     .def("alphaRhoPhi", &compressible::turbulenceModel::alphaRhoPhi)
@@ -102,22 +99,22 @@ void Foam::bindTurbulence(py::module& m)
     .def("epsilon", &compressible::turbulenceModel::epsilon)
     .def("omega", &compressible::turbulenceModel::omega)
     .def("R", &compressible::turbulenceModel::R)
-    .def("nu", overload_cast_< >()(&compressible::turbulenceModel::nu, py::const_))
-    .def("nu", overload_cast_<const label >()(&compressible::turbulenceModel::nu, py::const_))
-    .def("nut", overload_cast_< >()(&compressible::turbulenceModel::nut, py::const_))
-    .def("nut", overload_cast_<const label >()(&compressible::turbulenceModel::nut, py::const_))
-    .def("mu", overload_cast_< >()(&compressible::turbulenceModel::mu, py::const_))
-    .def("mu", overload_cast_<const label >()(&compressible::turbulenceModel::mu, py::const_))
-    .def("mut", overload_cast_< >()(&compressible::turbulenceModel::mut, py::const_))
-    .def("mut", overload_cast_<const label >()(&compressible::turbulenceModel::mut, py::const_))
-    .def("muEff", overload_cast_< >()(&compressible::turbulenceModel::muEff, py::const_))
-    .def("muEff", overload_cast_<const label >()(&compressible::turbulenceModel::muEff, py::const_))
-    .def("nuEff", overload_cast_< >()(&compressible::turbulenceModel::nuEff, py::const_))
-    .def("nuEff", overload_cast_<const label >()(&compressible::turbulenceModel::nuEff, py::const_))
-    .def("devRhoReff", overload_cast_< >()(&compressible::turbulenceModel::devRhoReff, py::const_))
-    .def("divDevRhoReff", overload_cast_<volVectorField&>()(&compressible::turbulenceModel::divDevRhoReff, py::const_))
+    .def("nu", [](const compressible::turbulenceModel& self) { return self.nu(); })
+    .def("nu", [](const compressible::turbulenceModel& self, const label i) { return self.nu(i); })
+    .def("nut", [](const compressible::turbulenceModel& self) { return self.nut(); })
+    .def("nut", [](const compressible::turbulenceModel& self, const label i) { return self.nut(i); })
+    .def("mu", [](const compressible::turbulenceModel& self) { return self.mu(); })
+    .def("mu", [](const compressible::turbulenceModel& self, const label i) { return self.mu(i); })
+    .def("mut", [](const compressible::turbulenceModel& self) { return self.mut(); })
+    .def("mut", [](const compressible::turbulenceModel& self, const label i) { return self.mut(i); })
+    .def("muEff", [](const compressible::turbulenceModel& self) { return self.muEff(); })
+    .def("muEff", [](const compressible::turbulenceModel& self, const label i) { return self.muEff(i); })
+    .def("nuEff", [](const compressible::turbulenceModel& self) { return self.nuEff(); })
+    .def("nuEff", [](const compressible::turbulenceModel& self, const label i) { return self.nuEff(i); })
+    .def("devRhoReff", [](const compressible::turbulenceModel& self) { return self.devRhoReff(); })
+    .def("divDevRhoReff", [](const compressible::turbulenceModel& self, volVectorField& U) { return self.divDevRhoReff(U); })
     #if OPENFOAM > 2106
-        .def("devRhoReff", overload_cast_<const volVectorField&>()(&compressible::turbulenceModel::devRhoReff, py::const_))
+        .def("devRhoReff", [](const compressible::turbulenceModel& self, const volVectorField& U) { return self.devRhoReff(U); })
     #endif
     ;
 

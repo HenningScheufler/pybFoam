@@ -25,11 +25,11 @@ namespace Foam
 {
 
 template<class Type>
-py::class_< fvMatrix<Type>>
-declare_fvMatrix(py::module &m, std::string className)
+nb::class_< fvMatrix<Type>>
+declare_fvMatrix(nb::module_ &m, std::string className)
 {
     std::string tmp_fvMatrixClass = "tmp_" + className;
-    py::class_< tmp<fvMatrix<Type>>>(m, tmp_fvMatrixClass.c_str())
+    nb::class_< tmp<fvMatrix<Type>>>(m, tmp_fvMatrixClass.c_str())
         .def("__add__", []
         (
             const tmp<fvMatrix<Type>>& rhs,
@@ -82,9 +82,9 @@ declare_fvMatrix(py::module &m, std::string className)
 
     ;
 
-    auto fvMatrixClass = py::class_<fvMatrix<Type>>(m, className.c_str())
-        .def(py::init<const fvMatrix<Type>&>())
-        .def(py::init<tmp<fvMatrix<Type>>>())
+    auto fvMatrixClass = nb::class_<fvMatrix<Type>>(m, className.c_str())
+        .def(nb::init<const fvMatrix<Type>&>())
+        .def(nb::init<tmp<fvMatrix<Type>>>())
         .def("solve", [](fvMatrix<Type> &self)
         {
             self.solve();
@@ -162,7 +162,7 @@ declare_fvMatrix(py::module &m, std::string className)
 }
 
 template<class Type>
-void declare_solve(py::module &m)
+void declare_solve(nb::module_ &m)
 {
     m.def("solve", [](fvMatrix<Type>& mat) {
         return Foam::solve(mat);
@@ -174,11 +174,11 @@ void declare_solve(py::module &m)
 }
 
 template<class Type>
-py::class_<Foam::SolverPerformance<Type>>
-declare_SolverPerformance(py::module &m, std::string className)
+nb::class_<Foam::SolverPerformance<Type>>
+declare_SolverPerformance(nb::module_ &m, std::string className)
 {
-    return py::class_<Foam::SolverPerformance<Type>>(m, className.c_str())
-        .def(py::init<>())
+    return nb::class_<Foam::SolverPerformance<Type>>(m, className.c_str())
+        .def(nb::init<>())
         .def("solverName", [](const Foam::SolverPerformance<Type>& self) { return self.solverName(); })
         .def("fieldName", [](const Foam::SolverPerformance<Type>& self) { return self.fieldName(); })
         .def("initialResidual", [](const Foam::SolverPerformance<Type>& self) { return self.initialResidual(); })
@@ -190,10 +190,8 @@ declare_SolverPerformance(py::module &m, std::string className)
 
 }
 
-void Foam::bindFvMatrix(py::module& m)
+void Foam::bindFvMatrix(nb::module_& m)
 {
-    namespace py = pybind11;
-
     auto fvScalarMatrix = declare_fvMatrix<Foam::scalar>(m, std::string("fvScalarMatrix"));
     auto fvVectorMatrix = declare_fvMatrix<Foam::vector>(m, std::string("fvVectorMatrix"));
     auto fvTensorMatrix = declare_fvMatrix<Foam::tensor>(m, std::string("fvTensorMatrix"));

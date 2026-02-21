@@ -32,9 +32,10 @@ SourceFiles
 #define foam_dict
 
 // System includes
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/ndarray.h>
 
 #include "dictionary.H"
 #include "word.H"
@@ -55,7 +56,7 @@ Type get(dictionary& dict, const std::string key);
 
 }
 
-void  bindDict(pybind11::module& m);
+void  bindDict(nanobind::module_& m);
 
 
 #endif // foam_dict  defined

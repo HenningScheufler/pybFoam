@@ -19,7 +19,6 @@ License
 
 #include "bind_fields.hpp"
 #include "bind_primitives.hpp"
-#include "bind_primitives.hpp"
 #include "instantList.H"
 #include "uniformDimensionedFields.H"
 #include "fvMesh.H"
@@ -27,7 +26,7 @@ License
 #include "surfaceFields.H"
 
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
@@ -40,28 +39,31 @@ Type declare_sum(const Field<Type>& values)
 
 
 template<class Type>
-py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
-    auto fieldClass = py::class_< Field<Type>>(m, className.c_str(), py::buffer_protocol())
-    .def(py::init<>())
-    .def(py::init< Field<Type>>())
-    .def(py::init< tmp<Field<Type> >>())
-    .def(py::init([](std::vector<Type> vec) {
-        Field<Type> f(vec.size());
-        forAll(f,i)
+nb::class_< Field<Type>> declare_fields(nb::module_ &m, std::string className) {
+    auto fieldClass = nb::class_< Field<Type>>(m, className.c_str())
+    .def(nb::init<>())
+    .def("__init__", [](Field<Type>* self, const Field<Type>& other) {
+        new (self) Field<Type>(other);
+    })
+    .def("__init__", [](Field<Type>* self, const tmp<Field<Type>>& t) {
+        new (self) Field<Type>(t());
+    })
+    .def("__init__", [](Field<Type>* self, std::vector<Type> vec) {
+        new (self) Field<Type>(vec.size());
+        forAll(*self, i)
         {
-            f[i] = vec[i];
+            (*self)[i] = vec[i];
         }
-        return f;
-    }))
-    .def(py::init([](py::array_t<Foam::scalar, py::array::c_style | py::array::forcecast> arr) {
+    })
+    .def("__init__", [](Field<Type>* self, nb::ndarray<nb::numpy, Foam::scalar, nb::device::cpu> arr) {
         constexpr bool isScalar = std::is_same<Type, Foam::scalar>::value;
         constexpr int nComps = isScalar ? 1 : Foam::pTraits<Type>::nComponents;
 
-        if (arr.ndim() != (isScalar ? 1 : 2))
+        if (arr.ndim() != (size_t)(isScalar ? 1 : 2))
             throw std::runtime_error(
                 "Expected " + std::to_string(isScalar ? 1 : 2) + "D array for this field type");
 
-        if (!isScalar && arr.shape(1) != nComps)
+        if (!isScalar && (int)arr.shape(1) != nComps)
             throw std::runtime_error(
                 "Expected second dimension to be " + std::to_string(nComps)
             );
@@ -69,12 +71,12 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
         size_t n = arr.shape(0);
         const Foam::scalar* data = arr.data();
 
-        Foam::Field<Type> field(n);
+        new (self) Foam::Field<Type>(n);
 
         if constexpr (isScalar) {
             for (size_t i = 0; i < n; ++i)
             {
-                field[i] = data[i];
+                (*self)[i] = data[i];
             }
         }
         else
@@ -83,19 +85,17 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
                 Type val;
                 for (int j = 0; j < nComps; ++j)
                     val[j] = data[i * nComps + j];
-                field[i] = val;
+                (*self)[i] = val;
             }
         }
-
-        return field;
-    }))
+    })
     .def("__len__", [](const Field<Type>& self) {
         return self.size();
     })
     .def("__getitem__", [](const Field<Type>& self, const label idx) {
         if (idx >= self.size())
         {
-            throw py::index_error();
+            throw nb::index_error();
         }
         return self[idx];
     })
@@ -119,27 +119,27 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
     .def("__iadd__", [](Field<Type>& self, const Field<Type>& f) -> Field<Type>& {
         self += f;
         return self;
-    }, py::return_value_policy::reference_internal)
+    }, nb::rv_policy::reference_internal)
     .def("__iadd__", [](Field<Type>& self, const tmp<Field<Type>>& f) -> Field<Type>& {
         self += f();
         return self;
-    }, py::return_value_policy::reference_internal)
+    }, nb::rv_policy::reference_internal)
     .def("__iadd__", [](Field<Type>& self, const Type& s) -> Field<Type>& {
         self += s;
         return self;
-    }, py::return_value_policy::reference_internal)
+    }, nb::rv_policy::reference_internal)
     .def("__isub__", [](Field<Type>& self, const Field<Type>& f) -> Field<Type>& {
         self -= f;
         return self;
-    }, py::return_value_policy::reference_internal)
+    }, nb::rv_policy::reference_internal)
     .def("__isub__", [](Field<Type>& self, const tmp<Field<Type>>& f) -> Field<Type>& {
         self -= f();
         return self;
-    }, py::return_value_policy::reference_internal)
+    }, nb::rv_policy::reference_internal)
     .def("__isub__", [](Field<Type>& self, const Type& s) -> Field<Type>& {
         self -= s;
         return self;
-    }, py::return_value_policy::reference_internal)
+    }, nb::rv_policy::reference_internal)
     .def("__mul__", [](Field<Type>& self, const scalar& s) {return self * s;})
     .def("__mul__", [](Foam::Field<Type>& self, const Field<scalar>& sf)
     {
@@ -158,50 +158,47 @@ py::class_< Field<Type>> declare_fields(py::module &m, std::string className) {
     {
         return self / sf();
     })
-    .def_buffer([](Field<Type>& self) -> py::buffer_info {
-        constexpr bool isScalar = std::is_same<Type, Foam::scalar>::value;
-        constexpr int nComps = isScalar ? 1 : Foam::pTraits<Type>::nComponents;
-
-        std::vector<py::ssize_t> shape;
-        std::vector<py::ssize_t> strides;
-
-        if constexpr (isScalar) {
-            shape = { static_cast<py::ssize_t>(self.size()) };
-            strides = { sizeof(Foam::scalar) };
+    .def("__array__", [](Field<Type>& self, nb::object /*dtype*/ = nb::none(), nb::object /*copy*/ = nb::none()) {
+        if constexpr (std::is_same<Type, Foam::scalar>::value) {
+            size_t shape[1] = {(size_t)self.size()};
+            return nb::ndarray<nb::numpy, Foam::scalar>(self.data(), 1, shape);
         } else {
-            shape = {
-                static_cast<py::ssize_t>(self.size()),
-                static_cast<py::ssize_t>(nComps)
-            };
-            strides = {
-                sizeof(Type),             // Step to next element (next vector/tensor)
-                sizeof(Foam::scalar)      // Step to next component
-            };
+            constexpr int nComps = Foam::pTraits<Type>::nComponents;
+            size_t shape[2] = {(size_t)self.size(), (size_t)nComps};
+            return nb::ndarray<nb::numpy, Foam::scalar>((Foam::scalar*)self.data(), 2, shape);
         }
-
-        return py::buffer_info(
-            self.data(),
-            sizeof(Foam::scalar),
-            py::format_descriptor<Foam::scalar>::format(),
-            shape.size(),  // number of dimensions
-            shape,
-            strides
-        );
-    })
+    }, nb::arg("dtype") = nb::none(), nb::arg("copy") = nb::none(), nb::rv_policy::reference_internal)
     ;
+
+    // List-of-sequences constructor for compound types (vector, tensor, symmTensor)
+    if constexpr (!std::is_same_v<Type, Foam::scalar>) {
+        fieldClass.def("__init__", [](Field<Type>* self, nb::list outer) {
+            constexpr int nComps = Foam::pTraits<Type>::nComponents;
+            new (self) Field<Type>(outer.size());
+            for (size_t i = 0; i < outer.size(); ++i) {
+                nb::sequence inner = nb::cast<nb::sequence>(outer[i]);
+                if (nb::len(inner) != nComps)
+                    throw std::runtime_error(
+                        "Each inner sequence must have "
+                        + std::to_string(nComps) + " components");
+                for (int j = 0; j < nComps; ++j)
+                    (*self)[i][j] = nb::cast<Foam::scalar>(inner[j]);
+            }
+        });
+    }
 
     return fieldClass;
 }
 
 template<class Type>
-py::class_<tmp<Field<Type>>> declare_tmp_fields(py::module &m, std::string className) {
+nb::class_<tmp<Field<Type>>> declare_tmp_fields(nb::module_ &m, std::string className) {
     std::string tmp_className = "tmp_" + className;
 
-    auto tmpFieldClass = py::class_<tmp<Field<Type>>>(m, tmp_className.c_str())
+    auto tmpFieldClass = nb::class_<tmp<Field<Type>>>(m, tmp_className.c_str())
     .def("__call__",[](tmp<Field<Type>>& self) -> Field<Type>&
     {
         return self.ref();
-    }, py::return_value_policy::reference_internal)
+    }, nb::rv_policy::reference_internal)
     .def("__neg__", [](const tmp<Field<Type>>& self) {
         return -self();
     })
@@ -211,7 +208,7 @@ py::class_<tmp<Field<Type>>> declare_tmp_fields(py::module &m, std::string class
     .def("__getitem__", [](const tmp<Field<Type>>& self, const label idx) {
         if (idx >= self().size())
         {
-            throw py::index_error();
+            throw nb::index_error();
         }
         return self()[idx];
     })
@@ -261,49 +258,51 @@ py::class_<tmp<Field<Type>>> declare_tmp_fields(py::module &m, std::string class
 
 }
 
-void Foam::bindFields(py::module& m)
+void Foam::bindFields(nb::module_& m)
 {
-    py::class_<instantList>(m, "instantList")
+    nb::class_<instantList>(m, "instantList")
         .def("__getitem__", [](const instantList& self, const label idx) {
             if (idx >= self.size())
             {
-                throw py::index_error();
+                throw nb::index_error();
             }
             return self[idx];
         })
     ;
 
-    py::class_<faceList>(m, "faceList")
-        .def(py::init<faceList> ())
-        .def(py::init([](const std::vector<std::vector<Foam::label>>& faces) {
-            Foam::faceList fl(faces.size());
+    nb::class_<faceList>(m, "faceList")
+        .def("__init__", [](faceList* self, const faceList& other) {
+            new (self) faceList(other);
+        })
+        .def("__init__", [](faceList* self, const std::vector<std::vector<Foam::label>>& faces) {
+            new (self) Foam::faceList(faces.size());
             for (size_t i = 0; i < faces.size(); ++i) {
-                fl[i] = Foam::face(faces[i].size());
+                (*self)[i] = Foam::face(faces[i].size());
                 for (size_t j = 0; j < faces[i].size(); ++j) {
-                    fl[i][j] = faces[i][j];
+                    (*self)[i][j] = faces[i][j];
                 }
             }
-            return fl;
-        }), py::arg("faces"));
+        }, nb::arg("faces"));
 
 
-    py::class_<List<bool>>(m, "boolList")
-        .def(py::init<List<bool> > ())
-        .def(py::init([](std::vector<bool> vec) {
-            List<bool> f(vec.size());
-            forAll(f,i)
+    nb::class_<List<bool>>(m, "boolList")
+        .def("__init__", [](List<bool>* self, const List<bool>& other) {
+            new (self) List<bool>(other);
+        })
+        .def("__init__", [](List<bool>* self, std::vector<bool> vec) {
+            new (self) List<bool>(vec.size());
+            forAll(*self, i)
             {
-                f[i] = vec[i];
+                (*self)[i] = vec[i];
             }
-            return f;
-        }), py::arg("vec"))
+        }, nb::arg("vec"))
         .def("__len__", [](const List<bool>& self) {
             return self.size();
         })
         .def("__getitem__", [](const List<bool>& self, const label idx) {
             if (idx >= self.size())
             {
-                throw py::index_error();
+                throw nb::index_error();
             }
             return self[idx];
         })
@@ -320,24 +319,22 @@ void Foam::bindFields(py::module& m)
         })
         ;
 
-    py::class_<List<label>>(m, "labelList")
-        .def(py::init<label, label > ())
-        .def(py::init<List<label> > ())
-        .def(py::init([](std::vector<label> vec) {
-            List<label> f(vec.size());
-            forAll(f,i)
-            {
-                f[i] = vec[i];
-            }
-            return f;
-        }), py::arg("vec"))
+    nb::class_<List<label>>(m, "labelList")
+        .def(nb::init<label, label > ())
+        .def("__init__", [](List<label>* self, const List<label>& other) {
+            new (self) List<label>(other);
+        })
+        .def("__init__", [](List<label>* self, std::vector<label> vec) {
+            new (self) List<label>(vec.size());
+            forAll(*self, i) { (*self)[i] = vec[i]; }
+        }, nb::arg("vec"))
         .def("__len__", [](const List<label>& self) {
             return self.size();
         })
         .def("__getitem__", [](const List<label>& self, const label idx) {
             if (idx >= self.size())
             {
-                throw py::index_error();
+                throw nb::index_error();
             }
             return self[idx];
         })
@@ -354,23 +351,21 @@ void Foam::bindFields(py::module& m)
         })
         ;
 
-    py::class_<List<word>>(m, "wordList")
-        .def(py::init<List<word> > ())
-        .def(py::init([](std::vector<std::string> vec) {
-            List<word> f(vec.size());
-            forAll(f,i)
-            {
-                f[i] = vec[i];
-            }
-            return f;
-        }))
+    nb::class_<List<word>>(m, "wordList")
+        .def("__init__", [](List<word>* self, const List<word>& other) {
+            new (self) List<word>(other);
+        })
+        .def("__init__", [](List<word>* self, std::vector<std::string> vec) {
+            new (self) List<word>(vec.size());
+            forAll(*self, i) { (*self)[i] = word(vec[i]); }
+        })
         .def("__len__", [](const List<word>& self) {
             return self.size();
         })
         .def("__getitem__", [](const List<word>& self, const label idx) {
             if (idx >= self.size())
             {
-                throw py::index_error();
+                throw nb::index_error();
             }
             return std::string(self[idx]);
         })
@@ -451,9 +446,9 @@ void Foam::bindFields(py::module& m)
 
     // ==== uniformDimensionedVectorField bindings ====
     // Used for reading constant fields like gravity
-    py::class_<Foam::uniformDimensionedVectorField>(m, "uniformDimensionedVectorField")
-        .def(py::init([](const Foam::fvMesh& mesh, const std::string& fieldName) {
-            return Foam::uniformDimensionedVectorField(
+    nb::class_<Foam::uniformDimensionedVectorField>(m, "uniformDimensionedVectorField")
+        .def("__init__", [](Foam::uniformDimensionedVectorField* self, const Foam::fvMesh& mesh, const std::string& fieldName) {
+            new (self) Foam::uniformDimensionedVectorField(
                 Foam::IOobject(
                     fieldName,
                     mesh.time().constant(),
@@ -462,8 +457,8 @@ void Foam::bindFields(py::module& m)
                     Foam::IOobject::NO_WRITE
                 )
             );
-        }), py::arg("mesh"),
-            py::arg("fieldName"),
+        }, nb::arg("mesh"),
+            nb::arg("fieldName"),
             "Read a uniformDimensionedVectorField from constant/ directory")
         .def("value", [](const Foam::uniformDimensionedVectorField& self) {
             return self.value();
@@ -479,19 +474,19 @@ void Foam::bindFields(py::module& m)
             // Use the base class dimensioned<vector> which has operator& defined
             const Foam::dimensioned<Foam::vector>& dv = self;
             return dv & vf;
-        }, py::arg("vf"), "Dot product with volVectorField, returns tmp<volScalarField>")
+        }, nb::arg("vf"), "Dot product with volVectorField, returns tmp<volScalarField>")
         .def("__and__", [](const Foam::uniformDimensionedVectorField& self,
                            const Foam::surfaceVectorField& vf) {
             // Use the base class dimensioned<vector> which has operator& defined
             const Foam::dimensioned<Foam::vector>& dv = self;
             return dv & vf;
-        }, py::arg("vf"), "Dot product with surfaceVectorField, returns tmp<surfaceScalarField>")
+        }, nb::arg("vf"), "Dot product with surfaceVectorField, returns tmp<surfaceScalarField>")
         ;
 
     // ==== uniformDimensionedScalarField bindings ====
-    py::class_<Foam::uniformDimensionedScalarField>(m, "uniformDimensionedScalarField")
-        .def(py::init([](const Foam::fvMesh& mesh, const std::string& fieldName) {
-            return Foam::uniformDimensionedScalarField(
+    nb::class_<Foam::uniformDimensionedScalarField>(m, "uniformDimensionedScalarField")
+        .def("__init__", [](Foam::uniformDimensionedScalarField* self, const Foam::fvMesh& mesh, const std::string& fieldName) {
+            new (self) Foam::uniformDimensionedScalarField(
                 Foam::IOobject(
                     fieldName,
                     mesh.time().constant(),
@@ -500,8 +495,8 @@ void Foam::bindFields(py::module& m)
                     Foam::IOobject::NO_WRITE
                 )
             );
-        }), py::arg("mesh"),
-            py::arg("fieldName"),
+        }, nb::arg("mesh"),
+            nb::arg("fieldName"),
             "Read a uniformDimensionedScalarField from constant/ directory")
         .def("value", [](const Foam::uniformDimensionedScalarField& self) {
             return self.value();

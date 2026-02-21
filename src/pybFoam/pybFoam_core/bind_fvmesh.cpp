@@ -80,53 +80,58 @@ namespace Foam
 
 }
 
-void bindFvMesh(pybind11::module &m)
+void bindFvMesh(nanobind::module_ &m)
 {
-    namespace py = pybind11;
+    using namespace Foam;
+    namespace nb = nanobind;
 
     m.def("createMesh",
         [](const Foam::Time& time, bool autoWrite) {
             return Foam::createMesh(time, autoWrite);
         },
-        py::arg("time"), py::arg("autoWrite") = false,
-        py::return_value_policy::take_ownership,
+        nb::arg("time"), nb::arg("autoWrite") = false,
+        nb::rv_policy::take_ownership,
         "Create a mesh from a Time object");
 
-    py::class_<Foam::fvBoundaryMesh>(m, "fvBoundaryMesh")
+    nb::class_<Foam::fvBoundaryMesh>(m, "fvBoundaryMesh")
         .def("size", [](const Foam::fvBoundaryMesh& self) { return self.size(); })
         .def("__len__", [](const Foam::fvBoundaryMesh& self) { return self.size(); })
         .def("__getitem__", [](const Foam::fvBoundaryMesh& self, Foam::label i) -> const Foam::fvPatch& {
             return self[i];
-        }, py::return_value_policy::reference_internal)
+        }, nb::rv_policy::reference_internal)
         .def("findPatchID", [](const Foam::fvBoundaryMesh& self, const Foam::word& patchName) {
             return self.findPatchID(patchName);
         });
 
-    py::class_<Foam::fvPatch>(m, "fvPatch")
+    nb::class_<Foam::fvPatch>(m, "fvPatch")
         .def("name", [](const Foam::fvPatch& self) -> const Foam::word& {
             return self.name();
-        }, py::return_value_policy::reference)
+        }, nb::rv_policy::reference)
         .def("size", [](const Foam::fvPatch& self) { return self.size(); })
         .def("start", [](const Foam::fvPatch& self) { return self.start(); })
         .def("index", [](const Foam::fvPatch& self) { return self.index(); });
 
-    py::class_<Foam::fvMesh>(m, "fvMesh")
-        .def(py::init([](const Foam::fvMesh &self)
-                      {
-            Foam::fvMesh& mesh = const_cast<Foam::fvMesh&>(self);
-            return &mesh; }),
-             py::return_value_policy::reference_internal)
-        .def(py::init([](const Foam::Time& time, bool autoWrite) {
-                 return Foam::createMesh(time, autoWrite);
-             }),
-             py::arg("time"), py::arg("autoWrite") = false,
-             py::return_value_policy::take_ownership)
+    nb::class_<Foam::fvMesh>(m, "fvMesh")
+        .def("__init__", [](Foam::fvMesh* self, const Foam::Time& time, bool autoWrite) {
+             new (self) Foam::fvMesh(
+                IOobject(
+                    "region0",
+                    time.timeName(),
+                    time,
+                    IOobject::MUST_READ),
+                false);
+             self->init(true);
+             if (autoWrite)
+             {
+                 self->write();
+             }
+        }, nb::arg("time"), nb::arg("autoWrite") = false)
         .def_static("fromPolyMesh",
             [](Foam::polyMesh& polyMesh, bool autoWrite) {
                 return Foam::createMeshFromPolyMesh(polyMesh, autoWrite);
             },
-            py::arg("polyMesh"), py::arg("autoWrite") = false,
-            py::return_value_policy::take_ownership,
+            nb::arg("polyMesh"), nb::arg("autoWrite") = false,
+            nb::rv_policy::take_ownership,
             "Create fvMesh from polyMesh by writing to disk and reading back")
         .def("nCells", [](const Foam::fvMesh& self)
         {
@@ -144,14 +149,14 @@ void bindFvMesh(pybind11::module &m)
         {
             return self.nInternalFaces();
         })
-        .def("time", &Foam::fvMesh::time, py::return_value_policy::reference)
-        .def("C", &Foam::fvMesh::C, py::return_value_policy::reference)
+        .def("time", &Foam::fvMesh::time, nb::rv_policy::reference)
+        .def("C", &Foam::fvMesh::C, nb::rv_policy::reference)
         .def("V", [](const Foam::fvMesh &self) -> const Foam::Field<Foam::scalar>&
              { return static_cast<const Foam::Field<Foam::scalar>&>(self.V().field()); },
-             py::return_value_policy::reference)
-        .def("Cf", &Foam::fvMesh::Cf, py::return_value_policy::reference)
-        .def("Sf", &Foam::fvMesh::Sf, py::return_value_policy::reference)
-        .def("magSf", &Foam::fvMesh::magSf, py::return_value_policy::reference)
+             nb::rv_policy::reference)
+        .def("Cf", &Foam::fvMesh::Cf, nb::rv_policy::reference)
+        .def("Sf", &Foam::fvMesh::Sf, nb::rv_policy::reference)
+        .def("magSf", &Foam::fvMesh::magSf, nb::rv_policy::reference)
         .def("setFluxRequired", &Foam::fvMesh::setFluxRequired)
         .def("solverPerformanceDict", [](const Foam::fvMesh &self)
              {
@@ -162,10 +167,10 @@ void bindFvMesh(pybind11::module &m)
                 #endif
 
             },
-             py::return_value_policy::reference)
+             nb::rv_policy::reference)
         .def("boundary", [](const Foam::fvMesh &self) -> const Foam::fvBoundaryMesh& {
             return self.boundary();
-        }, py::return_value_policy::reference_internal)
+        }, nb::rv_policy::reference_internal)
         .def("write", [](Foam::fvMesh& self) { return self.write(); },
              "Write mesh to disk")
         // dynamic mesh support
@@ -174,13 +179,13 @@ void bindFvMesh(pybind11::module &m)
         ;
 
 
-        py::class_<Foam::dynamicFvMesh, Foam::fvMesh>(m, "dynamicFvMesh")
+        nb::class_<Foam::dynamicFvMesh, Foam::fvMesh>(m, "dynamicFvMesh")
         .def_static("New", [](
             const Foam::argList& args,
             const Foam::Time& runTime)
         {
             return Foam::dynamicFvMesh::New(args, runTime).ptr();
-        }, py::return_value_policy::take_ownership)
+        }, nb::rv_policy::take_ownership)
         .def("updateMesh", &Foam::dynamicFvMesh::update)
         .def("controlledUpdateMesh", &Foam::dynamicFvMesh::controlledUpdate)
         .def("dynamic", &Foam::dynamicFvMesh::dynamic)

@@ -28,6 +28,8 @@ License
 #include <unordered_map>
 #include <functional>
 
+namespace nb = nanobind;
+
 namespace Foam
 {
 
@@ -123,7 +125,7 @@ namespace Foam
 class DictionaryGetProxy
 {
 public:
-    using GetterFunc = std::function<pybind11::object(Foam::dictionary &, const std::string &)>;
+    using GetterFunc = std::function<nb::object(Foam::dictionary &, const std::string &)>;
     static std::unordered_map<std::string, GetterFunc> &type_registry()
     {
         static std::unordered_map<std::string, GetterFunc> reg;
@@ -133,9 +135,9 @@ public:
     Foam::dictionary &dict;
     DictionaryGetProxy(Foam::dictionary &d) : dict(d) {}
 
-    pybind11::object operator[](pybind11::object py_type)
+    nb::object operator[](nb::object py_type)
     {
-        std::string type_name = pybind11::str(py_type.attr("__name__"));
+        std::string type_name = nb::cast<std::string>(py_type.attr("__name__"));
         auto &reg = type_registry();
         auto it = reg.find(type_name);
         if (it == reg.end())
@@ -147,17 +149,17 @@ public:
             GetterFunc func;
             TypeCaller(Foam::dictionary &d, GetterFunc f) : dict(d), func(f) {}
 
-            pybind11::object operator()(const std::string &key)
+            nb::object operator()(const std::string &key) const
             {
                 if (!dict.found(key))
                 {
-                    throw pybind11::key_error("Key '" + key + "' not found in dictionary");
+                    throw nb::key_error(("Key '" + key + "' not found in dictionary").c_str());
                 }
                 return func(dict, key);
             }
         };
 
-        return pybind11::cpp_function(TypeCaller(dict, it->second));
+        return nb::cpp_function(TypeCaller(dict, it->second));
     }
 
     template <typename T>
@@ -165,7 +167,7 @@ public:
     {
         type_registry()[py_name] = [](Foam::dictionary &d, const std::string &key)
         {
-            return pybind11::cast(d.get<T>(Foam::word(key)));
+            return nb::cast(d.get<T>(Foam::word(key)));
         };
     }
 };
@@ -173,14 +175,14 @@ public:
 class DictionaryGetOrDefaultProxy
 {
 public:
-    using GetterFunc = std::function<pybind11::object(Foam::dictionary &, const std::string &)>;
+    using GetterFunc = std::function<nb::object(Foam::dictionary &, const std::string &)>;
 
     Foam::dictionary &dict;
     DictionaryGetOrDefaultProxy(Foam::dictionary &d) : dict(d) {}
 
-    pybind11::object operator[](pybind11::object py_type)
+    nb::object operator[](nb::object py_type)
     {
-        std::string type_name = pybind11::str(py_type.attr("__name__"));
+        std::string type_name = nb::cast<std::string>(py_type.attr("__name__"));
         auto &reg = DictionaryGetProxy::type_registry();
         auto it = reg.find(type_name);
         if (it == reg.end())
@@ -192,7 +194,7 @@ public:
             GetterFunc func;
             TypeCaller(Foam::dictionary &d, GetterFunc f) : dict(d), func(f) {}
 
-            pybind11::object operator()(const std::string &key, pybind11::object default_value)
+            nb::object operator()(const std::string &key, nb::object default_value) const
             {
                 if (!dict.found(key))
                 {
@@ -201,33 +203,30 @@ public:
                 return func(dict, key);
             }
         };
-        return pybind11::cpp_function(TypeCaller(dict, it->second));
+        return nb::cpp_function(TypeCaller(dict, it->second),
+            nb::arg("key"), nb::arg("default_value").none());
     }
 };
 
-void bindDict(pybind11::module &m)
+void bindDict(nanobind::module_ &m)
 {
-    namespace py = pybind11;
+    namespace nb = nanobind;
 
-    py::class_<Foam::keyType>(m, "keyType")
-        .def(py::init<const Foam::word &>())
-        .def(py::init([](const std::string &str)
-                      { return new Foam::keyType(Foam::word(str)); }));
+    nb::class_<Foam::keyType>(m, "keyType")
+        .def(nb::init<const Foam::word &>())
+        .def("__init__", [](Foam::keyType *self, const std::string &str)
+             { new (self) Foam::keyType(Foam::word(str)); });
 
-    py::class_<Foam::entry>(m, "entry");
+    nb::class_<Foam::entry>(m, "entry");
 
-    // py::class_<Foam::dictionaryEntry, Foam::entry, Foam::dictionary>(m, "dictionaryEntry")
-    // .def(py::init<const Foam::keyType &,const Foam::dictionary &,const Foam::dictionary &>())
-    // ;
-
-    py::class_<Foam::dictionary>(m, "dictionary")
-        .def(py::init<const std::string &>())
+    nb::class_<Foam::dictionary>(m, "dictionary")
+        .def(nb::init<const std::string &>())
         .def_static("read", [](const std::string &filename) -> Foam::dictionary *
                     {
             // Allocate on heap and return pointer
-            return new Foam::dictionary(Foam::read_dictionary(filename)); }, py::return_value_policy::take_ownership)
-        .def(py::init<>())
-        .def(py::init<const Foam::dictionary &>())
+            return new Foam::dictionary(Foam::read_dictionary(filename)); }, nb::rv_policy::take_ownership)
+        .def(nb::init<>())
+        .def(nb::init<const Foam::dictionary &>())
         .def("toc", &Foam::dictionary::toc)
         .def("clear", &Foam::dictionary::clear)
         .def("found", [](const Foam::dictionary &self, const std::string key)
@@ -235,9 +234,9 @@ void bindDict(pybind11::module &m)
         .def("isDict", [](const Foam::dictionary &self, const std::string key)
              { return self.isDict(Foam::word(key)); })
         .def("subDict", [](Foam::dictionary &self, const std::string key)
-             { return static_cast<Foam::dictionary *>(&self.subDict(Foam::word(key))); }, py::return_value_policy::reference_internal)
+             { return static_cast<Foam::dictionary *>(&self.subDict(Foam::word(key))); }, nb::rv_policy::reference_internal)
         .def("subDictOrAdd", [](Foam::dictionary &self, const std::string key)
-             { return self.subDictOrAdd(Foam::word(key)); }, py::return_value_policy::reference_internal)
+             { return self.subDictOrAdd(Foam::word(key)); }, nb::rv_policy::reference_internal)
         .def("write", [](const Foam::dictionary &self, const std::string file_name)
              {
             Foam::fileName dictFileName(file_name);
@@ -273,7 +272,7 @@ void bindDict(pybind11::module &m)
         .def("add", [](Foam::dictionary &self, const Foam::entry &e, bool merge)
              { self.add(e, merge); })
         .def("add", [](Foam::dictionary &self, const std::string &key, const Foam::word& value)
-             { Foam::add<Foam::word>(self, key, value); }, py::arg("key"), py::arg("value"))
+             { Foam::add<Foam::word>(self, key, value); }, nb::arg("key"), nb::arg("value"))
         .def("add", &Foam::add<Foam::scalar>)
         .def("add", &Foam::add<Foam::vector>)
         .def("add", &Foam::add<Foam::tensor>)
@@ -284,15 +283,15 @@ void bindDict(pybind11::module &m)
         .def("lookupSolverPerformanceScalarList", &Foam::lookupSolverPerformanceList<Foam::scalar>)
         .def("lookupSolverPerformanceVectorList", &Foam::lookupSolverPerformanceList<Foam::vector>)
         .def("lookupSolverPerformanceTensorList", &Foam::lookupSolverPerformanceList<Foam::tensor>)
-        .def_property_readonly("get", [](Foam::dictionary &self)
-                               { return DictionaryGetProxy(self); }, py::return_value_policy::reference_internal)
-        .def_property_readonly("getOrDefault", [](Foam::dictionary &self)
-                               { return DictionaryGetOrDefaultProxy(self); }, py::return_value_policy::reference_internal);
+        .def_prop_ro("get", [](Foam::dictionary &self)
+                               { return DictionaryGetProxy(self); }, nb::rv_policy::reference_internal)
+        .def_prop_ro("getOrDefault", [](Foam::dictionary &self)
+                               { return DictionaryGetOrDefaultProxy(self); }, nb::rv_policy::reference_internal);
 
-    py::class_<DictionaryGetProxy>(m, "DictionaryGetProxy")
+    nb::class_<DictionaryGetProxy>(m, "DictionaryGetProxy")
         .def("__getitem__", &DictionaryGetProxy::operator[]);
 
-    py::class_<DictionaryGetOrDefaultProxy>(m, "DictionaryGetOrDefaultProxy")
+    nb::class_<DictionaryGetOrDefaultProxy>(m, "DictionaryGetOrDefaultProxy")
         .def("__getitem__", &DictionaryGetOrDefaultProxy::operator[]);
 
     // Register types for get directly
@@ -301,9 +300,9 @@ void bindDict(pybind11::module &m)
         auto *entry = d.findEntry(Foam::word(key));
         if (entry->isStream())
         {
-            return pybind11::cast(entry->stream().toString());
+            return nb::cast(entry->stream().toString());
         }
-        return pybind11::cast(static_cast<std::string>(d.get<Foam::word>(Foam::word(key))));
+        return nb::cast(static_cast<std::string>(d.get<Foam::word>(Foam::word(key))));
     };
     DictionaryGetProxy::register_type<Foam::scalar>("float");
     DictionaryGetProxy::register_type<Foam::label>("int");

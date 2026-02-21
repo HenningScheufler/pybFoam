@@ -23,8 +23,8 @@ set(MESHING_HEADERS
     mesh_utils.H
 )
 
-# Create the pybind11 module
-pybind11_add_module(meshing ${MESHING_SOURCES})
+# Create the nanobind module
+nanobind_add_module(meshing ${MESHING_SOURCES})
 
 # Set target properties
 set_target_properties(meshing PROPERTIES

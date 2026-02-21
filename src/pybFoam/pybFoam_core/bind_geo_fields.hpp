@@ -32,35 +32,38 @@ SourceFiles
 #define foam_geo_fields
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 
 #include "bind_fvmesh.hpp"
 #include "GeometricField.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include <string>
 #include <vector>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <tuple>
+#include <nanobind/stl/vector.h>
+#include <nanobind/ndarray.h>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
 
 template<typename Type>
-pybind11::array_t<scalar> FieldToNumpy(const Field<Type>& values);
+nb::ndarray<nb::numpy, scalar> FieldToNumpy(const Field<Type>& values);
 
 
 template< >
-pybind11::array_t<scalar> FieldToNumpy<scalar>(const Field<scalar>& values);
+nb::ndarray<nb::numpy, scalar> FieldToNumpy<scalar>(const Field<scalar>& values);
 
 
 template<typename Type>
-void NumpyToField(Field<Type>& values,const pybind11::array_t<scalar> np_arr);
+void NumpyToField(Field<Type>& values, nb::ndarray<nb::numpy, scalar, nb::ndim<1>> np_arr);
 
 
 template<>
-void NumpyToField<scalar>(Field<scalar>& values,const pybind11::array_t<scalar> np_arr);
+void NumpyToField<scalar>(Field<scalar>& values, nb::ndarray<nb::numpy, scalar, nb::ndim<1>> np_arr);
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
@@ -91,7 +94,7 @@ GeometricField<Type, PatchField, GeoMesh> read_geoField
 
 template<class Type, template<class> class PatchField, class GeoMesh>
 auto
-declare_geofields(py::module &m, std::string className);
+declare_geofields(nb::module_ &m, std::string className);
 
 template<class Type, template<class> class PatchField, class GeoMesh>
 GeometricField<scalar, PatchField, GeoMesh>
@@ -99,7 +102,7 @@ declare_mag(const GeometricField<Type, PatchField, GeoMesh>& geof);
 
 
 
-void  bindGeoFields(pybind11::module& m);
+void  bindGeoFields(nanobind::module_& m);
 
 }
 

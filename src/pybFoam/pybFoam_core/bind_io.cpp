@@ -25,7 +25,7 @@ License
 
 namespace Foam
 {
-    void bindIO(pybind11::module &m)
+    void bindIO(nanobind::module_ &m)
     {
         m.def("Info", [](const std::string& message)
         {

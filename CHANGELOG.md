@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.0]
+
+* port to nanobind
+
 
 ## [0.2.0]
 

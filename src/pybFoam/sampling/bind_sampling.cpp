@@ -21,16 +21,13 @@ License
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "fvMesh.H"
-#include <pybind11/functional.h>
-
-namespace py = pybind11;
 
 namespace Foam
 {
 
-void bindSampledSurface(py::module& m)
+void bindSampledSurface(nb::module_& m)
 {
-    py::class_<sampledSurface>(m, "sampledSurface")
+    nb::class_<sampledSurface>(m, "sampledSurface")
         .def("name", &sampledSurface::name,
             "Get the name of the surface")
         // .def("mesh",
@@ -44,7 +41,7 @@ void bindSampledSurface(py::module& m)
         .def("invariant", &sampledSurface::invariant,
             "Check if surface is invariant with geometry changes")
         .def("isPointData",
-            py::overload_cast<>(&sampledSurface::isPointData, py::const_),
+            [](const sampledSurface& self) { return self.isPointData(); },
             "Check if using interpolation to surface points")
         .def("needsUpdate", &sampledSurface::needsUpdate,
             "Check if the surface needs an update")
@@ -53,19 +50,19 @@ void bindSampledSurface(py::module& m)
         .def("update", &sampledSurface::update,
             "Update the surface as required")
         .def("points", &sampledSurface::points,
-            py::return_value_policy::reference,
+            nb::rv_policy::reference,
             "Get points of surface")
         // .def("faces", &sampledSurface::faces,
         //     py::return_value_policy::reference,
         //     "Get faces of surface")
         .def("Sf", &sampledSurface::Sf,
-            py::return_value_policy::reference,
+            nb::rv_policy::reference,
             "Get face area vectors")
         .def("magSf", &sampledSurface::magSf,
-            py::return_value_policy::reference,
+            nb::rv_policy::reference,
             "Get face area magnitudes")
         .def("Cf", &sampledSurface::Cf,
-            py::return_value_policy::reference,
+            nb::rv_policy::reference,
             "Get face centres")
         .def("area", &sampledSurface::area,
             "Get total surface area")
@@ -81,60 +78,68 @@ void bindSampledSurface(py::module& m)
         //     py::return_value_policy::take_ownership,
         //     "Construct a new sampledSurface from dictionary")
         .def_static("New",
-            [](const word& name, const fvMesh& mesh, const dictionary& dict) {
-                return sampledSurface::New(name, static_cast<const polyMesh&>(mesh), dict).release();
+            [](const word& name, const fvMesh& mesh, const dictionary& dict)
+                -> std::shared_ptr<sampledSurface>
+            {
+                // return a raw or unique pointer causes a invalid free
+                // due to multi polymorphic ownership
+                // Using shared_ptr call the correct destructor.
+                return std::shared_ptr<sampledSurface>(
+                    sampledSurface::New(name, static_cast<const polyMesh&>(mesh), dict).release()
+                );
             },
-            py::arg("name"),
-            py::arg("mesh"),
-            py::arg("dict"),
-            py::return_value_policy::take_ownership,
+            nb::arg("name"),
+            nb::arg("mesh"),
+            nb::arg("dict"),
             "Construct a new sampledSurface from dictionary (fvMesh overload)");
 }
 
-void bindMeshSearch(py::module& m)
+void bindMeshSearch(nb::module_& m)
 {
-    py::class_<meshSearch>(m, "meshSearch")
-        .def(py::init([](const fvMesh& mesh) {
-                return new meshSearch(static_cast<const polyMesh&>(mesh));
-            }),
-            py::arg("mesh"),
-            py::return_value_policy::take_ownership,
+    nb::class_<meshSearch>(m, "meshSearch")
+        .def("__init__", [](meshSearch* self, const fvMesh& mesh) {
+                new (self) meshSearch(static_cast<const polyMesh&>(mesh));
+            },
+            nb::arg("mesh"),
+            // nb::rv_policy::take_ownership,
             "Construct from fvMesh")
         // .def("mesh", &meshSearch::mesh,
         //     py::return_value_policy::reference,
         //     "Return reference to mesh")
         .def("findNearestCell",
-            py::overload_cast<const point&, const label, const bool>(
-                &meshSearch::findNearestCell, py::const_),
-            py::arg("location"),
-            py::arg("seedCelli") = -1,
-            py::arg("useTreeSearch") = true,
+            [](const meshSearch& self, const point& location, label seedCelli, bool useTreeSearch) {
+                return self.findNearestCell(location, seedCelli, useTreeSearch);
+            },
+            nb::arg("location"),
+            nb::arg("seedCelli") = -1,
+            nb::arg("useTreeSearch") = true,
             "Find nearest cell to location")
         .def("findCell",
-            py::overload_cast<const point&, const label, const bool>(
-                &meshSearch::findCell, py::const_),
-            py::arg("location"),
-            py::arg("seedCelli") = -1,
-            py::arg("useTreeSearch") = true,
+            [](const meshSearch& self, const point& location, label seedCelli, bool useTreeSearch) {
+                return self.findCell(location, seedCelli, useTreeSearch);
+            },
+            nb::arg("location"),
+            nb::arg("seedCelli") = -1,
+            nb::arg("useTreeSearch") = true,
             "Find cell containing location");
 }
 
-void bindSampledSet(py::module& m)
+void bindSampledSet(nb::module_& m)
 {
     // Bind sampledSet directly without exposing coordSet separately
-    py::class_<sampledSet>(m, "sampledSet")
+    nb::class_<sampledSet>(m, "sampledSet")
         // coordSet methods (inherited)
         .def("name",
             [](const sampledSet& self) -> const word& { return self.name(); },
-            py::return_value_policy::reference_internal,
+            nb::rv_policy::reference_internal,
             "Get the name of the set")
         .def("axis",
             [](const sampledSet& self) -> const word& { return self.axis(); },
-            py::return_value_policy::reference_internal,
+            nb::rv_policy::reference_internal,
             "Get the axis name (x, y, z, xyz, distance)")
         .def("points",
             [](const sampledSet& self) -> const pointField& { return self.points(); },
-            py::return_value_policy::reference_internal,
+            nb::rv_policy::reference_internal,
             "Get the sampling points")
         .def("distance",
             [](const sampledSet& self) { return scalarField(self.distance()); },
@@ -150,13 +155,13 @@ void bindSampledSet(py::module& m)
         //     py::return_value_policy::reference,
         //     "Get reference to the mesh")
         .def("searchEngine", &sampledSet::searchEngine,
-            py::return_value_policy::reference,
+            nb::rv_policy::reference,
             "Get reference to the mesh search engine")
         .def("segments", &sampledSet::segments,
-            py::return_value_policy::reference_internal,
+            nb::rv_policy::reference_internal,
             "Get segment numbers for each point")
         .def("cells", &sampledSet::cells,
-            py::return_value_policy::reference_internal,
+            nb::rv_policy::reference_internal,
             "Get cell IDs for each point")
         // .def("faces", &sampledSet::faces,
         //     py::return_value_policy::reference_internal,
@@ -171,74 +176,74 @@ void bindSampledSet(py::module& m)
                     dict
                 ).release();
             },
-            py::arg("name"),
-            py::arg("mesh"),
-            py::arg("searchEngine"),
-            py::arg("dict"),
-            py::return_value_policy::take_ownership,
+            nb::arg("name"),
+            nb::arg("mesh"),
+            nb::arg("searchEngine"),
+            nb::arg("dict"),
+            nb::rv_policy::take_ownership,
             "Construct a new sampledSet from dictionary");
 }
 
-void bindInterpolation(py::module& m)
+void bindInterpolation(nb::module_& m)
 {
     // Scalar interpolation
-    py::class_<interpolation<scalar>>(
+    nb::class_<interpolation<scalar>>(
         m, "interpolationScalar")
         .def_static("New",
             [](const word& interpolationType, const volScalarField& vf) {
                 return interpolation<scalar>::New(interpolationType, vf).ptr();
             },
-            py::arg("interpolationType"),
-            py::arg("field"),
-            py::return_value_policy::take_ownership,
+            nb::arg("interpolationType"),
+            nb::arg("field"),
+            nb::rv_policy::take_ownership,
             "Create scalar interpolation scheme");
 
     // Vector interpolation
-    py::class_<interpolation<vector>>(
+    nb::class_<interpolation<vector>>(
         m, "interpolationVector")
         .def_static("New",
             [](const word& interpolationType, const volVectorField& vf) {
                 return interpolation<vector>::New(interpolationType, vf).ptr();
             },
-            py::arg("interpolationType"),
-            py::arg("field"),
-            py::return_value_policy::take_ownership,
+            nb::arg("interpolationType"),
+            nb::arg("field"),
+            nb::rv_policy::take_ownership,
             "Create vector interpolation scheme");
 
     // Tensor interpolation
-    py::class_<interpolation<tensor>>(
+    nb::class_<interpolation<tensor>>(
         m, "interpolationTensor")
         .def_static("New",
             [](const word& interpolationType, const volTensorField& vf) {
                 return interpolation<tensor>::New(interpolationType, vf).ptr();
             },
-            py::arg("interpolationType"),
-            py::arg("field"),
-            py::return_value_policy::take_ownership,
+            nb::arg("interpolationType"),
+            nb::arg("field"),
+            nb::rv_policy::take_ownership,
             "Create tensor interpolation scheme");
 
     // SymmTensor interpolation
-    py::class_<interpolation<symmTensor>>(
+    nb::class_<interpolation<symmTensor>>(
         m, "interpolationSymmTensor")
         .def_static("New",
             [](const word& interpolationType, const volSymmTensorField& vf) {
                 return interpolation<symmTensor>::New(interpolationType, vf).ptr();
             },
-            py::arg("interpolationType"),
-            py::arg("field"),
-            py::return_value_policy::take_ownership,
+            nb::arg("interpolationType"),
+            nb::arg("field"),
+            nb::rv_policy::take_ownership,
             "Create symmTensor interpolation scheme");
 }
 
-void bindSamplingFunctions(py::module& m)
+void bindSamplingFunctions(nb::module_& m)
 {
     // Scalar field sampling
     m.def("sampleOnFacesScalar",
         [](const sampledSurface& surface, const interpolation<scalar>& interpolator) {
             return scalarField(surface.sample(interpolator));
         },
-        py::arg("surface"),
-        py::arg("interpolator"),
+        nb::arg("surface"),
+        nb::arg("interpolator"),
         "Sample scalar field values onto surface faces");
 
     // Vector field sampling
@@ -246,8 +251,8 @@ void bindSamplingFunctions(py::module& m)
         [](const sampledSurface& surface, const interpolation<vector>& interpolator) {
             return vectorField(surface.sample(interpolator));
         },
-        py::arg("surface"),
-        py::arg("interpolator"),
+        nb::arg("surface"),
+        nb::arg("interpolator"),
         "Sample vector field values onto surface faces");
 
     // Tensor field sampling
@@ -255,8 +260,8 @@ void bindSamplingFunctions(py::module& m)
         [](const sampledSurface& surface, const interpolation<tensor>& interpolator) {
             return tensorField(surface.sample(interpolator));
         },
-        py::arg("surface"),
-        py::arg("interpolator"),
+        nb::arg("surface"),
+        nb::arg("interpolator"),
         "Sample tensor field values onto surface faces");
 
     // SymmTensor field sampling
@@ -264,8 +269,8 @@ void bindSamplingFunctions(py::module& m)
         [](const sampledSurface& surface, const interpolation<symmTensor>& interpolator) {
             return symmTensorField(surface.sample(interpolator));
         },
-        py::arg("surface"),
-        py::arg("interpolator"),
+        nb::arg("surface"),
+        nb::arg("interpolator"),
         "Sample symmTensor field values onto surface faces");
 
     // Interpolate to points (if supported)
@@ -273,32 +278,32 @@ void bindSamplingFunctions(py::module& m)
         [](const sampledSurface& surface, const interpolation<scalar>& interpolator) {
             return scalarField(surface.interpolate(interpolator));
         },
-        py::arg("surface"),
-        py::arg("interpolator"),
+        nb::arg("surface"),
+        nb::arg("interpolator"),
         "Interpolate scalar field values onto surface points");
 
     m.def("sampleOnPointsVector",
         [](const sampledSurface& surface, const interpolation<vector>& interpolator) {
             return vectorField(surface.interpolate(interpolator));
         },
-        py::arg("surface"),
-        py::arg("interpolator"),
+        nb::arg("surface"),
+        nb::arg("interpolator"),
         "Interpolate vector field values onto surface points");
 
     m.def("sampleOnPointsTensor",
         [](const sampledSurface& surface, const interpolation<tensor>& interpolator) {
             return tensorField(surface.interpolate(interpolator));
         },
-        py::arg("surface"),
-        py::arg("interpolator"),
+        nb::arg("surface"),
+        nb::arg("interpolator"),
         "Interpolate tensor field values onto surface points");
 
     m.def("sampleOnPointsSymmTensor",
         [](const sampledSurface& surface, const interpolation<symmTensor>& interpolator) {
             return symmTensorField(surface.interpolate(interpolator));
         },
-        py::arg("surface"),
-        py::arg("interpolator"),
+        nb::arg("surface"),
+        nb::arg("interpolator"),
         "Interpolate symmTensor field values onto surface points");
 
     // sampledSet sampling functions - manually sample at each point
@@ -326,8 +331,8 @@ void bindSamplingFunctions(py::module& m)
             }
             return values;
         },
-        py::arg("sampledSet"),
-        py::arg("interpolator"),
+        nb::arg("sampledSet"),
+        nb::arg("interpolator"),
         "Sample scalar field values onto sampledSet points");
 
     m.def("sampleSetVector",
@@ -354,8 +359,8 @@ void bindSamplingFunctions(py::module& m)
             }
             return values;
         },
-        py::arg("sampledSet"),
-        py::arg("interpolator"),
+        nb::arg("sampledSet"),
+        nb::arg("interpolator"),
         "Sample vector field values onto sampledSet points");
 
     m.def("sampleSetTensor",
@@ -382,8 +387,8 @@ void bindSamplingFunctions(py::module& m)
             }
             return values;
         },
-        py::arg("sampledSet"),
-        py::arg("interpolator"),
+        nb::arg("sampledSet"),
+        nb::arg("interpolator"),
         "Sample tensor field values onto sampledSet points");
 
     m.def("sampleSetSymmTensor",
@@ -410,8 +415,8 @@ void bindSamplingFunctions(py::module& m)
             }
             return values;
         },
-        py::arg("sampledSet"),
-        py::arg("interpolator"),
+        nb::arg("sampledSet"),
+        nb::arg("interpolator"),
         "Sample symmTensor field values onto sampledSet points");
 }
 
