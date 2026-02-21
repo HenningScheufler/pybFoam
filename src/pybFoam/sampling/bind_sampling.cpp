@@ -100,11 +100,7 @@ void bindMeshSearch(nb::module_& m)
                 new (self) meshSearch(static_cast<const polyMesh&>(mesh));
             },
             nb::arg("mesh"),
-            // nb::rv_policy::take_ownership,
             "Construct from fvMesh")
-        // .def("mesh", &meshSearch::mesh,
-        //     py::return_value_policy::reference,
-        //     "Return reference to mesh")
         .def("findNearestCell",
             [](const meshSearch& self, const point& location, label seedCelli, bool useTreeSearch) {
                 return self.findNearestCell(location, seedCelli, useTreeSearch);
@@ -146,13 +142,6 @@ void bindSampledSet(nb::module_& m)
         .def("nPoints",
             [](const sampledSet& self) { return self.points().size(); },
             "Get number of points in the set")
-        // sampledSet specific methods
-        // .def("mesh",
-        //     [](const sampledSet& self) -> const polyMesh& {
-        //         return self.mesh();
-        //     },
-        //     py::return_value_policy::reference,
-        //     "Get reference to the mesh")
         .def("searchEngine", &sampledSet::searchEngine,
             nb::rv_policy::reference,
             "Get reference to the mesh search engine")
@@ -167,19 +156,24 @@ void bindSampledSet(nb::module_& m)
         //     "Get face IDs for each point (-1 if not on face)")
         .def_static("New",
             [](const word& name, const fvMesh& mesh,
-               meshSearch& searchEngine, const dictionary& dict) {
-                return sampledSet::New(
-                    name,
-                    static_cast<const polyMesh&>(mesh),
-                    searchEngine,
-                    dict
-                ).release();
+               meshSearch& searchEngine, const dictionary& dict)
+                -> std::shared_ptr<sampledSet>
+            {
+                // Use shared_ptr to carry the correct deleter regardless of
+                // base-pointer offset caused by multiple inheritance.
+                return std::shared_ptr<sampledSet>(
+                    sampledSet::New(
+                        name,
+                        static_cast<const polyMesh&>(mesh),
+                        searchEngine,
+                        dict
+                    ).release()
+                );
             },
             nb::arg("name"),
             nb::arg("mesh"),
             nb::arg("searchEngine"),
             nb::arg("dict"),
-            nb::rv_policy::take_ownership,
             "Construct a new sampledSet from dictionary");
 }
 
@@ -189,48 +183,60 @@ void bindInterpolation(nb::module_& m)
     nb::class_<interpolation<scalar>>(
         m, "interpolationScalar")
         .def_static("New",
-            [](const word& interpolationType, const volScalarField& vf) {
-                return interpolation<scalar>::New(interpolationType, vf).ptr();
+            [](const word& interpolationType, const volScalarField& vf)
+                -> std::shared_ptr<interpolation<scalar>>
+            {
+                return std::shared_ptr<interpolation<scalar>>(
+                    interpolation<scalar>::New(interpolationType, vf).release()
+                );
             },
             nb::arg("interpolationType"),
             nb::arg("field"),
-            nb::rv_policy::take_ownership,
             "Create scalar interpolation scheme");
 
     // Vector interpolation
     nb::class_<interpolation<vector>>(
         m, "interpolationVector")
         .def_static("New",
-            [](const word& interpolationType, const volVectorField& vf) {
-                return interpolation<vector>::New(interpolationType, vf).ptr();
+            [](const word& interpolationType, const volVectorField& vf)
+                -> std::shared_ptr<interpolation<vector>>
+            {
+                return std::shared_ptr<interpolation<vector>>(
+                    interpolation<vector>::New(interpolationType, vf).release()
+                );
             },
             nb::arg("interpolationType"),
             nb::arg("field"),
-            nb::rv_policy::take_ownership,
             "Create vector interpolation scheme");
 
     // Tensor interpolation
     nb::class_<interpolation<tensor>>(
         m, "interpolationTensor")
         .def_static("New",
-            [](const word& interpolationType, const volTensorField& vf) {
-                return interpolation<tensor>::New(interpolationType, vf).ptr();
+            [](const word& interpolationType, const volTensorField& vf)
+                -> std::shared_ptr<interpolation<tensor>>
+            {
+                return std::shared_ptr<interpolation<tensor>>(
+                    interpolation<tensor>::New(interpolationType, vf).release()
+                );
             },
             nb::arg("interpolationType"),
             nb::arg("field"),
-            nb::rv_policy::take_ownership,
             "Create tensor interpolation scheme");
 
     // SymmTensor interpolation
     nb::class_<interpolation<symmTensor>>(
         m, "interpolationSymmTensor")
         .def_static("New",
-            [](const word& interpolationType, const volSymmTensorField& vf) {
-                return interpolation<symmTensor>::New(interpolationType, vf).ptr();
+            [](const word& interpolationType, const volSymmTensorField& vf)
+                -> std::shared_ptr<interpolation<symmTensor>>
+            {
+                return std::shared_ptr<interpolation<symmTensor>>(
+                    interpolation<symmTensor>::New(interpolationType, vf).release()
+                );
             },
             nb::arg("interpolationType"),
             nb::arg("field"),
-            nb::rv_policy::take_ownership,
             "Create symmTensor interpolation scheme");
 }
 
