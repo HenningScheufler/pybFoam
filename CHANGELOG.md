@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.1]
+
+### Added
+
+* runTime.output
+
 ## [0.3.0]
 
 * port to nanobind

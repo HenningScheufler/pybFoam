@@ -87,6 +87,7 @@ void bindTime(nanobind::module_ &m)
         .def("loop", &Foam::Time::loop)
         .def("run", &Foam::Time::run)
         .def("write", &Foam::Time::write)
+        .def("outputTime", &Foam::Time::outputTime)
         .def("increment", [](Foam::Time &self)
              { self++; }
         )
