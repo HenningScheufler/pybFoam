@@ -17,14 +17,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include "bind_thermo.hpp"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 
-PYBIND11_MODULE(thermo, thermo) {
+NB_MODULE(thermo, thermo) {
     thermo.doc() = "openfoam thermo package"; // optional module docstring
 
     Foam::bindThermo(thermo);

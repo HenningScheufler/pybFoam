@@ -25,48 +25,45 @@ License
 #include "compressibleTransportModel.H"
 
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-template <typename... Args>
-using overload_cast_ = py::detail::overload_cast_impl<Args...>;
-
-void Foam::bindThermo(py::module& m)
+void Foam::bindThermo(nb::module_& m)
 {
 
 
-    py::class_<basicThermo>(m, "basicThermo")
+    nb::class_<basicThermo>(m, "basicThermo")
     .def_static("from_registry",[](const fvMesh& mesh)
     {
         const basicThermo* obj = mesh.findObject<basicThermo>(basicThermo::dictName);
         return obj;
-    },py::return_value_policy::reference)
-    .def("p", overload_cast_< >()(&Foam::basicThermo::p, py::const_))
-    .def("T", overload_cast_< >()(&Foam::basicThermo::T, py::const_))
-    .def("rho", overload_cast_< >()(&Foam::basicThermo::rho, py::const_))
-    .def("he", overload_cast_< >()(&Foam::basicThermo::he, py::const_))
-    .def("Cp", overload_cast_< >()(&Foam::basicThermo::Cp, py::const_))
-    .def("Cv", overload_cast_< >()(&Foam::basicThermo::Cv, py::const_))
-    .def("kappa", overload_cast_< >()(&Foam::basicThermo::kappa, py::const_))
-    .def("kappaEff", overload_cast_<const volScalarField& >()(&Foam::basicThermo::kappaEff, py::const_))
-    .def("alphaEff", overload_cast_<const volScalarField& >()(&Foam::basicThermo::alphaEff, py::const_))
+    },nb::rv_policy::reference)
+    .def("p", [](const Foam::basicThermo& self) { return self.p(); })
+    .def("T", [](const Foam::basicThermo& self) { return self.T(); })
+    .def("rho", [](const Foam::basicThermo& self) { return self.rho(); })
+    .def("he", [](const Foam::basicThermo& self) { return self.he(); })
+    .def("Cp", [](const Foam::basicThermo& self) { return self.Cp(); })
+    .def("Cv", [](const Foam::basicThermo& self) { return self.Cv(); })
+    .def("kappa", [](const Foam::basicThermo& self) { return self.kappa(); })
+    .def("kappaEff", [](const Foam::basicThermo& self, const volScalarField& alphat) { return self.kappaEff(alphat); })
+    .def("alphaEff", [](const Foam::basicThermo& self, const volScalarField& alphat) { return self.alphaEff(alphat); })
     ;
 
     // auto sf = declare_thermo<fluidThermo>(m, std::string("fluidThermo"));
 
-    py::class_<fluidThermo,basicThermo>(m, "fluidThermo")
+    nb::class_<fluidThermo,basicThermo>(m, "fluidThermo")
     .def_static("from_registry",[](const fvMesh& mesh)
     {
         const fluidThermo* obj = mesh.findObject<fluidThermo>(fluidThermo::dictName);
         return obj;
-    },py::return_value_policy::reference)
+    },nb::rv_policy::reference)
     ;
 
-    py::class_<solidThermo,basicThermo>(m, "solidThermo")
+    nb::class_<solidThermo,basicThermo>(m, "solidThermo")
     .def_static("from_registry",[](const fvMesh& mesh)
     {
         const solidThermo* obj = mesh.findObject<solidThermo>(solidThermo::dictName);
         return obj;
-    },py::return_value_policy::reference)
+    },nb::rv_policy::reference)
     ;
 
 }

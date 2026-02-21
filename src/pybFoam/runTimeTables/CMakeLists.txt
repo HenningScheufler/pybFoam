@@ -9,8 +9,8 @@ set(RUNTIME_TABLES_HEADERS
     foam_runTimeTables.H
 )
 
-# Create the pybind11 module
-pybind11_add_module(runTimeTables ${RUNTIME_TABLES_SOURCES})
+# Create the nanobind module
+nanobind_add_module(runTimeTables ${RUNTIME_TABLES_SOURCES})
 
 # Set target properties
 set_target_properties(runTimeTables PROPERTIES

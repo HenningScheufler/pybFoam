@@ -9,8 +9,8 @@ set(SAMPLING_HEADERS
     bind_sampling.hpp
 )
 
-# Create the pybind11 module
-pybind11_add_module(sampling_bindings ${SAMPLING_SOURCES})
+# Create the nanobind module
+nanobind_add_module(sampling_bindings ${SAMPLING_SOURCES})
 
 # Set target properties
 set_target_properties(sampling_bindings PROPERTIES

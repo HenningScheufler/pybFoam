@@ -5,7 +5,7 @@ if(POLICY CMP0169)
     cmake_policy(SET CMP0169 OLD)
 endif()
 
-project(pybFoam VERSION 0.2.0 LANGUAGES CXX)
+project(pybFoam VERSION 0.3.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -14,13 +14,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Add cmake module path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-# Configure dependencies with CPM
-include(Dependencies)
-
-# Find Python (scikit-build-core sets up Python variables)
+# Find Python first (needed for nanobind discovery)
+# scikit-build-core may already have set this up
 if(NOT Python_FOUND)
     find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
 endif()
+
+# Configure dependencies with CPM (nanobind discovery requires Python)
+include(Dependencies)
 
 # Find OpenFOAM
 find_package(OpenFOAM REQUIRED)

@@ -9,8 +9,8 @@ set(FVC_HEADERS
     bind_fvc.hpp
 )
 
-# Create the pybind11 module
-pybind11_add_module(fvc ${FVC_SOURCES})
+# Create the nanobind module
+nanobind_add_module(fvc ${FVC_SOURCES})
 
 # Set target properties
 set_target_properties(fvc PROPERTIES

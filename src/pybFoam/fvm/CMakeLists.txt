@@ -9,8 +9,8 @@ set(FVM_HEADERS
     bind_fvm.hpp
 )
 
-# Create the pybind11 module
-pybind11_add_module(fvm ${FVM_SOURCES})
+# Create the nanobind module
+nanobind_add_module(fvm ${FVM_SOURCES})
 
 # Set target properties
 set_target_properties(fvm PROPERTIES

@@ -173,14 +173,14 @@ Foam::fvMesh* Foam::generateBlockMesh
 }
 
 
-void Foam::addBlockMeshBindings(py::module_& m)
+void Foam::addBlockMeshBindings(nb::module_& m)
 {
     m.def("generate_blockmesh", &generateBlockMesh,
-        py::arg("runtime"),
-        py::arg("blockmesh_dict"),
-        py::arg("verbose") = false,
-        py::arg("time_name") = "constant",
-        py::return_value_policy::take_ownership,
+        nb::arg("runtime"),
+        nb::arg("blockmesh_dict"),
+        nb::arg("verbose") = false,
+        nb::arg("time_name") = "constant",
+        nb::rv_policy::take_ownership,
         R"pbdoc(
             Generate a block mesh from dictionary and return fvMesh.
 

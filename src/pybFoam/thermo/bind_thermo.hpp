@@ -32,19 +32,19 @@ SourceFiles
 #define bind_thermo
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 #include "Field.H"
 #include "scalar.H"
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/ndarray.h>
 
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
 
-void  bindThermo(py::module& m);
+void  bindThermo(nb::module_& m);
 
 }
 

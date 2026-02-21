@@ -32,15 +32,16 @@ SourceFiles
 #define foam_primitive
 
 // System includes
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
+
 #include "word.H"
 #include "scalar.H"
 #include "vector.H"
 #include "tensor.H"
 #include "symmTensor.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
@@ -102,14 +103,14 @@ template<class Type>
 bool is_notequal(const Type& t1, const Type& t2);
 
 template<class Type>
-py::class_<Type> declare_vectorspace(py::module &m, std::string &className);
+nb::class_<Type> declare_vectorspace(nb::module_ &m, std::string &className);
 
 
 
 }
 
 
-void  bindPrimitives(py::module& m);
+void  bindPrimitives(nb::module_& m);
 
 
 #endif

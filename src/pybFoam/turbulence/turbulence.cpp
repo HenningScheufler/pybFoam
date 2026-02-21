@@ -17,14 +17,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include "bind_turbulence.hpp"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 
-PYBIND11_MODULE(turbulence, turbulence) {
+NB_MODULE(turbulence, turbulence) {
     turbulence.doc() = "openfoam turbulence package"; // optional module docstring
 
     Foam::bindTurbulence(turbulence);

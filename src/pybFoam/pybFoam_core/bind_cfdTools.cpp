@@ -79,17 +79,17 @@ namespace Foam
 
 
     template <typename RAUType>
-    void declare_constrainPressure(pybind11::module &m)
+    void declare_constrainPressure(nanobind::module_ &m)
     {
         // Declare the function in the module
-        namespace py = pybind11;
+        namespace nb = nanobind;
         m.def("constrainPressure", [](volScalarField &p, const volVectorField &U, const surfaceScalarField &phiHbyA, const RAUType &rAU)
-              { return constrainPressure(p, U, phiHbyA, rAU); }, py::arg("p"), py::arg("U"), py::arg("phiHbyA"), py::arg("rAU"));
+              { return constrainPressure(p, U, phiHbyA, rAU); }, nb::arg("p"), nb::arg("U"), nb::arg("phiHbyA"), nb::arg("rAU"));
     }
 
-    void bindCfdTools(pybind11::module &m)
+    void bindCfdTools(nanobind::module_ &m)
     {
-        namespace py = pybind11;
+        namespace nb = nanobind;
 
         m.def("adjustPhi", &adjustPhi);
         declare_constrainPressure<volScalarField>(m);
@@ -111,7 +111,7 @@ namespace Foam
                 fvc::flux(U)
             );
             return phi;
-        }, py::arg("U"));
+        }, nb::arg("U"));
 
         m.def("setRefCell", [](volScalarField &p, const Foam::dictionary &dict, const bool forceReference)
         {
@@ -119,9 +119,9 @@ namespace Foam
             scalar pRefValue = 0.0;
             setRefCell(p, dict, pRefCell, pRefValue, forceReference);
             return std::make_tuple(pRefCell, pRefValue);
-        }, py::arg("p"), py::arg("dict"), py::arg("forceReference") = false);
+        }, nb::arg("p"), nb::arg("dict"), nb::arg("forceReference") = false);
         m.def("computeCFLNumber", &computeCFLNumber);
-        m.def("computeContinuityErrors", &computeContinuityErrors, py::arg("phi"));
+        m.def("computeContinuityErrors", &computeContinuityErrors, nb::arg("phi"));
     }
 
 } // namespace Foam

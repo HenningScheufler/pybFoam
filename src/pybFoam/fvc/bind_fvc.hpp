@@ -32,8 +32,8 @@ SourceFiles
 #define bind_fvc
 
 // System includes
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 #include "word.H"
 #include "scalar.H"
 #include "vector.H"
@@ -43,7 +43,7 @@ SourceFiles
 namespace Foam
 {
 
-    void  bindFVC(pybind11::module& fvc);
+    void  bindFVC(nanobind::module_& fvc);
 }
 
 #endif // bind_fvc  defined

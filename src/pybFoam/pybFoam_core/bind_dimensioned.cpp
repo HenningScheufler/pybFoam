@@ -34,60 +34,60 @@ namespace Foam
     using surfaceVectorField = GeometricField<vector, fvsPatchField, surfaceMesh>;
 
     template<class Type>
-    auto declare_dimensioned(py::module &m, std::string className)
+    auto declare_dimensioned(nb::module_ &m, std::string className)
     {
-        return py::class_<dimensioned<Type>>(m, className.c_str())
-            .def(py::init<const word&,  const dimensionSet, const Type&>(),
-                 py::arg("name"), py::arg("dimensions"), py::arg("value"))
-            .def(py::init<const word&, const dimensionSet, const dictionary&>(),
-                 py::arg("name"), py::arg("dimensions"), py::arg("dict"))
-            .def(py::init([](const std::string& name, const dimensionSet& dims, const Type& value) {
-                return dimensioned<Type>(word(name), dims, value);
-            }), py::arg("name"), py::arg("dimensions"), py::arg("value"))
+        return nb::class_<dimensioned<Type>>(m, className.c_str())
+            .def(nb::init<const word&,  const dimensionSet, const Type&>(),
+                 nb::arg("name"), nb::arg("dimensions"), nb::arg("value"))
+            .def(nb::init<const word&, const dimensionSet, const dictionary&>(),
+                 nb::arg("name"), nb::arg("dimensions"), nb::arg("dict"))
+            .def("__init__", [](dimensioned<Type>* self, const std::string& name, const dimensionSet& dims, const Type& value) {
+                new (self) dimensioned<Type>(word(name), dims, value);
+            }, nb::arg("name"), nb::arg("dimensions"), nb::arg("value"))
             .def("name", [](const dimensioned<Type>& self) { return std::string(self.name()); })
             .def("dimensions", [](const dimensioned<Type>& self) { return self.dimensions(); })
             .def("value", [](const dimensioned<Type>& self) { return self.value(); })
 
             .def("__mul__", [](const dimensioned<Type>& self, const volScalarField& field) {
                 return self * field;
-            }, py::arg("field"), "Multiply dimensioned value by volScalarField")
+            }, nb::arg("field"), "Multiply dimensioned value by volScalarField")
             .def("__mul__", [](const dimensioned<Type>& self, const tmp<volScalarField>& field) {
                 return self * field;
-            }, py::arg("field"), "Multiply dimensioned value by tmp<volScalarField>")
+            }, nb::arg("field"), "Multiply dimensioned value by tmp<volScalarField>")
 
             .def("__mul__", [](const dimensioned<Type>& self, const surfaceScalarField& field) {
                 return self * field;
-            }, py::arg("field"), "Multiply dimensioned value by surfaceScalarField")
+            }, nb::arg("field"), "Multiply dimensioned value by surfaceScalarField")
             .def("__mul__", [](const dimensioned<Type>& self, const tmp<surfaceScalarField>& field) {
                 return self * field;
-            }, py::arg("field"), "Multiply dimensioned value by tmp<surfaceScalarField>")
+            }, nb::arg("field"), "Multiply dimensioned value by tmp<surfaceScalarField>")
 
             .def("__add__", [](const dimensioned<Type>& self, const GeometricField<Type, fvPatchField, volMesh>& field) {
                 return self + field;
-            }, py::arg("field"), "Add dimensioned value to volField")
+            }, nb::arg("field"), "Add dimensioned value to volField")
             .def("__add__", [](const dimensioned<Type>& self, const tmp<GeometricField<Type, fvPatchField, volMesh>>& field) {
                 return self + field;
-            }, py::arg("field"), "Add dimensioned value to tmp<volField>")
+            }, nb::arg("field"), "Add dimensioned value to tmp<volField>")
 
             .def("__sub__", [](const dimensioned<Type>& self, const GeometricField<Type, fvPatchField, volMesh>& field) {
                 return self - field;
-            }, py::arg("field"), "Subtract volField from dimensioned value")
+            }, nb::arg("field"), "Subtract volField from dimensioned value")
             .def("__sub__", [](const dimensioned<Type>& self, const tmp<GeometricField<Type, fvPatchField, volMesh>>& field) {
                 return self - field;
-            }, py::arg("field"), "Subtract tmp<volField> from dimensioned value")
+            }, nb::arg("field"), "Subtract tmp<volField> from dimensioned value")
             ;
     }
 
 }
 
 
-void bindDimensioned(pybind11::module& m)
+void bindDimensioned(nanobind::module_& m)
 {
-    namespace py = pybind11;
+    namespace nb = nanobind;
 
     // Bind dimensionSet class
-    py::class_<Foam::dimensionSet>(m, "dimensionSet")
-        .def(py::init<Foam::scalar, Foam::scalar, Foam::scalar, Foam::scalar, Foam::scalar, Foam::scalar, Foam::scalar>())
+    nb::class_<Foam::dimensionSet>(m, "dimensionSet")
+        .def(nb::init<Foam::scalar, Foam::scalar, Foam::scalar, Foam::scalar, Foam::scalar, Foam::scalar, Foam::scalar>())
         .def("__pow__", [](const Foam::dimensionSet& self, Foam::scalar p) {
             return Foam::pow(self, p);
         })

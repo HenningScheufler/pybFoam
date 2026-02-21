@@ -23,29 +23,30 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-py::dict Foam::MeshUtils::extractMeshStats(const polyMesh& mesh)
+nb::dict Foam::MeshUtils::extractMeshStats(const polyMesh& mesh)
 {
-    py::dict stats;
+    namespace nb = nanobind;
+    nb::dict stats;
 
     // Basic mesh statistics
-    stats["nPoints"] = mesh.nPoints();
-    stats["nCells"] = mesh.nCells();
-    stats["nFaces"] = mesh.nFaces();
-    stats["nInternalFaces"] = mesh.nInternalFaces();
-    stats["nBoundaryFaces"] = mesh.nBoundaryFaces();
+    stats["nPoints"] = nb::cast(mesh.nPoints());
+    stats["nCells"] = nb::cast(mesh.nCells());
+    stats["nFaces"] = nb::cast(mesh.nFaces());
+    stats["nInternalFaces"] = nb::cast(mesh.nInternalFaces());
+    stats["nBoundaryFaces"] = nb::cast(mesh.nBoundaryFaces());
 
     // Boundary patch information
-    py::list patches;
+    nb::list patches;
     const polyBoundaryMesh& boundaryMesh = mesh.boundaryMesh();
 
     forAll(boundaryMesh, patchi)
     {
         const polyPatch& patch = boundaryMesh[patchi];
-        py::dict patchInfo;
-        patchInfo["name"] = py::str(patch.name());
-        patchInfo["type"] = py::str(patch.type());
-        patchInfo["nFaces"] = patch.size();
-        patchInfo["startFace"] = patch.start();
+        nb::dict patchInfo;
+        patchInfo["name"] = nb::cast(std::string(patch.name()));
+        patchInfo["type"] = nb::cast(std::string(patch.type()));
+        patchInfo["nFaces"] = nb::cast(patch.size());
+        patchInfo["startFace"] = nb::cast(patch.start());
         patches.append(patchInfo);
     }
 
@@ -53,15 +54,15 @@ py::dict Foam::MeshUtils::extractMeshStats(const polyMesh& mesh)
 
     // Mesh bounds
     const boundBox& bb = mesh.bounds();
-    py::list minBounds = py::list();
-    minBounds.append(bb.min().x());
-    minBounds.append(bb.min().y());
-    minBounds.append(bb.min().z());
+    nb::list minBounds;
+    minBounds.append(nb::cast(bb.min().x()));
+    minBounds.append(nb::cast(bb.min().y()));
+    minBounds.append(nb::cast(bb.min().z()));
 
-    py::list maxBounds = py::list();
-    maxBounds.append(bb.max().x());
-    maxBounds.append(bb.max().y());
-    maxBounds.append(bb.max().z());
+    nb::list maxBounds;
+    maxBounds.append(nb::cast(bb.max().x()));
+    maxBounds.append(nb::cast(bb.max().y()));
+    maxBounds.append(nb::cast(bb.max().z()));
 
     stats["bounds_min"] = minBounds;
     stats["bounds_max"] = maxBounds;

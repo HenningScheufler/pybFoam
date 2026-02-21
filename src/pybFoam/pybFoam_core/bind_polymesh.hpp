@@ -31,13 +31,16 @@ Author
 #define foam_polymesh
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/make_iterator.h>
 #include "polyMesh.H"
 #include "IOobject.H"
 #include "pointField.H"
 #include "faceList.H"
 #include "labelList.H"
-#include <pybind11/stl.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/string.h>
 #include <vector>
 #include <tuple>
 #include <string>
@@ -46,7 +49,8 @@ namespace Foam
 {
     // Helper functions for polyMesh creation
 
-    polyMesh* createPolyMesh(
+    void createPolyMesh(
+        polyMesh* self,
         const IOobject& io,
         const pointField& points,
         const faceList& faces,
@@ -54,7 +58,8 @@ namespace Foam
         const labelList& neighbour,
         bool syncPar = true);
 
-    polyMesh* createPolyMeshFromPython(
+    void createPolyMeshFromPython(
+        polyMesh* self,
         const IOobject& io,
         const std::vector<std::vector<double>>& points,
         const std::vector<std::vector<Foam::label>>& faces,
@@ -62,7 +67,8 @@ namespace Foam
         const std::vector<Foam::label>& neighbour,
         bool syncPar = true);
 
-    polyMesh* createPolyMeshFromCellShapes(
+    void createPolyMeshFromCellShapes(
+        polyMesh* self,
         const IOobject& io,
         const std::vector<std::vector<double>>& points,
         const std::vector<std::tuple<std::string, std::vector<Foam::label>>>& cells,
@@ -71,7 +77,7 @@ namespace Foam
         bool syncPar = true);
 
     // Main binding function
-    void bindPolyMesh(pybind11::module_& m);
+    void bindPolyMesh(nanobind::module_& m);
 }
 
 #endif

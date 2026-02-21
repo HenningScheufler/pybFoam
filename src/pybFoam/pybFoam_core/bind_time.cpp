@@ -37,61 +37,51 @@ namespace Foam
         return Foam::timeSelector::select0(runTime, list_arg);
     }
 
-    Time *createTime(std::string rootPath, std::string caseName)
+    void createTime(Time* self, const std::string& rootPath, const std::string& caseName)
     {
-        return new Time(rootPath, caseName);
+        new (self) Time(Time::controlDictName, rootPath, caseName);
     }
 
-    Time* createTimeArgs(const argList& args)
+    void createTimeArgs(Time* self, const argList& args)
     {
-        // Create Time object with default controlDictName
-        return new Time(Time::controlDictName, args);
+        new (self) Time(Time::controlDictName, args);
     }
 
-    argList* makeArgList(
-        const std::vector<std::string> &args)
+    void makeArgList(argList* self, const std::vector<std::string> &args)
     {
-        // Keep original strings alive
-        auto storage = std::make_shared<std::vector<std::string>>(args);
-        auto argv_buf = std::make_shared<std::vector<char *>>();
-
-        for (const auto &s : *storage)
-            argv_buf->push_back(const_cast<char *>(s.c_str()));
-
-        int argc = static_cast<int>(argv_buf->size());
-        char **argv = argv_buf->data();
-
-        // Pass to OpenFOAM argList
-        return new argList(argc, argv, true, true, true);
+        int argc = args.size();
+        char **argv = new char *[argc];
+        for (int i = 0; i < argc; i++)
+        {
+            argv[i] = new char[args[i].size() + 1];
+            strcpy(argv[i], args[i].c_str());
+        }
+        new (self) argList(argc, argv, true, true, true);
     }
 
 }
 
-void bindTime(pybind11::module &m)
+void bindTime(nanobind::module_ &m)
 {
-    namespace py = pybind11;
+    using namespace Foam;
+    namespace nb = nanobind;
 
     m.def("selectTimes", &Foam::selectTimes);
 
-    py::class_<Foam::argList>(m, "argList")
-        .def(py::init(&Foam::makeArgList), py::return_value_policy::take_ownership)
+    nb::class_<Foam::argList>(m, "argList")
+        .def("__init__", &Foam::makeArgList)
         ;
 
-    py::class_<Foam::Time>(m, "Time")
-        .def(py::init([](const Foam::Time &self)
-                      {
-            Foam::Time& time = const_cast<Foam::Time&>(self);
-            return &time; }),
-             py::return_value_policy::reference_internal)
-        .def(py::init(&Foam::createTime), py::return_value_policy::take_ownership)
-        .def(py::init(&Foam::createTimeArgs), py::return_value_policy::take_ownership)
+    nb::class_<Foam::Time>(m, "Time")
+        .def("__init__", &Foam::createTime)
+        .def("__init__", &Foam::createTimeArgs)
         .def("setTime", [](
                             Foam::Time &self,
                             const Foam::instant &inst,
                             const Foam::label newIndex)
              { self.setTime(inst, newIndex); })
         .def("setDeltaT", [](Foam::Time &self, const Foam::scalar newDeltaT)
-             { self.setDeltaT(newDeltaT); }, py::arg("newDeltaT"))
+             { self.setDeltaT(newDeltaT); }, nb::arg("newDeltaT"))
         .def("value", &Foam::Time::timeOutputValue)
         .def("deltaTValue", [](Foam::Time &self) { return self.deltaTValue(); })
         .def("loop", &Foam::Time::loop)
@@ -104,5 +94,5 @@ void bindTime(pybind11::module &m)
              { self.printExecutionTime(Foam::Info); }
             )
         .def("timeName", [](Foam::Time &self)
-             { return self.timeName(); }, py::return_value_policy::reference);
+             { return self.timeName(); }, nb::rv_policy::reference);
 }

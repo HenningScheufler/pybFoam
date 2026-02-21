@@ -32,41 +32,45 @@ SourceFiles
 #define foam_fields
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/make_iterator.h>
+
+#include <string>
+
 #include "Field.H"
 #include "scalar.H"
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/ndarray.h>
 
-
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
 
 
 template<typename Type>
-py::array_t<scalar> toNumpy(const Field<Type>& values);
+nb::ndarray<nb::numpy, scalar> toNumpy(const Field<Type>& values);
 
 template< >
-py::array_t<scalar> toNumpy<scalar>(const Field<scalar>& values);
+nb::ndarray<nb::numpy, scalar> toNumpy<scalar>(const Field<scalar>& values);
 
 template<class Type>
 Type declare_sum(const Field<Type>& values);
 
 template<typename Type>
-void fromNumpy(Field<Type>& values,const py::array_t<scalar> np_arr);
+void fromNumpy(Field<Type>& values, nb::ndarray<nb::numpy, scalar, nb::ndim<1>> np_arr);
 
 template<>
-void fromNumpy<scalar>(Field<scalar>& values,const py::array_t<scalar> np_arr);
+void fromNumpy<scalar>(Field<scalar>& values, nb::ndarray<nb::numpy, scalar, nb::ndim<1>> np_arr);
 
 template<class Type>
-py::class_< Field<Type>> declare_fields(py::module &m, std::string &className);
+nb::class_< Field<Type>> declare_fields(nb::module_ &m, std::string &className);
 
 template<class Type>
-py::class_<tmp<Field<Type>>> declare_tmp_fields(py::module &m, std::string className);
+nb::class_<tmp<Field<Type>>> declare_tmp_fields(nb::module_ &m, std::string className);
 
-void  bindFields(py::module& m);
+void  bindFields(nb::module_& m);
 
 }
 
