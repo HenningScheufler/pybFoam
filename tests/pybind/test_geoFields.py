@@ -36,10 +36,10 @@ def test_geoFieldField(change_test_dir: Any) -> None:
     assert pybFoam.sum(p_rgh["leftWall"]) == len(p_rgh["leftWall"])
 
     U = pybFoam.volVectorField.read_field(mesh, "U")
-    assert (sum(np.array(U["internalField"])) == [0, 0, 0]).all()
+    assert (np.sum(np.array(U["internalField"]), axis=0) == [0, 0, 0]).all()
     U["internalField"] += pybFoam.vector(1, 1, 1)
     nElements = len(p_rgh["internalField"])
-    assert (sum(np.array(U["internalField"])) == [nElements, nElements, nElements]).all()
+    assert (np.sum(np.array(U["internalField"]), axis=0) == [nElements, nElements, nElements]).all()
 
 
 def test_mesh(change_test_dir: Any) -> None:
