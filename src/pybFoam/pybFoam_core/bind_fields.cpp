@@ -99,6 +99,10 @@ nb::class_< Field<Type>> declare_fields(nb::module_ &m, std::string className) {
         }
         return self[idx];
     })
+    .def("__iter__", [](const Field<Type>& self) {
+        return nb::make_iterator(nb::type<Field<Type>>(), "iterator",
+            self.begin(), self.end());
+    }, nb::keep_alive<0, 1>())
     .def("__setitem__", [](Field<Type>& self, const label idx,const Type& s) {
         self[idx] = s;
     })
@@ -212,6 +216,10 @@ nb::class_<tmp<Field<Type>>> declare_tmp_fields(nb::module_ &m, std::string clas
         }
         return self()[idx];
     })
+    .def("__iter__", [](const tmp<Field<Type>>& self) {
+        return nb::make_iterator(nb::type<tmp<Field<Type>>>(), "iterator",
+            self().begin(), self().end());
+    }, nb::keep_alive<0, 1>())
     .def("__add__", [](const tmp<Field<Type>>& self, const Field<Type>& f) {
         return self() + f;
     })
@@ -261,6 +269,9 @@ nb::class_<tmp<Field<Type>>> declare_tmp_fields(nb::module_ &m, std::string clas
 void Foam::bindFields(nb::module_& m)
 {
     nb::class_<instantList>(m, "instantList")
+        .def("__len__", [](const instantList& self) {
+            return self.size();
+        })
         .def("__getitem__", [](const instantList& self, const label idx) {
             if (idx >= self.size())
             {
@@ -268,6 +279,10 @@ void Foam::bindFields(nb::module_& m)
             }
             return self[idx];
         })
+        .def("__iter__", [](const instantList& self) {
+            return nb::make_iterator(nb::type<instantList>(), "iterator",
+                self.begin(), self.end());
+        }, nb::keep_alive<0, 1>())
     ;
 
     nb::class_<faceList>(m, "faceList")
@@ -306,6 +321,10 @@ void Foam::bindFields(nb::module_& m)
             }
             return self[idx];
         })
+        .def("__iter__", [](const List<bool>& self) {
+            return nb::make_iterator(nb::type<List<bool>>(), "iterator",
+                self.begin(), self.end());
+        }, nb::keep_alive<0, 1>())
         .def("__setitem__", [](List<bool>& self, const label idx,const bool& s) {
             self[idx] = s;
         })
@@ -338,6 +357,10 @@ void Foam::bindFields(nb::module_& m)
             }
             return self[idx];
         })
+        .def("__iter__", [](const List<label>& self) {
+            return nb::make_iterator(nb::type<List<label>>(), "iterator",
+                self.begin(), self.end());
+        }, nb::keep_alive<0, 1>())
         .def("__setitem__", [](List<label>& self, const label idx,const label& s) {
             self[idx] = s;
         })
@@ -369,6 +392,10 @@ void Foam::bindFields(nb::module_& m)
             }
             return std::string(self[idx]);
         })
+        .def("__iter__", [](const List<word>& self) {
+            return nb::make_iterator(nb::type<List<word>>(), "iterator",
+                self.begin(), self.end());
+        }, nb::keep_alive<0, 1>())
         .def("__setitem__", [](List<word>& self, const label idx,const std::string& s) {
             self[idx] = s;
         })

@@ -32,6 +32,7 @@ Author
 
 // System includes
 #include <nanobind/nanobind.h>
+#include <nanobind/make_iterator.h>
 #include "polyMesh.H"
 #include "IOobject.H"
 #include "pointField.H"

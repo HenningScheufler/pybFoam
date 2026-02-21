@@ -253,7 +253,7 @@ def test_interpolation_scalar_schemes(change_test_dir: Any, scheme: str) -> None
 
     # Test that the interpolation shows correlation with the field formula
     # Calculate expected values for all face centers
-    expected_values = np.array([fc[0] + 2.0 * fc[1] + 3.0 * fc[2] for fc in Cf])  # type: ignore[attr-defined]
+    expected_values = np.array([fc[0] + 2.0 * fc[1] + 3.0 * fc[2] for fc in Cf])
 
     # Check that the correlation is positive and strong (R^2 > 0.5)
     correlation = np.corrcoef(sampled_array, expected_values)[0, 1]

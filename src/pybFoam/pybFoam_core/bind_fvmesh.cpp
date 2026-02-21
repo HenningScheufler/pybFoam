@@ -20,6 +20,7 @@ License
 #include "bind_fvmesh.hpp"
 #include "bind_time.hpp"
 #include "bind_polymesh.hpp"
+#include <nanobind/make_iterator.h>
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "dynamicFvMesh.H"
@@ -99,6 +100,10 @@ void bindFvMesh(nanobind::module_ &m)
         .def("__getitem__", [](const Foam::fvBoundaryMesh& self, Foam::label i) -> const Foam::fvPatch& {
             return self[i];
         }, nb::rv_policy::reference_internal)
+        .def("__iter__", [](const Foam::fvBoundaryMesh& self) {
+            return nb::make_iterator(nb::type<Foam::fvBoundaryMesh>(), "iterator",
+                self.begin(), self.end());
+        }, nb::keep_alive<0, 1>())
         .def("findPatchID", [](const Foam::fvBoundaryMesh& self, const Foam::word& patchName) {
             return self.findPatchID(patchName);
         });

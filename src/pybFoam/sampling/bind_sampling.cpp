@@ -81,9 +81,8 @@ void bindSampledSurface(nb::module_& m)
             [](const word& name, const fvMesh& mesh, const dictionary& dict)
                 -> std::shared_ptr<sampledSurface>
             {
-                // return a raw or unique pointer causes a invalid free
-                // due to multi polymorphic ownership
-                // Using shared_ptr call the correct destructor.
+                // With multiple inheritance, a base pointer may be offset from the allocation start;
+                // deleting it via a raw pointer is UB. shared_ptr keeps the correct deleter/address.
                 return std::shared_ptr<sampledSurface>(
                     sampledSurface::New(name, static_cast<const polyMesh&>(mesh), dict).release()
                 );

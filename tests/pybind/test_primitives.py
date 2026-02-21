@@ -110,7 +110,7 @@ def test_scalarField() -> None:
     sf_1 += 10
     assert sf_1[0] == 11
 
-    for scalar in sf_1:  # type: ignore[attr-defined]
+    for scalar in sf_1:
         assert scalar == 11
 
 

@@ -34,6 +34,7 @@ SourceFiles
 // System includes
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/make_iterator.h>
 
 #include <string>
 

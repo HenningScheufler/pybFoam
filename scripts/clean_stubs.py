@@ -115,6 +115,9 @@ TYPE_REPLACEMENTS = {
     r"(\s*)def __release_buffer__\(self, buffer\):": r"\1def __release_buffer__(self, buffer: memoryview) -> None:",
     # Fix untyped dict returns
     r"\) -> dict:": ") -> dict[str, typing.Any]:",
+    # Fix DictionaryGetProxy/DictionaryGetOrDefaultProxy return types
+    # proxy[Type]("key") returns a callable, not object
+    r"(class DictionaryGet(?:OrDefault)?Proxy:\n\s+def __getitem__\(self, arg: object, /\)) -> object:": r"\1 -> typing.Callable[..., typing.Any]:",
     # Fix bare generic types from nanobind stubgen
     r"\barg: tuple\b": "arg: tuple[typing.Any, ...]",
     r"\barg: list\b": "arg: list[typing.Any]",

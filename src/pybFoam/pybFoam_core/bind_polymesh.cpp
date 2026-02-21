@@ -240,6 +240,10 @@ void Foam::bindPolyMesh(nanobind::module_ &m)
         .def("__getitem__", [](const Foam::polyBoundaryMesh& self, Foam::label i) -> const Foam::polyPatch& {
             return self[i];
         }, nb::rv_policy::reference_internal)
+        .def("__iter__", [](const Foam::polyBoundaryMesh& self) {
+            return nb::make_iterator(nb::type<Foam::polyBoundaryMesh>(), "iterator",
+                self.begin(), self.end());
+        }, nb::keep_alive<0, 1>())
         .def("findPatchID", [](const Foam::polyBoundaryMesh& self, const Foam::word& patchName) {
             return self.findPatchID(patchName);
         });

@@ -51,13 +51,13 @@ def dict_to_foam(py_dict: Dict[str, Any]) -> dictionary:
             elif all(isinstance(x, int) for x in value):
                 # List of numbers
                 lList = labelList([int(x) for x in value])
-                foam_dict.set(key, lList)  # type: ignore[call-overload]
+                foam_dict.set(key, lList)
             else:
                 # Mixed or nested - try as-is
                 foam_dict.set(key, value)  # type: ignore[call-overload]
         elif isinstance(value, dict):
             # Nested dictionary
-            foam_dict.set(key, dict_to_foam(value))  # type: ignore[call-overload]
+            foam_dict.set(key, dict_to_foam(value))
         else:
             # Try setting as-is
             foam_dict.set(key, value)
