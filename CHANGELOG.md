@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2]
+
+### Fixes
+
+* missing std/tuple
+* fix invalid free by returnin std::shared_ptr
+
 ## [0.3.1]
 
 ### Added

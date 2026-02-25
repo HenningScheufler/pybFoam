@@ -18,6 +18,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "bind_turbulence.hpp"
+#include <memory>
 #include "instantList.H"
 
 #include "turbulentTransportModel.H"
@@ -52,9 +53,14 @@ void Foam::bindTurbulence(nb::module_& m)
         const surfaceScalarField& phi,
         const singlePhaseTransportModel& transportModel,
         const word& propertiesName)
+        -> std::shared_ptr<incompressible::turbulenceModel>
     {
-        return incompressible::turbulenceModel::New(U, phi, transportModel, propertiesName).ptr();
-    }, nb::arg("U"), nb::arg("phi"), nb::arg("transportModel"), nb::arg("propertiesName") = turbulenceModel::propertiesName, nb::rv_policy::take_ownership)
+        // With multiple inheritance, a base pointer may be offset from the allocation start;
+        // deleting it via a raw pointer is UB. shared_ptr keeps the correct deleter/address.
+        return std::shared_ptr<incompressible::turbulenceModel>(
+            incompressible::turbulenceModel::New(U, phi, transportModel, propertiesName).release()
+        );
+    }, nb::arg("U"), nb::arg("phi"), nb::arg("transportModel"), nb::arg("propertiesName") = turbulenceModel::propertiesName)
     .def("correct", &incompressible::turbulenceModel::correct)
     .def("U", &incompressible::turbulenceModel::U)
     .def("alphaRhoPhi", &incompressible::turbulenceModel::alphaRhoPhi)

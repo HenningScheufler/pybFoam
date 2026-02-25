@@ -24,6 +24,7 @@ License
 #include "constrainPressure.H"
 #include "constrainHbyA.H"
 #include "fvc.H"
+#include <nanobind/stl/tuple.h>
 
 namespace Foam
 {

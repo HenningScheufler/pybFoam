@@ -20,6 +20,7 @@ License
 #include "bind_fvmesh.hpp"
 #include "bind_time.hpp"
 #include "bind_polymesh.hpp"
+#include <memory>
 #include <nanobind/make_iterator.h>
 #include "volFields.H"
 #include "surfaceFields.H"
@@ -188,9 +189,14 @@ void bindFvMesh(nanobind::module_ &m)
         .def_static("New", [](
             const Foam::argList& args,
             const Foam::Time& runTime)
+            -> std::shared_ptr<Foam::dynamicFvMesh>
         {
-            return Foam::dynamicFvMesh::New(args, runTime).ptr();
-        }, nb::rv_policy::take_ownership)
+            // With multiple inheritance, a base pointer may be offset from the allocation start;
+            // deleting it via a raw pointer is UB. shared_ptr keeps the correct deleter/address.
+            return std::shared_ptr<Foam::dynamicFvMesh>(
+                Foam::dynamicFvMesh::New(args, runTime).release()
+            );
+        })
         .def("updateMesh", &Foam::dynamicFvMesh::update)
         .def("controlledUpdateMesh", &Foam::dynamicFvMesh::controlledUpdate)
         .def("dynamic", &Foam::dynamicFvMesh::dynamic)

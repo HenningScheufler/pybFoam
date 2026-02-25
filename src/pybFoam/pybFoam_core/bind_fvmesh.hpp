@@ -33,6 +33,7 @@ Author
 // System includes
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/shared_ptr.h>
 #include "fvMesh.H"
 #include "Time.H"
 #include "polyMesh.H"

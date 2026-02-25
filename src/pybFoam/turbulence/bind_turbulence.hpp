@@ -33,6 +33,7 @@ SourceFiles
 
 // System includes
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/shared_ptr.h>
 #include "Field.H"
 #include "scalar.H"
 
