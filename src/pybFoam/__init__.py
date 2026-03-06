@@ -58,6 +58,8 @@ from pybFoam.pybFoam_core import (
     keyType,
     labelList,
     mag,
+    nearWallDist,
+    nearWallDistNoSearch,
     pimpleControl,
     pisoControl,
     polyBoundaryMesh,
@@ -101,6 +103,7 @@ from pybFoam.pybFoam_core import (
     volSymmTensorField,
     volTensorField,
     volVectorField,
+    wallDist,
     wordList,
     write,
 )
@@ -228,6 +231,9 @@ __all__ = [
     "setRefCell",
     "solve",
     "sum",
+    "wallDist",
+    "nearWallDist",
+    "nearWallDistNoSearch",
     "write",
     # Submodules
     "fvc",

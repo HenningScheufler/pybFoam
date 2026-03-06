@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2022, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -15,40 +15,33 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::wallDist bindings
+
+Description
+    Provides Python bindings for OpenFOAM wallDist, nearWallDist,
+    and nearWallDistNoSearch classes.
+
+Author
+    Henning Scheufler, all rights reserved.
+
 \*---------------------------------------------------------------------------*/
 
+#ifndef foam_bind_wallDist
+#define foam_bind_wallDist
+
 #include <nanobind/nanobind.h>
-#include "bind_io.hpp"
-#include "bind_dict.hpp"
-#include "bind_time.hpp"
-#include "bind_polymesh.hpp"
-#include "bind_fvmesh.hpp"
-#include "bind_primitives.hpp"
-#include "bind_dimensioned.hpp"
-#include "bind_fields.hpp"
-#include "bind_geo_fields.hpp"
-#include "bind_fvMatrix.hpp"
-#include "bind_control.hpp"
-#include "bind_cfdTools.hpp"
-#include "bind_wallDist.hpp"
+#include <nanobind/stl/shared_ptr.h>
 
-namespace nb = nanobind;
+#include "wallDist.H"
+#include "nearWallDist.H"
+#include "nearWallDistNoSearch.H"
 
+namespace Foam
+{
 
-NB_MODULE(pybFoam_core, m) {
-    m.doc() = "python bindings for openfoam"; // optional module docstring
+void bindWallDist(nanobind::module_& m);
 
-    Foam::bindIO(m);
-    bindDict(m);
-    bindTime(m);
-    Foam::bindPolyMesh(m);
-    bindFvMesh(m);
-    bindPrimitives(m);
-    bindDimensioned(m);
-    Foam::bindFields(m);
-    Foam::bindGeoFields(m);
-    Foam::bindFvMatrix(m);
-    Foam::bindControl(m);
-    Foam::bindCfdTools(m);
-    Foam::bindWallDist(m);
 }
+
+#endif // foam_bind_wallDist

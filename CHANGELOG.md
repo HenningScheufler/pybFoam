@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.3]
+
+* wallDist and nearWallDist
+
+
 ## [0.3.2]
 
 ### Fixes

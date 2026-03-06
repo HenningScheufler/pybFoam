@@ -9,7 +9,7 @@
 project = "pybFoam"
 copyright = "2025, Henning Scheufler"
 author = "Henning Scheufler"
-release = "0.3.2"
+release = "0.3.3"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
