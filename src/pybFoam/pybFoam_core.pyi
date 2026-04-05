@@ -805,6 +805,9 @@ class boolList:
     @overload
     def __init__(self, vec: Sequence[bool]) -> None: ...
 
+    @overload
+    def __init__(self, arr: Annotated[NDArray[numpy.bool_], dict(shape=(None,), device='cpu')]) -> None: ...
+
     def __len__(self) -> int: ...
 
     def __getitem__(self, arg: int, /) -> bool: ...
@@ -2970,3 +2973,20 @@ class nearWallDistNoSearch:
     def __init__(self, mesh: fvMesh) -> None: ...
 
     def correct(self) -> None: ...
+
+class Pstream:
+    @staticmethod
+    def master() -> bool:
+        """Return true if this is the master process"""
+
+    @staticmethod
+    def parRun() -> bool:
+        """Return true if this is a parallel run"""
+
+    @staticmethod
+    def myProcNo() -> int:
+        """Return process number"""
+
+    @staticmethod
+    def nProcs() -> int:
+        """Return number of processes"""
