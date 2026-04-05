@@ -5,7 +5,7 @@ if(POLICY CMP0169)
     cmake_policy(SET CMP0169 OLD)
 endif()
 
-project(pybFoam VERSION 0.3.3 LANGUAGES CXX)
+project(pybFoam VERSION 0.4.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -43,10 +43,12 @@ endif()
 # Add subdirectories
 add_subdirectory(src/pybFoam)
 
-# Optional: Add applications and tests only if not building with pip
-if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-    # add_subdirectory(src/embeddingPython)
-    # add_subdirectory(application EXCLUDE_FROM_ALL)
-    # enable_testing()
-    # add_subdirectory(testsuite EXCLUDE_FROM_ALL)
+# Auto-detect OpenFOAM environment and build embed library if available
+if(DEFINED ENV{FOAM_USER_LIBBIN})
+    message(STATUS "OpenFOAM environment detected — building pybFoamEmbed")
+    # Embed needs Python::Python (full library), not just Development.Module
+    if(NOT TARGET Python::Python)
+        find_package(Python COMPONENTS Development.Embed REQUIRED)
+    endif()
+    add_subdirectory(src/pybFoam/embed)
 endif()

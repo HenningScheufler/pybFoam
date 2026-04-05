@@ -1,0 +1,86 @@
+/*---------------------------------------------------------------------------*\
+            Copyright (c) 2021, German Aerospace Center (DLR)
+-------------------------------------------------------------------------------
+License
+    This file is part of the pybFoam source code library, which is an
+	unofficial extension to OpenFOAM.
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "pyInterp.hpp"
+#include <nanobind/nanobind.h>
+
+namespace Foam
+{
+    defineTypeNameAndDebug(pyInterp, 0);
+}
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+Foam::pyInterp::pyInterp(const Time& time)
+:
+    regIOobject
+    (
+        IOobject
+        (
+            pyInterp::typeName,
+            time.timeName(),
+            time,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE,
+            false  //register object
+        )
+    ),
+    ownsInterpreter_(!Py_IsInitialized())
+{
+    if (ownsInterpreter_)
+    {
+        Py_Initialize();
+
+        // Add current working directory to sys.path so that local Python
+        // modules (e.g. postProcess.py in the case directory) can be found.
+        PyRun_SimpleString("import sys; sys.path.insert(0, '')");
+    }
+
+    // Bootstrap nanobind's internals for this library. This connects to
+    // the shared type registry capsule in the interpreter state, so that
+    // nb::cast works for types registered by pybFoam's nanobind modules.
+    nanobind::detail::nb_module_exec(NB_DOMAIN_STR, nullptr);
+
+    Info << "Starting Python Interpreter" << endl;
+}
+
+Foam::pyInterp::~pyInterp()
+{
+    if (ownsInterpreter_ && Py_IsInitialized())
+    {
+        Py_Finalize();
+    }
+}
+
+Foam::pyInterp& Foam::pyInterp::New(const Time& time)
+{
+    pyInterp* ptr = time.getObjectPtr<pyInterp>
+    (
+        pyInterp::typeName
+    );
+
+    if (!ptr)
+    {
+        ptr = new pyInterp(time);
+
+        ptr->store();
+    }
+
+    return *ptr;
+}
+// ************************************************************************* //

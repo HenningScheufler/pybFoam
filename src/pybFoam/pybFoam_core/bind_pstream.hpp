@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2026, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -17,40 +17,16 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#ifndef bind_pstream_H
+#define bind_pstream_H
+
 #include <nanobind/nanobind.h>
-#include "bind_io.hpp"
-#include "bind_dict.hpp"
-#include "bind_time.hpp"
-#include "bind_polymesh.hpp"
-#include "bind_fvmesh.hpp"
-#include "bind_primitives.hpp"
-#include "bind_dimensioned.hpp"
-#include "bind_fields.hpp"
-#include "bind_geo_fields.hpp"
-#include "bind_fvMatrix.hpp"
-#include "bind_control.hpp"
-#include "bind_cfdTools.hpp"
-#include "bind_wallDist.hpp"
-#include "bind_pstream.hpp"
 
-namespace nb = nanobind;
+namespace Foam
+{
 
+void bindPstream(nanobind::module_& m);
 
-NB_MODULE(pybFoam_core, m) {
-    m.doc() = "python bindings for openfoam"; // optional module docstring
-
-    Foam::bindIO(m);
-    bindDict(m);
-    bindTime(m);
-    Foam::bindPolyMesh(m);
-    bindFvMesh(m);
-    bindPrimitives(m);
-    bindDimensioned(m);
-    Foam::bindFields(m);
-    Foam::bindGeoFields(m);
-    Foam::bindFvMatrix(m);
-    Foam::bindControl(m);
-    Foam::bindCfdTools(m);
-    Foam::bindWallDist(m);
-    Foam::bindPstream(m);
 }
+
+#endif
