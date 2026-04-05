@@ -4,6 +4,7 @@ from pybFoam.pybFoam_core import (
     Info,
     # polyMesh bindings
     IOobject,
+    Pstream,
     SolverScalarPerformance,
     SolverSymmTensorPerformance,
     SolverTensorPerformance,
@@ -118,6 +119,7 @@ __all__ = [
     "Info",
     # Mesh and I/O types
     "IOobject",
+    "Pstream",
     "Time",
     "Word",
     "argList",

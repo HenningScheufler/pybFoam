@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.0]
+
+* interpreter added
+* boolList accepts numpy arrays
+* pstream bindings
+
 ## [0.3.3]
 
 * wallDist and nearWallDist

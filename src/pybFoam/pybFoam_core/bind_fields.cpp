@@ -311,6 +311,15 @@ void Foam::bindFields(nb::module_& m)
                 (*self)[i] = vec[i];
             }
         }, nb::arg("vec"))
+        .def("__init__", [](List<bool>* self, nb::ndarray<nb::numpy, bool, nb::ndim<1>, nb::device::cpu> arr) {
+            size_t n = arr.shape(0);
+            new (self) List<bool>(n);
+            const bool* data = arr.data();
+            for (size_t i = 0; i < n; ++i)
+            {
+                (*self)[i] = data[i];
+            }
+        }, nb::arg("arr"))
         .def("__len__", [](const List<bool>& self) {
             return self.size();
         })
