@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.1]
+
+* added additional free functions
+* fix installation of the embedded interpreter
+
 ## [0.4.0]
 
 * interpreter added

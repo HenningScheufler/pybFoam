@@ -19,6 +19,7 @@ License
 
 #include "bind_geo_fields.hpp"
 #include "tmp.H"
+#include "bound.H"
 
 
 namespace Foam
@@ -261,6 +262,14 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     {
         return self / s;
     })
+    .def("__truediv__", []
+    (
+        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
+        const tmp<Foam::GeometricField<scalar, PatchField, GeoMesh>>& rhs
+    )
+    {
+        return self / rhs;
+    })
     .def("__mul__", []
     (
         const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
@@ -357,6 +366,48 @@ auto declare_mag (const FieldType& geof)
     return mag(geof);
 }
 
+template<class FieldType>
+auto declare_magSqr (const FieldType& geof)
+{
+    return magSqr(geof);
+}
+
+template<class FieldType>
+auto declare_sqr (const FieldType& geof)
+{
+    return sqr(geof);
+}
+
+template<class FieldType>
+auto declare_sqrt (const FieldType& geof)
+{
+    return sqrt(geof);
+}
+
+template<class FieldType>
+auto declare_skew (const FieldType& geof)
+{
+    return skew(geof);
+}
+
+template<class FieldType>
+auto declare_symm (const FieldType& geof)
+{
+    return symm(geof);
+}
+
+template<class FieldType>
+auto declare_pow3 (const FieldType& geof)
+{
+    return pow3(geof);
+}
+
+template<class FieldType>
+auto declare_pow6 (const FieldType& geof)
+{
+    return pow6(geof);
+}
+
 
 }
 
@@ -416,6 +467,22 @@ void Foam::bindGeoFields(nb::module_& m)
     {
         return self * lhs;
     })
+    .def("__mul__", []
+    (
+        const tmp<volScalarField>& self,
+        const volTensorField& lhs
+    )
+    {
+        return self * lhs;
+    })
+    .def("__mul__", []
+    (
+        const tmp<volScalarField>& self,
+        const tmp<volTensorField>& lhs
+    )
+    {
+        return self * lhs;
+    })
     // Scalar arithmetic operators for tmp<volScalarField> (needed for Boussinesq)
     // .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& s)
     // {
@@ -432,6 +499,14 @@ void Foam::bindGeoFields(nb::module_& m)
         return self * lhs;
     })
     .def("__mul__", [](const volScalarField& self, const tmp<volVectorField>& lhs)
+    {
+        return self * lhs;
+    })
+    .def("__mul__", [](const volScalarField& self, const volTensorField& lhs)
+    {
+        return self * lhs;
+    })
+    .def("__mul__", [](const volScalarField& self, const tmp<volTensorField>& lhs)
     {
         return self * lhs;
     })
@@ -487,5 +562,98 @@ void Foam::bindGeoFields(nb::module_& m)
     m.def("mag",declare_mag<surfaceScalarField>);
     m.def("mag",declare_mag<surfaceVectorField>);
     m.def("mag",declare_mag<surfaceTensorField>);
+
+    // magSqr
+    m.def("magSqr",declare_magSqr<volScalarField>);
+    m.def("magSqr",declare_magSqr<volVectorField>);
+    m.def("magSqr",declare_magSqr<volTensorField>);
+    m.def("magSqr", [](const tmp<volTensorField>& f) { return magSqr(f); });
+    m.def("magSqr", [](const tmp<volVectorField>& f) { return magSqr(f); });
+
+    // sqr (scalar → scalar, vector → symmTensor)
+    m.def("sqr",declare_sqr<volScalarField>);
+    m.def("sqr", [](const tmp<volScalarField>& f) { return sqr(f); });
+
+    // sqrt
+    m.def("sqrt",declare_sqrt<volScalarField>);
+    m.def("sqrt", [](const tmp<volScalarField>& f) { return sqrt(f); });
+
+    // pow3, pow6
+    m.def("pow3",declare_pow3<volScalarField>);
+    m.def("pow3", [](const tmp<volScalarField>& f) { return pow3(f); });
+    m.def("pow6",declare_pow6<volScalarField>);
+    m.def("pow6", [](const tmp<volScalarField>& f) { return pow6(f); });
+
+    // skew (tensor → tensor)
+    m.def("skew",declare_skew<volTensorField>);
+    m.def("skew", [](const tmp<volTensorField>& f) { return skew(f); });
+
+    // symm (tensor → symmTensor)
+    m.def("symm",declare_symm<volTensorField>);
+    m.def("symm", [](const tmp<volTensorField>& f) { return symm(f); });
+
+    // T (transpose: tensor → tensor)
+    m.def("T", [](const volTensorField& f) { return f.T(); });
+    m.def("T", [](const tmp<volTensorField>& f) { return f().T(); });
+
+    // max/min for field vs scalar/field
+    m.def("max", [](const volScalarField& f, const dimensionedScalar& s) { return Foam::max(f, s); });
+    m.def("max", [](const volScalarField& f, const volScalarField& g) { return Foam::max(f, g); });
+    m.def("max", [](const volScalarField& f, const scalar& s)
+    {
+        return Foam::max(f, dimensionedScalar("s", f.dimensions(), s));
+    });
+    m.def("max", [](const tmp<volScalarField>& f, const dimensionedScalar& s) { return Foam::max(f, s); });
+    m.def("max", [](const tmp<volScalarField>& f, const scalar& s)
+    {
+        return Foam::max(f, dimensionedScalar("s", f().dimensions(), s));
+    });
+    m.def("min", [](const volScalarField& f, const dimensionedScalar& s) { return Foam::min(f, s); });
+    m.def("min", [](const volScalarField& f, const volScalarField& g) { return Foam::min(f, g); });
+    m.def("min", [](const volScalarField& f, const scalar& s)
+    {
+        return Foam::min(f, dimensionedScalar("s", f.dimensions(), s));
+    });
+    m.def("min", [](const tmp<volScalarField>& f, const scalar& s)
+    {
+        return Foam::min(f, dimensionedScalar("s", f().dimensions(), s));
+    });
+
+    // pow for volScalarField
+    m.def("pow", [](const volScalarField& f, const scalar& exp)
+    {
+        return Foam::pow(f, dimensionedScalar("exp", dimless, exp));
+    });
+    m.def("pow", [](const tmp<volScalarField>& f, const scalar& exp)
+    {
+        return Foam::pow(f, dimensionedScalar("exp", dimless, exp));
+    });
+
+    // bound
+    m.def("bound", [](volScalarField& f, const dimensionedScalar& lower)
+    {
+        return Foam::bound(f, lower);
+    });
+
+    // devTwoSymm (tensor → symmTensor)
+    m.def("devTwoSymm", [](const volTensorField& T) { return Foam::devTwoSymm(T); });
+    m.def("devTwoSymm", [](const tmp<volTensorField>& T) { return Foam::devTwoSymm(T); });
+
+    // dev2 (deviatoric: T - (2/3)*tr(T)*I for symmTensor and tensor)
+    m.def("dev2", [](const volSymmTensorField& T) { return Foam::dev2(T); });
+    m.def("dev2", [](const tmp<volSymmTensorField>& T) { return Foam::dev2(T); });
+    m.def("dev2", [](const volTensorField& T) { return Foam::dev2(T); });
+    m.def("dev2", [](const tmp<volTensorField>& T) { return Foam::dev2(T); });
+
+
+    // && (double inner product: tensor && symmTensor → scalar)
+    m.def("doubleInner", [](const volTensorField& T, const volSymmTensorField& S)
+    {
+        return T && S;
+    });
+    m.def("doubleInner", [](const volTensorField& T, const tmp<volSymmTensorField>& S)
+    {
+        return T && S;
+    });
 
 }
