@@ -2,10 +2,9 @@
 
 include(CMakeFindDependencyMacro)
 
-# Re-find dependencies that pybFoamEmbed was built against
+# nanobind is shipped as libnanobind.so — no find_dependency needed
 find_dependency(Python COMPONENTS Interpreter Development.Module Development.Embed)
 find_dependency(OpenFOAM)
-find_dependency(nanobind CONFIG)
 
 # Import the exported targets
 include("${CMAKE_CURRENT_LIST_DIR}/pybFoamEmbedTargets.cmake")

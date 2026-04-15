@@ -107,6 +107,10 @@ declare_fvMatrix(nb::module_ &m, std::string className)
         .def("H", &fvMatrix<Type>::H)
         .def("D", &fvMatrix<Type>::D)
         .def("H1", &fvMatrix<Type>::H1)
+        .def("source", [](fvMatrix<Type>& self) -> Field<Type>&
+        {
+            return self.source();
+        }, nb::rv_policy::reference_internal)
         .def("__add__", []
         (
             const fvMatrix<Type>& rhs,
