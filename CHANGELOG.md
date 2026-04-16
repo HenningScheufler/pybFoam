@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.2]
+
+* files related to embed are now installed in the site package
+
 ## [0.4.1]
 
 * added additional free functions

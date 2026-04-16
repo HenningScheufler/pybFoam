@@ -61,3 +61,42 @@ jobs:
       - name: Run pre-commit on all files
         run: |
           pre-commit run --all-files --color always --verbose
+
+  verify-embed-install:
+    name: Verify pybFoamEmbed install layout
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up OpenFOAM
+        uses: gerlero/setup-openfoam@v1
+        with:
+          openfoam-version: 2506
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pybFoam (non-editable, so embed/ is staged in site-packages)
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: Assert embed install layout
+        run: |
+          set -e
+          SITE=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+          echo "Checking layout under $SITE/pybFoam/embed"
+          test -f "$SITE/pybFoam/embed/lib/libpybFoamEmbed.so"
+          test -f "$SITE/pybFoam/embed/lib/libnanobind.so"
+          test -f "$SITE/pybFoam/embed/cmake/pybFoamEmbed/pybFoamEmbedConfig.cmake"
+          test -f "$SITE/pybFoam/embed/cmake/pybFoamEmbed/pybFoamEmbedTargets.cmake"
+          test -f "$SITE/pybFoam/embed/include/pybFoamEmbed/pyInterp.hpp"
+          test -f "$SITE/pybFoam/embed/include/pybFoamEmbed/nanobind/include/nanobind/nanobind.h"
+
+      - name: Configure and build consumer smoke test
+        run: |
+          cd tests/embed_consumer
+          cmake -B build
+          cmake --build build
