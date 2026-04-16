@@ -1,22 +1,21 @@
 # pybFoam embed library - Python interpreter for OpenFOAM embedding
 #
-# Usage:
-#   list(APPEND CMAKE_PREFIX_PATH "$ENV{FOAM_USER_LIBBIN}/cmake")
+# The embed library links against the venv's libpython3.X.so and is therefore
+# inherently tied to a specific Python environment. It ships inside the
+# pybFoam wheel (under site-packages/pybFoam/embed/) alongside its CMake
+# config, headers, and vendored nanobind headers.
+#
+# Consumer usage:
+#   list(APPEND CMAKE_PREFIX_PATH "${Python_SITELIB}/pybFoam/embed/cmake")
 #   find_package(pybFoamEmbed REQUIRED)
 #   target_link_libraries(mylib PUBLIC pybFoamEmbed::pybFoamEmbed)
-#
-# Installs outside CMAKE_INSTALL_PREFIX into the OpenFOAM user tree:
-#   $FOAM_USER_LIBBIN/libpybFoamEmbed.so, libnanobind.so
-#   $FOAM_USER_LIBBIN/cmake/pybFoamEmbed/*.cmake
-#   $FOAM_USER_LIBBIN/../include/pybFoamEmbed/pyInterp.hpp
-#   $FOAM_USER_LIBBIN/../include/pybFoamEmbed/nanobind/include/...
 
 include(CMakePackageConfigHelpers)
 
-# Install layout — all paths derived from FOAM_USER_LIBBIN
-set(PYBFOAM_EMBED_INSTALL_LIBDIR     "$ENV{FOAM_USER_LIBBIN}")
-set(PYBFOAM_EMBED_INSTALL_INCLUDEDIR "$ENV{FOAM_USER_LIBBIN}/../include")
-set(PYBFOAM_EMBED_INSTALL_CMAKEDIR   "${PYBFOAM_EMBED_INSTALL_LIBDIR}/cmake/pybFoamEmbed")
+# Install layout — relative paths inside the wheel
+set(PYBFOAM_EMBED_INSTALL_LIBDIR     "pybFoam/embed/lib")
+set(PYBFOAM_EMBED_INSTALL_INCLUDEDIR "pybFoam/embed/include")
+set(PYBFOAM_EMBED_INSTALL_CMAKEDIR   "pybFoam/embed/cmake/pybFoamEmbed")
 
 # --- nanobind (shared lib for single type registry across all modules) -----
 
@@ -54,12 +53,18 @@ target_include_directories(pybFoamEmbed PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${PYBFOAM_EMBED_INSTALL_INCLUDEDIR}/pybFoamEmbed>)
 
-# --- Install ----------------------------------------------------------------
+# --- CMake package config ---------------------------------------------------
+
+configure_package_config_file(
+    ${PROJECT_SOURCE_DIR}/cmake/pybFoamEmbedConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/pybFoamEmbedConfig.cmake
+    INSTALL_DESTINATION ${PYBFOAM_EMBED_INSTALL_CMAKEDIR})
+
+# --- Install ---------------------------------------------------------------
 
 install(TARGETS pybFoamEmbed pybFoamEmbed_nanobind
     EXPORT  pybFoamEmbedTargets
-    LIBRARY DESTINATION ${PYBFOAM_EMBED_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${PYBFOAM_EMBED_INSTALL_LIBDIR})
+    LIBRARY DESTINATION ${PYBFOAM_EMBED_INSTALL_LIBDIR})
 
 install(FILES pyInterp.hpp
     DESTINATION ${PYBFOAM_EMBED_INSTALL_INCLUDEDIR}/pybFoamEmbed)
@@ -72,11 +77,6 @@ install(EXPORT pybFoamEmbedTargets
     FILE      pybFoamEmbedTargets.cmake
     NAMESPACE pybFoamEmbed::
     DESTINATION ${PYBFOAM_EMBED_INSTALL_CMAKEDIR})
-
-configure_package_config_file(
-    ${PROJECT_SOURCE_DIR}/cmake/pybFoamEmbedConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/pybFoamEmbedConfig.cmake
-    INSTALL_DESTINATION ${PYBFOAM_EMBED_INSTALL_CMAKEDIR})
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pybFoamEmbedConfig.cmake
     DESTINATION ${PYBFOAM_EMBED_INSTALL_CMAKEDIR})
