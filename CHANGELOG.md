@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.2]
+
+* fix installation of the embedded interpreter in site package
+
 ## [0.4.1]
 
 * added additional free functions
