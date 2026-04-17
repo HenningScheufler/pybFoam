@@ -24,7 +24,7 @@ set(MESHING_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(meshing ${MESHING_SOURCES})
+nanobind_add_module(meshing NB_SHARED ${MESHING_SOURCES})
 
 # Set target properties
 set_target_properties(meshing PROPERTIES

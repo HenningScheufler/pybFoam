@@ -10,7 +10,7 @@ set(TURBULENCE_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(turbulence ${TURBULENCE_SOURCES})
+nanobind_add_module(turbulence NB_SHARED ${TURBULENCE_SOURCES})
 
 # Set target properties
 set_target_properties(turbulence PROPERTIES

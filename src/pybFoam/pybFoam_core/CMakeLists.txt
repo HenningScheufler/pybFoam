@@ -36,7 +36,7 @@ set(PYBFOAM_CORE_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(pybFoam_core ${PYBFOAM_CORE_SOURCES})
+nanobind_add_module(pybFoam_core NB_SHARED ${PYBFOAM_CORE_SOURCES})
 
 # Set target properties
 set_target_properties(pybFoam_core PROPERTIES

@@ -18,7 +18,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "pyInterp.hpp"
-#include <nanobind/nanobind.h>
 
 namespace Foam
 {
@@ -50,11 +49,6 @@ Foam::pyInterp::pyInterp(const Time& time)
         // modules (e.g. postProcess.py in the case directory) can be found.
         PyRun_SimpleString("import sys; sys.path.insert(0, '')");
     }
-
-    // Bootstrap nanobind's internals for this library. This connects to
-    // the shared type registry capsule in the interpreter state, so that
-    // nb::cast works for types registered by pybFoam's nanobind modules.
-    nanobind::detail::nb_module_exec(NB_DOMAIN_STR, nullptr);
 
     Info << "Starting Python Interpreter" << endl;
 }

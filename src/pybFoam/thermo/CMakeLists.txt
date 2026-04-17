@@ -10,7 +10,7 @@ set(THERMO_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(thermo ${THERMO_SOURCES})
+nanobind_add_module(thermo NB_SHARED ${THERMO_SOURCES})
 
 # Set target properties
 set_target_properties(thermo PROPERTIES

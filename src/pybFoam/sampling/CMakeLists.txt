@@ -10,7 +10,7 @@ set(SAMPLING_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(sampling_bindings ${SAMPLING_SOURCES})
+nanobind_add_module(sampling_bindings NB_SHARED ${SAMPLING_SOURCES})
 
 # Set target properties
 set_target_properties(sampling_bindings PROPERTIES

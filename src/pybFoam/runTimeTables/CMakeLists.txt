@@ -10,7 +10,7 @@ set(RUNTIME_TABLES_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(runTimeTables ${RUNTIME_TABLES_SOURCES})
+nanobind_add_module(runTimeTables NB_SHARED ${RUNTIME_TABLES_SOURCES})
 
 # Set target properties
 set_target_properties(runTimeTables PROPERTIES

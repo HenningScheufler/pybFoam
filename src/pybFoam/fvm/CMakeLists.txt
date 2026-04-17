@@ -10,7 +10,7 @@ set(FVM_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(fvm ${FVM_SOURCES})
+nanobind_add_module(fvm NB_SHARED ${FVM_SOURCES})
 
 # Set target properties
 set_target_properties(fvm PROPERTIES

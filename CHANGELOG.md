@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.3]
+
+* fix segfault on Python 3.10/3.11 when loading the embedded interpreter:
+  - removed a `nb_module_exec(NB_DOMAIN_STR, nullptr)` call from `pyInterp`
+    that dereferenced a null module pointer.
+  - unified nanobind linkage: all extension modules (`pybFoam_core`, `fvc`,
+    `fvm`, `thermo`, `turbulence`, `sampling`, `meshing`, `runTimeTables`)
+    now use `NB_SHARED`
+
 ## [0.4.2]
 
 * fix installation of the embedded interpreter in site package
