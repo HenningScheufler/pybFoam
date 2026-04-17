@@ -83,13 +83,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
 
-      - name: Assert embed install layout
+      - name: Assert install layout
         run: |
           set -e
           SITE=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
-          echo "Checking layout under $SITE/pybFoam/embed"
+          echo "Checking pybFoam install layout under $SITE/pybFoam"
+          # libnanobind.so lives next to the binding modules (consumed via RPATH=$ORIGIN)
+          test -f "$SITE/pybFoam/libnanobind.so"
+          # pybFoamEmbed (OpenFOAM-side embed helper) and its CMake package config
           test -f "$SITE/pybFoam/embed/lib/libpybFoamEmbed.so"
-          test -f "$SITE/pybFoam/embed/lib/libnanobind.so"
           test -f "$SITE/pybFoam/embed/cmake/pybFoamEmbed/pybFoamEmbedConfig.cmake"
           test -f "$SITE/pybFoam/embed/cmake/pybFoamEmbed/pybFoamEmbedTargets.cmake"
           test -f "$SITE/pybFoam/embed/include/pybFoamEmbed/pyInterp.hpp"

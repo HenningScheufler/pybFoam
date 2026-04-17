@@ -42,6 +42,8 @@ nanobind_add_module(pybFoam_core NB_SHARED ${PYBFOAM_CORE_SOURCES})
 set_target_properties(pybFoam_core PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
     VISIBILITY_INLINES_HIDDEN ON
+    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
+    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries

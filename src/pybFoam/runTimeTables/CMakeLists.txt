@@ -16,6 +16,8 @@ nanobind_add_module(runTimeTables NB_SHARED ${RUNTIME_TABLES_SOURCES})
 set_target_properties(runTimeTables PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
     VISIBILITY_INLINES_HIDDEN ON
+    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
+    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries

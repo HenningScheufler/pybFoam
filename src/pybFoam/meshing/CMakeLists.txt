@@ -30,6 +30,8 @@ nanobind_add_module(meshing NB_SHARED ${MESHING_SOURCES})
 set_target_properties(meshing PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
     VISIBILITY_INLINES_HIDDEN ON
+    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
+    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries
