@@ -16,15 +16,12 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(GNUInstallDirs)
 
-# Build embed library when OpenFOAM is sourced; override with -DPYBFOAM_BUILD_EMBED=ON|OFF
-if(DEFINED ENV{FOAM_USER_LIBBIN})
-    set(_PYBFOAM_BUILD_EMBED_DEFAULT ON)
-else()
-    set(_PYBFOAM_BUILD_EMBED_DEFAULT OFF)
-endif()
+# The embed library ships inside the pybFoam wheel (site-packages/pybFoam/embed/).
+# It only requires OpenFOAM at build time; disable with -DPYBFOAM_BUILD_EMBED=OFF
+# when OpenFOAM is unavailable.
 option(PYBFOAM_BUILD_EMBED
     "Build the pybFoamEmbed C++ library for OpenFOAM solvers"
-    ${_PYBFOAM_BUILD_EMBED_DEFAULT})
+    ON)
 
 # Development.Embed only needed when building the embed library (links libpython)
 set(_pybfoam_python_components Interpreter Development.Module)
