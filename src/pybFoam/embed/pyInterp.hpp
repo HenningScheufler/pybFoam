@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2026, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -28,7 +28,7 @@ Description
     interpreter exists per simulation.
 
 Author
-    Henning Scheufler, DLR, all rights reserved.
+    Henning Scheufler
 
 SourceFiles
     pyInterp.cpp

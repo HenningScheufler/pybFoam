@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2026, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
