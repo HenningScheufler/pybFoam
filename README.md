@@ -1,11 +1,11 @@
 # pybFoam
 
-[![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://henningscheufler.github.io/pybFoam/)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://henningscheufler.github.io/pybFoam/index.html)
 [![Deploy Docs](https://github.com/HenningScheufler/pybFoam/actions/workflows/pages.yaml/badge.svg)](https://github.com/HenningScheufler/pybFoam/actions/workflows/pages.yaml)
 
 Python bindings for OpenFOAM - enabling direct manipulation of OpenFOAM cases, fields, and meshes from Python.
 
-**[Documenation](https://henningscheufler.github.io/pybFoam/)** — tutorials, how-to guides (generated from runnable examples), API reference, and design notes.
+**[Documentation](https://henningscheufler.github.io/pybFoam/index.html)** — tutorials, how-to guides (generated from runnable examples), API reference, and design notes.
 
 Build the docs locally:
 
