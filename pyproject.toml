@@ -46,6 +46,7 @@ dev = [
 docs = [
     "sphinx>=4.0",
     "sphinx-sitemap",
+    "sphinx-gallery",
     "furo",
     "sphinxcontrib-mermaid"
 ]

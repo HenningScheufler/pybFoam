@@ -8,8 +8,16 @@
 # autodoc imports pybFoam, OpenFOAM's dictionary parser then fails to read
 # "2.0" in $WM_PROJECT_DIR/etc/controlDict with FOAM FATAL IO ERROR.
 import locale
+import os
 
 locale.setlocale(locale.LC_NUMERIC, "C")
+
+# OpenFOAM installs a SIGFPE trap that fires on NaN / divide-by-zero /
+# overflow at the CPU level. During gallery execution, some Python
+# string-formatting paths (PyOS_double_to_string) hit that trap and
+# abort the build. Disable the trap before any OpenFOAM symbol is
+# loaded — this only affects the doc build, not users' own scripts.
+os.environ.setdefault("FOAM_SIGFPE", "false")
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -34,7 +42,22 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx_sitemap",
     "sphinx.ext.inheritance_diagram",
+    "sphinx_gallery.gen_gallery",
 ]
+
+sphinx_gallery_conf = {
+    "examples_dirs": ["../examples/tutorials", "../examples/how-to"],
+    "gallery_dirs": ["auto_tutorials", "auto_how_to"],
+    "filename_pattern": r"/example_",
+    # Ignore any .py whose basename doesn't start with ``example_`` — raw
+    # scripts, Allrun helpers, solver demos etc. aren't gallery pages but
+    # still live under examples/. (sphinx-gallery matches the basename,
+    # not the full path.)
+    "ignore_pattern": r"^(?!example_).*\.py$",
+    "remove_config_comments": True,
+    "download_all_examples": False,
+    "plot_gallery": "True",
+}
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]

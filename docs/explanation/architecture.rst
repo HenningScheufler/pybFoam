@@ -23,7 +23,6 @@ At import time ``import pybFoam`` brings in:
    ├── sampling_bindings.so   ← sampledSurface / sampledSet
    ├── runTimeTables.so       ← runtime table registry
    ├── libnanobind.so         ← shared nanobind runtime (see below)
-   ├── io/                    ← pure-Python Pydantic I/O layer
    ├── sampling/              ← pure-Python Pydantic sampling configs
    └── embed/                 ← C++ embed library (for OpenFOAM solvers)
 
@@ -68,19 +67,15 @@ must match — both sides must be built with compatible nanobind releases.
 The pure-Python layer
 ---------------------
 
-Two sibling directories — ``pybFoam.io`` and ``pybFoam.sampling`` — are
-written in Python:
+``pybFoam.sampling`` is written in Python: it defines Pydantic configs
+(``SampledPlaneConfig``, ``UniformSetConfig``, …) with a
+``.to_foam_dict()`` conversion consumed by the C++ ``sampledSurface.New``
+and ``sampledSet.New`` factories.
 
-* ``io/`` defines ``IOModelBase`` and the ready-made ``ControlDictBase`` /
-  ``FvSchemesBase`` / ``FvSolutionBase`` models.
-* ``sampling/`` defines Pydantic configs (``SampledPlaneConfig``,
-  ``UniformSetConfig``, …) with ``.to_foam_dict()`` conversion.
-
-Keeping these layers in Python means type checking, validation messages,
-and extensibility (via ``pydantic.create_model``) happen in a well-tooled
-environment, while the expensive work — mesh, fields, operators — stays in
-the C++ bindings. See :doc:`pydantic_io_layer` for the rationale behind
-this split.
+Keeping this layer in Python means type checking and validation messages
+happen in a well-tooled environment, while the expensive work — mesh,
+fields, operators — stays in the C++ bindings. See :doc:`sampling_configs`
+for the rationale behind this split.
 
 The embed library
 -----------------

@@ -18,21 +18,16 @@ before building or running anything shown here.
    * **Want to understand the design?** Read the explanation section.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Tutorials
 
-   tutorials/getting_started
-   tutorials/first_field_analysis
-   tutorials/first_sampling_workflow
+   auto_tutorials/index
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: How-to guides
 
-   how-to/read_write_dictionaries
-   how-to/run_blockmesh_snappy
-   how-to/compute_fvc_fvm
-   how-to/sample_surfaces_and_lines
+   auto_how_to/index
    how-to/use_turbulence_thermo
    how-to/parallel_runs
 
@@ -52,7 +47,7 @@ before building or running anything shown here.
 
    explanation/architecture
    explanation/zero_copy_numpy
-   explanation/pydantic_io_layer
+   explanation/sampling_configs
    explanation/openfoam_interop
 
 .. toctree::
