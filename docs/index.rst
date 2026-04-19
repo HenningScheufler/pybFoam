@@ -1,18 +1,64 @@
-.. pybFoam documentation master file, created by
-   sphinx-quickstart on Sun Sep  7 12:02:25 2025.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 pybFoam Documentation
 =====================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents
+pybFoam provides Python bindings for OpenFOAM via nanobind. It enables direct
+manipulation of OpenFOAM cases, fields, meshes, and solvers from Python, with
+zero-copy NumPy access to field data.
 
-   installation
-   usage
-   api
+**Prerequisite:** Source OpenFOAM v2312+ (``source /path/to/OpenFOAM/etc/bashrc``)
+before building or running anything shown here.
+
+.. admonition:: Which doc should I read?
+   :class: tip
+
+   * **New here?** Start with a tutorial — they walk through an end-to-end
+     workflow.
+   * **Have a specific task?** A how-to guide gives step-by-step recipes.
+   * **Looking up an API or flag?** See the reference.
+   * **Want to understand the design?** Read the explanation section.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorials
+
+   tutorials/getting_started
+   tutorials/first_field_analysis
+   tutorials/first_sampling_workflow
+
+.. toctree::
+   :maxdepth: 1
+   :caption: How-to guides
+
+   how-to/read_write_dictionaries
+   how-to/run_blockmesh_snappy
+   how-to/compute_fvc_fvm
+   how-to/sample_surfaces_and_lines
+   how-to/use_turbulence_thermo
+   how-to/parallel_runs
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Reference
+
+   reference/api
+   reference/installation
+   reference/build_system
+   reference/cli_and_poe
+   reference/supported_versions
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Explanation
+
+   explanation/architecture
+   explanation/zero_copy_numpy
+   explanation/pydantic_io_layer
+   explanation/openfoam_interop
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Project
+
    contributing
    changelog
 

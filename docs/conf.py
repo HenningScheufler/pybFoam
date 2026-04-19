@@ -3,6 +3,14 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+# Force C numeric locale. Sphinx/Babel activate the user locale for i18n, which
+# on German systems sets LC_NUMERIC=de_DE.UTF-8 (decimal separator ","). When
+# autodoc imports pybFoam, OpenFOAM's dictionary parser then fails to read
+# "2.0" in $WM_PROJECT_DIR/etc/controlDict with FOAM FATAL IO ERROR.
+import locale
+
+locale.setlocale(locale.LC_NUMERIC, "C")
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
@@ -55,3 +63,48 @@ html_theme_options = {
 html_static_path = ["_static"]
 
 html_baseurl = "https://henning.github.io/pybFoam/"
+
+
+# -- autodoc for nanobind bindings -------------------------------------------
+# Nanobind-bound callables have type ``nanobind.nb_func`` (and methods are
+# ``nb_method``). These fail ``inspect.isfunction`` / ``isbuiltin`` / ``isroutine``,
+# so Sphinx's default FunctionDocumenter rejects them and ``automodule ... :members:``
+# silently skips every bound function. Teach autodoc to accept them by replacing
+# the relevant predicates with wider ones that also return True for nb_func /
+# nb_method.
+
+
+def setup(app):
+    import inspect
+
+    from sphinx.ext import autodoc
+    from sphinx.util import inspect as sphinx_inspect
+
+    _NB_TYPE_NAMES = {"nb_func", "nb_method"}
+
+    def _is_nanobind_callable(obj) -> bool:
+        return type(obj).__name__ in _NB_TYPE_NAMES
+
+    _orig_isfunction = sphinx_inspect.isfunction
+    _orig_isbuiltin = sphinx_inspect.isbuiltin
+
+    def _patched_isfunction(obj):
+        return _orig_isfunction(obj) or _is_nanobind_callable(obj)
+
+    def _patched_isbuiltin(obj):
+        return _orig_isbuiltin(obj) or _is_nanobind_callable(obj)
+
+    sphinx_inspect.isfunction = _patched_isfunction
+    sphinx_inspect.isbuiltin = _patched_isbuiltin
+
+    _orig_can_document = autodoc.FunctionDocumenter.can_document_member
+
+    @classmethod
+    def _can_document_member(cls, member, membername, isattr, parent):
+        if _is_nanobind_callable(member):
+            return True
+        return _orig_can_document(member, membername, isattr, parent)
+
+    autodoc.FunctionDocumenter.can_document_member = _can_document_member
+
+    return {"parallel_read_safe": True, "parallel_write_safe": True}
