@@ -89,4 +89,6 @@ def main(argv: Any) -> None:
 
 
 if __name__ == "__main__":
+    Info("Running icoFoam...")
+    print("sys.argv:", sys.argv)
     main(sys.argv)
