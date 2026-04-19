@@ -2,15 +2,14 @@ name: Compiler Support
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["main"]
   pull_request:
-    branches:
-      - '*'
+    types: [opened, labeled, synchronize, reopened]
 
 jobs:
   build-test:
-    if: github.event_name == 'workflow_dispatch' || vars.COMPILER_SUPPORT == 'true'
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.pull_request.labels.*.name, 'full-ci')
     runs-on: ubuntu-24.04
     strategy:
       matrix:
