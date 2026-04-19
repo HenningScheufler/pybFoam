@@ -137,6 +137,9 @@ dist/
 build/
 _skbuild/
 docs/_build
+docs/auto_tutorials
+docs/auto_how_to
+docs/sg_execution_times.rst
 
 # meshing polyMesh
 

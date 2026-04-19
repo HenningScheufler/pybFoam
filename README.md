@@ -1,8 +1,19 @@
 # pybFoam
 
+[![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://henningscheufler.github.io/pybFoam/)
+[![Deploy Docs](https://github.com/HenningScheufler/pybFoam/actions/workflows/pages.yaml/badge.svg)](https://github.com/HenningScheufler/pybFoam/actions/workflows/pages.yaml)
+
 Python bindings for OpenFOAM - enabling direct manipulation of OpenFOAM cases, fields, and meshes from Python.
 
-Currently in the pre-alpha release state.
+**[Documenation](https://henningscheufler.github.io/pybFoam/)** — tutorials, how-to guides (generated from runnable examples), API reference, and design notes.
+
+Build the docs locally:
+
+```bash
+uv sync --extra docs
+cd docs && uv run make html
+# open docs/_build/html/index.html
+```
 
 ---
 
@@ -23,7 +34,7 @@ Currently in the pre-alpha release state.
 - **Python**: 3.9 or higher
 - **CMake**: 3.18 or higher
 - **C++ Compiler**: C++17 compatible (TBD)
-- **Build tools**: pybind11, scikit-build-core
+- **Build tools**: nanobind, scikit-build-core
 - **Python packages**: numpy, pydantic
 
 ---
@@ -120,37 +131,50 @@ interp = interpolationScalar.New(Word("cellPoint"), p)
 sampled_values = interp.sampleOnFaces(plane)
 ```
 
-### Dictionary I/O with Pydantic
+### Read OpenFOAM dictionaries
 
 ```python
-from pybFoam.io import IOModelBase
-from pydantic import Field
+from pybFoam import Word, dictionary
 
-class TransportProperties(IOModelBase):
-    nu: float = Field(..., description="Kinematic viscosity")
+d = dictionary.read("system/controlDict")
 
-    class Config:
-        foam_file_name = "transportProperties"
+# Typed accessors — a typo in the key raises at the call site
+application = d.get[Word]("application")
+end_time    = d.get[float]("endTime")
+max_co      = d.getOrDefault[float]("maxCo", 0.5)
 
-# Read from OpenFOAM dictionary
-props = TransportProperties.from_file("constant/transportProperties")
-print(f"Viscosity: {props.nu}")
-
-# Modify and write back
-props.nu = 1e-5
-props.to_file("constant/transportProperties")
+# Nested subdictionaries and key enumeration
+piso = d.subDict("PISO")
+for name in d.toc():
+    print(name)
 ```
 
 ---
 
 ## Examples
 
-See the `tests/` directory for more examples:
-- **Basic field operations**: `tests/pybind/test_primitives.py`
-- **Finite volume operators**: `tests/pybind/test_fvc.py`, `tests/pybind/test_fvm.py`
-- **Surface sampling**: `tests/pybind/test_surface_sampling.py`
-- **Line sampling**: `tests/pybind/test_set_sampling.py`
-- **Solver example**: `tests/cavity/icoFoam.py`
+Runnable, self-contained scripts live under `examples/`. They are
+executed at documentation build time and rendered as the tutorials and
+how-to guides on the docs site.
+
+- **Tutorials** (`examples/tutorials/`) — end-to-end walkthroughs that
+  build on each other:
+  - `example_01_getting_started.py` — open a case, read a field, NumPy view
+  - `example_02_field_analysis.py` — drive a time loop and summarise
+    per-step statistics
+  - `example_03_sampling_workflow.py` — sample a plane, export to CSV
+- **How-to guides** (`examples/how-to/`) — task-focused recipes:
+  - `example_read_dictionaries.py` — controlDict / typed entries
+  - `example_blockmesh.py` — `generate_blockmesh` + `checkMesh`
+  - `example_fvc_fvm_operators.py` — gradient / divergence / Laplacian
+    and implicit matrix terms
+  - `example_sample_plane.py`, `example_sample_line.py`
+- **Case data** — `examples/case/` and `examples/cavity/` are
+  read-only baseline cases consumed by the scripts above.
+- **Solver example** — `examples/cavity/icoFoam.py` (full PISO loop
+  driven from Python).
+
+More tests with additional API usage live under `tests/pybind/`.
 
 ---
 
@@ -167,12 +191,6 @@ Run specific test categories:
 pytest tests/pybind/          # C++ binding tests
 pytest tests/test_sampling_models.py  # Pydantic config tests
 ```
-
----
-
-## Documentation (outdated)
-
-Full documentation is available at: [https://henningscheufler.github.io/pybFoam/](https://henningscheufler.github.io/pybFoam/index.html)
 
 ---
 
