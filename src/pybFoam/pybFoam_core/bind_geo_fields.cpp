@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 20212, Henning Scheufler
+            Copyright (c) 2022-2026, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -21,49 +21,46 @@ License
 #include "tmp.H"
 #include "bound.H"
 
-
 namespace Foam
 {
 
-// namespace py = pybind11;
-
 template<class Type, template<class> class PatchField, class GeoMesh>
-Field<Type>& field(GeometricField<Type, PatchField, GeoMesh>& vf,const fvMesh& mesh, const std::string& name)
+Field<Type>& field(GeometricField<Type, PatchField, GeoMesh>& gf, const std::string& name)
 {
     if (name == "internalField")
     {
-        return vf.primitiveFieldRef();
+        return gf.primitiveFieldRef();
     }
     else
     {
-        label patchId = mesh.boundaryMesh().findPatchID(name);
+        label patchId = gf.mesh().boundaryMesh().findPatchID(name);
         if (patchId == -1)
         {
             FatalErrorInFunction
                 << "patch not found " << nl
                 << exit(FatalError);
         }
-        return vf.boundaryFieldRef()[patchId];
+        return gf.boundaryFieldRef()[patchId];
     }
 }
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void field(GeometricField<Type, PatchField, GeoMesh>& vf,const fvMesh& mesh, const std::string& name,const Field<Type>& f)
+void field(GeometricField<Type, PatchField, GeoMesh>& gf, const std::string& name, const Field<Type>& f)
 {
     if (name == "internalField")
     {
-        vf.primitiveFieldRef() = f;
+        gf.primitiveFieldRef() = f;
     }
     else
     {
-        label patchId = mesh.boundaryMesh().findPatchID(name);
+        label patchId = gf.mesh().boundaryMesh().findPatchID(name);
         if (patchId == -1)
         {
             FatalErrorInFunction
                 << "patch not found " << nl
                 << exit(FatalError);
         }
-        vf.boundaryFieldRef()[patchId] = f;
+        gf.boundaryFieldRef()[patchId] = f;
     }
 }
 
@@ -195,7 +192,7 @@ auto declare_geofields(nb::module_ &m, std::string className) {
         const std::string& name
     ) -> Foam::Field<Type>&
     {
-        return Foam::field(self,self.mesh(),name);
+        return Foam::field(self,name);
     }, nb::rv_policy::reference_internal)
     .def("__setitem__", []
     (
@@ -359,57 +356,7 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     return std::make_tuple(geofieldClass, tmpGeofieldClass);
 }
 
-
-template<class FieldType>
-auto declare_mag (const FieldType& geof)
-{
-    return mag(geof);
-}
-
-template<class FieldType>
-auto declare_magSqr (const FieldType& geof)
-{
-    return magSqr(geof);
-}
-
-template<class FieldType>
-auto declare_sqr (const FieldType& geof)
-{
-    return sqr(geof);
-}
-
-template<class FieldType>
-auto declare_sqrt (const FieldType& geof)
-{
-    return sqrt(geof);
-}
-
-template<class FieldType>
-auto declare_skew (const FieldType& geof)
-{
-    return skew(geof);
-}
-
-template<class FieldType>
-auto declare_symm (const FieldType& geof)
-{
-    return symm(geof);
-}
-
-template<class FieldType>
-auto declare_pow3 (const FieldType& geof)
-{
-    return pow3(geof);
-}
-
-template<class FieldType>
-auto declare_pow6 (const FieldType& geof)
-{
-    return pow6(geof);
-}
-
-
-}
+}  // End namespace Foam
 
 
 void Foam::bindGeoFields(nb::module_& m)
@@ -552,45 +499,46 @@ void Foam::bindGeoFields(nb::module_& m)
     auto [stf, tmp_stf] = declare_geofields<tensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceTensorField"));
     auto [sstf, tmp_sstf] = declare_geofields<symmTensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceSymmTensorField"));
 
-    // // functions
+    // Functions
 
-    m.def("mag",declare_mag<volScalarField>);
-    m.def("mag",declare_mag<volVectorField>);
-    m.def("mag",declare_mag<volTensorField>);
-    m.def("mag",declare_mag<volSymmTensorField>);
+    // mag
+    m.def("mag", [](const VolumeField<scalar>& f) { return Foam::mag(f); });
+    m.def("mag", [](const VolumeField<vector>& f) { return Foam::mag(f); });
+    m.def("mag", [](const VolumeField<tensor>& f) { return Foam::mag(f); });
+    m.def("mag", [](const VolumeField<symmTensor>& f) { return Foam::mag(f); });
 
-    m.def("mag",declare_mag<surfaceScalarField>);
-    m.def("mag",declare_mag<surfaceVectorField>);
-    m.def("mag",declare_mag<surfaceTensorField>);
+    m.def("mag", [](const SurfaceField<scalar>& f) { return Foam::mag(f); });
+    m.def("mag", [](const SurfaceField<vector>& f) { return Foam::mag(f); });
+    m.def("mag", [](const SurfaceField<tensor>& f) { return Foam::mag(f); });
 
     // magSqr
-    m.def("magSqr",declare_magSqr<volScalarField>);
-    m.def("magSqr",declare_magSqr<volVectorField>);
-    m.def("magSqr",declare_magSqr<volTensorField>);
-    m.def("magSqr", [](const tmp<volTensorField>& f) { return magSqr(f); });
-    m.def("magSqr", [](const tmp<volVectorField>& f) { return magSqr(f); });
+    m.def("magSqr", [](const VolumeField<scalar>& f) { return Foam::magSqr(f); });
+    m.def("magSqr", [](const VolumeField<vector>& f) { return Foam::magSqr(f); });
+    m.def("magSqr", [](const VolumeField<tensor>& f) { return Foam::magSqr(f); });
+    m.def("magSqr", [](const tmp<VolumeField<tensor>>& f) { return Foam::magSqr(f); });
+    m.def("magSqr", [](const tmp<VolumeField<vector>>& f) { return Foam::magSqr(f); });
 
     // sqr (scalar → scalar, vector → symmTensor)
-    m.def("sqr",declare_sqr<volScalarField>);
-    m.def("sqr", [](const tmp<volScalarField>& f) { return sqr(f); });
+    m.def("sqr", [](const VolumeField<scalar>& f) { return Foam::sqr(f); });
+    m.def("sqr", [](const tmp<VolumeField<scalar>>& f) { return Foam::sqr(f); });
 
     // sqrt
-    m.def("sqrt",declare_sqrt<volScalarField>);
-    m.def("sqrt", [](const tmp<volScalarField>& f) { return sqrt(f); });
+    m.def("sqrt", [](const VolumeField<scalar>& f) { return Foam::sqrt(f); });
+    m.def("sqrt", [](const tmp<VolumeField<scalar>>& f) { return Foam::sqrt(f); });
 
     // pow3, pow6
-    m.def("pow3",declare_pow3<volScalarField>);
-    m.def("pow3", [](const tmp<volScalarField>& f) { return pow3(f); });
-    m.def("pow6",declare_pow6<volScalarField>);
-    m.def("pow6", [](const tmp<volScalarField>& f) { return pow6(f); });
+    m.def("pow3", [](const volScalarField& f) { return Foam::pow3(f); });
+    m.def("pow3", [](const tmp<volScalarField>& f) { return Foam::pow3(f); });
+    m.def("pow6", [](const volScalarField& f) { return Foam::pow6(f); });
+    m.def("pow6", [](const tmp<volScalarField>& f) { return Foam::pow6(f); });
 
     // skew (tensor → tensor)
-    m.def("skew",declare_skew<volTensorField>);
-    m.def("skew", [](const tmp<volTensorField>& f) { return skew(f); });
+    m.def("skew", [](const volTensorField& f) { return Foam::skew(f); });
+    m.def("skew", [](const tmp<volTensorField>& f) { return Foam::skew(f); });
 
     // symm (tensor → symmTensor)
-    m.def("symm",declare_symm<volTensorField>);
-    m.def("symm", [](const tmp<volTensorField>& f) { return symm(f); });
+    m.def("symm", [](const volTensorField& f) { return Foam::symm(f); });
+    m.def("symm", [](const tmp<volTensorField>& f) { return Foam::symm(f); });
 
     // T (transpose: tensor → tensor)
     m.def("T", [](const volTensorField& f) { return f.T(); });
