@@ -33,8 +33,9 @@ cd docs && uv run make html
 - **OpenFOAM**: v2312 or higher (sourced and installed)
 - **Python**: 3.9 or higher
 - **CMake**: 3.18 or higher
-- **C++ Compiler**: C++17 compatible (TBD)
+- **C++ Compiler**: C++17 compatible (GCC 7+, Clang 5+)
 - **Build tools**: nanobind, scikit-build-core
+- **Build tools**: ninja
 - **Python packages**: numpy, pydantic
 
 ---
@@ -57,12 +58,12 @@ cd docs && uv run make html
 ### Install from source
 
 ```bash
-pip install .
+CC="$(wmake -show-path-c)" CXX="$(wmake -show-path-cxx)" pip install .
 ```
 
 For development:
 ```bash
-pip install -e .[all]
+CC="$(wmake -show-path-c)" CXX="$(wmake -show-path-cxx)" pip install -e .[all]
 ```
 
 #### Generating Type Stubs (Development only)
