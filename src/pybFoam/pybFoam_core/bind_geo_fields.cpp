@@ -201,7 +201,7 @@ auto declare_geofields(nb::module_ &m, std::string className) {
         const Foam::Field<Type>& f
     )
     {
-        Foam::field(self,self.mesh(),name,f);
+        Foam::field(self,name,f);
     })
     .def("__add__", []
     (
