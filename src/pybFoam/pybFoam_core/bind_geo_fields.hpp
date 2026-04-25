@@ -67,10 +67,9 @@ void NumpyToField<scalar>(Field<scalar>& values, nb::ndarray<nb::numpy, scalar, 
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-const Field<Type>& field
+Field<Type>& field
 (
-    const GeometricField<Type, PatchField, GeoMesh>& vf,
-    const fvMesh& mesh,
+    GeometricField<Type, PatchField, GeoMesh>& gf,
     const std::string& name
 );
 
@@ -78,9 +77,9 @@ const Field<Type>& field
 template<class Type, template<class> class PatchField, class GeoMesh>
 void field
 (
-    GeometricField<Type, PatchField, GeoMesh>& vf,
-    const fvMesh& mesh,
-    const std::string& name,const Field<Type>& f
+    GeometricField<Type, PatchField, GeoMesh>& gf,
+    const std::string& name,
+    const Field<Type>& f
 );
 
 

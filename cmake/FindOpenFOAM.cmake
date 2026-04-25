@@ -12,8 +12,8 @@
 # ============================================================================
 # Check OpenFOAM environment
 # ============================================================================
-if(NOT DEFINED ENV{FOAM_SRC})
-    message(FATAL_ERROR "OpenFOAM environment not sourced. Please source OpenFOAM before running CMake.")
+if(NOT DEFINED ENV{WM_PROJECT_DIR})
+    message(FATAL_ERROR "WM_PROJECT_DIR environment variable not set. Please source OpenFOAM environment.")
 endif()
 
 if(NOT DEFINED ENV{WM_LABEL_SIZE})
@@ -24,12 +24,16 @@ if(NOT DEFINED ENV{WM_PRECISION_OPTION})
     message(FATAL_ERROR "WM_PRECISION_OPTION environment variable not set. Please source OpenFOAM environment.")
 endif()
 
-if(NOT DEFINED ENV{FOAM_API})
-    message(FATAL_ERROR "FOAM_API environment variable not set. Please source OpenFOAM environment.")
+if(NOT DEFINED ENV{FOAM_LIBBIN})
+    message(FATAL_ERROR "OpenFOAM environment not sourced. Please source OpenFOAM before running CMake.")
 endif()
 
 # Set paths
-set(FOAM_SRC "$ENV{FOAM_SRC}")
+if(NOT DEFINED ENV{FOAM_SRC})
+  set(FOAM_SRC "$ENV{WM_PROJECT_DIR}/src")
+else()
+  set(FOAM_SRC "$ENV{FOAM_SRC}")
+endif()
 set(FOAM_LIBBIN "$ENV{FOAM_LIBBIN}")
 
 # ============================================================================
@@ -58,9 +62,9 @@ endif()
 # ============================================================================
 # Detect OpenFOAM version
 # ============================================================================
-if(EXISTS "${FOAM_SRC}/OpenFOAM/lnInclude/foamVersion.H")
-    file(READ "${FOAM_SRC}/OpenFOAM/lnInclude/foamVersion.H" FOAM_VERSION_FILE)
-    string(REGEX MATCH "#define OPENFOAM ([0-9]+)" FOAM_VERSION_MATCH "${FOAM_VERSION_FILE}")
+if(EXISTS "$ENV{WM_PROJECT_DIR}/META-INFO/api-info")
+    file(READ "$ENV{WM_PROJECT_DIR}/META-INFO/api-info" FOAM_VERSION_FILE)
+    string(REGEX MATCH "api=([0-9]+)" FOAM_VERSION_MATCH "${FOAM_VERSION_FILE}")
     if(FOAM_VERSION_MATCH)
         set(OPENFOAM_VERSION ${CMAKE_MATCH_1})
     endif()
@@ -315,13 +319,14 @@ set(OPENFOAM_LIBRARIES
 # Status messages
 # ============================================================================
 message(STATUS "Found OpenFOAM: ${FOAM_SRC}")
+message(STATUS "OpenFOAM sources: ${FOAM_SRC}")
 message(STATUS "OpenFOAM libraries: ${FOAM_LIBBIN}")
 if(OPENFOAM_VERSION)
-    message(STATUS "OpenFOAM version: ${OPENFOAM_VERSION}")
+    message(STATUS "OpenFOAM api: ${OPENFOAM_VERSION}")
 endif()
+message(STATUS "FOAM_API: $ENV{FOAM_API}")
 message(STATUS "WM_LABEL_SIZE: $ENV{WM_LABEL_SIZE}")
 message(STATUS "WM_PRECISION_OPTION: $ENV{WM_PRECISION_OPTION}")
-message(STATUS "FOAM_API: $ENV{FOAM_API}")
 
 # ============================================================================
 # Standard CMake find module
