@@ -130,5 +130,5 @@ test = "pytest"
 lint = "ruff check src tests"
 format = "ruff format"
 type_check = "mypy"
-build_docs = "sphinx-build -b html docs docs/_build"
+build_docs = "sphinx-build -n -b html docs docs/_build"
 view_docs = { shell = "python -m webbrowser -t docs/_build/index.html" }

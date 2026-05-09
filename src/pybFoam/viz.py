@@ -84,8 +84,7 @@ def open_case(
         import pyvista as pv
     except ImportError as exc:  # pragma: no cover - exercised in docs build
         raise ImportError(
-            "pyvista is required for pybFoam.viz. "
-            "Install with `pip install pybFoam[docs]`."
+            "pyvista is required for pybFoam.viz. Install with `pip install pybFoam[docs]`."
         ) from exc
 
     case_path = Path(case).resolve()
