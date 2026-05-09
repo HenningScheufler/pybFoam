@@ -28,9 +28,9 @@ Prerequisites
 # Clone the case
 # --------------
 
-from pybFoam import clone_case
+from pybFoam import clone_example
 
-case = clone_case("cavity")
+case = clone_example("cavity")
 print(f"case = {case}")
 
 # %%
@@ -161,9 +161,9 @@ plt.show()
 
 import pyvista as pv
 
-from pybFoam import open_case
+from pybFoam import pyvista_read
 
-reader = open_case(case, time=solver.time.value())
+reader = pyvista_read(case, time=solver.time.value())
 internal = reader.read()["internalMesh"]
 internal.set_active_vectors("U")
 slice_mid = internal.slice(normal="z", origin=(0.5 * L, 0.5 * L, 0.5 * 0.01))

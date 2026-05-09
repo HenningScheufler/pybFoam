@@ -28,9 +28,9 @@ Prerequisites
 # Clone the case
 # --------------
 
-from pybFoam import clone_case
+from pybFoam import clone_example
 
-case = clone_case("cavity")
+case = clone_example("cavity")
 print(f"case = {case}")
 
 # %%
@@ -115,15 +115,15 @@ print(f"'nonuniform' at line(s): {nonuniform_lines}")
 # %%
 # Visualize the modified IC
 # -------------------------
-# :func:`pybFoam.open_case` wraps pyvista's ``POpenFOAMReader`` so it
+# :func:`pybFoam.pyvista_read` wraps pyvista's ``POpenFOAMReader`` so it
 # reads the case directory we just wrote. We slice to the front face
 # (``z ≈ 0.005``) to get a 2-D view and colour by ``|U|``.
 
 import pyvista as pv
 
-from pybFoam import open_case
+from pybFoam import pyvista_read
 
-reader = open_case(case, time=0.0)
+reader = pyvista_read(case, time=0.0)
 internal = reader.read()["internalMesh"]
 internal.set_active_vectors("U")
 

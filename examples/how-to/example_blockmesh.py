@@ -14,13 +14,13 @@ Prerequisite: OpenFOAM v2312+ sourced; pybFoam installed.
 # %%
 # Prepare a working case
 # ----------------------
-# :func:`pybFoam.clone_case` copies the named example into a tmp
+# :func:`pybFoam.clone_example` copies the named example into a tmp
 # directory so the baseline under ``examples/`` stays pristine.
 
-from pybFoam import Time, argList, clone_case, dictionary
+from pybFoam import Time, argList, clone_example, dictionary
 from pybFoam.meshing import checkMesh, generate_blockmesh
 
-case = clone_case("case")
+case = clone_example("case")
 print(f"working case: {case}")
 
 # %%

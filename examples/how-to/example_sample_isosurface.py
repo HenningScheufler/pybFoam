@@ -21,10 +21,10 @@ Prerequisite: finished
 # Set up case + mesh
 # ------------------
 
-from pybFoam import Time, argList, clone_case, dictionary, fvMesh
+from pybFoam import Time, argList, clone_example, dictionary, fvMesh
 from pybFoam.meshing import generate_blockmesh
 
-case = clone_case("case")
+case = clone_example("case")
 time = Time(argList([str(case), "-case", str(case)]))
 generate_blockmesh(time, dictionary.read(str(case / "system" / "blockMeshDict")))
 mesh = fvMesh(time)

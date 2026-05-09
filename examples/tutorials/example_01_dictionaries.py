@@ -22,13 +22,13 @@ Prerequisites
 # %%
 # Set up a working case
 # ---------------------
-# :func:`pybFoam.clone_case` copies a baseline case from the repo's
+# :func:`pybFoam.clone_example` copies a baseline case from the repo's
 # ``examples/`` folder into a tmp directory and restores ``0.orig/``
 # → ``0/``. The original on-disk case is never touched.
 
-from pybFoam import clone_case
+from pybFoam import clone_example
 
-case = clone_case("cavity")
+case = clone_example("cavity")
 print(f"case = {case}")
 
 # %%

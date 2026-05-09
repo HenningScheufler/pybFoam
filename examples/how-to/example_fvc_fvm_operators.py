@@ -18,14 +18,14 @@ Prerequisite: finished
 # %%
 # Set up case + mesh
 # ------------------
-# :func:`pybFoam.clone_case` copies the named example into a tmp dir
+# :func:`pybFoam.clone_example` copies the named example into a tmp dir
 # and restores ``0.orig`` → ``0``. The mesh is generated from
 # ``system/blockMeshDict``.
 
-from pybFoam import Time, argList, clone_case, dictionary, fvMesh
+from pybFoam import Time, argList, clone_example, dictionary, fvMesh
 from pybFoam.meshing import generate_blockmesh
 
-case = clone_case("case")
+case = clone_example("case")
 time = Time(argList([str(case), "-case", str(case)]))
 generate_blockmesh(time, dictionary.read(str(case / "system" / "blockMeshDict")))
 mesh = fvMesh(time)
