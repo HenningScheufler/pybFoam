@@ -3,54 +3,64 @@ Sample a field on a plane
 =========================
 
 Define a sampling plane with :class:`pybFoam.sampling.SampledPlaneConfig`,
-create the surface through the :func:`sampledSurface.New` factory, and
-interpolate a scalar field onto it.
+create the surface through the ``sampledSurface.New`` factory, and
+interpolate a scalar field onto it. The same pattern works for any
+``sampledSurface`` kind — patches, isosurfaces, cutting planes — by
+swapping the Pydantic config.
+
+Prerequisite: a sourced OpenFOAM environment.
 """
 
 # %%
-# Prepare a working case
-# ----------------------
-# The ``examples/`` tree is the documentation baseline — clone the case
-# into a tmp directory, restore ``0/``, then build the mesh there.
+# Set up case + mesh
+# ------------------
 
-import shutil
-import tempfile
-from pathlib import Path
+from pybFoam import Time, argList, clone_case, dictionary, fvMesh
+from pybFoam.meshing import generate_blockmesh
 
-import pybFoam.pybFoam_core as core
-from pybFoam import meshing
+case = clone_case("case")
+time = Time(argList([str(case), "-case", str(case)]))
+generate_blockmesh(time, dictionary.read(str(case / "system" / "blockMeshDict")))
+mesh = fvMesh(time)
 
+# %%
+# Seed analytic ``p_rgh`` and ``U``
+# ---------------------------------
+# The shipped IC for ``examples/case/`` is uniform zero, which would
+# leave the sampled plane flat. We seed sinusoidal profiles in place
+# so the recipe has something to plot.
 
-def _examples_root() -> Path:
-    for p in [Path.cwd(), *Path.cwd().parents]:
-        if p.name == "examples":
-            return p
-    raise RuntimeError("Could not locate examples/ root")
+import numpy as np
 
+from pybFoam import volScalarField, volVectorField, write
 
-BASELINE = (_examples_root() / "case").resolve()
-CASE = Path(tempfile.mkdtemp(prefix="pybfoam_sample_plane_")) / "case"
-shutil.copytree(BASELINE, CASE)
+p_rgh_seed = volScalarField.read_field(mesh, "p_rgh")
+U_seed = volVectorField.read_field(mesh, "U")
 
-zero = CASE / "0"
-if zero.exists():
-    shutil.rmtree(zero)
-shutil.copytree(CASE / "0.orig", zero)
-
-args = core.argList([str(CASE), "-case", str(CASE)])
-time = core.Time(args)
-mesh = meshing.generate_blockmesh(time, core.dictionary.read(f"{CASE}/system/blockMeshDict"))
+C = np.asarray(mesh.C()["internalField"])
+L = 0.584
+np.asarray(p_rgh_seed["internalField"])[:] = (
+    1000.0 * np.sin(np.pi * C[:, 0] / L) * np.sin(np.pi * C[:, 1] / L)
+)
+np.asarray(U_seed["internalField"])[:] = np.column_stack(
+    [np.sin(np.pi * C[:, 1] / L), -np.sin(np.pi * C[:, 0] / L), np.zeros_like(C[:, 0])]
+)
+p_rgh_seed.correctBoundaryConditions()
+U_seed.correctBoundaryConditions()
+write(p_rgh_seed)
+write(U_seed)
 
 # %%
 # Define the plane
 # ----------------
 # The Pydantic config validates the fields at construction and converts
-# to an OpenFOAM dictionary on demand.
+# to an OpenFOAM dictionary on demand. Here we cut a YZ plane through
+# ``x = 0.5`` of the dam-break geometry.
 
 from pybFoam import Word
 from pybFoam.sampling import SampledPlaneConfig, sampledSurface
 
-cfg = SampledPlaneConfig(point=[0.5, 0.5, 0.0], normal=[1.0, 0.0, 0.0])
+cfg = SampledPlaneConfig(point=[0.0, 0.0, 0.0073], normal=[0.0, 0.0, 1.0])
 plane = sampledSurface.New(Word("midPlane"), mesh, cfg.to_foam_dict())
 plane.update()
 
@@ -59,16 +69,13 @@ print(f"faces: {len(plane.magSf())}   area: {plane.area():.4f}")
 # %%
 # Interpolate a scalar field
 # --------------------------
-# Choose the scheme: ``"cell"`` (piecewise-constant, fastest),
-# ``"cellPoint"`` (continuous linear, good default), or
+# Pick the interpolation scheme: ``"cell"`` (piecewise-constant,
+# fastest), ``"cellPoint"`` (continuous linear, good default), or
 # ``"cellPointFace"`` (most accurate, higher cost).
 
-import numpy as np
-
-from pybFoam import volScalarField
 from pybFoam.sampling import interpolationScalar, sampleOnFacesScalar
 
-p_rgh = volScalarField.read_field(mesh, "p_rgh")
+p_rgh = p_rgh_seed  # already loaded and seeded above
 
 interp = interpolationScalar.New(Word("cellPoint"), p_rgh)
 sampled = sampleOnFacesScalar(plane, interp)
@@ -77,27 +84,49 @@ centers = np.asarray(plane.Cf())
 values = np.asarray(sampled)
 print(f"values.shape  = {values.shape}")
 print(f"centers.shape = {centers.shape}")
+print(f"p_rgh on midPlane min/max = {values.min():.3f} / {values.max():.3f}")
 
 # %%
 # Sample a vector field on the same surface
 # -----------------------------------------
 
-from pybFoam import volVectorField
 from pybFoam.sampling import interpolationVector, sampleOnFacesVector
 
-U = volVectorField.read_field(mesh, "U")
+U = U_seed  # already loaded and seeded above
 
 interp_U = interpolationVector.New(Word("cellPoint"), U)
 sampled_U = sampleOnFacesVector(plane, interp_U)
+U_values = np.asarray(sampled_U)
+print(f"sampled_U.shape = {U_values.shape}")
 
-print(f"sampled_U.shape = {np.asarray(sampled_U).shape}")
+# %%
+# Plot the sampled plane
+# ----------------------
+# The plane normal is along z (a horizontal slice through the thin
+# 2-D case), so the in-plane coordinates are ``(x, y)``.
+# ``tricontourf`` handles the unstructured face centres without
+# needing a regular grid.
+
+import matplotlib.pyplot as plt
+
+x, y = centers[:, 0], centers[:, 1]
+
+fig, ax = plt.subplots(figsize=(6, 4))
+tcf = ax.tricontourf(x, y, values, levels=20, cmap="viridis")
+fig.colorbar(tcf, ax=ax, label=r"$p_{rgh}$ on midPlane  [Pa]")
+ax.set_xlabel("x  [m]")
+ax.set_ylabel("y  [m]")
+ax.set_aspect("equal")
+ax.set_title("p_rgh sampled on the midPlane (z = 0.0073)")
+fig.tight_layout()
+plt.show()
 
 # %%
 # Swap the geometry
 # -----------------
-# The same pattern works for any of the surface kinds — patches,
-# isosurfaces, cutting planes, distance surfaces — by swapping the
-# config:
+# The same factory pattern works for any of the surface kinds —
+# patches, isosurfaces, cutting planes, distance surfaces — by
+# swapping the config:
 
 from pybFoam.sampling import SampledPatchConfig
 
@@ -105,3 +134,11 @@ patch_cfg = SampledPatchConfig(patches=["atmosphere"])
 patch_surf = sampledSurface.New(Word("atmPatch"), mesh, patch_cfg.to_foam_dict())
 patch_surf.update()
 print(f"atmosphere patch: {len(patch_surf.magSf())} faces")
+
+# %%
+# See also
+# --------
+#
+# - :doc:`example_sample_line` — 1-D version of this recipe.
+# - :doc:`example_sample_isosurface` — sample on an iso-surface (e.g.
+#   the VOF interface) instead of a plane.

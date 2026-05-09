@@ -1,97 +1,122 @@
 """
-Read an OpenFOAM dictionary
-===========================
+Extract typed field entries from a dictionary
+=============================================
 
-Use :func:`pybFoam.dictionary.read` to load a case dictionary from disk
-and pull typed values out of it. The same accessor — ``get[T]`` — works
-for scalars, words, vectors, field entries, and nested subdicts.
+OpenFOAM dictionaries can carry typed entries — single scalars and
+vectors are easy, but they also embed *fields* (``scalarField``,
+``vectorField``, ``tensorField``) and lists of words. This how-to
+shows the ``get[T]`` accessor for every typed entry kind.
 
-We exercise the API against the shipped ``examples/case/system/`` files:
-``controlDict`` (well-known OpenFOAM entries) and ``TestDict`` (a
-purpose-built dictionary demonstrating every typed entry kind).
+Tutorial T1 (:doc:`/auto_tutorials/example_01_dictionaries`) covers
+the basics: reading ``controlDict``, modifying values, writing back.
+This page picks up where T1 stops — it's the recipe for pulling
+**fields** out of a dictionary into NumPy.
+
+Prerequisite: finished T1.
 """
 
 # %%
-# Locate the case
-# ---------------
-# We walk up from the script's working directory (set by sphinx-gallery
-# to the script's own folder) until we find the shared ``examples/``
-# root, then reach the target case from there.
+# Locate a dictionary with the typed entries we need
+# --------------------------------------------------
+# The shipped ``examples/case/`` includes a ``system/TestDict`` whose
+# only purpose is to exercise every typed entry shape. We do not need
+# to clone the case for this — the file is read-only.
 
-from pathlib import Path
+from pybFoam import examples_root
 
-
-def _examples_root() -> Path:
-    for p in [Path.cwd(), *Path.cwd().parents]:
-        if p.name == "examples":
-            return p
-    raise RuntimeError("Could not locate examples/ root")
-
-
-CASE = _examples_root() / "case"
+test_dict_path = examples_root() / "case" / "system" / "TestDict"
+print(f"reading {test_dict_path}")
 
 # %%
-# Read controlDict and pull typed values
-# --------------------------------------
-# ``get[T]`` is templated on the expected return type. A typo in the key
-# raises at the point of use.
-
-from pybFoam import Word, dictionary
-
-d = dictionary.read(str(CASE / "system" / "controlDict"))
-
-application = d.get[Word]("application")
-end_time = d.get[float]("endTime")
-delta_t = d.get[float]("deltaT")
-max_co = d.getOrDefault[float]("maxCo", 0.5)
-
-print(f"application = {application}")
-print(f"endTime     = {end_time}")
-print(f"deltaT      = {delta_t}")
-print(f"maxCo       = {max_co}")
-
-# %%
-# Enumerate top-level keys
-# ------------------------
-
-print("top-level keys:")
-for name in d.toc():
-    print(f"  {name}")
-
-# %%
-# Descend into a subdictionary
-# ----------------------------
-# ``subDict`` returns another ``dictionary`` that keeps working with the
-# same accessors.
-
-funcs = d.subDict("functions")
-print("function objects:", list(funcs.toc()))
-
-# %%
-# Typed field entries
+# Single typed values
 # -------------------
-# ``scalarField``, ``vectorField``, ``tensorField``, and ``wordList``
-# entries are returned by the same ``get[T]()`` interface and can be
-# viewed as NumPy arrays with no copy.
+# ``get[float]``, ``get[Word]``, ``get[vector]``, ``get[tensor]`` work
+# the same way — they hand back a Python-friendly object that is also
+# zero-copy NumPy-viewable for the multi-component types.
 
 import numpy as np
 
 import pybFoam
+from pybFoam import Word, dictionary
 
-td = dictionary.read(str(CASE / "system" / "TestDict"))
-
-scalars = td.get[pybFoam.scalarField]("scalarField")
-vectors = td.get[pybFoam.vectorField]("vectorField")
-words = td.get[pybFoam.wordList]("wordList").list()
-
-print("scalarField:", np.asarray(scalars))
-print("vectorField shape:", np.asarray(vectors).shape)
-print("wordList:", words)
-
-# %%
-# Single typed values (word/scalar/vector/tensor) are accessed the same way:
+td = dictionary.read(str(test_dict_path))
 
 print("word   :", td.get[Word]("word"))
 print("scalar :", td.get[float]("scalar"))
 print("vector :", np.asarray(td.get[pybFoam.vector]("vector")))
 print("tensor :", np.asarray(td.get[pybFoam.tensor]("tensor")))
+
+# %%
+# Field entries
+# -------------
+# A dictionary can hold a whole ``Field<scalar>`` (or ``Field<vector>``,
+# ``Field<tensor>``) inline. ``get[scalarField]`` returns a
+# :class:`pybFoam.scalarField` whose buffer is exposed to NumPy with no
+# copy. Field entries arrive in their full type (e.g. tensor fields are
+# already shaped ``(N, 9)``).
+
+scalars = td.get[pybFoam.scalarField]("scalarField")
+vectors = td.get[pybFoam.vectorField]("vectorField")
+tensors = td.get[pybFoam.tensorField]("tensorField")
+words = td.get[pybFoam.wordList]("wordList").list()
+
+scalars_np = np.asarray(scalars)
+vectors_np = np.asarray(vectors)
+tensors_np = np.asarray(tensors)
+
+print(f"scalarField : shape={scalars_np.shape}  values={scalars_np}")
+print(f"vectorField : shape={vectors_np.shape}  values={vectors_np.tolist()}")
+print(f"tensorField : shape={tensors_np.shape}")
+print(f"wordList    : {words}")
+
+# %%
+# Sub-dictionaries
+# ----------------
+# ``dictionary.subDict`` gives back another ``dictionary`` —
+# the same accessors continue to work.
+
+sub = td.subDict("subDict")
+print("subDict keys :", list(sub.toc()))
+print("subDict.word2:", sub.get[Word]("word2"))
+
+# %%
+# Plot the field-entry sizes
+# --------------------------
+# A trivial bar chart that proves every field entry materialised. A
+# zero bar would mean the dictionary parser did not pick up that
+# entry's type.
+
+import matplotlib.pyplot as plt
+
+labels = ["scalarField", "vectorField", "tensorField", "wordList"]
+sizes = [
+    scalars_np.size,
+    vectors_np.shape[0],
+    tensors_np.shape[0],
+    len(words),
+]
+
+fig, ax = plt.subplots(figsize=(6, 3))
+bars = ax.bar(labels, sizes, color="steelblue")
+ax.set_ylabel("entries read")
+ax.set_title("Typed field entries from TestDict")
+for b, n in zip(bars, sizes):
+    ax.text(
+        b.get_x() + b.get_width() / 2,
+        b.get_height(),
+        f"{n}",
+        ha="center",
+        va="bottom",
+        fontsize=9,
+    )
+fig.tight_layout()
+plt.show()
+
+# %%
+# See also
+# --------
+#
+# - :doc:`/auto_tutorials/example_01_dictionaries` — read / modify /
+#   write a dictionary, single typed values.
+# - :doc:`/auto_tutorials/example_02_scalar_fields` — operate on the
+#   :class:`pybFoam.scalarField` you just extracted.

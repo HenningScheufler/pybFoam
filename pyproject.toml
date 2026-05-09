@@ -48,7 +48,9 @@ docs = [
     "sphinx-sitemap",
     "sphinx-gallery",
     "furo",
-    "sphinxcontrib-mermaid"
+    "sphinxcontrib-mermaid",
+    "matplotlib",
+    "pyvista",
 ]
 benchmark = [
     "jax",
