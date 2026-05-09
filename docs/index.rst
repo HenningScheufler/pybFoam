@@ -18,16 +18,25 @@ before building or running anything shown here.
    * **Want to understand the design?** Read the explanation section.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Tutorials
 
-   auto_tutorials/index
+   auto_tutorials/example_01_dictionaries
+   auto_tutorials/example_02_scalar_fields
+   auto_tutorials/example_03_modify_initial_conditions
+   auto_tutorials/example_04_run_and_sample
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: How-to guides
 
-   auto_how_to/index
+   auto_how_to/example_blockmesh
+   auto_how_to/example_read_dictionaries
+   auto_how_to/example_fvc_fvm_operators
+   auto_how_to/example_modify_boundary_conditions
+   auto_how_to/example_sample_line
+   auto_how_to/example_sample_plane
+   auto_how_to/example_sample_isosurface
    how-to/use_turbulence_thermo
    how-to/parallel_runs
 
