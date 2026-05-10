@@ -54,10 +54,8 @@ before building or running anything shown here.
    :maxdepth: 1
    :caption: Explanation
 
-   explanation/architecture
-   explanation/zero_copy_numpy
-   explanation/sampling_configs
-   explanation/openfoam_interop
+   explanation/code_organization
+   explanation/numpy_integration
 
 .. toctree::
    :maxdepth: 1
