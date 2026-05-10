@@ -2,15 +2,12 @@
 Read, modify, and write OpenFOAM dictionaries
 =============================================
 
-By the end of this tutorial you will be able to:
+This tutorial covers how to:
 
 - read an OpenFOAM dictionary file from disk into a Python object,
 - pull typed values out of it (``Word``, ``float``, sub-dictionaries),
 - change a value, and
 - write the dictionary back to disk in OpenFOAM format.
-
-Every later tutorial leans on this pattern. T4 reuses it to truncate
-the cavity's ``endTime`` before launching the icoFoam solver.
 
 Prerequisites
 -------------
@@ -84,15 +81,3 @@ print("deltaT  (modified) :", d_modified.get[float]("deltaT"))
 
 for line in modified_path.read_text().splitlines()[-20:]:
     print(line)
-
-# %%
-# What's next
-# -----------
-#
-# - :doc:`example_02_scalar_fields` — the second core primitive: turn
-#   NumPy data into a :class:`pybFoam.scalarField` and apply OpenFOAM's
-#   elementwise math to it.
-# - :doc:`example_03_modify_initial_conditions` — combine the two:
-#   read a real ``volVectorField`` and edit it through a NumPy view.
-# - :doc:`example_04_run_and_sample` — chain the dictionary-modify
-#   trick into a real solver run.

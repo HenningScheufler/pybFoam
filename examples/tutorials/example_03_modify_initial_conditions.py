@@ -149,10 +149,3 @@ plotter.show()
 # A successful edit shows a single rotating cell with stagnation at
 # ``(L/2, L/2)`` and peak speed near the corners. A flat or noisy
 # image would mean the NumPy edit never reached disk.
-#
-# What's next
-# -----------
-#
-# - :doc:`example_04_run_and_sample` — feed this kind of IC into the
-#   icoFoam PISO loop, sample a horizontal mid-line each step, and
-#   plot the velocity profile evolving in time.

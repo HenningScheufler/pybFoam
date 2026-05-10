@@ -1,20 +1,21 @@
 """
-Run the cavity case and sample a line over time
-===============================================
+Run the cavity case and post-process its time directories
+=========================================================
 
 By the end of this tutorial you will have:
 
 - truncated the cavity's runtime by editing ``system/controlDict``
   (the modify-and-write pattern from :doc:`example_01_dictionaries`),
-- driven OpenFOAM's icoFoam PISO loop one step at a time from Python,
-- sampled velocity on a horizontal mid-line of the cavity at every
-  step, and
-- plotted a ``|U|(x, t)`` heatmap together with a final pyvista
-  snapshot of the cavity flow.
+- driven OpenFOAM's icoFoam PISO loop to completion from Python with
+  one call to ``solver.run()``,
+- opened the resulting case with pyvista, iterated the written time
+  directories, and sampled velocity on the cavity's vertical
+  mid-line, and
+- plotted the family of ``|U|(y)`` profiles colour-coded by time.
 
-The skill on display is **interleaving** Python work with the time
-loop: between two PISO steps, you can read state, sample, write a
-file, redraw a UI, or hand control to a coupling library.
+The skill on display is the **canonical CFD workflow**: run the
+simulation, then post-process the on-disk results. Sampling lives
+*after* the time loop, not inside it.
 
 Prerequisites
 -------------
@@ -37,9 +38,8 @@ print(f"case = {case}")
 # Truncate the runtime
 # --------------------
 # Default cavity ``endTime`` is 0.5 s — too long for a doc build.
-# Use the dictionary-modify pattern from T1 to dial it down. Five
-# steps of size ``deltaT = 0.001`` is enough to see the lid-driven
-# circulation forming.
+# Shrink it and write at every step so we get one time directory per
+# ``deltaT``: t = 0.001, 0.002, …, 0.005.
 
 from pybFoam import dictionary
 
@@ -47,16 +47,17 @@ control_dict_path = case / "system" / "controlDict"
 cd = dictionary.read(str(control_dict_path))
 cd.set("endTime", 0.005)
 cd.set("deltaT", 0.001)
-cd.set("writeInterval", 0.005)
+cd.set("writeInterval", 0.001)
 cd.write(str(control_dict_path))
 
 cd_check = dictionary.read(str(control_dict_path))
 print("endTime       =", cd_check.get[float]("endTime"))
 print("deltaT        =", cd_check.get[float]("deltaT"))
+print("writeInterval =", cd_check.get[float]("writeInterval"))
 
 # %%
-# Import the solver
-# -----------------
+# Run the solver to completion
+# ----------------------------
 # ``IcoFoam`` is shipped under ``examples/cavity/icoFoam.py``.
 # Tutorials are not on Python's import path by default, so we add the
 # cavity directory and import from it. :func:`pybFoam.examples_root`
@@ -72,101 +73,31 @@ from icoFoam import IcoFoam  # noqa: E402
 solver = IcoFoam(case)
 print(f"nCells = {solver.mesh.nCells()}   t0 = {solver.time.value()}")
 
-# %%
-# Configure a sampling line
-# -------------------------
-# A single straight line from the left wall to the right wall at
-# mid-height, parameterised by 50 points. The ``sampledSet`` is
-# decoupled from any specific field — we build it once and use the
-# same line for every step.
-
-from pybFoam import Word
-from pybFoam.sampling import (
-    UniformSetConfig,
-    interpolationVector,
-    meshSearch,
-    sampledSet,
-    sampleSetVector,
-)
-
-L = 0.1  # cavity edge length
-N = 50
-
-search = meshSearch(solver.mesh)
-line_cfg = UniformSetConfig(
-    axis="distance",
-    start=[0.0, 0.5 * L, 0.5 * 0.01],
-    end=[L, 0.5 * L, 0.5 * 0.01],
-    nPoints=N,
-)
-line = sampledSet.New(Word("midLine"), solver.mesh, search, line_cfg.to_foam_dict())
-
-import numpy as np
-
-distance = np.asarray(line.distance())
-print(f"sample points : {len(distance)}   range : {distance[0]:.3f} … {distance[-1]:.3f}")
+solver.run()
+print(f"finished at t = {solver.time.value()}")
 
 # %%
-# Run the solver and sample on every step
-# ---------------------------------------
-# ``solver.step()`` advances the PISO loop by one ``deltaT`` and
-# returns ``False`` once ``endTime`` is reached. Between calls we
-# rebuild the interpolator so it sees the current ``solver.U`` and
-# sample the line.
-
-times: list[float] = []
-profiles: list[np.ndarray] = []
-
-while solver.step():
-    interp = interpolationVector.New(Word("cellPoint"), solver.U)
-    u_line = np.asarray(sampleSetVector(line, interp))
-    times.append(solver.time.value())
-    profiles.append(np.linalg.norm(u_line, axis=1).copy())
-
-profiles_arr = np.stack(profiles)  # shape (n_steps, n_points)
-print(f"profiles.shape = {profiles_arr.shape}")
-print(f"|U| max over all steps = {profiles_arr.max():.4f} m/s")
-
-# %%
-# Plot ``|U|(x, t)`` as a heatmap
-# -------------------------------
-# matplotlib ``pcolormesh`` with sample distance on the x-axis and
-# simulation time on the y-axis. The lid is at the top of the cavity,
-# so values rise as the upper region accelerates and momentum diffuses
-# downward along the line at mid-height.
-
-import matplotlib.pyplot as plt
-
-fig, ax = plt.subplots(figsize=(7, 3.2))
-mesh = ax.pcolormesh(
-    distance,
-    times,
-    profiles_arr,
-    cmap="magma",
-    shading="auto",
-)
-ax.set_xlabel("distance along line  [m]")
-ax.set_ylabel("time  [s]")
-ax.set_title("|U|  along the cavity mid-line")
-fig.colorbar(mesh, ax=ax, label="|U|  [m/s]")
-fig.tight_layout()
-plt.show()
-
-# %%
-# Snapshot the final state with pyvista
-# -------------------------------------
-# At ``endTime`` the solver wrote a complete time directory; we open
-# the case as a pyvista reader and render a slice through the front
-# face for spatial context.
+# Snapshot the final state
+# ------------------------
+# Spatial context first — open the case with
+# :func:`pybFoam.pyvista_read` and render a z-slice through the
+# cavity slab at ``endTime`` with velocity glyphs. This shows where
+# the vertical mid-line below cuts through the flow.
 
 import pyvista as pv
 
 from pybFoam import pyvista_read
 
-reader = pyvista_read(case, time=solver.time.value())
-internal = reader.read()["internalMesh"]
-internal.set_active_vectors("U")
-slice_mid = internal.slice(normal="z", origin=(0.5 * L, 0.5 * L, 0.5 * 0.01))
+L = 0.1  # cavity edge length
+Z_MID = 0.5 * 0.01  # mid-z of the thin cavity slab
+
+reader = pyvista_read(case)
+all_times = sorted(t for t in reader.time_values if t > 0.0)
+
+reader.set_active_time_value(all_times[-1])
+internal_final = reader.read()["internalMesh"]
+internal_final.set_active_vectors("U")
+slice_mid = internal_final.slice(normal="z", origin=(0.5 * L, 0.5 * L, Z_MID))
 
 plotter = pv.Plotter(window_size=(640, 540), off_screen=True)
 plotter.add_mesh(
@@ -185,14 +116,95 @@ plotter.view_xy()
 plotter.show()
 
 # %%
-# What's next
-# -----------
+# Build an OpenFOAM sampler on the vertical mid-line
+# --------------------------------------------------
+# We want to sample with OpenFOAM's own machinery (``sampledSet`` +
+# ``interpolation``) rather than pyvista, since it gives the same
+# interpolation OpenFOAM solvers use internally. The line is the
+# canonical Ghia et al. benchmark cut: vertical at ``x = L/2`` from
+# floor to lid, 50 evenly-spaced points.
 #
-# - :doc:`/auto_how_to/example_sample_plane` — sample a 2-D slice
-#   instead of a 1-D line, useful for whole-domain diagnostics.
-# - :doc:`/auto_how_to/example_fvc_fvm_operators` — build new derived
-#   fields (gradients, divergences, Laplacians) from the ones the
-#   solver computed.
-# - Substitute a different solver: any class that exposes a
-#   ``step()`` method and updates a public ``U`` field can drop into
-#   this loop.
+# A ``meshSearch`` is built once per mesh; the ``UniformSetConfig`` +
+# ``sampledSet.New`` factory produces the polyline.
+
+import numpy as np
+
+from pybFoam import Word
+from pybFoam.sampling import (
+    UniformSetConfig,
+    interpolationVector,
+    meshSearch,
+    sampledSet,
+    sampleSetVector,
+)
+
+N = 50
+
+search = meshSearch(solver.mesh)
+line_cfg = UniformSetConfig(
+    axis="distance",
+    start=[0.5 * L, 0.0, Z_MID],
+    end=[0.5 * L, L, Z_MID],
+    nPoints=N,
+)
+line = sampledSet.New(Word("midLine"), solver.mesh, search, line_cfg.to_foam_dict())
+
+distance = np.asarray(line.distance())
+print(f"sample points : {len(distance)}   y range : {distance[0]:.3f} … {distance[-1]:.3f}")
+
+# %%
+# Iterate the written time directories
+# ------------------------------------
+# :func:`pybFoam.selectTimes` enumerates every time directory under
+# the case as a list of ``instant`` objects. For each we move the
+# solver's ``Time`` forward, load ``U`` from that time directory
+# without registering it in the mesh (the still-live ``solver.U``
+# already occupies that name), and sample the line. The
+# ``"cellPoint"`` interpolation scheme matches the default OpenFOAM
+# ``sample`` utility.
+
+from pybFoam import selectTimes, volVectorField
+
+profiles: list[tuple[float, np.ndarray]] = []
+
+for idx, inst in enumerate(selectTimes(solver.time, ["postProcess"])):
+    t = float(str(inst))
+    if t == 0.0:
+        continue
+    solver.time.setTime(inst, idx)
+    U_t = volVectorField.read_field(solver.mesh, "U", register=False)
+    interp = interpolationVector.New(Word("cellPoint"), U_t)
+    sampled = np.asarray(sampleSetVector(line, interp))
+    profiles.append((t, np.linalg.norm(sampled, axis=1)))
+
+times = [t for t, _ in profiles]
+print(f"sampled {len(profiles)} time steps × {N} points")
+
+# %%
+# Plot the ``|U|(y)`` family
+# --------------------------
+# One curve per time step, coloured by physical time. The lid
+# (``y = L``) drives the right-hand boundary; momentum diffuses
+# downward as time progresses, raising the upper portion of every
+# subsequent curve.
+
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(7, 4))
+
+norm = plt.Normalize(vmin=times[0], vmax=times[-1])
+cmap = plt.get_cmap("viridis")
+
+for t, u in profiles:
+    ax.plot(distance, u, color=cmap(norm(t)), lw=1.6)
+
+ax.set_xlabel("height  y  [m]")
+ax.set_ylabel(r"$|U|$  [m/s]")
+ax.set_title("Velocity along the cavity vertical mid-line")
+ax.grid(alpha=0.3)
+
+sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+sm.set_array([])
+fig.colorbar(sm, ax=ax, label="time  [s]")
+fig.tight_layout()
+plt.show()

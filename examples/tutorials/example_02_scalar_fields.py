@@ -100,13 +100,3 @@ ax.legend()
 ax.grid(alpha=0.3)
 fig.tight_layout()
 plt.show()
-
-# %%
-# What's next
-# -----------
-#
-# - :doc:`example_03_modify_initial_conditions` — apply this NumPy ↔
-#   OpenFOAM round-trip to a real ``volVectorField`` (the cavity's
-#   initial velocity), then visualise the modified IC with pyvista.
-# - :doc:`example_04_run_and_sample` — feed that IC into the icoFoam
-#   solver and sample a line over time.
