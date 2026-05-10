@@ -66,283 +66,107 @@ void field(GeometricField<Type, PatchField, GeoMesh>& gf, const std::string& nam
 
 template<class Type, template<class> class PatchField, class GeoMesh>
 auto declare_geofields(nb::module_ &m, std::string className) {
+    using GF  = Foam::GeometricField<Type,   PatchField, GeoMesh>;
+    using GFs = Foam::GeometricField<scalar, PatchField, GeoMesh>;
     std::string tmp_className = "tmp_" + className;
-    auto tmpGeofieldClass = nb::class_< tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>>(m, tmp_className.c_str())
-    .def("__call__",[](tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) -> Foam::GeometricField<Type, PatchField, GeoMesh>&
-    {
-        return self.ref();
-    }, nb::rv_policy::reference_internal)
-    .def("__neg__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) {
-        return -self;
-    })
-    .def("__add__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-                       const Foam::GeometricField<Type, PatchField, GeoMesh>& vf2)
-    {
-        return self + vf2;
-    })
-    .def("__add__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-                       const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& vf2)
-    {
-        return self + vf2;
-    })
-    .def("__sub__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-                       const Foam::GeometricField<Type, PatchField, GeoMesh>& vf2)
-    {
-        return self - vf2;
-    })
-    .def("__sub__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-                       const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& vf2)
-    {
-        return self - vf2;
-    })
-    .def("__mul__", []
-    (
-        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-        const Foam::GeometricField<scalar, PatchField, GeoMesh>& vf2)
-    {
-        return self * vf2;
-    })
-    .def("__mul__", []
-    (
-        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-        const tmp<Foam::GeometricField<scalar, PatchField, GeoMesh>>& vf2)
-    {
-        return self * vf2;
-    })
-    .def("__mul__", []
-    (
-        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-        const scalar& s
-    )
-    {
-        return self * s;
-    })
-    .def("__rmul__", []
-    (
-        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-        const scalar& s
-    )
-    {
-        return s * self;
-    })
-    // dimensioned operators (tmp op dimensioned)
-    .def("__mul__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<scalar>& ds)
-    {
-        return self * ds;
-    })
-    .def("__truediv__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<scalar>& ds)
-    {
-        return self / ds;
-    })
-    .def("__add__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<Type>& ds)
-    {
-        return self + ds;
-    })
-    .def("__sub__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<Type>& ds)
-    {
-        return self - ds;
-    })
+
+    auto tmpGeofieldClass = nb::class_<tmp<GF>>(m, tmp_className.c_str())
+    .def("__call__", [](tmp<GF>& self) -> const GF& { return self.cref(); },
+         nb::rv_policy::reference_internal)
+    .def("ref", [](tmp<GF>& self) -> GF& { return self.ref(); },
+         nb::rv_policy::reference_internal)
+    .def("__neg__", [](const tmp<GF>& self){ return -self; })
+    .def("__add__", [](const tmp<GF>& self, const GF& vf2){ return self + vf2; })
+    .def("__add__", [](const tmp<GF>& self, const tmp<GF>& vf2){ return self + vf2; })
+    .def("__sub__", [](const tmp<GF>& self, const GF& vf2){ return self - vf2; })
+    .def("__sub__", [](const tmp<GF>& self, const tmp<GF>& vf2){ return self - vf2; })
+    .def("__mul__", [](const tmp<GF>& self, const GFs& vf2){ return self * vf2; })
+    .def("__mul__", [](const tmp<GF>& self, const tmp<GFs>& vf2){ return self * vf2; })
+    .def("__mul__",  [](const tmp<GF>& self, const scalar& s){ return self * s; })
+    .def("__rmul__", [](const tmp<GF>& self, const scalar& s){ return s * self; })
+    // dimensioned operators
+    .def("__mul__",     [](const tmp<GF>& self, const dimensioned<scalar>& ds){ return self * ds; })
+    .def("__truediv__", [](const tmp<GF>& self, const dimensioned<scalar>& ds){ return self / ds; })
+    .def("__add__",     [](const tmp<GF>& self, const dimensioned<Type>& ds){ return self + ds; })
+    .def("__sub__",     [](const tmp<GF>& self, const dimensioned<Type>& ds){ return self - ds; })
     ;
 
-    auto geofieldClass = nb::class_< Foam::GeometricField<Type, PatchField, GeoMesh>>(m, className.c_str())
-    .def(nb::init<GeometricField<Type, PatchField, GeoMesh>>())
-    .def(nb::init<tmp<GeometricField<Type, PatchField, GeoMesh>>>())
-    .def(nb::init<const word &,tmp<GeometricField<Type, PatchField, GeoMesh>>>())
-    .def("correctBoundaryConditions", &Foam::GeometricField<Type, PatchField, GeoMesh>::correctBoundaryConditions)
-    .def_static("read_field",[](const fvMesh& mesh,std::string name)
+    auto geofieldClass = nb::class_<GF>(m, className.c_str())
+    .def(nb::init<GF>())
+    .def(nb::init<tmp<GF>>())
+    .def(nb::init<const word&, tmp<GF>>())
+    .def("correctBoundaryConditions", &GF::correctBoundaryConditions)
+    .def_static("read_field", [](const fvMesh& mesh, std::string name)
     {
-        Foam::GeometricField<Type, PatchField, GeoMesh>* geoField
-        (
-            new Foam::GeometricField<Type, PatchField, GeoMesh>
-            (
-                Foam::IOobject
-                (
-                    name,
-                    mesh.time().timeName(),
-                    mesh,
-                    Foam::IOobject::MUST_READ,
-                    Foam::IOobject::AUTO_WRITE
-                ),
-                mesh
-            )
+        GF* geoField = new GF(
+            Foam::IOobject(name, mesh.time().timeName(), mesh,
+                           Foam::IOobject::MUST_READ, Foam::IOobject::AUTO_WRITE),
+            mesh
         );
         mesh.objectRegistry::store(geoField);
         return geoField;
-    },nb::rv_policy::reference)
-    .def_static("from_registry",[](const fvMesh& mesh,std::string name)
+    },
+    nb::rv_policy::reference,
+    nb::arg("mesh"), nb::arg("name"))
+    .def_static("read_field", [](const fvMesh& mesh, std::string name, bool register_in_mesh)
     {
-        const Foam::GeometricField<Type, PatchField, GeoMesh>* obj =
-            mesh.findObject<Foam::GeometricField<Type, PatchField, GeoMesh>>(name);
-        return obj;
-    },nb::rv_policy::reference)
-    .def_static("list_objects",[](const fvMesh& mesh)
+        if (register_in_mesh)
+        {
+            throw std::runtime_error(
+                "read_field(register=True) is the same as read_field() without the flag."
+            );
+        }
+        return new GF(
+            Foam::IOobject(name, mesh.time().timeName(), mesh,
+                           Foam::IOobject::MUST_READ, Foam::IOobject::NO_WRITE,
+                           false /*registerObject*/),
+            mesh
+        );
+    },
+    nb::rv_policy::take_ownership,
+    nb::arg("mesh"), nb::arg("name"), nb::arg("register"))
+    .def_static("from_registry", [](const fvMesh& mesh, std::string name)
     {
-        return mesh.names<Foam::GeometricField<Type, PatchField, GeoMesh>>();
+        return mesh.findObject<GF>(name);
+    }, nb::rv_policy::reference)
+    .def_static("list_objects", [](const fvMesh& mesh)
+    {
+        return mesh.names<GF>();
     })
-    // .def("internalField",&Foam::GeometricField<Type, PatchField, GeoMesh>::primitiveFieldRef, nb::rv_policy::reference_internal)
-    .def("internalField", [](
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self
-    ) -> Foam::Field<Type>&
+    .def("internalField", [](GF& self) -> Foam::Field<Type>&
     {
         return self.primitiveFieldRef();
     }, nb::rv_policy::reference_internal)
-    .def("__getitem__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const std::string& name
-    ) -> Foam::Field<Type>&
+    .def("__getitem__", [](GF& self, const std::string& name) -> Foam::Field<Type>&
     {
-        return Foam::field(self,name);
+        return Foam::field(self, name);
     }, nb::rv_policy::reference_internal)
-    .def("__setitem__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const std::string& name,
-        const Foam::Field<Type>& f
-    )
+    .def("__setitem__", [](GF& self, const std::string& name, const Foam::Field<Type>& f)
     {
-        Foam::field(self,name,f);
+        Foam::field(self, name, f);
     })
-    .def("__add__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& vf2
-    )
-    {
-        return self + vf2;
-    })
-    .def("__add__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-                       const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& vf2)
-    {
-        return self + vf2;
-    })
-    .def("__sub__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& vf2
-    )
-    {
-        return self - vf2;
-    })
-    .def("__sub__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-                       const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& vf2)
-    {
-        return self - vf2;
-    })
-    .def("__mul__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const Foam::GeometricField<scalar, PatchField, GeoMesh>& vf2)
-    {
-        return self * vf2;
-    })
-    .def("__mul__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const tmp<Foam::GeometricField<scalar, PatchField, GeoMesh>>& vf2)
-    {
-        return self * vf2;
-    })
-    .def("__truediv__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const Foam::GeometricField<scalar, PatchField, GeoMesh>& vf2
-    )
-    {
-        return self / vf2;
-    })
-    .def("__truediv__", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const scalar& s
-    )
-    {
-        return self / s;
-    })
-    .def("__truediv__", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const tmp<Foam::GeometricField<scalar, PatchField, GeoMesh>>& rhs
-    )
-    {
-        return self / rhs;
-    })
-    .def("__mul__", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const scalar& s
-    )
-    {
-        return self * s;
-    })
-    .def("__rmul__", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const scalar& s
-    )
-    {
-        return s * self;
-    })
-    // dimensioned operators (field op dimensioned)
-    .def("__mul__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<scalar>& ds)
-    {
-        return self * ds;
-    })
-    .def("__truediv__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<scalar>& ds)
-    {
-        return self / ds;
-    })
-    .def("__add__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<Type>& ds)
-    {
-        return self + ds;
-    })
-    .def("__sub__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<Type>& ds)
-    {
-        return self - ds;
-    })
-    .def("__neg__", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self
-    )
-    {
-        return -self;
-    })
-    .def("select", &Foam::GeometricField<Type, PatchField, GeoMesh>::select)
-    .def("assign", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& vf2
-    )
-    {
-        self = vf2;
-    })
-    .def("assign", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& vf2
-    )
-    {
-        self = vf2;
-    })
-    .def("relax", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self
-    )
-    {
-        self.relax();
-    })
-    .def("relax", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        Foam::scalar relaxFactor
-    )
-    {
-        self.relax(relaxFactor);
-    })
-    .def("mesh", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self
-    ) -> const typename GeoMesh::Mesh&
+    .def("__add__", [](const GF& self, const GF& vf2){ return self + vf2; })
+    .def("__add__", [](const GF& self, const tmp<GF>& vf2){ return self + vf2; })
+    .def("__sub__", [](const GF& self, const GF& vf2){ return self - vf2; })
+    .def("__sub__", [](const GF& self, const tmp<GF>& vf2){ return self - vf2; })
+    .def("__mul__", [](const GF& self, const GFs& vf2){ return self * vf2; })
+    .def("__mul__", [](const GF& self, const tmp<GFs>& vf2){ return self * vf2; })
+    .def("__truediv__", [](const GF& self, const GFs& vf2){ return self / vf2; })
+    .def("__truediv__", [](const GF& self, const tmp<GFs>& vf2){ return self / vf2; })
+    .def("__mul__",     [](const GF& self, const scalar& s){ return self * s; })
+    .def("__rmul__",    [](const GF& self, const scalar& s){ return s * self; })
+    .def("__truediv__", [](const GF& self, const scalar& s){ return self / s; })
+    .def("__mul__",     [](const GF& self, const dimensioned<scalar>& ds){ return self * ds; })
+    .def("__truediv__", [](const GF& self, const dimensioned<scalar>& ds){ return self / ds; })
+    .def("__add__",     [](const GF& self, const dimensioned<Type>& ds){ return self + ds; })
+    .def("__sub__",     [](const GF& self, const dimensioned<Type>& ds){ return self - ds; })
+    .def("__neg__", [](const GF& self){ return -self; })
+    .def("select", &GF::select)
+    .def("assign", [](GF& self, const GF& vf2)     { self = vf2; })
+    .def("assign", [](GF& self, const tmp<GF>& vf2){ self = vf2; })
+    .def("relax", [](GF& self){ self.relax(); })
+    .def("relax", [](GF& self, Foam::scalar relaxFactor){ self.relax(relaxFactor); })
+    .def("mesh", [](const GF& self) -> const typename GeoMesh::Mesh&
     {
         return self.mesh();
     }, nb::rv_policy::reference)
