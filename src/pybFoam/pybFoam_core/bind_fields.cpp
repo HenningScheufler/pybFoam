@@ -480,6 +480,11 @@ void Foam::bindFields(nb::module_& m)
     m.def("sum",declare_sum<tensor>);
     m.def("sum",declare_sum<symmTensor>);
 
+    m.def("sin", [](const Field<scalar>& f) { return Foam::sin(f); });
+    m.def("sin", [](const tmp<Field<scalar>>& f) { return Foam::sin(f); });
+    m.def("cos", [](const Field<scalar>& f) { return Foam::cos(f); });
+    m.def("cos", [](const tmp<Field<scalar>>& f) { return Foam::cos(f); });
+
     // ==== uniformDimensionedVectorField bindings ====
     // Used for reading constant fields like gravity
     nb::class_<Foam::uniformDimensionedVectorField>(m, "uniformDimensionedVectorField")

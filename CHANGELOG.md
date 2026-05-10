@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.4]
+
+* update documentation
+* added sin, cos bindings
+
 ## [0.4.3]
 
 * fix segfault on Python 3.10/3.11 when loading the embedded interpreter:

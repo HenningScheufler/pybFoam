@@ -22,6 +22,7 @@ from pybFoam.pybFoam_core import (
     computeContinuityErrors,
     constrainHbyA,
     constrainPressure,
+    cos,
     createMesh,
     createPhi,
     dev2,
@@ -80,6 +81,7 @@ from pybFoam.pybFoam_core import (
     selectTimes,
     setRefCell,
     simpleControl,
+    sin,
     skew,
     solve,
     sqr,
@@ -125,6 +127,7 @@ from pybFoam.pybFoam_core import (
 
 from . import fvc, fvm, meshing, runTimeTables, sampling_bindings, thermo, turbulence
 from ._version import __version__
+from .examples import clone_example, examples_root, pyvista_read
 
 __all__ = [
     # Core dictionary and info types
@@ -257,12 +260,14 @@ __all__ = [
     "dev2",
     "devTwoSymm",
     "doubleInner",
+    "cos",
     "magSqr",
     "max",
     "min",
     "pow",
     "pow3",
     "pow6",
+    "sin",
     "skew",
     "sqr",
     "sqrt",
@@ -275,6 +280,10 @@ __all__ = [
     "sampling_bindings",
     "thermo",
     "turbulence",
+    # Documentation / example helpers
+    "clone_example",
+    "examples_root",
+    "pyvista_read",
     # Version
     "__version__",
 ]
