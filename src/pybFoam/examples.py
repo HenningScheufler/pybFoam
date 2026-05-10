@@ -78,6 +78,6 @@ def pyvista_read(
             reader.enable_cell_array(name)
 
     if time is not None:
-        reader.set_active_time_value(time)  # type: ignore[no-untyped-call]
+        reader.set_active_time_value(time)  # type: ignore[no-untyped-call,unused-ignore]
 
     return reader
