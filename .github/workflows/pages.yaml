@@ -22,6 +22,12 @@ jobs:
         with:
           python-version: '3.11'
 
+      # PyVista's official action: installs xvfb on Linux, sets the
+      # offscreen environment vars, works cross-platform. Without this,
+      # the gallery scripts that call pv.Plotter abort at SIGSEGV
+      # because there is no display server / GL backend on the runner.
+      - uses: pyvista/setup-headless-display-action@v3
+
       - name: Install dependencies
         run: |
           uv sync --extra all
