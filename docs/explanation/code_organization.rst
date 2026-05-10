@@ -65,21 +65,6 @@ ensure ``pybFoam`` is imported before any of its types are looked up
 ``pyOFTools`` is the worked example — see its
 ``cmake/Dependencies.cmake`` and ``embeddingPython/pyFunctionObject.cpp``.
 
-The pure-Python layer
----------------------
-
-``pybFoam.sampling`` is written in Python: it defines Pydantic configs
-(``SampledPlaneConfig``, ``UniformSetConfig``, …) with a
-``.to_foam_dict()`` conversion consumed by the C++ ``sampledSurface.New``
-and ``sampledSet.New`` factories.
-
-Keeping this layer in Python means type checking and validation
-messages happen in a well-tooled environment, while the expensive work
-— mesh, fields, operators — stays in the C++ bindings. The C++
-factories still accept a raw ``dictionary``; the typed Python configs
-sit one level above them so the binding surface stays small (one
-``New()`` per factory, not one per surface kind) and IDE autocompletion
-covers every supported surface and set kind.
 
 The embed library
 -----------------
