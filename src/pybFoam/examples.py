@@ -27,9 +27,7 @@ def examples_root() -> Path:
         if parent.name == "examples" and parent.is_dir():
             return parent
 
-    raise FileNotFoundError(
-        "examples/ not found — run from a repo checkout or `pip install -e .`."
-    )
+    raise FileNotFoundError("examples/ not found — run from a repo checkout or `pip install -e .`.")
 
 
 def clone_example(name: str, *, prefix: str = "pybfoam_") -> Path:

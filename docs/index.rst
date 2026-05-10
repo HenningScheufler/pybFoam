@@ -37,7 +37,7 @@ before building or running anything shown here.
    auto_how_to/example_sample_line
    auto_how_to/example_sample_plane
    auto_how_to/example_sample_isosurface
-   how-to/use_turbulence_thermo
+   auto_how_to/example_turbulence
    how-to/parallel_runs
 
 .. toctree::
