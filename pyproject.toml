@@ -113,6 +113,13 @@ files = ["src", "tests"]
 strict = true
 explicit_package_bases = true
 
+# pyvista is an optional dependency (in the [docs] extra) and may not
+# be installed in the CI environment that runs mypy. Treat the import
+# as untyped rather than failing the type-check.
+[[tool.mypy.overrides]]
+module = "pyvista"
+ignore_missing_imports = true
+
 [tool.ruff]
 line-length = 100
 target-version = "py39"
