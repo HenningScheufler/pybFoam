@@ -4,48 +4,61 @@ Sample a field along a line
 
 Define a uniformly-spaced line with
 :class:`pybFoam.sampling.UniformSetConfig`, create the set via
-:func:`sampledSet.New`, and read values along it.
+``sampledSet.New``, and read scalar / vector values along it.
+
+Tutorial T4 (:doc:`/auto_tutorials/example_04_run_and_sample`) shows
+how to do this *inside a time loop*. This page is the static
+(single-shot) version — useful for inspecting an existing result.
+
+Prerequisite: a sourced OpenFOAM environment.
 """
 
 # %%
-# Prepare a working case
-# ----------------------
-# The ``examples/`` tree is the documentation baseline — clone the case
-# into a tmp directory, restore ``0/``, then build the mesh there.
+# Set up case + mesh
+# ------------------
 
-import shutil
-import tempfile
-from pathlib import Path
+from pybFoam import Time, argList, clone_example, dictionary, fvMesh
+from pybFoam.meshing import generate_blockmesh
 
-import pybFoam.pybFoam_core as core
-from pybFoam import meshing
+case = clone_example("case")
+time = Time(argList([str(case), "-case", str(case)]))
+generate_blockmesh(time, dictionary.read(str(case / "system" / "blockMeshDict")))
+mesh = fvMesh(time)
 
+# %%
+# Seed analytic ``p_rgh``
+# -----------------------
+# The shipped IC for ``examples/case/`` is uniform zero, which would
+# leave the sampled line flat. We seed a sinusoidal pressure profile
+# in place so the recipe has something to plot.
 
-def _examples_root() -> Path:
-    for p in [Path.cwd(), *Path.cwd().parents]:
-        if p.name == "examples":
-            return p
-    raise RuntimeError("Could not locate examples/ root")
+import numpy as np
 
+from pybFoam import volScalarField, volVectorField, write
 
-BASELINE = (_examples_root() / "case").resolve()
-CASE = Path(tempfile.mkdtemp(prefix="pybfoam_sample_line_")) / "case"
-shutil.copytree(BASELINE, CASE)
+p_rgh_seed = volScalarField.read_field(mesh, "p_rgh")
+U_seed = volVectorField.read_field(mesh, "U")
 
-zero = CASE / "0"
-if zero.exists():
-    shutil.rmtree(zero)
-shutil.copytree(CASE / "0.orig", zero)
-
-args = core.argList([str(CASE), "-case", str(CASE)])
-time = core.Time(args)
-mesh = meshing.generate_blockmesh(time, core.dictionary.read(f"{CASE}/system/blockMeshDict"))
+C = np.asarray(mesh.C()["internalField"])
+L = 0.584  # case extent in x and y (scale 0.146 × 4)
+np.asarray(p_rgh_seed["internalField"])[:] = (
+    1000.0 * np.sin(np.pi * C[:, 0] / L) * np.sin(np.pi * C[:, 1] / L)
+)
+np.asarray(U_seed["internalField"])[:] = np.column_stack(
+    [np.sin(np.pi * C[:, 1] / L), -np.sin(np.pi * C[:, 0] / L), np.zeros_like(C[:, 0])]
+)
+p_rgh_seed.correctBoundaryConditions()
+U_seed.correctBoundaryConditions()
+write(p_rgh_seed)
+write(U_seed)
 
 # %%
 # Define a uniform line
 # ---------------------
-# A ``meshSearch`` is required once per mesh; pass it into every
-# ``sampledSet.New`` call.
+# A ``meshSearch`` is required once per mesh and passed into every
+# ``sampledSet.New`` call. The line endpoints below are in the scaled
+# coordinate frame of ``examples/case/`` (the dam-break geometry) and
+# cross the central column at mid-height in z.
 
 from pybFoam import Word
 from pybFoam.sampling import UniformSetConfig, meshSearch, sampledSet
@@ -66,8 +79,6 @@ print(f"axis         : {line.axis()}")
 # Inspect the line geometry
 # -------------------------
 
-import numpy as np
-
 points = np.asarray(line.points())
 distance = np.asarray(line.distance())
 cells = line.cells()
@@ -80,17 +91,20 @@ print(f"valid cells    : {sum(1 for c in cells if c >= 0)}/{len(cells)}")
 # Interpolate a scalar field on the set
 # -------------------------------------
 
-from pybFoam import volScalarField
-from pybFoam.sampling import interpolationScalar, sampleSetScalar
+from pybFoam.sampling import OUT_OF_MESH, interpolationScalar, sampleSetScalar
 
-p_rgh = volScalarField.read_field(mesh, "p_rgh")
+p_rgh = p_rgh_seed  # already loaded and seeded above
 
 interp = interpolationScalar.New(Word("cellPoint"), p_rgh)
 sampled = sampleSetScalar(line, interp)
 
 values = np.asarray(sampled)
-valid = values[values < 1e10]  # sentinel for points outside the mesh
-print(f"p_rgh along xLine — min={valid.min():.3e}  max={valid.max():.3e}")
+# pybFoam.sampling.OUT_OF_MESH is the sentinel returned for sample
+# points that did not land in any cell. Anything well below it is a
+# real interpolated value.
+valid_mask = values < OUT_OF_MESH / 10
+valid_values = values[valid_mask]
+print(f"p_rgh along xLine — min={valid_values.min():.3e}  max={valid_values.max():.3e}")
 
 # %%
 # Reuse the same set for a vector field
@@ -98,12 +112,49 @@ print(f"p_rgh along xLine — min={valid.min():.3e}  max={valid.max():.3e}")
 # A ``sampledSet`` is independent of the field — build it once, then
 # drive multiple interpolators against it.
 
-from pybFoam import volVectorField
 from pybFoam.sampling import interpolationVector, sampleSetVector
 
-U = volVectorField.read_field(mesh, "U")
+U = U_seed  # already loaded and seeded above
 
 interp_U = interpolationVector.New(Word("cellPoint"), U)
 sampled_U = sampleSetVector(line, interp_U)
+U_values = np.asarray(sampled_U)
+U_mag = np.linalg.norm(U_values, axis=1)
+print(f"U along xLine shape: {U_values.shape}")
 
-print(f"U along xLine shape: {np.asarray(sampled_U).shape}")
+# %%
+# Plot the sampled line
+# ---------------------
+# Two y-axes: ``p_rgh`` on the left (matches the field magnitude),
+# ``|U|`` on the right (so we can see both on the same x-axis even when
+# the units differ). Off-mesh sentinel values are masked out.
+
+import matplotlib.pyplot as plt
+
+p_plot = np.where(valid_mask, values, np.nan)
+u_plot = np.where(valid_mask, U_mag, np.nan)
+
+fig, ax_p = plt.subplots(figsize=(7, 3.2))
+(line_p,) = ax_p.plot(distance, p_plot, color="steelblue", label=r"$p_{rgh}$")
+ax_p.set_xlabel("distance along xLine  [m]")
+ax_p.set_ylabel(r"$p_{rgh}$  [Pa]", color="steelblue")
+ax_p.tick_params(axis="y", labelcolor="steelblue")
+
+ax_u = ax_p.twinx()
+(line_u,) = ax_u.plot(distance, u_plot, color="crimson", label=r"$|U|$", linestyle="--")
+ax_u.set_ylabel(r"$|U|$  [m/s]", color="crimson")
+ax_u.tick_params(axis="y", labelcolor="crimson")
+
+ax_p.set_title("p_rgh and |U| sampled along xLine")
+fig.legend(handles=[line_p, line_u], loc="upper right", bbox_to_anchor=(0.9, 0.9))
+fig.tight_layout()
+plt.show()
+
+# %%
+# See also
+# --------
+#
+# - :doc:`/auto_tutorials/example_04_run_and_sample` — same sampling
+#   pattern inside an icoFoam time loop.
+# - :doc:`example_sample_plane` — sample on a 2-D plane instead of a
+#   line.

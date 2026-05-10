@@ -1,5 +1,5 @@
-Architecture
-============
+Code organization
+=================
 
 pybFoam is a Python package that ships several compiled nanobind extension
 modules and a small pure-Python layer on top. This page explains how those
@@ -50,32 +50,21 @@ proportional to what was asked for.
 The shared ``libnanobind.so``
 -----------------------------
 
-Every binding module is built with ``NB_SHARED``, meaning the nanobind
-type registry lives in a separate shared library (``libnanobind.so``)
-that is installed alongside the modules and located at load time via
-``RPATH=$ORIGIN``. Without this, each ``.so`` would embed its own copy of
-the registry and C++ types defined in one module would not be recognised
-by another — so a ``tmp_volScalarField`` returned from ``fvc`` could not
-be consumed by ``fvm``.
+Every binding module is built with ``NB_SHARED``, so the nanobind
+type registry lives in a separate ``libnanobind.so`` installed
+alongside the modules (located at load time via ``RPATH=$ORIGIN``).
+All of pybFoam's submodules share that one registry.
 
-This is a **private implementation detail of pybFoam**. Downstream projects
-that write their own nanobind extensions (e.g. ``pyOFTools``) depend on
-nanobind via their own ``pip install nanobind`` and rely on Linux loader
-SONAME deduplication to share the same registry at runtime. The ABI flags
-must match — both sides must be built with compatible nanobind releases.
+A downstream nanobind extension that wants to take pybFoam types as
+parameters has to opt in to the same registry — it isn't automatic.
+The consumer must build with ``NB_SHARED`` against the same nanobind
+SONAME, RPATH-link to pybFoam's installed ``libnanobind.so``, **and**
+ensure ``pybFoam`` is imported before any of its types are looked up
+(``import pybFoam`` from Python, or
+``nb::module_::import_("pybFoam")`` from an embedded interpreter).
+``pyOFTools`` is the worked example — see its
+``cmake/Dependencies.cmake`` and ``embeddingPython/pyFunctionObject.cpp``.
 
-The pure-Python layer
----------------------
-
-``pybFoam.sampling`` is written in Python: it defines Pydantic configs
-(``SampledPlaneConfig``, ``UniformSetConfig``, …) with a
-``.to_foam_dict()`` conversion consumed by the C++ ``sampledSurface.New``
-and ``sampledSet.New`` factories.
-
-Keeping this layer in Python means type checking and validation messages
-happen in a well-tooled environment, while the expensive work — mesh,
-fields, operators — stays in the C++ bindings. See :doc:`sampling_configs`
-for the rationale behind this split.
 
 The embed library
 -----------------

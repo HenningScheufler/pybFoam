@@ -56,8 +56,9 @@ CMake options
      - ``OFF``
      - Generate ``.pyi`` type stubs during the build. Enable with
        ``-C cmake.define.ENABLE_PYBFOAM_STUBS=ON`` on the ``pip install``
-       command. See also :doc:`../how-to/read_write_dictionaries` for the
-       standalone ``scripts/generate_stubs.sh`` workflow.
+       command. The standalone ``scripts/generate_stubs.sh`` workflow
+       is also available for regenerating stubs against an existing
+       installation.
    * - ``CMAKE_CXX_STANDARD``
      - ``17``
      - Set via ``[tool.scikit-build.cmake.define]`` in ``pyproject.toml``.

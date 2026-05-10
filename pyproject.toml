@@ -48,7 +48,9 @@ docs = [
     "sphinx-sitemap",
     "sphinx-gallery",
     "furo",
-    "sphinxcontrib-mermaid"
+    "sphinxcontrib-mermaid",
+    "matplotlib",
+    "pyvista",
 ]
 benchmark = [
     "jax",
@@ -111,6 +113,13 @@ files = ["src", "tests"]
 strict = true
 explicit_package_bases = true
 
+# pyvista is an optional dependency (in the [docs] extra) and may not
+# be installed in the CI environment that runs mypy. Treat the import
+# as untyped rather than failing the type-check.
+[[tool.mypy.overrides]]
+module = "pyvista"
+ignore_missing_imports = true
+
 [tool.ruff]
 line-length = 100
 target-version = "py39"
@@ -128,5 +137,5 @@ test = "pytest"
 lint = "ruff check src tests"
 format = "ruff format"
 type_check = "mypy"
-build_docs = "sphinx-build -b html docs docs/_build"
+build_docs = "sphinx-build -n -b html docs docs/_build"
 view_docs = { shell = "python -m webbrowser -t docs/_build/index.html" }
