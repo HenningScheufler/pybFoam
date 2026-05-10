@@ -18,10 +18,12 @@ from pybFoam.pybFoam_core import (
     argList,
     boolList,
     bound,
+    cbrt,
     computeCFLNumber,
     computeContinuityErrors,
     constrainHbyA,
     constrainPressure,
+    cos,
     createMesh,
     createPhi,
     dev2,
@@ -52,6 +54,7 @@ from pybFoam.pybFoam_core import (
     doubleInner,
     dynamicFvMesh,
     entry,
+    exp,
     fileName,
     fvMesh,
     fvScalarMatrix,
@@ -62,24 +65,30 @@ from pybFoam.pybFoam_core import (
     instantList,
     keyType,
     labelList,
+    log,
+    log10,
     mag,
     magSqr,
     max,
     min,
     nearWallDist,
     nearWallDistNoSearch,
+    neg,
     pimpleControl,
     pisoControl,
     polyBoundaryMesh,
     polyMesh,
     polyPatch,
+    pos,
     pow,
     pow3,
     pow6,
     scalarField,
     selectTimes,
     setRefCell,
+    sign,
     simpleControl,
+    sin,
     skew,
     solve,
     sqr,
@@ -92,6 +101,7 @@ from pybFoam.pybFoam_core import (
     symm,
     symmTensor,
     symmTensorField,
+    tan,
     tensor,
     tensorField,
     tmp_fvScalarMatrix,
@@ -125,6 +135,7 @@ from pybFoam.pybFoam_core import (
 
 from . import fvc, fvm, meshing, runTimeTables, sampling_bindings, thermo, turbulence
 from ._version import __version__
+from .examples import clone_example, examples_root, pyvista_read
 
 __all__ = [
     # Core dictionary and info types
@@ -267,6 +278,17 @@ __all__ = [
     "sqr",
     "sqrt",
     "symm",
+    # Transcendental / sign functions on scalarField
+    "cbrt",
+    "cos",
+    "exp",
+    "log",
+    "log10",
+    "neg",
+    "pos",
+    "sign",
+    "sin",
+    "tan",
     # Submodules
     "fvc",
     "fvm",
@@ -275,6 +297,10 @@ __all__ = [
     "sampling_bindings",
     "thermo",
     "turbulence",
+    # Documentation / example helpers
+    "clone_example",
+    "examples_root",
+    "pyvista_read",
     # Version
     "__version__",
 ]

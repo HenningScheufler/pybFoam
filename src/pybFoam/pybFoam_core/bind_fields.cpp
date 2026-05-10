@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 20212, Henning Scheufler
+            Copyright (c) 2026, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -18,12 +18,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "bind_fields.hpp"
+#include "bind_helpers.hpp"
 #include "bind_primitives.hpp"
 #include "instantList.H"
 #include "uniformDimensionedFields.H"
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "scalarField.H"
 
 
 namespace nb = nanobind;
@@ -268,6 +270,8 @@ nb::class_<tmp<Field<Type>>> declare_tmp_fields(nb::module_ &m, std::string clas
 
 void Foam::bindFields(nb::module_& m)
 {
+    using namespace Foam::pybind_helpers;
+
     nb::class_<instantList>(m, "instantList")
         .def("__len__", [](const instantList& self) {
             return self.size();
@@ -474,11 +478,37 @@ void Foam::bindFields(nb::module_& m)
 
 
 
-
     m.def("sum",declare_sum<scalar>);
     m.def("sum",declare_sum<vector>);
     m.def("sum",declare_sum<tensor>);
     m.def("sum",declare_sum<symmTensor>);
+
+    // ---- Module-level free functions on Field<T> ----
+    // mag/magSqr: defined for all field types (returns scalar for vector/tensor inputs).
+    auto magOp    = [](const auto& f){ return Foam::mag(f); };
+    auto magSqrOp = [](const auto& f){ return Foam::magSqr(f); };
+    bindUnaryFor<Field<scalar>, Field<vector>,
+                 Field<tensor>, Field<symmTensor>>(m, "mag",    magOp);
+    bindUnaryFor<Field<scalar>, Field<vector>,
+                 Field<tensor>, Field<symmTensor>>(m, "magSqr", magSqrOp);
+
+    // sqr: returns Field<scalar> for scalar input; for vectors it returns symmTensor
+    // (kept scalar-only here to match what most users expect).
+    auto sqrOp = [](const auto& f){ return Foam::sqr(f); };
+    bindUnaryFor<Field<scalar>>(m, "sqr", sqrOp);
+
+    // Common scalar transcendentals (declared via UNARY_FUNCTION in scalarField.H).
+    bindUnaryFor<Field<scalar>>(m, "sqrt", [](const auto& f){ return Foam::sqrt(f); });
+    bindUnaryFor<Field<scalar>>(m, "cbrt", [](const auto& f){ return Foam::cbrt(f); });
+    bindUnaryFor<Field<scalar>>(m, "exp",  [](const auto& f){ return Foam::exp(f); });
+    bindUnaryFor<Field<scalar>>(m, "log",  [](const auto& f){ return Foam::log(f); });
+    bindUnaryFor<Field<scalar>>(m, "log10",[](const auto& f){ return Foam::log10(f); });
+    bindUnaryFor<Field<scalar>>(m, "sin",  [](const auto& f){ return Foam::sin(f); });
+    bindUnaryFor<Field<scalar>>(m, "cos",  [](const auto& f){ return Foam::cos(f); });
+    bindUnaryFor<Field<scalar>>(m, "tan",  [](const auto& f){ return Foam::tan(f); });
+    bindUnaryFor<Field<scalar>>(m, "sign", [](const auto& f){ return Foam::sign(f); });
+    bindUnaryFor<Field<scalar>>(m, "pos",  [](const auto& f){ return Foam::pos(f); });
+    bindUnaryFor<Field<scalar>>(m, "neg",  [](const auto& f){ return Foam::neg(f); });
 
     // ==== uniformDimensionedVectorField bindings ====
     // Used for reading constant fields like gravity

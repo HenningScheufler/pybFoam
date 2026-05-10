@@ -18,6 +18,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "bind_geo_fields.hpp"
+#include "bind_helpers.hpp"
 #include "tmp.H"
 #include "bound.H"
 
@@ -170,13 +171,10 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     {
         return self.mesh();
     }, nb::rv_policy::reference)
-
     ;
 
-    m.def("write", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& geofield)
-    {
-        geofield.write();
-    });
+    m.def("write", [](const GF& geofield){ geofield.write(); });
+
     return std::make_tuple(geofieldClass, tmpGeofieldClass);
 }
 
@@ -185,203 +183,113 @@ auto declare_geofields(nb::module_ &m, std::string className) {
 
 void Foam::bindGeoFields(nb::module_& m)
 {
+    using namespace Foam::pybind_helpers;
 
     auto [vsf, tmp_vsf] = declare_geofields<scalar,fvPatchField, volMesh>(m, std::string("volScalarField"));
     auto [vvf, tmp_vvf] = declare_geofields<vector,fvPatchField, volMesh>(m, std::string("volVectorField"));
     auto [vtf, tmp_vtf] = declare_geofields<tensor,fvPatchField, volMesh>(m, std::string("volTensorField"));
     auto [vstf, tmp_vstf] = declare_geofields<symmTensor,fvPatchField, volMesh>(m, std::string("volSymmTensorField"));
-    tmp_vsf.def("__truediv__", [](const tmp<Foam::GeometricField<scalar, Foam::fvPatchField, Foam::volMesh>>& self, const scalar& rhs)
-    {
-        return self / rhs;
-    })
-    .def("__truediv__", [](const tmp<volScalarField>& self, const volScalarField& rhs)
-    {
-        return self / rhs;
-    })
-    .def("__truediv__", [](const tmp<volScalarField>& self, const tmp<volScalarField>& rhs)
-    {
-        return self / rhs;
-    })
-    .def("__rtruediv__", [](const tmp<volScalarField>& self, const scalar& lhs)
-    {
-        return lhs / self;
-    })
-    .def("__add__", [](const tmp<volScalarField>& self, const scalar& rhs)
-    {
-        return self + dimensionedScalar("s", self().dimensions(), rhs);
-    })
-    // .def("__radd__", [](const tmp<volScalarField>& self, const scalar& lhs)
-    // {
-    //     return dimensionedScalar("s", self().dimensions(), lhs) + self;
-    // })
-    .def("__sub__", [](const tmp<volScalarField>& self, const scalar& rhs)
-    {
-        return self - dimensionedScalar("s", self().dimensions(), rhs);
-    })
-    // .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& lhs)
-    // {
-    //     return dimensionedScalar("s", self().dimensions(), lhs) - self;
-    // })
-    .def("__mul__", []
-    (
-        const tmp<volScalarField>& self,
-        const volVectorField& lhs
-    )
-    {
-        return self * lhs;
-    })
-    .def("__mul__", []
-    (
-        const tmp<volScalarField>& self,
-        const tmp<volVectorField>& lhs
-    )
-    {
-        return self * lhs;
-    })
-    .def("__mul__", []
-    (
-        const tmp<volScalarField>& self,
-        const volTensorField& lhs
-    )
-    {
-        return self * lhs;
-    })
-    .def("__mul__", []
-    (
-        const tmp<volScalarField>& self,
-        const tmp<volTensorField>& lhs
-    )
-    {
-        return self * lhs;
-    })
-    // Scalar arithmetic operators for tmp<volScalarField> (needed for Boussinesq)
-    // .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& s)
-    // {
-    //     return s - self;
-    // })
-    // .def("__radd__", [](const tmp<volScalarField>& self, const scalar& s)
-    // {
-    //     return s + self;
-    // })
-    ;
 
-    vsf.def("__mul__", [](const volScalarField& self, const volVectorField& lhs)
-    {
-        return self * lhs;
-    })
-    .def("__mul__", [](const volScalarField& self, const tmp<volVectorField>& lhs)
-    {
-        return self * lhs;
-    })
-    .def("__mul__", [](const volScalarField& self, const volTensorField& lhs)
-    {
-        return self * lhs;
-    })
-    .def("__mul__", [](const volScalarField& self, const tmp<volTensorField>& lhs)
-    {
-        return self * lhs;
-    })
-    // Scalar arithmetic operators for volScalarField (needed for Boussinesq: 1.0 - beta*(T - TRef))
-    .def("__sub__", [](const volScalarField& self, const scalar& s)
-    {
-        return self - dimensionedScalar("s", self.dimensions(), s);
-    })
-    // .def("__rsub__", [](const volScalarField& self, const scalar& s)
-    // {
-    //     return s - self;
-    // })
-    .def("__add__", [](const volScalarField& self, const scalar& s)
-    {
-        return self + dimensionedScalar("s", self.dimensions(), s);
-    })
-    // .def("__radd__", [](const volScalarField& self, const scalar& s)
-    // {
-    //     return s + self;
-    // })
-    .def("__rtruediv__", [](const volScalarField& self, const scalar& s)
-    {
-        return s / self;
-    });
+    // Extra tmp_volScalarField operators (Boussinesq buoyancy needs these).
+    tmp_vsf
+        .def("__truediv__", [](const tmp<volScalarField>& self, const volScalarField& rhs){ return self / rhs; })
+        .def("__truediv__", [](const tmp<volScalarField>& self, const tmp<volScalarField>& rhs){ return self / rhs; })
+        .def("__truediv__", [](const tmp<volScalarField>& self, const scalar& rhs){ return self / rhs; })
+        .def("__rtruediv__", [](const tmp<volScalarField>& self, const scalar& lhs){ return lhs / self; })
+        .def("__add__", [](const tmp<volScalarField>& self, const scalar& rhs)
+        {
+            return self + dimensionedScalar("s", self().dimensions(), rhs);
+        })
+        .def("__sub__", [](const tmp<volScalarField>& self, const scalar& rhs)
+        {
+            return self - dimensionedScalar("s", self().dimensions(), rhs);
+        })
+        .def("__mul__", [](const tmp<volScalarField>& self, const volVectorField& lhs){ return self * lhs; })
+        .def("__mul__", [](const tmp<volScalarField>& self, const tmp<volVectorField>& lhs){ return self * lhs; })
+        .def("__mul__", [](const tmp<volScalarField>& self, const volTensorField& lhs){ return self * lhs; })
+        .def("__mul__", [](const tmp<volScalarField>& self, const tmp<volTensorField>& lhs){ return self * lhs; })
+        ;
+
+    vsf
+        .def("__mul__", [](const volScalarField& self, const volVectorField& lhs){ return self * lhs; })
+        .def("__mul__", [](const volScalarField& self, const tmp<volVectorField>& lhs){ return self * lhs; })
+        .def("__mul__", [](const volScalarField& self, const volTensorField& lhs){ return self * lhs; })
+        .def("__mul__", [](const volScalarField& self, const tmp<volTensorField>& lhs){ return self * lhs; })
+        .def("__sub__", [](const volScalarField& self, const scalar& s)
+        {
+            return self - dimensionedScalar("s", self.dimensions(), s);
+        })
+        .def("__add__", [](const volScalarField& self, const scalar& s)
+        {
+            return self + dimensionedScalar("s", self.dimensions(), s);
+        })
+        .def("__rtruediv__", [](const volScalarField& self, const scalar& s){ return s / self; })
+        ;
 
     auto [ssf, tmp_ssf] = declare_geofields<scalar,fvsPatchField, surfaceMesh>(m, std::string("surfaceScalarField"));
 
-    // Add division operators for tmp_surfaceScalarField (needed for Boussinesq)
-    tmp_ssf.def("__truediv__", [](const tmp<Foam::GeometricField<scalar, Foam::fvsPatchField, Foam::surfaceMesh>>& self, const scalar& rhs)
-    {
-        return self / rhs;
-    })
-    .def("__truediv__", [](const tmp<surfaceScalarField>& self, const surfaceScalarField& rhs)
-    {
-        return self / rhs;
-    })
-    .def("__truediv__", [](const tmp<surfaceScalarField>& self, const tmp<surfaceScalarField>& rhs)
-    {
-        return self / rhs;
-    });
+    tmp_ssf
+        .def("__truediv__", [](const tmp<surfaceScalarField>& self, const surfaceScalarField& rhs){ return self / rhs; })
+        .def("__truediv__", [](const tmp<surfaceScalarField>& self, const tmp<surfaceScalarField>& rhs){ return self / rhs; })
+        .def("__truediv__", [](const tmp<surfaceScalarField>& self, const scalar& rhs){ return self / rhs; })
+        ;
 
     auto [svf, tmp_svf] = declare_geofields<vector,fvsPatchField, surfaceMesh>(m, std::string("surfaceVectorField"));
     auto [stf, tmp_stf] = declare_geofields<tensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceTensorField"));
     auto [sstf, tmp_sstf] = declare_geofields<symmTensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceSymmTensorField"));
 
-    // Functions
+    // suppress unused warnings for handles we don't extend further
+    (void)vvf; (void)tmp_vvf; (void)vtf; (void)tmp_vtf;
+    (void)vstf; (void)tmp_vstf; (void)ssf; (void)svf; (void)tmp_svf;
+    (void)stf; (void)tmp_stf; (void)sstf; (void)tmp_sstf;
 
-    // mag
-    m.def("mag", [](const VolumeField<scalar>& f) { return Foam::mag(f); });
-    m.def("mag", [](const VolumeField<vector>& f) { return Foam::mag(f); });
-    m.def("mag", [](const VolumeField<tensor>& f) { return Foam::mag(f); });
-    m.def("mag", [](const VolumeField<symmTensor>& f) { return Foam::mag(f); });
+    // ---- Module-level free functions ----
+    auto magOp    = [](const auto& f){ return Foam::mag(f); };
+    auto magSqrOp = [](const auto& f){ return Foam::magSqr(f); };
+    auto sqrOp    = [](const auto& f){ return Foam::sqr(f); };
+    auto sqrtOp   = [](const auto& f){ return Foam::sqrt(f); };
+    auto pow3Op   = [](const auto& f){ return Foam::pow3(f); };
+    auto pow6Op   = [](const auto& f){ return Foam::pow6(f); };
+    auto skewOp   = [](const auto& f){ return Foam::skew(f); };
+    auto symmOp   = [](const auto& f){ return Foam::symm(f); };
+    auto devTwoSymmOp = [](const auto& f){ return Foam::devTwoSymm(f); };
 
-    m.def("mag", [](const SurfaceField<scalar>& f) { return Foam::mag(f); });
-    m.def("mag", [](const SurfaceField<vector>& f) { return Foam::mag(f); });
-    m.def("mag", [](const SurfaceField<tensor>& f) { return Foam::mag(f); });
+    bindUnaryFor<volScalarField, volVectorField,
+                 volTensorField, volSymmTensorField,
+                 surfaceScalarField, surfaceVectorField, surfaceTensorField>(m, "mag", magOp);
 
-    // magSqr
-    m.def("magSqr", [](const VolumeField<scalar>& f) { return Foam::magSqr(f); });
-    m.def("magSqr", [](const VolumeField<vector>& f) { return Foam::magSqr(f); });
-    m.def("magSqr", [](const VolumeField<tensor>& f) { return Foam::magSqr(f); });
-    m.def("magSqr", [](const tmp<VolumeField<tensor>>& f) { return Foam::magSqr(f); });
-    m.def("magSqr", [](const tmp<VolumeField<vector>>& f) { return Foam::magSqr(f); });
+    bindUnaryFor<volScalarField, volVectorField, volTensorField>(m, "magSqr", magSqrOp);
 
-    // sqr (scalar → scalar, vector → symmTensor)
-    m.def("sqr", [](const VolumeField<scalar>& f) { return Foam::sqr(f); });
-    m.def("sqr", [](const tmp<VolumeField<scalar>>& f) { return Foam::sqr(f); });
+    bindUnaryFor<volScalarField>(m, "sqr",  sqrOp);
+    bindUnaryFor<volScalarField>(m, "sqrt", sqrtOp);
+    bindUnaryFor<volScalarField>(m, "pow3", pow3Op);
+    bindUnaryFor<volScalarField>(m, "pow6", pow6Op);
 
-    // sqrt
-    m.def("sqrt", [](const VolumeField<scalar>& f) { return Foam::sqrt(f); });
-    m.def("sqrt", [](const tmp<VolumeField<scalar>>& f) { return Foam::sqrt(f); });
+    bindUnaryFor<volTensorField>(m, "skew", skewOp);
+    bindUnaryFor<volTensorField>(m, "symm", symmOp);
+    bindUnaryFor<volTensorField>(m, "devTwoSymm", devTwoSymmOp);
 
-    // pow3, pow6
-    m.def("pow3", [](const volScalarField& f) { return Foam::pow3(f); });
-    m.def("pow3", [](const tmp<volScalarField>& f) { return Foam::pow3(f); });
-    m.def("pow6", [](const volScalarField& f) { return Foam::pow6(f); });
-    m.def("pow6", [](const tmp<volScalarField>& f) { return Foam::pow6(f); });
+    auto dev2Op = [](const auto& f){ return Foam::dev2(f); };
+    bindUnaryFor<volSymmTensorField, volTensorField>(m, "dev2", dev2Op);
 
-    // skew (tensor → tensor)
-    m.def("skew", [](const volTensorField& f) { return Foam::skew(f); });
-    m.def("skew", [](const tmp<volTensorField>& f) { return Foam::skew(f); });
+    // T (transpose) — uses member function .T(), so kept inline.
+    m.def("T", [](const volTensorField& f){ return f.T(); });
+    m.def("T", [](const tmp<volTensorField>& f){ return f().T(); });
 
-    // symm (tensor → symmTensor)
-    m.def("symm", [](const volTensorField& f) { return Foam::symm(f); });
-    m.def("symm", [](const tmp<volTensorField>& f) { return Foam::symm(f); });
-
-    // T (transpose: tensor → tensor)
-    m.def("T", [](const volTensorField& f) { return f.T(); });
-    m.def("T", [](const tmp<volTensorField>& f) { return f().T(); });
-
-    // max/min for field vs scalar/field
-    m.def("max", [](const volScalarField& f, const dimensionedScalar& s) { return Foam::max(f, s); });
-    m.def("max", [](const volScalarField& f, const volScalarField& g) { return Foam::max(f, g); });
+    // max/min — heterogeneous rhs types (scalar / dimensionedScalar / volScalarField).
+    m.def("max", [](const volScalarField& f, const dimensionedScalar& s){ return Foam::max(f, s); });
+    m.def("max", [](const volScalarField& f, const volScalarField& g){ return Foam::max(f, g); });
     m.def("max", [](const volScalarField& f, const scalar& s)
     {
         return Foam::max(f, dimensionedScalar("s", f.dimensions(), s));
     });
-    m.def("max", [](const tmp<volScalarField>& f, const dimensionedScalar& s) { return Foam::max(f, s); });
+    m.def("max", [](const tmp<volScalarField>& f, const dimensionedScalar& s){ return Foam::max(f, s); });
     m.def("max", [](const tmp<volScalarField>& f, const scalar& s)
     {
         return Foam::max(f, dimensionedScalar("s", f().dimensions(), s));
     });
-    m.def("min", [](const volScalarField& f, const dimensionedScalar& s) { return Foam::min(f, s); });
-    m.def("min", [](const volScalarField& f, const volScalarField& g) { return Foam::min(f, g); });
+    m.def("min", [](const volScalarField& f, const dimensionedScalar& s){ return Foam::min(f, s); });
+    m.def("min", [](const volScalarField& f, const volScalarField& g){ return Foam::min(f, g); });
     m.def("min", [](const volScalarField& f, const scalar& s)
     {
         return Foam::min(f, dimensionedScalar("s", f.dimensions(), s));
@@ -391,7 +299,7 @@ void Foam::bindGeoFields(nb::module_& m)
         return Foam::min(f, dimensionedScalar("s", f().dimensions(), s));
     });
 
-    // pow for volScalarField
+    // pow(field, scalar exponent)
     m.def("pow", [](const volScalarField& f, const scalar& exp)
     {
         return Foam::pow(f, dimensionedScalar("exp", dimless, exp));
@@ -401,31 +309,13 @@ void Foam::bindGeoFields(nb::module_& m)
         return Foam::pow(f, dimensionedScalar("exp", dimless, exp));
     });
 
-    // bound
+    // bound (mutates)
     m.def("bound", [](volScalarField& f, const dimensionedScalar& lower)
     {
         return Foam::bound(f, lower);
     });
 
-    // devTwoSymm (tensor → symmTensor)
-    m.def("devTwoSymm", [](const volTensorField& T) { return Foam::devTwoSymm(T); });
-    m.def("devTwoSymm", [](const tmp<volTensorField>& T) { return Foam::devTwoSymm(T); });
-
-    // dev2 (deviatoric: T - (2/3)*tr(T)*I for symmTensor and tensor)
-    m.def("dev2", [](const volSymmTensorField& T) { return Foam::dev2(T); });
-    m.def("dev2", [](const tmp<volSymmTensorField>& T) { return Foam::dev2(T); });
-    m.def("dev2", [](const volTensorField& T) { return Foam::dev2(T); });
-    m.def("dev2", [](const tmp<volTensorField>& T) { return Foam::dev2(T); });
-
-
-    // && (double inner product: tensor && symmTensor → scalar)
-    m.def("doubleInner", [](const volTensorField& T, const volSymmTensorField& S)
-    {
-        return T && S;
-    });
-    m.def("doubleInner", [](const volTensorField& T, const tmp<volSymmTensorField>& S)
-    {
-        return T && S;
-    });
-
+    // Double inner product (tensor && symmTensor → scalar)
+    m.def("doubleInner", [](const volTensorField& T, const volSymmTensorField& S){ return T && S; });
+    m.def("doubleInner", [](const volTensorField& T, const tmp<volSymmTensorField>& S){ return T && S; });
 }

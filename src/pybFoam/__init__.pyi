@@ -8,6 +8,11 @@ from . import (
     thermo as thermo,
     turbulence as turbulence
 )
+from .examples import (
+    clone_example as clone_example,
+    examples_root as examples_root,
+    pyvista_read as pyvista_read,
+)
 from .pybFoam_core import (
     DictionaryGetOrDefaultProxy as DictionaryGetOrDefaultProxy,
     DictionaryGetProxy as DictionaryGetProxy,
@@ -28,10 +33,12 @@ from .pybFoam_core import (
     argList as argList,
     boolList as boolList,
     bound as bound,
+    cbrt as cbrt,
     computeCFLNumber as computeCFLNumber,
     computeContinuityErrors as computeContinuityErrors,
     constrainHbyA as constrainHbyA,
     constrainPressure as constrainPressure,
+    cos as cos,
     createMesh as createMesh,
     createPhi as createPhi,
     dev2 as dev2,
@@ -45,6 +52,7 @@ from .pybFoam_core import (
     doubleInner as doubleInner,
     dynamicFvMesh as dynamicFvMesh,
     entry as entry,
+    exp as exp,
     fileName as fileName,
     fvMesh as fvMesh,
     fvScalarMatrix as fvScalarMatrix,
@@ -55,24 +63,30 @@ from .pybFoam_core import (
     instantList as instantList,
     keyType as keyType,
     labelList as labelList,
+    log as log,
+    log10 as log10,
     mag as mag,
     magSqr as magSqr,
     max as max,
     min as min,
     nearWallDist as nearWallDist,
     nearWallDistNoSearch as nearWallDistNoSearch,
+    neg as neg,
     pimpleControl as pimpleControl,
     pisoControl as pisoControl,
     polyBoundaryMesh as polyBoundaryMesh,
     polyMesh as polyMesh,
     polyPatch as polyPatch,
+    pos as pos,
     pow as pow,
     pow3 as pow3,
     pow6 as pow6,
     scalarField as scalarField,
     selectTimes as selectTimes,
     setRefCell as setRefCell,
+    sign as sign,
     simpleControl as simpleControl,
+    sin as sin,
     skew as skew,
     solve as solve,
     sqr as sqr,
@@ -85,6 +99,7 @@ from .pybFoam_core import (
     symm as symm,
     symmTensor as symmTensor,
     symmTensorField as symmTensorField,
+    tan as tan,
     tensor as tensor,
     tensorField as tensorField,
     tmp_fvScalarMatrix as tmp_fvScalarMatrix,
@@ -151,4 +166,4 @@ dimVelocity: pybFoam_core.dimensionSet = ...
 
 dimViscosity: pybFoam_core.dimensionSet = ...
 
-__all__: list[str] = ['DictionaryGetOrDefaultProxy', 'DictionaryGetProxy', 'Info', 'IOobject', 'Pstream', 'Time', 'Word', 'argList', 'dictionary', 'entry', 'fileName', 'instant', 'instantList', 'keyType', 'dynamicFvMesh', 'fvMesh', 'polyBoundaryMesh', 'polyMesh', 'polyPatch', 'SolverScalarPerformance', 'SolverSymmTensorPerformance', 'SolverTensorPerformance', 'SolverVectorPerformance', 'SymmTensorInt', 'TensorInt', 'VectorInt', 'boolList', 'labelList', 'wordList', 'symmTensor', 'tensor', 'vector', 'scalarField', 'symmTensorField', 'tensorField', 'vectorField', 'volScalarField', 'volSymmTensorField', 'volTensorField', 'volVectorField', 'surfaceScalarField', 'surfaceSymmTensorField', 'surfaceTensorField', 'surfaceVectorField', 'uniformDimensionedScalarField', 'uniformDimensionedVectorField', 'tmp_scalarField', 'tmp_symmTensorField', 'tmp_tensorField', 'tmp_vectorField', 'tmp_volScalarField', 'tmp_volSymmTensorField', 'tmp_volTensorField', 'tmp_volVectorField', 'tmp_surfaceScalarField', 'tmp_surfaceSymmTensorField', 'tmp_surfaceTensorField', 'tmp_surfaceVectorField', 'fvScalarMatrix', 'fvSymmTensorMatrix', 'fvTensorMatrix', 'fvVectorMatrix', 'tmp_fvScalarMatrix', 'tmp_fvSymmTensorMatrix', 'tmp_fvTensorMatrix', 'tmp_fvVectorMatrix', 'dimensionedScalar', 'dimensionedSymmTensor', 'dimensionedTensor', 'dimensionedVector', 'dimensionSet', 'dimAcceleration', 'dimArea', 'dimCurrent', 'dimDensity', 'dimEnergy', 'dimForce', 'dimLength', 'dimless', 'dimLuminousIntensity', 'dimMass', 'dimMoles', 'dimPower', 'dimPressure', 'dimTemperature', 'dimTime', 'dimVelocity', 'dimViscosity', 'pimpleControl', 'pisoControl', 'simpleControl', 'adjustPhi', 'bound', 'computeCFLNumber', 'computeContinuityErrors', 'constrainHbyA', 'constrainPressure', 'createMesh', 'createPhi', 'mag', 'nearWallDist', 'nearWallDistNoSearch', 'selectTimes', 'setRefCell', 'solve', 'sum', 'wallDist', 'write', 'T', 'dev2', 'devTwoSymm', 'doubleInner', 'magSqr', 'max', 'min', 'pow', 'pow3', 'pow6', 'skew', 'sqr', 'sqrt', 'symm', 'fvc', 'fvm', 'meshing', 'runTimeTables', 'sampling_bindings', 'thermo', 'turbulence', '__version__']
+__all__: list[str] = ['DictionaryGetOrDefaultProxy', 'DictionaryGetProxy', 'Info', 'IOobject', 'Pstream', 'Time', 'Word', 'argList', 'dictionary', 'entry', 'fileName', 'instant', 'instantList', 'keyType', 'dynamicFvMesh', 'fvMesh', 'polyBoundaryMesh', 'polyMesh', 'polyPatch', 'SolverScalarPerformance', 'SolverSymmTensorPerformance', 'SolverTensorPerformance', 'SolverVectorPerformance', 'SymmTensorInt', 'TensorInt', 'VectorInt', 'boolList', 'labelList', 'wordList', 'symmTensor', 'tensor', 'vector', 'scalarField', 'symmTensorField', 'tensorField', 'vectorField', 'volScalarField', 'volSymmTensorField', 'volTensorField', 'volVectorField', 'surfaceScalarField', 'surfaceSymmTensorField', 'surfaceTensorField', 'surfaceVectorField', 'uniformDimensionedScalarField', 'uniformDimensionedVectorField', 'tmp_scalarField', 'tmp_symmTensorField', 'tmp_tensorField', 'tmp_vectorField', 'tmp_volScalarField', 'tmp_volSymmTensorField', 'tmp_volTensorField', 'tmp_volVectorField', 'tmp_surfaceScalarField', 'tmp_surfaceSymmTensorField', 'tmp_surfaceTensorField', 'tmp_surfaceVectorField', 'fvScalarMatrix', 'fvSymmTensorMatrix', 'fvTensorMatrix', 'fvVectorMatrix', 'tmp_fvScalarMatrix', 'tmp_fvSymmTensorMatrix', 'tmp_fvTensorMatrix', 'tmp_fvVectorMatrix', 'dimensionedScalar', 'dimensionedSymmTensor', 'dimensionedTensor', 'dimensionedVector', 'dimensionSet', 'dimAcceleration', 'dimArea', 'dimCurrent', 'dimDensity', 'dimEnergy', 'dimForce', 'dimLength', 'dimless', 'dimLuminousIntensity', 'dimMass', 'dimMoles', 'dimPower', 'dimPressure', 'dimTemperature', 'dimTime', 'dimVelocity', 'dimViscosity', 'pimpleControl', 'pisoControl', 'simpleControl', 'adjustPhi', 'bound', 'computeCFLNumber', 'computeContinuityErrors', 'constrainHbyA', 'constrainPressure', 'createMesh', 'createPhi', 'mag', 'nearWallDist', 'nearWallDistNoSearch', 'selectTimes', 'setRefCell', 'solve', 'sum', 'wallDist', 'write', 'T', 'dev2', 'devTwoSymm', 'doubleInner', 'magSqr', 'max', 'min', 'pow', 'pow3', 'pow6', 'skew', 'sqr', 'sqrt', 'symm', 'cbrt', 'cos', 'exp', 'log', 'log10', 'neg', 'pos', 'sign', 'sin', 'tan', 'fvc', 'fvm', 'meshing', 'runTimeTables', 'sampling_bindings', 'thermo', 'turbulence', '__version__']

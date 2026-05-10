@@ -19,6 +19,7 @@ set(PYBFOAM_CORE_SOURCES
 )
 
 set(PYBFOAM_CORE_HEADERS
+    bind_helpers.hpp
     bind_io.hpp
     bind_dict.hpp
     bind_time.hpp
