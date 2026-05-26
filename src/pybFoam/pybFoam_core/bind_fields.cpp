@@ -18,7 +18,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "bind_fields.hpp"
-#include "bind_helpers.hpp"
 #include "bind_primitives.hpp"
 #include "instantList.H"
 #include "uniformDimensionedFields.H"
@@ -268,10 +267,15 @@ nb::class_<tmp<Field<Type>>> declare_tmp_fields(nb::module_ &m, std::string clas
 
 }
 
+// Bind a unary free function and its tmp<> overload in one shot.
+// Func(f) defers overload resolution to the call site, so the same line works
+// for Field<T> and tmp<Field<T>>.
+#define DEFINE_UNARY(Name, FieldType, DataType, Func)                          \
+    m.def(#Name, [](const FieldType<DataType>& f)      { return Func(f); });   \
+    m.def(#Name, [](const tmp<FieldType<DataType>>& f) { return Func(f); })
+
 void Foam::bindFields(nb::module_& m)
 {
-    using namespace Foam::pybind_helpers;
-
     nb::class_<instantList>(m, "instantList")
         .def("__len__", [](const instantList& self) {
             return self.size();
@@ -484,31 +488,31 @@ void Foam::bindFields(nb::module_& m)
     m.def("sum",declare_sum<symmTensor>);
 
     // ---- Module-level free functions on Field<T> ----
-    // mag/magSqr: defined for all field types (returns scalar for vector/tensor inputs).
-    auto magOp    = [](const auto& f){ return Foam::mag(f); };
-    auto magSqrOp = [](const auto& f){ return Foam::magSqr(f); };
-    bindUnaryFor<Field<scalar>, Field<vector>,
-                 Field<tensor>, Field<symmTensor>>(m, "mag",    magOp);
-    bindUnaryFor<Field<scalar>, Field<vector>,
-                 Field<tensor>, Field<symmTensor>>(m, "magSqr", magSqrOp);
+    // mag/magSqr: defined for all component types (return scalar for vector/tensor input).
+    DEFINE_UNARY(mag,    Field, scalar,     Foam::mag);
+    DEFINE_UNARY(mag,    Field, vector,     Foam::mag);
+    DEFINE_UNARY(mag,    Field, tensor,     Foam::mag);
+    DEFINE_UNARY(mag,    Field, symmTensor, Foam::mag);
+    DEFINE_UNARY(magSqr, Field, scalar,     Foam::magSqr);
+    DEFINE_UNARY(magSqr, Field, vector,     Foam::magSqr);
+    DEFINE_UNARY(magSqr, Field, tensor,     Foam::magSqr);
+    DEFINE_UNARY(magSqr, Field, symmTensor, Foam::magSqr);
 
-    // sqr: returns Field<scalar> for scalar input; for vectors it returns symmTensor
-    // (kept scalar-only here to match what most users expect).
-    auto sqrOp = [](const auto& f){ return Foam::sqr(f); };
-    bindUnaryFor<Field<scalar>>(m, "sqr", sqrOp);
+    // sqr: scalar-only here (vector sqr → symmTensor, omitted to match expectations).
+    DEFINE_UNARY(sqr, Field, scalar, Foam::sqr);
 
     // Common scalar transcendentals (declared via UNARY_FUNCTION in scalarField.H).
-    bindUnaryFor<Field<scalar>>(m, "sqrt", [](const auto& f){ return Foam::sqrt(f); });
-    bindUnaryFor<Field<scalar>>(m, "cbrt", [](const auto& f){ return Foam::cbrt(f); });
-    bindUnaryFor<Field<scalar>>(m, "exp",  [](const auto& f){ return Foam::exp(f); });
-    bindUnaryFor<Field<scalar>>(m, "log",  [](const auto& f){ return Foam::log(f); });
-    bindUnaryFor<Field<scalar>>(m, "log10",[](const auto& f){ return Foam::log10(f); });
-    bindUnaryFor<Field<scalar>>(m, "sin",  [](const auto& f){ return Foam::sin(f); });
-    bindUnaryFor<Field<scalar>>(m, "cos",  [](const auto& f){ return Foam::cos(f); });
-    bindUnaryFor<Field<scalar>>(m, "tan",  [](const auto& f){ return Foam::tan(f); });
-    bindUnaryFor<Field<scalar>>(m, "sign", [](const auto& f){ return Foam::sign(f); });
-    bindUnaryFor<Field<scalar>>(m, "pos",  [](const auto& f){ return Foam::pos(f); });
-    bindUnaryFor<Field<scalar>>(m, "neg",  [](const auto& f){ return Foam::neg(f); });
+    DEFINE_UNARY(sqrt,  Field, scalar, Foam::sqrt);
+    DEFINE_UNARY(cbrt,  Field, scalar, Foam::cbrt);
+    DEFINE_UNARY(exp,   Field, scalar, Foam::exp);
+    DEFINE_UNARY(log,   Field, scalar, Foam::log);
+    DEFINE_UNARY(log10, Field, scalar, Foam::log10);
+    DEFINE_UNARY(sin,   Field, scalar, Foam::sin);
+    DEFINE_UNARY(cos,   Field, scalar, Foam::cos);
+    DEFINE_UNARY(tan,   Field, scalar, Foam::tan);
+    DEFINE_UNARY(sign,  Field, scalar, Foam::sign);
+    DEFINE_UNARY(pos,   Field, scalar, Foam::pos);
+    DEFINE_UNARY(neg,   Field, scalar, Foam::neg);
 
     // ==== uniformDimensionedVectorField bindings ====
     // Used for reading constant fields like gravity
@@ -575,3 +579,5 @@ void Foam::bindFields(nb::module_& m)
         }, "Get the field dimensions")
         ;
 }
+
+#undef DEFINE_UNARY

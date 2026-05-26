@@ -18,7 +18,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "bind_geo_fields.hpp"
-#include "bind_helpers.hpp"
 #include "tmp.H"
 #include "bound.H"
 
@@ -182,10 +181,16 @@ auto declare_geofields(nb::module_ &m, std::string className) {
 }  // End namespace Foam
 
 
+// Bind a unary free function and its tmp<> overload in one shot.
+// Func(f) defers overload resolution to the call site, so the same line works
+// for the field and its tmp<>. VolumeField<T>/SurfaceField<T> are the OpenFOAM
+// aliases for GeometricField<T, fvPatchField, volMesh> / fvsPatchField, surfaceMesh.
+#define DEFINE_UNARY(Name, FieldType, DataType, Func)                          \
+    m.def(#Name, [](const FieldType<DataType>& f)      { return Func(f); });   \
+    m.def(#Name, [](const tmp<FieldType<DataType>>& f) { return Func(f); })
+
 void Foam::bindGeoFields(nb::module_& m)
 {
-    using namespace Foam::pybind_helpers;
-
     auto [vsf, tmp_vsf] = declare_geofields<scalar,fvPatchField, volMesh>(m, std::string("volScalarField"));
     auto [vvf, tmp_vvf] = declare_geofields<vector,fvPatchField, volMesh>(m, std::string("volVectorField"));
     auto [vtf, tmp_vtf] = declare_geofields<tensor,fvPatchField, volMesh>(m, std::string("volTensorField"));
@@ -245,33 +250,32 @@ void Foam::bindGeoFields(nb::module_& m)
     (void)stf; (void)tmp_stf; (void)sstf; (void)tmp_sstf;
 
     // ---- Module-level free functions ----
-    auto magOp    = [](const auto& f){ return Foam::mag(f); };
-    auto magSqrOp = [](const auto& f){ return Foam::magSqr(f); };
-    auto sqrOp    = [](const auto& f){ return Foam::sqr(f); };
-    auto sqrtOp   = [](const auto& f){ return Foam::sqrt(f); };
-    auto pow3Op   = [](const auto& f){ return Foam::pow3(f); };
-    auto pow6Op   = [](const auto& f){ return Foam::pow6(f); };
-    auto skewOp   = [](const auto& f){ return Foam::skew(f); };
-    auto symmOp   = [](const auto& f){ return Foam::symm(f); };
-    auto devTwoSymmOp = [](const auto& f){ return Foam::devTwoSymm(f); };
+    // mag — every vol component type plus surface scalar/vector/tensor.
+    DEFINE_UNARY(mag, VolumeField,  scalar,     Foam::mag);
+    DEFINE_UNARY(mag, VolumeField,  vector,     Foam::mag);
+    DEFINE_UNARY(mag, VolumeField,  tensor,     Foam::mag);
+    DEFINE_UNARY(mag, VolumeField,  symmTensor, Foam::mag);
+    DEFINE_UNARY(mag, SurfaceField, scalar,     Foam::mag);
+    DEFINE_UNARY(mag, SurfaceField, vector,     Foam::mag);
+    DEFINE_UNARY(mag, SurfaceField, tensor,     Foam::mag);
 
-    bindUnaryFor<volScalarField, volVectorField,
-                 volTensorField, volSymmTensorField,
-                 surfaceScalarField, surfaceVectorField, surfaceTensorField>(m, "mag", magOp);
+    // magSqr — vol scalar/vector/tensor (not symmTensor).
+    DEFINE_UNARY(magSqr, VolumeField, scalar, Foam::magSqr);
+    DEFINE_UNARY(magSqr, VolumeField, vector, Foam::magSqr);
+    DEFINE_UNARY(magSqr, VolumeField, tensor, Foam::magSqr);
 
-    bindUnaryFor<volScalarField, volVectorField, volTensorField>(m, "magSqr", magSqrOp);
+    DEFINE_UNARY(sqr,  VolumeField, scalar, Foam::sqr);
+    DEFINE_UNARY(sqrt, VolumeField, scalar, Foam::sqrt);
+    DEFINE_UNARY(pow3, VolumeField, scalar, Foam::pow3);
+    DEFINE_UNARY(pow6, VolumeField, scalar, Foam::pow6);
 
-    bindUnaryFor<volScalarField>(m, "sqr",  sqrOp);
-    bindUnaryFor<volScalarField>(m, "sqrt", sqrtOp);
-    bindUnaryFor<volScalarField>(m, "pow3", pow3Op);
-    bindUnaryFor<volScalarField>(m, "pow6", pow6Op);
+    DEFINE_UNARY(skew,       VolumeField, tensor, Foam::skew);
+    DEFINE_UNARY(symm,       VolumeField, tensor, Foam::symm);
+    DEFINE_UNARY(devTwoSymm, VolumeField, tensor, Foam::devTwoSymm);
 
-    bindUnaryFor<volTensorField>(m, "skew", skewOp);
-    bindUnaryFor<volTensorField>(m, "symm", symmOp);
-    bindUnaryFor<volTensorField>(m, "devTwoSymm", devTwoSymmOp);
-
-    auto dev2Op = [](const auto& f){ return Foam::dev2(f); };
-    bindUnaryFor<volSymmTensorField, volTensorField>(m, "dev2", dev2Op);
+    // dev2 takes two input types.
+    DEFINE_UNARY(dev2, VolumeField, symmTensor, Foam::dev2);
+    DEFINE_UNARY(dev2, VolumeField, tensor,     Foam::dev2);
 
     // T (transpose) — uses member function .T(), so kept inline.
     m.def("T", [](const volTensorField& f){ return f.T(); });
@@ -320,3 +324,5 @@ void Foam::bindGeoFields(nb::module_& m)
     m.def("doubleInner", [](const volTensorField& T, const volSymmTensorField& S){ return T && S; });
     m.def("doubleInner", [](const volTensorField& T, const tmp<volSymmTensorField>& S){ return T && S; });
 }
+
+#undef DEFINE_UNARY
