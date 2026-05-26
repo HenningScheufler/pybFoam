@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 20212, Henning Scheufler
+            Copyright (c) 2026, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -24,6 +24,7 @@ License
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "scalarField.H"
 
 
 namespace nb = nanobind;
@@ -266,6 +267,13 @@ nb::class_<tmp<Field<Type>>> declare_tmp_fields(nb::module_ &m, std::string clas
 
 }
 
+// Bind a unary free function and its tmp<> overload in one shot.
+// Func(f) defers overload resolution to the call site, so the same line works
+// for Field<T> and tmp<Field<T>>.
+#define DEFINE_UNARY(Name, FieldType, DataType, Func)                          \
+    m.def(#Name, [](const FieldType<DataType>& f)      { return Func(f); });   \
+    m.def(#Name, [](const tmp<FieldType<DataType>>& f) { return Func(f); })
+
 void Foam::bindFields(nb::module_& m)
 {
     nb::class_<instantList>(m, "instantList")
@@ -474,16 +482,37 @@ void Foam::bindFields(nb::module_& m)
 
 
 
-
     m.def("sum",declare_sum<scalar>);
     m.def("sum",declare_sum<vector>);
     m.def("sum",declare_sum<tensor>);
     m.def("sum",declare_sum<symmTensor>);
 
-    m.def("sin", [](const Field<scalar>& f) { return Foam::sin(f); });
-    m.def("sin", [](const tmp<Field<scalar>>& f) { return Foam::sin(f); });
-    m.def("cos", [](const Field<scalar>& f) { return Foam::cos(f); });
-    m.def("cos", [](const tmp<Field<scalar>>& f) { return Foam::cos(f); });
+    // ---- Module-level free functions on Field<T> ----
+    // mag/magSqr: defined for all component types (return scalar for vector/tensor input).
+    DEFINE_UNARY(mag,    Field, scalar,     Foam::mag);
+    DEFINE_UNARY(mag,    Field, vector,     Foam::mag);
+    DEFINE_UNARY(mag,    Field, tensor,     Foam::mag);
+    DEFINE_UNARY(mag,    Field, symmTensor, Foam::mag);
+    DEFINE_UNARY(magSqr, Field, scalar,     Foam::magSqr);
+    DEFINE_UNARY(magSqr, Field, vector,     Foam::magSqr);
+    DEFINE_UNARY(magSqr, Field, tensor,     Foam::magSqr);
+    DEFINE_UNARY(magSqr, Field, symmTensor, Foam::magSqr);
+
+    // sqr: scalar-only here (vector sqr → symmTensor, omitted to match expectations).
+    DEFINE_UNARY(sqr, Field, scalar, Foam::sqr);
+
+    // Common scalar transcendentals (declared via UNARY_FUNCTION in scalarField.H).
+    DEFINE_UNARY(sqrt,  Field, scalar, Foam::sqrt);
+    DEFINE_UNARY(cbrt,  Field, scalar, Foam::cbrt);
+    DEFINE_UNARY(exp,   Field, scalar, Foam::exp);
+    DEFINE_UNARY(log,   Field, scalar, Foam::log);
+    DEFINE_UNARY(log10, Field, scalar, Foam::log10);
+    DEFINE_UNARY(sin,   Field, scalar, Foam::sin);
+    DEFINE_UNARY(cos,   Field, scalar, Foam::cos);
+    DEFINE_UNARY(tan,   Field, scalar, Foam::tan);
+    DEFINE_UNARY(sign,  Field, scalar, Foam::sign);
+    DEFINE_UNARY(pos,   Field, scalar, Foam::pos);
+    DEFINE_UNARY(neg,   Field, scalar, Foam::neg);
 
     // ==== uniformDimensionedVectorField bindings ====
     // Used for reading constant fields like gravity
@@ -550,3 +579,5 @@ void Foam::bindFields(nb::module_& m)
         }, "Get the field dimensions")
         ;
 }
+
+#undef DEFINE_UNARY
