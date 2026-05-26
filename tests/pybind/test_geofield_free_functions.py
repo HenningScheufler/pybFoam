@@ -12,7 +12,7 @@ mesh is destroyed first, accessing the fields segfaults.
 """
 
 import os
-from typing import Any, Generator
+from typing import Any, Dict, Generator
 
 import numpy as np
 import pytest
@@ -34,41 +34,47 @@ def change_test_dir(request: Any) -> Generator[None, None, None]:
     os.chdir(request.config.invocation_dir)
 
 
-# ---------------------------------------------------------------------------
-# mag / magSqr work for every type and return scalar fields
-# ---------------------------------------------------------------------------
+def _make_fields(mesh: Any) -> Dict[str, Any]:
+    """Build one field of each component type, all referencing ``mesh``.
 
-
-@pytest.mark.parametrize("kind", ["scalar", "vector", "tensor", "symmTensor"])
-def test_mag_returns_scalar_field(change_test_dir: Any, kind: str) -> None:
-    """mag is bound for scalar / vector / tensor / symmTensor vol fields."""
-    time = Time(".", ".")
-    mesh = fvMesh(time)
+    The caller must keep ``mesh`` alive for as long as the returned fields are
+    used — the fields hold non-owning references back into it.
+    """
     p_rgh = volScalarField.read_field(mesh, "p_rgh")
     U = volVectorField.read_field(mesh, "U")
     p_rgh["internalField"] += 4.0
     U["internalField"] += pf.vector(1.0, 2.0, 2.0)
     grad_U = pf.volTensorField(pf.Word("grad_U"), fvc.grad(U))
     sym_gradU = pf.volSymmTensorField(pf.Word("sym_gradU"), pf.symm(grad_U))
+    return {"scalar": p_rgh, "vector": U, "tensor": grad_U, "symmTensor": sym_gradU}
 
-    f: Any = {"scalar": p_rgh, "vector": U, "tensor": grad_U, "symmTensor": sym_gradU}[kind]
+
+# ---------------------------------------------------------------------------
+# mag / magSqr — defined across component types, return non-negative scalars
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("kind", ["scalar", "vector", "tensor", "symmTensor"])
+def test_mag(change_test_dir: Any, kind: str) -> None:
+    """``mag`` is bound for every component type and reduces to a non-negative
+    scalar field."""
+    time = Time(".", ".")
+    mesh = fvMesh(time)
+    f = _make_fields(mesh)[kind]
     arr = np.asarray(pf.mag(f)()["internalField"])
     assert arr.ndim == 1
     assert np.all(arr >= 0.0)
 
 
+# magSqr is not bound for symmTensor vol fields.
 @pytest.mark.parametrize("kind", ["scalar", "vector", "tensor"])
-def test_magSqr_returns_scalar_field(change_test_dir: Any, kind: str) -> None:
+def test_magSqr(change_test_dir: Any, kind: str) -> None:
+    """``magSqr`` reduces to a non-negative scalar field."""
     time = Time(".", ".")
     mesh = fvMesh(time)
-    p_rgh = volScalarField.read_field(mesh, "p_rgh")
-    U = volVectorField.read_field(mesh, "U")
-    p_rgh["internalField"] += 4.0
-    U["internalField"] += pf.vector(1.0, 2.0, 2.0)
-    grad_U = pf.volTensorField(pf.Word("grad_U"), fvc.grad(U))
-
-    f: Any = {"scalar": p_rgh, "vector": U, "tensor": grad_U}[kind]
+    f = _make_fields(mesh)[kind]
     arr = np.asarray(pf.magSqr(f)()["internalField"])
+    assert arr.ndim == 1
     assert np.all(arr >= 0.0)
 
 
@@ -83,38 +89,68 @@ def test_mag_vector_known_value(change_test_dir: Any) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Scalar power / root family on volScalarField
+# Single-type unary functions, parametrized over the function.
+#   scalar power/root family — checked against a known value (input is 4.0)
+#   tensor decomposition + T + dev2 — smoke tested (expected is None)
+# dev2 takes two types, so it appears once per supported input type.
 # ---------------------------------------------------------------------------
 
 
-# (function name, expected value when input is 4.0)
-_SCALAR_FUNCS = [
-    ("sqrt", 2.0),
-    ("sqr", 16.0),
-    ("pow3", 64.0),
-    ("pow6", 4096.0),
+# (function name, input component type, expected value | None for smoke test)
+_UNARY_FUNCS = [
+    ("sqrt", "scalar", 2.0),
+    ("sqr", "scalar", 16.0),
+    ("pow3", "scalar", 64.0),
+    ("pow6", "scalar", 4096.0),
+    ("skew", "tensor", None),
+    ("symm", "tensor", None),
+    ("devTwoSymm", "tensor", None),
+    ("T", "tensor", None),
+    ("dev2", "tensor", None),
+    ("dev2", "symmTensor", None),
 ]
 
 
-@pytest.mark.parametrize("name,expected", _SCALAR_FUNCS)
-def test_scalar_unary_known_values(change_test_dir: Any, name: str, expected: float) -> None:
+@pytest.mark.parametrize("name,kind,expected", _UNARY_FUNCS)
+def test_unary_function(change_test_dir: Any, name: str, kind: str, expected: Any) -> None:
+    time = Time(".", ".")
+    mesh = fvMesh(time)
+    f = _make_fields(mesh)[kind]
+    result = getattr(pf, name)(f)
+    if expected is None:
+        assert result is not None
+    else:
+        assert np.allclose(np.asarray(result()["internalField"]), expected)
+
+
+@pytest.mark.parametrize(
+    "name,kind",
+    [
+        ("mag", "tensor"),
+        ("magSqr", "tensor"),
+        ("sqrt", "scalar"),
+        ("sqr", "scalar"),
+        ("pow3", "scalar"),
+        ("pow6", "scalar"),
+        ("skew", "tensor"),
+        ("symm", "tensor"),
+        ("devTwoSymm", "tensor"),
+        ("T", "tensor"),
+        ("dev2", "tensor"),
+    ],
+)
+def test_unary_function_accepts_tmp(change_test_dir: Any, name: str, kind: str) -> None:
+    """Every unary function must also accept a tmp<...> input (the (T, tmp<T>)
+    overload pair). ``fvc.grad(U)`` yields a tmp<volTensorField>; ``f * 1.0``
+    yields a tmp<volScalarField>."""
     time = Time(".", ".")
     mesh = fvMesh(time)
     p_rgh = volScalarField.read_field(mesh, "p_rgh")
+    U = volVectorField.read_field(mesh, "U")
     p_rgh["internalField"] += 4.0
-    fn = getattr(pf, name)
-    assert np.allclose(np.asarray(fn(p_rgh)()["internalField"]), expected)
-
-
-@pytest.mark.parametrize("name", ["sqrt", "sqr", "pow3", "pow6"])
-def test_scalar_unary_accepts_tmp(change_test_dir: Any, name: str) -> None:
-    """Each function must also accept tmp<volScalarField>."""
-    time = Time(".", ".")
-    mesh = fvMesh(time)
-    p_rgh = volScalarField.read_field(mesh, "p_rgh")
-    p_rgh["internalField"] += 4.0
-    fn = getattr(pf, name)
-    assert fn(p_rgh * 1.0) is not None
+    U["internalField"] += pf.vector(1.0, 2.0, 2.0)
+    tmp_input = {"scalar": p_rgh * 1.0, "tensor": fvc.grad(U)}[kind]
+    assert getattr(pf, name)(tmp_input) is not None
 
 
 def test_pow_with_exponent(change_test_dir: Any) -> None:
@@ -126,49 +162,6 @@ def test_pow_with_exponent(change_test_dir: Any) -> None:
     p_rgh["internalField"] += 4.0
     assert np.allclose(np.asarray(pf.pow(p_rgh, 0.5)()["internalField"]), 2.0)
     assert np.allclose(np.asarray(pf.pow(p_rgh * 1.0, 0.5)()["internalField"]), 2.0)
-
-
-# ---------------------------------------------------------------------------
-# Tensor decomposition functions
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("name", ["skew", "symm", "devTwoSymm"])
-def test_tensor_decomposition_runs(change_test_dir: Any, name: str) -> None:
-    """Smoke test — these all take volTensorField (concrete or tmp)."""
-    time = Time(".", ".")
-    mesh = fvMesh(time)
-    U = volVectorField.read_field(mesh, "U")
-    U["internalField"] += pf.vector(1.0, 2.0, 2.0)
-    grad_U = pf.volTensorField(pf.Word("grad_U"), fvc.grad(U))
-
-    fn = getattr(pf, name)
-    assert fn(grad_U) is not None
-    # tmp<tensor> input
-    assert fn(fvc.grad(U)) is not None
-
-
-def test_T_transpose(change_test_dir: Any) -> None:
-    """T(tensor) uses member function .T(); tmp variant uses different code path."""
-    time = Time(".", ".")
-    mesh = fvMesh(time)
-    U = volVectorField.read_field(mesh, "U")
-    U["internalField"] += pf.vector(1.0, 2.0, 2.0)
-    grad_U = pf.volTensorField(pf.Word("grad_U"), fvc.grad(U))
-    assert pf.T(grad_U) is not None
-    assert pf.T(fvc.grad(U)) is not None
-
-
-def test_dev2_works_for_tensor_and_symmTensor(change_test_dir: Any) -> None:
-    """dev2 is overloaded for both volTensorField and volSymmTensorField."""
-    time = Time(".", ".")
-    mesh = fvMesh(time)
-    U = volVectorField.read_field(mesh, "U")
-    U["internalField"] += pf.vector(1.0, 2.0, 2.0)
-    grad_U = pf.volTensorField(pf.Word("grad_U"), fvc.grad(U))
-    sym_gradU = pf.volSymmTensorField(pf.Word("sym_gradU"), pf.symm(grad_U))
-    assert pf.dev2(grad_U) is not None
-    assert pf.dev2(sym_gradU) is not None
 
 
 # ---------------------------------------------------------------------------

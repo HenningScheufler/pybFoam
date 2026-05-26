@@ -171,6 +171,7 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     {
         return self.mesh();
     }, nb::rv_policy::reference)
+    .def("name", [](const GF& self) -> std::string { return self.name(); })
     ;
 
     m.def("write", [](const GF& geofield){ geofield.write(); });
