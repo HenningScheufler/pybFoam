@@ -174,6 +174,26 @@ void bindFvMesh(nanobind::module_ &m)
 
             },
              nb::rv_policy::reference)
+        .def("isFinalIteration", [](const Foam::fvMesh &self)
+             {
+                #if OPENFOAM >= 2312
+                    return self.data().isFinalIteration();
+                #else
+                    return self.data().getOrDefault<bool>("finalIteration", false);
+                #endif
+             },
+             "Whether solvers select the <field>Final solver settings")
+        .def("setFinalIteration", [](Foam::fvMesh &self, bool on)
+             {
+                #if OPENFOAM >= 2312
+                    self.data().setFinalIteration(on);
+                #else
+                    const_cast<Foam::data&>(self.data()).add("finalIteration", on, true);
+                #endif
+             },
+             nb::arg("on"),
+             "Mark the current iteration final so solvers pick the "
+             "<field>Final solver settings (what pimpleControl::loop does)")
         .def("boundary", [](const Foam::fvMesh &self) -> const Foam::fvBoundaryMesh& {
             return self.boundary();
         }, nb::rv_policy::reference_internal)

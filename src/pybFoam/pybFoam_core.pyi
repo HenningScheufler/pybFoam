@@ -331,6 +331,12 @@ class fvMesh:
 
     def setFluxRequired(self, arg: Word, /) -> None: ...
 
+    def isFinalIteration(self) -> bool:
+        """Whether solvers select the <field>Final solver settings"""
+
+    def setFinalIteration(self, on: bool) -> None:
+        """Mark the current iteration final so solvers pick the <field>Final solver settings (what pimpleControl::loop does)"""
+
     def solverPerformanceDict(self) -> dictionary: ...
 
     def boundary(self) -> fvBoundaryMesh: ...
