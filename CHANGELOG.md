@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.6]
+
+* bind incompressibleTurbulenceModel::validate (correctNut before the first solve)
+
 ## [0.4.5]
 
 * bind isFinalIteration/setFinalIteration
