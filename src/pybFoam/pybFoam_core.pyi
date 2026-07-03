@@ -333,6 +333,14 @@ class fvMesh:
 
     def solverPerformanceDict(self) -> dictionary: ...
 
+    def isFinalIteration(self) -> bool:
+        """Whether solvers select the <field>Final solver settings"""
+
+    def setFinalIteration(self, on: bool) -> None:
+        """
+        Mark the current iteration final so solvers pick the <field>Final solver settings (what pimpleControl::loop does)
+        """
+
     def boundary(self) -> fvBoundaryMesh: ...
 
     def write(self) -> bool:

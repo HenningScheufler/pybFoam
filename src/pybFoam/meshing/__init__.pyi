@@ -41,28 +41,32 @@ def printMeshStats(mesh: pybFoam.pybFoam_core.polyMesh, all_topology: bool = Fal
     """Print mesh statistics and return as dictionary"""
 
 @overload
-def printMeshStats(mesh: pybFoam.pybFoam_core.fvMesh, all_topology: bool = False) -> dict[str, typing.Any]: ...
+def printMeshStats(mesh: pybFoam.pybFoam_core.fvMesh, all_topology: bool = False) -> dict[str, typing.Any]:
+    """Print mesh statistics and return as dictionary"""
 
 @overload
 def checkTopology(mesh: pybFoam.pybFoam_core.polyMesh, all_topology: bool = False, all_geometry: bool = False) -> dict[str, typing.Any]:
     """Check mesh topology and return dictionary with results"""
 
 @overload
-def checkTopology(mesh: pybFoam.pybFoam_core.fvMesh, all_topology: bool = False, all_geometry: bool = False) -> dict[str, typing.Any]: ...
+def checkTopology(mesh: pybFoam.pybFoam_core.fvMesh, all_topology: bool = False, all_geometry: bool = False) -> dict[str, typing.Any]:
+    """Check mesh topology and return dictionary with results"""
 
 @overload
 def checkGeometry(mesh: pybFoam.pybFoam_core.polyMesh, all_geometry: bool = False) -> dict[str, typing.Any]:
     """Check mesh geometry and return dictionary with results"""
 
 @overload
-def checkGeometry(mesh: pybFoam.pybFoam_core.fvMesh, all_geometry: bool = False) -> dict[str, typing.Any]: ...
+def checkGeometry(mesh: pybFoam.pybFoam_core.fvMesh, all_geometry: bool = False) -> dict[str, typing.Any]:
+    """Check mesh geometry and return dictionary with results"""
 
 @overload
 def checkMesh(mesh: pybFoam.pybFoam_core.polyMesh, check_topology: bool = True, all_topology: bool = False, all_geometry: bool = False, check_quality: bool = False) -> dict[str, typing.Any]:
     """Run complete mesh check and return dictionary with detailed results"""
 
 @overload
-def checkMesh(mesh: pybFoam.pybFoam_core.fvMesh, check_topology: bool = True, all_topology: bool = False, all_geometry: bool = False, check_quality: bool = False) -> dict[str, typing.Any]: ...
+def checkMesh(mesh: pybFoam.pybFoam_core.fvMesh, check_topology: bool = True, all_topology: bool = False, all_geometry: bool = False, check_quality: bool = False) -> dict[str, typing.Any]:
+    """Run complete mesh check and return dictionary with detailed results"""
 
 def generate_snappy_hex_mesh(mesh: pybFoam.pybFoam_core.fvMesh, dict: pybFoam.pybFoam_core.dictionary, overwrite: bool = True, verbose: bool = True) -> None:
     """Run snappyHexMesh on an existing mesh"""
