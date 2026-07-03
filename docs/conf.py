@@ -43,7 +43,7 @@ except ImportError:
 project = "pybFoam"
 copyright = "2025, Henning Scheufler"
 author = "Henning Scheufler"
-release = "0.4.5"
+release = "0.4.6"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

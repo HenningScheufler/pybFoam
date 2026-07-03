@@ -2,8 +2,7 @@
 
 ## [0.4.6]
 
-* bind incompressibleTurbulenceModel::validate (recomputes nut from k/epsilon,
-  mirrors pimpleFoam's `turbulence->validate()` before the first solve)
+* bind incompressibleTurbulenceModel::validate (correctNut before the first solve)
 
 ## [0.4.5]
 
