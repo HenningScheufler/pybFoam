@@ -61,6 +61,7 @@ void Foam::bindTurbulence(nb::module_& m)
             incompressible::turbulenceModel::New(U, phi, transportModel, propertiesName).release()
         );
     }, nb::arg("U"), nb::arg("phi"), nb::arg("transportModel"), nb::arg("propertiesName") = turbulenceModel::propertiesName)
+    .def("validate", &incompressible::turbulenceModel::validate)
     .def("correct", &incompressible::turbulenceModel::correct)
     .def("U", &incompressible::turbulenceModel::U)
     .def("alphaRhoPhi", &incompressible::turbulenceModel::alphaRhoPhi)
