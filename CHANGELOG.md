@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.5]
+
+* bind isFinalIteration/setFinalIteration
+
 ## [0.4.4]
 
 * update documentation
