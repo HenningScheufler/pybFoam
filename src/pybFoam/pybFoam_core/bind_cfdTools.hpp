@@ -32,19 +32,19 @@ SourceFiles
 #define foam_cfdTools
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
 
 template<typename RAUType>
-void declare_constrainPressure(pybind11::module& m);
+void declare_constrainPressure(nanobind::module_& m);
 
 
-void  bindCfdTools(pybind11::module& m);
+void  bindCfdTools(nanobind::module_& m);
 
 }
 

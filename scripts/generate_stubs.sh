@@ -28,12 +28,12 @@ fi
 echo "✓ pybFoam is installed"
 echo ""
 
-# Generate stubs
+# Generate stubs using nanobind's built-in stubgen
 echo "Generating stubs..."
 rm -rf "$STUBS_DIR"
-uv run pybind11-stubgen -o "$STUBS_DIR" --print-invalid-expressions-as-is pybFoam
+uv run python -m nanobind.stubgen -m pybFoam -r -O "$STUBS_DIR" -M "$STUBS_DIR/py.typed"
 
-if [ ! -d "$STUBS_DIR/pybFoam" ]; then
+if [ ! -f "$STUBS_DIR/__init__.pyi" ]; then
     echo "Error: Stub generation failed!"
     exit 1
 fi
@@ -50,20 +50,20 @@ echo ""
 # Copy stubs to source directory
 echo "Copying stubs to source directory..."
 
-# Copy top-level .pyi files
-cp "$STUBS_DIR/pybFoam/__init__.pyi" "$SRC_DIR/"
-cp "$STUBS_DIR/pybFoam/_version.pyi" "$SRC_DIR/"
-cp "$STUBS_DIR/pybFoam/pybFoam_core.pyi" "$SRC_DIR/"
-cp "$STUBS_DIR/pybFoam/sampling_bindings.pyi" "$SRC_DIR/"
+# nanobind stubgen outputs flat .pyi files (not under pybFoam/ subdir)
+cp "$STUBS_DIR/__init__.pyi" "$SRC_DIR/"
+[ -f "$STUBS_DIR/_version.pyi" ] && cp "$STUBS_DIR/_version.pyi" "$SRC_DIR/"
+cp "$STUBS_DIR/pybFoam_core.pyi" "$SRC_DIR/"
+cp "$STUBS_DIR/sampling_bindings.pyi" "$SRC_DIR/"
 
 # Copy directory-based module stubs
-cp "$STUBS_DIR/pybFoam/fvm.pyi" "$SRC_DIR/fvm/__init__.pyi"
-cp "$STUBS_DIR/pybFoam/fvc.pyi" "$SRC_DIR/fvc/__init__.pyi"
+cp "$STUBS_DIR/fvm.pyi" "$SRC_DIR/fvm/__init__.pyi"
+cp "$STUBS_DIR/fvc.pyi" "$SRC_DIR/fvc/__init__.pyi"
 
-cp "$STUBS_DIR/pybFoam/meshing.pyi" "$SRC_DIR/meshing/__init__.pyi"
-cp "$STUBS_DIR/pybFoam/thermo.pyi" "$SRC_DIR/thermo/__init__.pyi"
-cp "$STUBS_DIR/pybFoam/turbulence.pyi" "$SRC_DIR/turbulence/__init__.pyi"
-cp "$STUBS_DIR/pybFoam/runTimeTables.pyi" "$SRC_DIR/runTimeTables/__init__.pyi"
+cp "$STUBS_DIR/meshing.pyi" "$SRC_DIR/meshing/__init__.pyi"
+cp "$STUBS_DIR/thermo.pyi" "$SRC_DIR/thermo/__init__.pyi"
+cp "$STUBS_DIR/turbulence.pyi" "$SRC_DIR/turbulence/__init__.pyi"
+cp "$STUBS_DIR/runTimeTables.pyi" "$SRC_DIR/runTimeTables/__init__.pyi"
 
 echo "✓ Stubs copied to $SRC_DIR"
 echo ""

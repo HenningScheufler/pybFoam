@@ -28,6 +28,9 @@ Description
 
 #include "bind_alphaEqn.hpp"
 
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/string.h>
+
 #include "immiscibleIncompressibleTwoPhaseMixture.H"
 #include "CMULES.H"
 #include "EulerDdtScheme.H"
@@ -41,7 +44,7 @@ Description
 #include "geometricOneField.H"
 #include "zeroField.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
@@ -505,17 +508,17 @@ std::tuple<scalar, scalar> computeAlphaCourantNumber
 // ---------------------------------------------------------------------------
 // Python bindings
 // ---------------------------------------------------------------------------
-void bindAlphaEqn(py::module& m)
+void bindAlphaEqn(nb::module_ & m)
 {
     m.def(
         "solveAlpha",
         &solveAlpha,
-        py::arg("alpha1"),
-        py::arg("alpha2"),
-        py::arg("phi"),
-        py::arg("rhoPhi"),
-        py::arg("rho"),
-        py::arg("mixture"),
+        nb::arg("alpha1"),
+        nb::arg("alpha2"),
+        nb::arg("phi"),
+        nb::arg("rhoPhi"),
+        nb::arg("rho"),
+        nb::arg("mixture"),
         "Solve alpha equation (MULES) with optional subcycling and MULESCorr.\n"
         "Reads nAlphaCorr, nAlphaSubCycles, MULESCorr from "
         "mesh.solverDict(alpha1.name()).\n"
@@ -525,8 +528,8 @@ void bindAlphaEqn(py::module& m)
     m.def(
         "computeAlphaCourantNumber",
         &computeAlphaCourantNumber,
-        py::arg("phi"),
-        py::arg("alpha1"),
+        nb::arg("phi"),
+        nb::arg("alpha1"),
         "Compute Alpha Courant number (max and mean).\n"
         "Returns (alphaCoNum, meanAlphaCoNum)."
     );
@@ -549,15 +552,15 @@ void bindAlphaEqn(py::module& m)
                         nAlphaCorr, MULESCorr,
                         word(alphaScheme), word(alpharScheme));
         },
-        py::arg("alpha1"),
-        py::arg("alpha2"),
-        py::arg("phi"),
-        py::arg("alpha_phi10"),
-        py::arg("mixture"),
-        py::arg("n_alpha_corr")   = 1,
-        py::arg("mules_corr")     = false,
-        py::arg("alpha_scheme")   = "div(phi,alpha)",
-        py::arg("alphar_scheme")  = "div(phirb,alpha)",
+        nb::arg("alpha1"),
+        nb::arg("alpha2"),
+        nb::arg("phi"),
+        nb::arg("alpha_phi10"),
+        nb::arg("mixture"),
+        nb::arg("n_alpha_corr")   = 1,
+        nb::arg("mules_corr")     = false,
+        nb::arg("alpha_scheme")   = "div(phi,alpha)",
+        nb::arg("alphar_scheme")  = "div(phirb,alpha)",
         "Run one pass of the alpha equation (MULES) without subcycling.\n"
         "Updates alpha1, alpha2, and alpha_phi10 in-place.\n"
         "rhoPhi and rho must be updated by the caller afterwards.\n"
@@ -580,7 +583,7 @@ void bindAlphaEqn(py::module& m)
         {
             return computeInterfaceCompressionVelocity(mixture, phi);
         },
-        py::arg("mixture"), py::arg("phi"),
+        nb::arg("mixture"), nb::arg("phi"),
         "Compute interface compression velocity phic = cAlpha * |phi/magSf|.\n"
         "Non-coupled boundary faces are zeroed.  Returns a new surfaceScalarField."
     );
@@ -598,10 +601,10 @@ void bindAlphaEqn(py::module& m)
             return alphaPhaseFlux(phi, alpha1, alpha2, phic, mixture,
                                   word(alphaScheme), word(alpharScheme));
         },
-        py::arg("phi"), py::arg("alpha1"), py::arg("alpha2"),
-        py::arg("phic"), py::arg("mixture"),
-        py::arg("alpha_scheme") = "div(phi,alpha)",
-        py::arg("alphar_scheme") = "div(phirb,alpha)",
+        nb::arg("phi"), nb::arg("alpha1"), nb::arg("alpha2"),
+        nb::arg("phic"), nb::arg("mixture"),
+        nb::arg("alpha_scheme") = "div(phi,alpha)",
+        nb::arg("alphar_scheme") = "div(phirb,alpha)",
         "Compute scheme-based alpha flux with interface compression (alphaPhiUn).\n"
         "Returns a new surfaceScalarField.\n"
         "Mirrors the alphaPhiUn computation inside the nAlphaCorr loop of alphaEqn.H."
@@ -615,7 +618,7 @@ void bindAlphaEqn(py::module& m)
         {
             mulesExplicitSolve(alpha1, phi, alphaPhi);
         },
-        py::arg("alpha1"), py::arg("phi"), py::arg("alpha_phi"),
+        nb::arg("alpha1"), nb::arg("phi"), nb::arg("alpha_phi"),
         "MULES explicit solve: updates alpha1 and alpha_phi in-place (Sp=Su=0).\n"
         "Equivalent to MULES::explicitSolve(1, alpha1, phi, alpha_phi, 0, 0, 1, 0).\n"
         "alpha2 and mixture.correct() must be called by the Python caller."
@@ -629,7 +632,7 @@ void bindAlphaEqn(py::module& m)
         {
             mulesCorrect(alpha1, alphaPhiUn, alphaPhi1Corr);
         },
-        py::arg("alpha1"), py::arg("alpha_phi_un"), py::arg("alpha_phi_corr"),
+        nb::arg("alpha1"), nb::arg("alpha_phi_un"), nb::arg("alpha_phi_corr"),
         "MULES correction step: updates alpha1 and alpha_phi_corr in-place (Sp=0).\n"
         "alpha_phi_corr must be initialised to (alphaPhiUn - alphaPhi10) before calling.\n"
         "After this call, alpha_phi_corr contains the limited correction to add to alphaPhi10.\n"
@@ -643,7 +646,7 @@ void bindAlphaEqn(py::module& m)
         {
             return mulesImplicitPredictor(alpha1, phi);
         },
-        py::arg("alpha1"), py::arg("phi"),
+        nb::arg("alpha1"), nb::arg("phi"),
         "Implicit upwind predictor for the MULESCorr branch.\n"
         "Solves fvmDdt(alpha1) + fvmDiv(phi_upwind, alpha1) = 0.\n"
         "Modifies alpha1 in-place and returns the resulting upwind face flux\n"

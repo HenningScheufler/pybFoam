@@ -25,7 +25,7 @@ namespace Foam
 {
 
 template <class Type>
-void bindFvmDdt(py::module_& fvm)
+void bindFvmDdt(nb::module_& fvm)
 {
     using Field = GeometricField<Type, fvPatchField, volMesh>;
     fvm.def("ddt", [](const Field& vf) { return fvm::ddt(vf); });
@@ -36,7 +36,7 @@ void bindFvmDdt(py::module_& fvm)
 }
 
 template <class Type>
-void bindFvmDiv(py::module_& fvm)
+void bindFvmDiv(nb::module_& fvm)
 {
     using Field = GeometricField<Type, fvPatchField, volMesh>;
     fvm.def("div", [](const surfaceScalarField& flux, const Field& vf) { return fvm::div(flux, vf); });
@@ -44,7 +44,7 @@ void bindFvmDiv(py::module_& fvm)
 }
 
 template <class Type>
-void bindFvmLaplacian(py::module_& fvm)
+void bindFvmLaplacian(nb::module_& fvm)
 {
     using Field = GeometricField<Type, fvPatchField, volMesh>;
 
@@ -66,7 +66,7 @@ void bindFvmLaplacian(py::module_& fvm)
 }
 
 template <class Type>
-void bindFvmSources(py::module_& fvm)
+void bindFvmSources(nb::module_& fvm)
 {
     using Field = GeometricField<Type, fvPatchField, volMesh>;
 
@@ -88,10 +88,8 @@ void bindFvmSources(py::module_& fvm)
 
 } // namespace Foam
 
-void Foam::bindFVM(pybind11::module& fvm)
-{
-    namespace py = pybind11;
-    // functions
+void Foam::bindFVM(nanobind::module_& fvm)
+{    // functions
 
     bindFvmDdt<scalar>(fvm);
     bindFvmDdt<vector>(fvm);

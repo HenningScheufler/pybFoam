@@ -13,6 +13,8 @@ set(PYBFOAM_CORE_SOURCES
     bind_fvMatrix.cpp
     bind_control.cpp
     bind_cfdTools.cpp
+    bind_wallDist.cpp
+    bind_pstream.cpp
     pybFoam.cpp
 )
 
@@ -29,15 +31,19 @@ set(PYBFOAM_CORE_HEADERS
     bind_fvMatrix.hpp
     bind_control.hpp
     bind_cfdTools.hpp
+    bind_wallDist.hpp
+    bind_pstream.hpp
 )
 
-# Create the pybind11 module
-pybind11_add_module(pybFoam_core ${PYBFOAM_CORE_SOURCES})
+# Create the nanobind module
+nanobind_add_module(pybFoam_core NB_SHARED ${PYBFOAM_CORE_SOURCES})
 
 # Set target properties
 set_target_properties(pybFoam_core PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
     VISIBILITY_INLINES_HIDDEN ON
+    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
+    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries

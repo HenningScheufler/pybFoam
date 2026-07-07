@@ -14,13 +14,16 @@ set(VOF_HEADERS
     bind_alphaEqn.hpp
 )
 
-# Create the pybind11 module
-pybind11_add_module(vof ${VOF_SOURCES})
+# Create the nanobind module (NB_SHARED so it shares the canonical
+# libnanobind.so and the cross-module type registry with pybFoam_core).
+nanobind_add_module(vof NB_SHARED ${VOF_SOURCES})
 
 # Set target properties
 set_target_properties(vof PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
     VISIBILITY_INLINES_HIDDEN ON
+    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
+    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM VoF libraries (includes mixture, interfaceProperties, turbulence)

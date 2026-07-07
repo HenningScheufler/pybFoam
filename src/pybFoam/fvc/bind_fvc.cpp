@@ -30,7 +30,7 @@ namespace Foam
 
 // Single argument operations (grad, div, laplacian, interpolate, snGrad, reconstruct, flux)
 template<class FieldType>
-void bindUnaryOp(pybind11::module& m, const char* opName)
+void bindUnaryOp(nanobind::module_& m, const char* opName)
 {
     m.def(opName, [](const FieldType& vf){return fvc::grad(vf);});
     m.def(opName, [](const tmp<FieldType>& vf){return fvc::grad(vf);});
@@ -38,7 +38,7 @@ void bindUnaryOp(pybind11::module& m, const char* opName)
 
 // Specialized template for grad operation
 template<class FieldType>
-void bindGrad(pybind11::module& m)
+void bindGrad(nanobind::module_& m)
 {
     m.def("grad", [](const FieldType& vf){return fvc::grad(vf);});
     m.def("grad", [](const tmp<FieldType>& vf){return fvc::grad(vf);});
@@ -46,7 +46,7 @@ void bindGrad(pybind11::module& m)
 
 // Specialized template for div operation
 template<class FieldType>
-void bindDiv(pybind11::module& m)
+void bindDiv(nanobind::module_& m)
 {
     m.def("div", [](const FieldType& vf){return fvc::div(vf);});
     m.def("div", [](const tmp<FieldType>& vf){return fvc::div(vf);});
@@ -54,7 +54,7 @@ void bindDiv(pybind11::module& m)
 
 // Specialized template for div-convection operation (2 arguments)
 template<class FieldType>
-void bindDivConvection(pybind11::module& m)
+void bindDivConvection(nanobind::module_& m)
 {
     m.def("div", [](const surfaceScalarField& ssf, const FieldType& vf){return fvc::div(ssf, vf);});
     m.def("div", [](const surfaceScalarField& ssf, const tmp<FieldType>& vf){return fvc::div(ssf, vf);});
@@ -62,7 +62,7 @@ void bindDivConvection(pybind11::module& m)
 
 // Specialized template for laplacian operation
 template<class FieldType>
-void bindLaplacian(pybind11::module& m)
+void bindLaplacian(nanobind::module_& m)
 {
     m.def("laplacian", [](const FieldType& vf){return fvc::laplacian(vf);});
     m.def("laplacian", [](const tmp<FieldType>& vf){return fvc::laplacian(vf);});
@@ -70,7 +70,7 @@ void bindLaplacian(pybind11::module& m)
 
 // Specialized template for laplacian with diffusivity (2 arguments)
 template<class DiffType, class FieldType>
-void bindLaplacianWithDiff(pybind11::module& m)
+void bindLaplacianWithDiff(nanobind::module_& m)
 {
     // DiffType& + FieldType&
     m.def("laplacian", [](const DiffType& diff, const FieldType& vf){return fvc::laplacian(diff, vf);});
@@ -84,7 +84,7 @@ void bindLaplacianWithDiff(pybind11::module& m)
 
 // Specialized template for interpolate operation
 template<class FieldType>
-void bindInterpolate(pybind11::module& m)
+void bindInterpolate(nanobind::module_& m)
 {
     m.def("interpolate", [](const FieldType& vf){return fvc::interpolate(vf);});
     m.def("interpolate", [](const tmp<FieldType>& vf){return fvc::interpolate(vf);});
@@ -92,7 +92,7 @@ void bindInterpolate(pybind11::module& m)
 
 // Specialized template for snGrad operation
 template<class FieldType>
-void bindSnGrad(pybind11::module& m)
+void bindSnGrad(nanobind::module_& m)
 {
     m.def("snGrad", [](const FieldType& vf){return fvc::snGrad(vf);});
     m.def("snGrad", [](const tmp<FieldType>& vf){return fvc::snGrad(vf);});
@@ -100,7 +100,7 @@ void bindSnGrad(pybind11::module& m)
 
 // Specialized template for reconstruct operation
 template<class FieldType>
-void bindReconstruct(pybind11::module& m)
+void bindReconstruct(nanobind::module_& m)
 {
     m.def("reconstruct", [](const FieldType& sf){return fvc::reconstruct(sf);});
     m.def("reconstruct", [](const tmp<FieldType>& sf){return fvc::reconstruct(sf);});
@@ -108,7 +108,7 @@ void bindReconstruct(pybind11::module& m)
 
 // Specialized template for flux operation
 template<class FieldType>
-void bindFlux(pybind11::module& m)
+void bindFlux(nanobind::module_& m)
 {
     m.def("flux", [](const FieldType& vf){return fvc::flux(vf);});
     m.def("flux", [](const tmp<FieldType>& vf){return fvc::flux(vf);});
@@ -116,7 +116,7 @@ void bindFlux(pybind11::module& m)
 
 // Specialized template for flux with surfaceScalarField (2 arguments)
 template<class FieldType>
-void bindFluxWithPhi(pybind11::module& m)
+void bindFluxWithPhi(nanobind::module_& m)
 {
     m.def("flux", [](const surfaceScalarField& ssf, const FieldType& vf){return fvc::flux(ssf, vf);});
     m.def("flux", [](const surfaceScalarField& ssf, const tmp<FieldType>& vf){return fvc::flux(ssf, vf);});
@@ -125,10 +125,8 @@ void bindFluxWithPhi(pybind11::module& m)
 } // End namespace Foam
 
 
-void Foam::bindFVC(pybind11::module& fvc)
+void Foam::bindFVC(nanobind::module_& fvc)
 {
-    namespace py = pybind11;
-
     // grad operations
     bindGrad<volScalarField>(fvc);
     bindGrad<volVectorField>(fvc);

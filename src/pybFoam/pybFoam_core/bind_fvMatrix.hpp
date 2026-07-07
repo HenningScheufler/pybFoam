@@ -32,23 +32,24 @@ SourceFiles
 #define foam_fvMatrix
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 
 #include "fvMatrix.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
 
 template<class Type>
-py::class_< fvMatrix<Type>>
-declare_fvMatrix(py::module &m, std::string className);
+nb::class_< fvMatrix<Type>>
+declare_fvMatrix(nb::module_ &m, std::string className);
 
 template<class Type>
-void declare_solve(py::module &m);
+void declare_solve(nb::module_ &m);
 
-void  bindFvMatrix(pybind11::module& m);
+void  bindFvMatrix(nanobind::module_& m);
 
 }
 

@@ -35,9 +35,9 @@ namespace Foam
 }
 
 
-void AddPyRunTime(pybind11::module& m)
+void AddPyRunTime(nanobind::module_& m)
 {
-    namespace py = pybind11;
+    namespace nb = nanobind;
 
 
     m.def("Function1", [](){

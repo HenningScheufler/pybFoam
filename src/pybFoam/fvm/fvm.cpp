@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2026, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -17,14 +17,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include "bind_fvm.hpp"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 
-PYBIND11_MODULE(fvm, fvm) {
+NB_MODULE(fvm, fvm) {
     fvm.doc() = "finite volume method"; // optional module docstring
 
     Foam::bindFVM(fvm);

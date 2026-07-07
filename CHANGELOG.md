@@ -1,8 +1,68 @@
 # Changelog
 
+## [0.5.0]
+
+* VoF (Volume of Fluid) bindings (nanobind)
+
+## [0.4.6]
+
+* bind incompressibleTurbulenceModel::validate (correctNut before the first solve)
+
+## [0.4.5]
+
+* bind isFinalIteration/setFinalIteration
+
+## [0.4.4]
+
+* update documentation
+* added sin, cos bindings
+
+## [0.4.3]
+
+* fix segfault on Python 3.10/3.11 when loading the embedded interpreter:
+  - removed a `nb_module_exec(NB_DOMAIN_STR, nullptr)` call from `pyInterp`
+    that dereferenced a null module pointer.
+  - unified nanobind linkage: all extension modules (`pybFoam_core`, `fvc`,
+    `fvm`, `thermo`, `turbulence`, `sampling`, `meshing`, `runTimeTables`)
+    now use `NB_SHARED`
+
+## [0.4.2]
+
+* fix installation of the embedded interpreter in site package
+
+## [0.4.1]
+
+* added additional free functions
+* fix installation of the embedded interpreter
+
+## [0.4.0]
+
+* interpreter added
+* boolList accepts numpy arrays
+* pstream bindings
+
+## [0.3.3]
+
+* wallDist and nearWallDist
+
+
+## [0.3.2]
+
+### Fixes
+
+* missing std/tuple
+* fix invalid free by returnin std::shared_ptr
+
+## [0.3.1]
+
+### Added
+
+* runTime.output
+
 ## [0.3.0]
 
-* VoF bindings
+* port to nanobind
+
 
 ## [0.2.0]
 

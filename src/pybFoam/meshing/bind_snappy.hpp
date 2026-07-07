@@ -20,15 +20,15 @@ License
 #ifndef pybFoam_meshing_bind_snappy_H
 #define pybFoam_meshing_bind_snappy_H
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 #include "fvMesh.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
     // Bind snappyHexMesh functions
-    void addSnappyBindings(pybind11::module& m);
+    void addSnappyBindings(nanobind::module_& m);
 
     // Core function to run snappyHexMesh phases
     void generate_snappy_hex_mesh

@@ -32,24 +32,24 @@ SourceFiles
 #define bind_fvm
 
 // System includes
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 namespace Foam
 {
-    namespace py = pybind11;
+    namespace nb = nanobind;
 
     template<class Type>
-    void bindFvmDdt(py::module_& fvm);
+    void bindFvmDdt(nb::module_& fvm);
 
     template<class Type>
-    void bindFvmDiv(py::module_& fvm);
+    void bindFvmDiv(nb::module_& fvm);
 
     template<class Type>
-    void bindFvmLaplacian(py::module_& fvm);
+    void bindFvmLaplacian(nb::module_& fvm);
 
 
 
-    void  bindFVM(py::module& m);
+    void  bindFVM(nb::module_& m);
 }
 
 #endif // bind_fvm defined

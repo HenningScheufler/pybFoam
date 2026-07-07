@@ -9,13 +9,15 @@ set(RUNTIME_TABLES_HEADERS
     foam_runTimeTables.H
 )
 
-# Create the pybind11 module
-pybind11_add_module(runTimeTables ${RUNTIME_TABLES_SOURCES})
+# Create the nanobind module
+nanobind_add_module(runTimeTables NB_SHARED ${RUNTIME_TABLES_SOURCES})
 
 # Set target properties
 set_target_properties(runTimeTables PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
     VISIBILITY_INLINES_HIDDEN ON
+    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
+    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries

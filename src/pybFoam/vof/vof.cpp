@@ -26,16 +26,16 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include "bind_mixture.hpp"
 #include "bind_twoPhaseTransport.hpp"
 #include "bind_alphaEqn.hpp"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 
-PYBIND11_MODULE(vof, m)
+NB_MODULE(vof, m)
 {
     m.doc() = "pybFoam VoF (Volume of Fluid) bindings for two-phase flows";
 

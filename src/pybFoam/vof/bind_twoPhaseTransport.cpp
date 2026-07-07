@@ -29,7 +29,7 @@ Description
 #include "volFields.H"
 #include "surfaceFields.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 // Concrete typedef for the template instantiation used by interFoam
 typedef Foam::incompressibleInterPhaseTransportModel
@@ -40,31 +40,31 @@ typedef Foam::incompressibleInterPhaseTransportModel
 namespace Foam
 {
 
-void bindTwoPhaseTransport(py::module& m)
+void bindTwoPhaseTransport(nb::module_ & m)
 {
-    py::class_<TwoPhaseTransportModelType>(m, "TwoPhaseTransportModel")
+    nb::class_<TwoPhaseTransportModelType>(m, "TwoPhaseTransportModel")
     .def(
-        py::init<
+        nb::init<
             const volScalarField&,
             const volVectorField&,
             const surfaceScalarField&,
             const surfaceScalarField&,
             const immiscibleIncompressibleTwoPhaseMixture&
         >(),
-        py::arg("rho"),
-        py::arg("U"),
-        py::arg("phi"),
-        py::arg("rhoPhi"),
-        py::arg("mixture"),
-        py::keep_alive<1, 2>(),  // keep rho alive
-        py::keep_alive<1, 3>(),  // keep U alive
-        py::keep_alive<1, 4>(),  // keep phi alive
-        py::keep_alive<1, 5>(),  // keep rhoPhi alive
-        py::keep_alive<1, 6>()   // keep mixture alive
+        nb::arg("rho"),
+        nb::arg("U"),
+        nb::arg("phi"),
+        nb::arg("rhoPhi"),
+        nb::arg("mixture"),
+        nb::keep_alive<1, 2>(),  // keep rho alive
+        nb::keep_alive<1, 3>(),  // keep U alive
+        nb::keep_alive<1, 4>(),  // keep phi alive
+        nb::keep_alive<1, 5>(),  // keep rhoPhi alive
+        nb::keep_alive<1, 6>()   // keep mixture alive
     )
     .def("divDevRhoReff",
         &TwoPhaseTransportModelType::divDevRhoReff,
-        py::arg("rho"), py::arg("U"))
+        nb::arg("rho"), nb::arg("U"))
     .def("correct",
         &TwoPhaseTransportModelType::correct)
     ;

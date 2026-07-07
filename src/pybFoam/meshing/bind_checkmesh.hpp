@@ -20,13 +20,13 @@ License
 #ifndef pybFoam_meshing_bind_checkmesh_H
 #define pybFoam_meshing_bind_checkmesh_H
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
-    void addCheckMeshBindings(pybind11::module& m);
+    void addCheckMeshBindings(nanobind::module_& m);
 }
 
 #endif

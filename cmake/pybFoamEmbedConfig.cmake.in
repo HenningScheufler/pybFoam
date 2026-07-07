@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(Python COMPONENTS Interpreter Development.Module Development.Embed)
+find_dependency(OpenFOAM)
+
+include("${CMAKE_CURRENT_LIST_DIR}/pybFoamEmbedTargets.cmake")

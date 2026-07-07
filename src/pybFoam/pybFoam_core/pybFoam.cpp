@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021, German Aerospace Center (DLR)
+            Copyright (c) 2026, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -17,7 +17,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 #include "bind_io.hpp"
 #include "bind_dict.hpp"
 #include "bind_time.hpp"
@@ -30,11 +30,13 @@ License
 #include "bind_fvMatrix.hpp"
 #include "bind_control.hpp"
 #include "bind_cfdTools.hpp"
+#include "bind_wallDist.hpp"
+#include "bind_pstream.hpp"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 
-PYBIND11_MODULE(pybFoam_core, m) {
+NB_MODULE(pybFoam_core, m) {
     m.doc() = "python bindings for openfoam"; // optional module docstring
 
     Foam::bindIO(m);
@@ -49,4 +51,6 @@ PYBIND11_MODULE(pybFoam_core, m) {
     Foam::bindFvMatrix(m);
     Foam::bindControl(m);
     Foam::bindCfdTools(m);
+    Foam::bindWallDist(m);
+    Foam::bindPstream(m);
 }

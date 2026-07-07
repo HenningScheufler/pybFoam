@@ -1,18 +1,66 @@
-.. pybFoam documentation master file, created by
-   sphinx-quickstart on Sun Sep  7 12:02:25 2025.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 pybFoam Documentation
 =====================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents
+pybFoam provides Python bindings for OpenFOAM via nanobind. It enables direct
+manipulation of OpenFOAM cases, fields, meshes, and solvers from Python, with
+zero-copy NumPy access to field data.
 
-   installation
-   usage
-   api
+**Prerequisite:** Source OpenFOAM v2312+ (``source /path/to/OpenFOAM/etc/bashrc``)
+before building or running anything shown here.
+
+.. admonition:: Which doc should I read?
+   :class: tip
+
+   * **New here?** Start with a tutorial — they walk through an end-to-end
+     workflow.
+   * **Have a specific task?** A how-to guide gives step-by-step recipes.
+   * **Looking up an API or flag?** See the reference.
+   * **Want to understand the design?** Read the explanation section.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorials
+
+   auto_tutorials/example_01_dictionaries
+   auto_tutorials/example_02_scalar_fields
+   auto_tutorials/example_03_modify_initial_conditions
+   auto_tutorials/example_04_run_and_sample
+
+.. toctree::
+   :maxdepth: 1
+   :caption: How-to guides
+
+   auto_how_to/example_blockmesh
+   auto_how_to/example_read_dictionaries
+   auto_how_to/example_fvc_fvm_operators
+   auto_how_to/example_modify_boundary_conditions
+   auto_how_to/example_sample_line
+   auto_how_to/example_sample_plane
+   auto_how_to/example_sample_isosurface
+   auto_how_to/example_turbulence
+   how-to/parallel_runs
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Reference
+
+   reference/api
+   reference/installation
+   reference/build_system
+   reference/cli_and_poe
+   reference/supported_versions
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Explanation
+
+   explanation/code_organization
+   explanation/numpy_integration
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Project
+
    contributing
    changelog
 

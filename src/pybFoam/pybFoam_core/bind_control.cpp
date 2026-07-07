@@ -24,12 +24,12 @@ License
 namespace Foam
 {
 
-void bindControl(pybind11::module& m)
+void bindControl(nanobind::module_& m)
 {
-    namespace py = pybind11;
+    namespace nb = nanobind;
 
-    py::class_<pisoControl>(m, "pisoControl")
-        .def(py::init<fvMesh&, const word&>(), py::arg("mesh"), py::arg("dictName") = word("PISO"))
+    nb::class_<pisoControl>(m, "pisoControl")
+        .def(nb::init<fvMesh&, const word&>(), nb::arg("mesh"), nb::arg("dictName") = word("PISO"))
         .def("correct", &pisoControl::correct)
         .def("correctNonOrthogonal", &pisoControl::correctNonOrthogonal)
         .def("momentumPredictor", &pisoControl::momentumPredictor)
@@ -38,8 +38,8 @@ void bindControl(pybind11::module& m)
         .def("finalInnerIter", &pisoControl::finalInnerIter)
         ;
 
-    py::class_<pimpleControl>(m, "pimpleControl")
-        .def(py::init<fvMesh&, const word&>(), py::arg("mesh"), py::arg("dictName") = word("PIMPLE"))
+    nb::class_<pimpleControl>(m, "pimpleControl")
+        .def(nb::init<fvMesh&, const word&>(), nb::arg("mesh"), nb::arg("dictName") = word("PIMPLE"))
         .def("correct", &pimpleControl::correct)
         .def("correctNonOrthogonal", &pimpleControl::correctNonOrthogonal)
         .def("momentumPredictor", &pimpleControl::momentumPredictor)
@@ -51,8 +51,8 @@ void bindControl(pybind11::module& m)
         .def("finalIter", &pimpleControl::finalIter)
         ;
 
-    py::class_<simpleControl>(m, "simpleControl")
-        .def(py::init<fvMesh&, const word&>(), py::arg("mesh"), py::arg("dictName") = word("SIMPLE"))
+    nb::class_<simpleControl>(m, "simpleControl")
+        .def(nb::init<fvMesh&, const word&>(), nb::arg("mesh"), nb::arg("dictName") = word("SIMPLE"))
         .def("correctNonOrthogonal", &simpleControl::correctNonOrthogonal)
         .def("momentumPredictor", &simpleControl::momentumPredictor)
         .def("finalNonOrthogonalIter", &simpleControl::finalNonOrthogonalIter)

@@ -30,8 +30,9 @@ Author
 #define foam_bind_time_hpp
 
 // System includes
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
 #include <vector>
 
 // OpenFOAM includes
@@ -49,15 +50,15 @@ namespace Foam
         const std::vector<std::string>& args
     );
 
-    Time* createTime(std::string rootPath = ".", std::string caseName = ".");
+    void createTime(Time* self, const std::string& rootPath, const std::string& caseName);
 
-    Time* createTimeArgs(const argList& args);
+    void createTimeArgs(Time* self, const argList& args);
 
-    argList* makeArgList(const std::vector<std::string>& args);
+    void makeArgList(argList* self, const std::vector<std::string>& args);
 }
 
 // Binding function
-void bindTime(pybind11::module& m);
+void bindTime(nanobind::module_& m);
 
 
 #endif // foam_bind_time_hpp

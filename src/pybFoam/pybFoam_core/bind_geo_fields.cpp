@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 20212, Henning Scheufler
+            Copyright (c) 2022-2026, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -19,489 +19,323 @@ License
 
 #include "bind_geo_fields.hpp"
 #include "tmp.H"
-
+#include "bound.H"
 
 namespace Foam
 {
 
-// namespace py = pybind11;
-
 template<class Type, template<class> class PatchField, class GeoMesh>
-Field<Type>& field(GeometricField<Type, PatchField, GeoMesh>& vf,const fvMesh& mesh, const std::string& name)
+Field<Type>& field(GeometricField<Type, PatchField, GeoMesh>& gf, const std::string& name)
 {
     if (name == "internalField")
     {
-        return vf.primitiveFieldRef();
+        return gf.primitiveFieldRef();
     }
     else
     {
-        label patchId = mesh.boundaryMesh().findPatchID(name);
+        label patchId = gf.mesh().boundaryMesh().findPatchID(name);
         if (patchId == -1)
         {
             FatalErrorInFunction
                 << "patch not found " << nl
                 << exit(FatalError);
         }
-        return vf.boundaryFieldRef()[patchId];
+        return gf.boundaryFieldRef()[patchId];
     }
 }
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void field(GeometricField<Type, PatchField, GeoMesh>& vf,const fvMesh& mesh, const std::string& name,const Field<Type>& f)
+void field(GeometricField<Type, PatchField, GeoMesh>& gf, const std::string& name, const Field<Type>& f)
 {
     if (name == "internalField")
     {
-        vf.primitiveFieldRef() = f;
+        gf.primitiveFieldRef() = f;
     }
     else
     {
-        label patchId = mesh.boundaryMesh().findPatchID(name);
+        label patchId = gf.mesh().boundaryMesh().findPatchID(name);
         if (patchId == -1)
         {
             FatalErrorInFunction
                 << "patch not found " << nl
                 << exit(FatalError);
         }
-        vf.boundaryFieldRef()[patchId] = f;
+        gf.boundaryFieldRef()[patchId] = f;
     }
 }
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-auto declare_geofields(py::module &m, std::string className) {
+auto declare_geofields(nb::module_ &m, std::string className) {
+    using GF  = Foam::GeometricField<Type,   PatchField, GeoMesh>;
+    using GFs = Foam::GeometricField<scalar, PatchField, GeoMesh>;
     std::string tmp_className = "tmp_" + className;
-    auto tmpGeofieldClass = py::class_< tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>>(m, tmp_className.c_str())
-    .def("__call__",[](tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) -> Foam::GeometricField<Type, PatchField, GeoMesh>&
-    {
-        return self.ref();
-    }, py::return_value_policy::reference_internal)
-    .def("__neg__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self) {
-        return -self;
-    })
-    .def("__add__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-                       const Foam::GeometricField<Type, PatchField, GeoMesh>& vf2)
-    {
-        return self + vf2;
-    })
-    .def("__add__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-                       const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& vf2)
-    {
-        return self + vf2;
-    })
-    .def("__sub__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-                       const Foam::GeometricField<Type, PatchField, GeoMesh>& vf2)
-    {
-        return self - vf2;
-    })
-    .def("__sub__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-                       const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& vf2)
-    {
-        return self - vf2;
-    })
-    .def("__mul__", []
-    (
-        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-        const Foam::GeometricField<scalar, PatchField, GeoMesh>& vf2)
-    {
-        return self * vf2;
-    })
-    .def("__mul__", []
-    (
-        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-        const tmp<Foam::GeometricField<scalar, PatchField, GeoMesh>>& vf2)
-    {
-        return self * vf2;
-    })
-    .def("__mul__", []
-    (
-        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-        const scalar& s
-    )
-    {
-        return self * s;
-    })
-    .def("__rmul__", []
-    (
-        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self,
-        const scalar& s
-    )
-    {
-        return s * self;
-    })
-    // dimensioned operators (tmp op dimensioned)
-    .def("__mul__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<scalar>& ds)
-    {
-        return self * ds;
-    })
-    .def("__truediv__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<scalar>& ds)
-    {
-        return self / ds;
-    })
-    .def("__add__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<Type>& ds)
-    {
-        return self + ds;
-    })
-    .def("__sub__", [](const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& self, const dimensioned<Type>& ds)
-    {
-        return self - ds;
-    })
+
+    auto tmpGeofieldClass = nb::class_<tmp<GF>>(m, tmp_className.c_str())
+    .def("__call__", [](tmp<GF>& self) -> const GF& { return self.cref(); },
+         nb::rv_policy::reference_internal)
+    .def("ref", [](tmp<GF>& self) -> GF& { return self.ref(); },
+         nb::rv_policy::reference_internal)
+    .def("__neg__", [](const tmp<GF>& self){ return -self; })
+    .def("__add__", [](const tmp<GF>& self, const GF& vf2){ return self + vf2; })
+    .def("__add__", [](const tmp<GF>& self, const tmp<GF>& vf2){ return self + vf2; })
+    .def("__sub__", [](const tmp<GF>& self, const GF& vf2){ return self - vf2; })
+    .def("__sub__", [](const tmp<GF>& self, const tmp<GF>& vf2){ return self - vf2; })
+    .def("__mul__", [](const tmp<GF>& self, const GFs& vf2){ return self * vf2; })
+    .def("__mul__", [](const tmp<GF>& self, const tmp<GFs>& vf2){ return self * vf2; })
+    .def("__mul__",  [](const tmp<GF>& self, const scalar& s){ return self * s; })
+    .def("__rmul__", [](const tmp<GF>& self, const scalar& s){ return s * self; })
+    // dimensioned operators
+    .def("__mul__",     [](const tmp<GF>& self, const dimensioned<scalar>& ds){ return self * ds; })
+    .def("__truediv__", [](const tmp<GF>& self, const dimensioned<scalar>& ds){ return self / ds; })
+    .def("__add__",     [](const tmp<GF>& self, const dimensioned<Type>& ds){ return self + ds; })
+    .def("__sub__",     [](const tmp<GF>& self, const dimensioned<Type>& ds){ return self - ds; })
     ;
 
-    auto geofieldClass = py::class_< Foam::GeometricField<Type, PatchField, GeoMesh>>(m, className.c_str())
-    .def(py::init<GeometricField<Type, PatchField, GeoMesh>>())
-    .def(py::init<tmp<GeometricField<Type, PatchField, GeoMesh>>>())
-    .def(py::init<const word &,tmp<GeometricField<Type, PatchField, GeoMesh>>>())
-    .def("correctBoundaryConditions", &Foam::GeometricField<Type, PatchField, GeoMesh>::correctBoundaryConditions)
-    .def("name", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self) -> std::string {
-        return self.name();
-    })
-    .def_static("read_field",[](const fvMesh& mesh,std::string name)
+    auto geofieldClass = nb::class_<GF>(m, className.c_str())
+    .def(nb::init<GF>())
+    .def(nb::init<tmp<GF>>())
+    .def(nb::init<const word&, tmp<GF>>())
+    .def("correctBoundaryConditions", &GF::correctBoundaryConditions)
+    .def_static("read_field", [](const fvMesh& mesh, std::string name)
     {
-        Foam::GeometricField<Type, PatchField, GeoMesh>* geoField
-        (
-            new Foam::GeometricField<Type, PatchField, GeoMesh>
-            (
-                Foam::IOobject
-                (
-                    name,
-                    mesh.time().timeName(),
-                    mesh,
-                    Foam::IOobject::MUST_READ,
-                    Foam::IOobject::AUTO_WRITE
-                ),
-                mesh
-            )
+        GF* geoField = new GF(
+            Foam::IOobject(name, mesh.time().timeName(), mesh,
+                           Foam::IOobject::MUST_READ, Foam::IOobject::AUTO_WRITE),
+            mesh
         );
         mesh.objectRegistry::store(geoField);
         return geoField;
-    },py::return_value_policy::reference)
-    .def_static("from_registry",[](const fvMesh& mesh,std::string name)
+    },
+    nb::rv_policy::reference,
+    nb::arg("mesh"), nb::arg("name"))
+    .def_static("read_field", [](const fvMesh& mesh, std::string name, bool register_in_mesh)
     {
-        const Foam::GeometricField<Type, PatchField, GeoMesh>* obj =
-            mesh.findObject<Foam::GeometricField<Type, PatchField, GeoMesh>>(name);
-        return obj;
-    },py::return_value_policy::reference)
-    .def_static("list_objects",[](const fvMesh& mesh)
+        if (register_in_mesh)
+        {
+            throw std::runtime_error(
+                "read_field(register=True) is the same as read_field() without the flag."
+            );
+        }
+        return new GF(
+            Foam::IOobject(name, mesh.time().timeName(), mesh,
+                           Foam::IOobject::MUST_READ, Foam::IOobject::NO_WRITE,
+                           false /*registerObject*/),
+            mesh
+        );
+    },
+    nb::rv_policy::take_ownership,
+    nb::arg("mesh"), nb::arg("name"), nb::arg("register"))
+    .def_static("from_registry", [](const fvMesh& mesh, std::string name)
     {
-        return mesh.names<Foam::GeometricField<Type, PatchField, GeoMesh>>();
+        return mesh.findObject<GF>(name);
+    }, nb::rv_policy::reference)
+    .def_static("list_objects", [](const fvMesh& mesh)
+    {
+        return mesh.names<GF>();
     })
-    // .def("internalField",&Foam::GeometricField<Type, PatchField, GeoMesh>::primitiveFieldRef, py::return_value_policy::reference_internal)
-    .def("internalField", [](
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self
-    ) -> Foam::Field<Type>&
+    .def("internalField", [](GF& self) -> Foam::Field<Type>&
     {
         return self.primitiveFieldRef();
-    }, py::return_value_policy::reference_internal)
-    .def("__getitem__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const std::string& name
-    ) -> Foam::Field<Type>&
+    }, nb::rv_policy::reference_internal)
+    .def("__getitem__", [](GF& self, const std::string& name) -> Foam::Field<Type>&
     {
-        return Foam::field(self,self.mesh(),name);
-    }, py::return_value_policy::reference_internal)
-    .def("__setitem__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const std::string& name,
-        const Foam::Field<Type>& f
-    )
+        return Foam::field(self, name);
+    }, nb::rv_policy::reference_internal)
+    .def("__setitem__", [](GF& self, const std::string& name, const Foam::Field<Type>& f)
     {
-        Foam::field(self,self.mesh(),name,f);
+        Foam::field(self, name, f);
     })
-    .def("__add__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& vf2
-    )
-    {
-        return self + vf2;
-    })
-    .def("__add__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-                       const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& vf2)
-    {
-        return self + vf2;
-    })
-    .def("__sub__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& vf2
-    )
-    {
-        return self - vf2;
-    })
-    .def("__sub__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-                       const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& vf2)
-    {
-        return self - vf2;
-    })
-    .def("__mul__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const Foam::GeometricField<scalar, PatchField, GeoMesh>& vf2)
-    {
-        return self * vf2;
-    })
-    .def("__mul__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const tmp<Foam::GeometricField<scalar, PatchField, GeoMesh>>& vf2)
-    {
-        return self * vf2;
-    })
-    .def("__truediv__", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const Foam::GeometricField<scalar, PatchField, GeoMesh>& vf2
-    )
-    {
-        return self / vf2;
-    })
-    .def("__truediv__", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const scalar& s
-    )
-    {
-        return self / s;
-    })
-    .def("__mul__", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const scalar& s
-    )
-    {
-        return self * s;
-    })
-    .def("__rmul__", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const scalar& s
-    )
-    {
-        return s * self;
-    })
-    // dimensioned operators (field op dimensioned)
-    .def("__mul__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<scalar>& ds)
-    {
-        return self * ds;
-    })
-    .def("__truediv__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<scalar>& ds)
-    {
-        return self / ds;
-    })
-    .def("__add__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<Type>& ds)
-    {
-        return self + ds;
-    })
-    .def("__sub__", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& self, const dimensioned<Type>& ds)
-    {
-        return self - ds;
-    })
-    .def("__neg__", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self
-    )
-    {
-        return -self;
-    })
-    .def("select", &Foam::GeometricField<Type, PatchField, GeoMesh>::select)
-    .def("assign", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& vf2
-    )
-    {
-        self = vf2;
-    })
-    .def("assign", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        const tmp<Foam::GeometricField<Type, PatchField, GeoMesh>>& vf2
-    )
-    {
-        self = vf2;
-    })
-    .def("relax", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self
-    )
-    {
-        self.relax();
-    })
-    .def("relax", []
-    (
-        Foam::GeometricField<Type, PatchField, GeoMesh>& self,
-        Foam::scalar relaxFactor
-    )
-    {
-        self.relax(relaxFactor);
-    })
-    .def("mesh", []
-    (
-        const Foam::GeometricField<Type, PatchField, GeoMesh>& self
-    ) -> const typename GeoMesh::Mesh&
+    .def("__add__", [](const GF& self, const GF& vf2){ return self + vf2; })
+    .def("__add__", [](const GF& self, const tmp<GF>& vf2){ return self + vf2; })
+    .def("__sub__", [](const GF& self, const GF& vf2){ return self - vf2; })
+    .def("__sub__", [](const GF& self, const tmp<GF>& vf2){ return self - vf2; })
+    .def("__mul__", [](const GF& self, const GFs& vf2){ return self * vf2; })
+    .def("__mul__", [](const GF& self, const tmp<GFs>& vf2){ return self * vf2; })
+    .def("__truediv__", [](const GF& self, const GFs& vf2){ return self / vf2; })
+    .def("__truediv__", [](const GF& self, const tmp<GFs>& vf2){ return self / vf2; })
+    .def("__mul__",     [](const GF& self, const scalar& s){ return self * s; })
+    .def("__rmul__",    [](const GF& self, const scalar& s){ return s * self; })
+    .def("__truediv__", [](const GF& self, const scalar& s){ return self / s; })
+    .def("__mul__",     [](const GF& self, const dimensioned<scalar>& ds){ return self * ds; })
+    .def("__truediv__", [](const GF& self, const dimensioned<scalar>& ds){ return self / ds; })
+    .def("__add__",     [](const GF& self, const dimensioned<Type>& ds){ return self + ds; })
+    .def("__sub__",     [](const GF& self, const dimensioned<Type>& ds){ return self - ds; })
+    .def("__neg__", [](const GF& self){ return -self; })
+    .def("select", &GF::select)
+    .def("assign", [](GF& self, const GF& vf2)     { self = vf2; })
+    .def("assign", [](GF& self, const tmp<GF>& vf2){ self = vf2; })
+    .def("relax", [](GF& self){ self.relax(); })
+    .def("relax", [](GF& self, Foam::scalar relaxFactor){ self.relax(relaxFactor); })
+    .def("mesh", [](const GF& self) -> const typename GeoMesh::Mesh&
     {
         return self.mesh();
-    }, py::return_value_policy::reference)
-
+    }, nb::rv_policy::reference)
+    .def("name", [](const GF& self) -> std::string { return self.name(); })
     ;
 
-    m.def("write", [](const Foam::GeometricField<Type, PatchField, GeoMesh>& geofield)
-    {
-        geofield.write();
-    });
+    m.def("write", [](const GF& geofield){ geofield.write(); });
+
     return std::make_tuple(geofieldClass, tmpGeofieldClass);
 }
 
+}  // End namespace Foam
 
-template<class FieldType>
-auto declare_mag (const FieldType& geof)
+
+// Bind a unary free function and its tmp<> overload in one shot.
+// Func(f) defers overload resolution to the call site, so the same line works
+// for the field and its tmp<>. VolumeField<T>/SurfaceField<T> are the OpenFOAM
+// aliases for GeometricField<T, fvPatchField, volMesh> / fvsPatchField, surfaceMesh.
+#define DEFINE_UNARY(Name, FieldType, DataType, Func)                          \
+    m.def(#Name, [](const FieldType<DataType>& f)      { return Func(f); });   \
+    m.def(#Name, [](const tmp<FieldType<DataType>>& f) { return Func(f); })
+
+void Foam::bindGeoFields(nb::module_& m)
 {
-    return mag(geof);
-}
-
-
-}
-
-
-void Foam::bindGeoFields(py::module& m)
-{
-    namespace py = pybind11;
-
     auto [vsf, tmp_vsf] = declare_geofields<scalar,fvPatchField, volMesh>(m, std::string("volScalarField"));
     auto [vvf, tmp_vvf] = declare_geofields<vector,fvPatchField, volMesh>(m, std::string("volVectorField"));
     auto [vtf, tmp_vtf] = declare_geofields<tensor,fvPatchField, volMesh>(m, std::string("volTensorField"));
     auto [vstf, tmp_vstf] = declare_geofields<symmTensor,fvPatchField, volMesh>(m, std::string("volSymmTensorField"));
-    tmp_vsf.def("__truediv__", [](const tmp<Foam::GeometricField<scalar, Foam::fvPatchField, Foam::volMesh>>& self, const scalar& rhs)
-    {
-        return self / rhs;
-    })
-    .def("__truediv__", [](const tmp<volScalarField>& self, const volScalarField& rhs)
-    {
-        return self / rhs;
-    })
-    .def("__truediv__", [](const tmp<volScalarField>& self, const tmp<volScalarField>& rhs)
-    {
-        return self / rhs;
-    })
-    .def("__rtruediv__", [](const tmp<volScalarField>& self, const scalar& lhs)
-    {
-        return lhs / self;
-    })
-    .def("__add__", [](const tmp<volScalarField>& self, const scalar& rhs)
-    {
-        return self + dimensionedScalar("s", self().dimensions(), rhs);
-    })
-    // .def("__radd__", [](const tmp<volScalarField>& self, const scalar& lhs)
-    // {
-    //     return dimensionedScalar("s", self().dimensions(), lhs) + self;
-    // })
-    .def("__sub__", [](const tmp<volScalarField>& self, const scalar& rhs)
-    {
-        return self - dimensionedScalar("s", self().dimensions(), rhs);
-    })
-    // .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& lhs)
-    // {
-    //     return dimensionedScalar("s", self().dimensions(), lhs) - self;
-    // })
-    .def("__mul__", []
-    (
-        const tmp<volScalarField>& self,
-        const volVectorField& lhs
-    )
-    {
-        return self * lhs;
-    })
-    .def("__mul__", []
-    (
-        const tmp<volScalarField>& self,
-        const tmp<volVectorField>& lhs
-    )
-    {
-        return self * lhs;
-    })
-    // Scalar arithmetic operators for tmp<volScalarField> (needed for Boussinesq)
-    // .def("__rsub__", [](const tmp<volScalarField>& self, const scalar& s)
-    // {
-    //     return s - self;
-    // })
-    // .def("__radd__", [](const tmp<volScalarField>& self, const scalar& s)
-    // {
-    //     return s + self;
-    // })
-    ;
 
-    vsf.def("__mul__", [](const volScalarField& self, const volVectorField& lhs)
-    {
-        return self * lhs;
-    })
-    .def("__mul__", [](const volScalarField& self, const tmp<volVectorField>& lhs)
-    {
-        return self * lhs;
-    })
-    // Scalar arithmetic operators for volScalarField (needed for Boussinesq: 1.0 - beta*(T - TRef))
-    .def("__sub__", [](const volScalarField& self, const scalar& s)
-    {
-        return self - dimensionedScalar("s", self.dimensions(), s);
-    })
-    // .def("__rsub__", [](const volScalarField& self, const scalar& s)
-    // {
-    //     return s - self;
-    // })
-    .def("__add__", [](const volScalarField& self, const scalar& s)
-    {
-        return self + dimensionedScalar("s", self.dimensions(), s);
-    })
-    // .def("__radd__", [](const volScalarField& self, const scalar& s)
-    // {
-    //     return s + self;
-    // })
-    .def("__rtruediv__", [](const volScalarField& self, const scalar& s)
-    {
-        return s / self;
-    })
-    .def("oldTime", [](volScalarField& self) -> volScalarField&
-    {
-        return self.oldTime();
-    }, py::return_value_policy::reference_internal)
-    ;
+    // Extra tmp_volScalarField operators (Boussinesq buoyancy needs these).
+    tmp_vsf
+        .def("__truediv__", [](const tmp<volScalarField>& self, const volScalarField& rhs){ return self / rhs; })
+        .def("__truediv__", [](const tmp<volScalarField>& self, const tmp<volScalarField>& rhs){ return self / rhs; })
+        .def("__truediv__", [](const tmp<volScalarField>& self, const scalar& rhs){ return self / rhs; })
+        .def("__rtruediv__", [](const tmp<volScalarField>& self, const scalar& lhs){ return lhs / self; })
+        .def("__add__", [](const tmp<volScalarField>& self, const scalar& rhs)
+        {
+            return self + dimensionedScalar("s", self().dimensions(), rhs);
+        })
+        .def("__sub__", [](const tmp<volScalarField>& self, const scalar& rhs)
+        {
+            return self - dimensionedScalar("s", self().dimensions(), rhs);
+        })
+        .def("__mul__", [](const tmp<volScalarField>& self, const volVectorField& lhs){ return self * lhs; })
+        .def("__mul__", [](const tmp<volScalarField>& self, const tmp<volVectorField>& lhs){ return self * lhs; })
+        .def("__mul__", [](const tmp<volScalarField>& self, const volTensorField& lhs){ return self * lhs; })
+        .def("__mul__", [](const tmp<volScalarField>& self, const tmp<volTensorField>& lhs){ return self * lhs; })
+        ;
 
+    vsf
+        .def("__mul__", [](const volScalarField& self, const volVectorField& lhs){ return self * lhs; })
+        .def("__mul__", [](const volScalarField& self, const tmp<volVectorField>& lhs){ return self * lhs; })
+        .def("__mul__", [](const volScalarField& self, const volTensorField& lhs){ return self * lhs; })
+        .def("__mul__", [](const volScalarField& self, const tmp<volTensorField>& lhs){ return self * lhs; })
+        .def("__sub__", [](const volScalarField& self, const scalar& s)
+        {
+            return self - dimensionedScalar("s", self.dimensions(), s);
+        })
+        .def("__add__", [](const volScalarField& self, const scalar& s)
+        {
+            return self + dimensionedScalar("s", self.dimensions(), s);
+        })
+        .def("__rtruediv__", [](const volScalarField& self, const scalar& s){ return s / self; })
+        .def("oldTime", [](volScalarField& self) -> volScalarField&
+        {
+            return self.oldTime();
+        }, nb::rv_policy::reference_internal)
+        ;
+
+    // oldTime() on the vector field — VoF momentum needs the stored old-time
+    // value for fvm::ddt(rho, U).
     vvf
-    .def("oldTime", [](volVectorField& self) -> volVectorField&
-    {
-        return self.oldTime();
-    }, py::return_value_policy::reference_internal)
-    ;
+        .def("oldTime", [](volVectorField& self) -> volVectorField&
+        {
+            return self.oldTime();
+        }, nb::rv_policy::reference_internal)
+        ;
 
     auto [ssf, tmp_ssf] = declare_geofields<scalar,fvsPatchField, surfaceMesh>(m, std::string("surfaceScalarField"));
 
-    // Add division operators for tmp_surfaceScalarField (needed for Boussinesq)
-    tmp_ssf.def("__truediv__", [](const tmp<Foam::GeometricField<scalar, Foam::fvsPatchField, Foam::surfaceMesh>>& self, const scalar& rhs)
-    {
-        return self / rhs;
-    })
-    .def("__truediv__", [](const tmp<surfaceScalarField>& self, const surfaceScalarField& rhs)
-    {
-        return self / rhs;
-    })
-    .def("__truediv__", [](const tmp<surfaceScalarField>& self, const tmp<surfaceScalarField>& rhs)
-    {
-        return self / rhs;
-    });
+    tmp_ssf
+        .def("__truediv__", [](const tmp<surfaceScalarField>& self, const surfaceScalarField& rhs){ return self / rhs; })
+        .def("__truediv__", [](const tmp<surfaceScalarField>& self, const tmp<surfaceScalarField>& rhs){ return self / rhs; })
+        .def("__truediv__", [](const tmp<surfaceScalarField>& self, const scalar& rhs){ return self / rhs; })
+        ;
 
     auto [svf, tmp_svf] = declare_geofields<vector,fvsPatchField, surfaceMesh>(m, std::string("surfaceVectorField"));
     auto [stf, tmp_stf] = declare_geofields<tensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceTensorField"));
     auto [sstf, tmp_sstf] = declare_geofields<symmTensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceSymmTensorField"));
 
-    // // functions
+    // suppress unused warnings for handles we don't extend further
+    (void)vvf; (void)tmp_vvf; (void)vtf; (void)tmp_vtf;
+    (void)vstf; (void)tmp_vstf; (void)ssf; (void)svf; (void)tmp_svf;
+    (void)stf; (void)tmp_stf; (void)sstf; (void)tmp_sstf;
 
-    m.def("mag",declare_mag<volScalarField>);
-    m.def("mag",declare_mag<volVectorField>);
-    m.def("mag",declare_mag<volTensorField>);
-    m.def("mag",declare_mag<volSymmTensorField>);
+    // ---- Module-level free functions ----
+    // mag — every vol component type plus surface scalar/vector/tensor.
+    DEFINE_UNARY(mag, VolumeField,  scalar,     Foam::mag);
+    DEFINE_UNARY(mag, VolumeField,  vector,     Foam::mag);
+    DEFINE_UNARY(mag, VolumeField,  tensor,     Foam::mag);
+    DEFINE_UNARY(mag, VolumeField,  symmTensor, Foam::mag);
+    DEFINE_UNARY(mag, SurfaceField, scalar,     Foam::mag);
+    DEFINE_UNARY(mag, SurfaceField, vector,     Foam::mag);
+    DEFINE_UNARY(mag, SurfaceField, tensor,     Foam::mag);
 
-    m.def("mag",declare_mag<surfaceScalarField>);
-    m.def("mag",declare_mag<surfaceVectorField>);
-    m.def("mag",declare_mag<surfaceTensorField>);
+    // magSqr — vol scalar/vector/tensor (not symmTensor).
+    DEFINE_UNARY(magSqr, VolumeField, scalar, Foam::magSqr);
+    DEFINE_UNARY(magSqr, VolumeField, vector, Foam::magSqr);
+    DEFINE_UNARY(magSqr, VolumeField, tensor, Foam::magSqr);
 
+    DEFINE_UNARY(sqr,  VolumeField, scalar, Foam::sqr);
+    DEFINE_UNARY(sqrt, VolumeField, scalar, Foam::sqrt);
+    DEFINE_UNARY(pow3, VolumeField, scalar, Foam::pow3);
+    DEFINE_UNARY(pow6, VolumeField, scalar, Foam::pow6);
+
+    DEFINE_UNARY(skew,       VolumeField, tensor, Foam::skew);
+    DEFINE_UNARY(symm,       VolumeField, tensor, Foam::symm);
+    DEFINE_UNARY(devTwoSymm, VolumeField, tensor, Foam::devTwoSymm);
+
+    // dev2 takes two input types.
+    DEFINE_UNARY(dev2, VolumeField, symmTensor, Foam::dev2);
+    DEFINE_UNARY(dev2, VolumeField, tensor,     Foam::dev2);
+
+    // T (transpose) — uses member function .T(), so kept inline.
+    m.def("T", [](const volTensorField& f){ return f.T(); });
+    m.def("T", [](const tmp<volTensorField>& f){ return f().T(); });
+
+    // max/min — heterogeneous rhs types (scalar / dimensionedScalar / volScalarField).
+    m.def("max", [](const volScalarField& f, const dimensionedScalar& s){ return Foam::max(f, s); });
+    m.def("max", [](const volScalarField& f, const volScalarField& g){ return Foam::max(f, g); });
+    m.def("max", [](const volScalarField& f, const scalar& s)
+    {
+        return Foam::max(f, dimensionedScalar("s", f.dimensions(), s));
+    });
+    m.def("max", [](const tmp<volScalarField>& f, const dimensionedScalar& s){ return Foam::max(f, s); });
+    m.def("max", [](const tmp<volScalarField>& f, const scalar& s)
+    {
+        return Foam::max(f, dimensionedScalar("s", f().dimensions(), s));
+    });
+    m.def("min", [](const volScalarField& f, const dimensionedScalar& s){ return Foam::min(f, s); });
+    m.def("min", [](const volScalarField& f, const volScalarField& g){ return Foam::min(f, g); });
+    m.def("min", [](const volScalarField& f, const scalar& s)
+    {
+        return Foam::min(f, dimensionedScalar("s", f.dimensions(), s));
+    });
+    m.def("min", [](const tmp<volScalarField>& f, const scalar& s)
+    {
+        return Foam::min(f, dimensionedScalar("s", f().dimensions(), s));
+    });
+
+    // pow(field, scalar exponent)
+    m.def("pow", [](const volScalarField& f, const scalar& exp)
+    {
+        return Foam::pow(f, dimensionedScalar("exp", dimless, exp));
+    });
+    m.def("pow", [](const tmp<volScalarField>& f, const scalar& exp)
+    {
+        return Foam::pow(f, dimensionedScalar("exp", dimless, exp));
+    });
+
+    // bound (mutates)
+    m.def("bound", [](volScalarField& f, const dimensionedScalar& lower)
+    {
+        return Foam::bound(f, lower);
+    });
+
+    // Double inner product (tensor && symmTensor → scalar)
+    m.def("doubleInner", [](const volTensorField& T, const volSymmTensorField& S){ return T && S; });
+    m.def("doubleInner", [](const volTensorField& T, const tmp<volSymmTensorField>& S){ return T && S; });
 }
+
+#undef DEFINE_UNARY

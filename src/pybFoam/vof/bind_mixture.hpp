@@ -20,12 +20,12 @@ License
 #ifndef bind_mixture_H
 #define bind_mixture_H
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 namespace Foam
 {
 
-void bindMixture(pybind11::module& m);
+void bindMixture(nanobind::module_ & m);
 
 } // End namespace Foam
 

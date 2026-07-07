@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2021-2026, German Aerospace Center (DLR)
+            Copyright (c) 2021-2026, Henning Scheufler
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -28,15 +28,16 @@ Description
 #ifndef meshUtils_H
 #define meshUtils_H
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
 
 #include "dictionary.H"
 #include "polyMesh.H"
 #include "Time.H"
 #include "argList.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
@@ -52,7 +53,7 @@ public:
     // Static member functions
 
         //- Extract mesh statistics to Python dictionary
-        static py::dict extractMeshStats(const polyMesh& mesh);
+        static nb::dict extractMeshStats(const polyMesh& mesh);
 
         //- Create and manage OpenFOAM Time object for mesh generation
         static autoPtr<Time> createTime

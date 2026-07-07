@@ -14,13 +14,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Add cmake module path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-# Configure dependencies with CPM
-include(Dependencies)
+include(GNUInstallDirs)
 
-# Find Python (scikit-build-core sets up Python variables)
-if(NOT Python_FOUND)
-    find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
+# The embed library ships inside the pybFoam wheel (site-packages/pybFoam/embed/).
+# It only requires OpenFOAM at build time; disable with -DPYBFOAM_BUILD_EMBED=OFF
+# when OpenFOAM is unavailable.
+option(PYBFOAM_BUILD_EMBED
+    "Build the pybFoamEmbed C++ library for OpenFOAM solvers"
+    ON)
+
+# Development.Embed only needed when building the embed library (links libpython)
+set(_pybfoam_python_components Interpreter Development.Module)
+if(PYBFOAM_BUILD_EMBED)
+    list(APPEND _pybfoam_python_components Development.Embed)
 endif()
+find_package(Python COMPONENTS ${_pybfoam_python_components} REQUIRED)
+
+# Configure dependencies with CPM (nanobind discovery requires Python)
+include(Dependencies)
 
 # Find OpenFOAM
 find_package(OpenFOAM REQUIRED)
@@ -42,10 +53,7 @@ endif()
 # Add subdirectories
 add_subdirectory(src/pybFoam)
 
-# Optional: Add applications and tests only if not building with pip
-if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-    # add_subdirectory(src/embeddingPython)
-    # add_subdirectory(application EXCLUDE_FROM_ALL)
-    # enable_testing()
-    # add_subdirectory(testsuite EXCLUDE_FROM_ALL)
+if(PYBFOAM_BUILD_EMBED)
+    message(STATUS "Building pybFoamEmbed (C++ embed library for OpenFOAM)")
+    add_subdirectory(src/pybFoam/embed)
 endif()

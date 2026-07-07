@@ -24,8 +24,10 @@ Description
 #define bind_sampling_hpp
 
 // System includes
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/shared_ptr.h>
 
 // OpenFOAM includes
 #include "sampledSurface.H"
@@ -38,15 +40,15 @@ Description
 #include "meshSearch.H"
 #include "interpolation.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
-    void bindSampledSurface(py::module& m);
-    void bindSampledSet(py::module& m);
-    void bindMeshSearch(py::module& m);
-    void bindInterpolation(py::module& m);
-    void bindSamplingFunctions(py::module& m);
+    void bindSampledSurface(nb::module_& m);
+    void bindSampledSet(nb::module_& m);
+    void bindMeshSearch(nb::module_& m);
+    void bindInterpolation(nb::module_& m);
+    void bindSamplingFunctions(nb::module_& m);
 }
 
 #endif

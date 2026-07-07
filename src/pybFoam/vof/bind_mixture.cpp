@@ -22,38 +22,38 @@ License
 #include "volFields.H"
 #include "surfaceFields.H"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace Foam
 {
 
-void bindMixture(py::module& m)
+void bindMixture(nb::module_ & m)
 {
-    py::class_<immiscibleIncompressibleTwoPhaseMixture>(
+    nb::class_<immiscibleIncompressibleTwoPhaseMixture>(
         m, "immiscibleIncompressibleTwoPhaseMixture"
     )
     .def(
-        py::init<const volVectorField&, const surfaceScalarField&>(),
-        py::arg("U"), py::arg("phi")
+        nb::init<const volVectorField&, const surfaceScalarField&>(),
+        nb::arg("U"), nb::arg("phi")
     )
     // Phase fraction fields (non-const references for in-place modification)
     .def("alpha1",
         [](immiscibleIncompressibleTwoPhaseMixture& self) -> volScalarField& {
             return self.alpha1();
         },
-        py::return_value_policy::reference_internal)
+        nb::rv_policy::reference_internal)
     .def("alpha2",
         [](immiscibleIncompressibleTwoPhaseMixture& self) -> volScalarField& {
             return self.alpha2();
         },
-        py::return_value_policy::reference_internal)
+        nb::rv_policy::reference_internal)
     // Phase densities (from incompressibleTwoPhaseMixture via twoPhaseMixture)
     .def("rho1",
         &immiscibleIncompressibleTwoPhaseMixture::rho1,
-        py::return_value_policy::reference_internal)
+        nb::rv_policy::reference_internal)
     .def("rho2",
         &immiscibleIncompressibleTwoPhaseMixture::rho2,
-        py::return_value_policy::reference_internal)
+        nb::rv_policy::reference_internal)
     // Mixture viscosity
     .def("nu",
         [](const immiscibleIncompressibleTwoPhaseMixture& self) {
@@ -64,7 +64,7 @@ void bindMixture(py::module& m)
         &immiscibleIncompressibleTwoPhaseMixture::cAlpha)
     .def("nHatf",
         &immiscibleIncompressibleTwoPhaseMixture::nHatf,
-        py::return_value_policy::reference_internal)
+        nb::rv_policy::reference_internal)
     .def("surfaceTensionForce",
         &immiscibleIncompressibleTwoPhaseMixture::surfaceTensionForce)
     // Correct transport and interface properties

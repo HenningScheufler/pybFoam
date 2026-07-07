@@ -20,7 +20,7 @@ License
 #ifndef bind_alphaEqn_H
 #define bind_alphaEqn_H
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 #include "immiscibleIncompressibleTwoPhaseMixture.H"
 #include "volFields.H"
 #include "surfaceFields.H"
@@ -43,7 +43,7 @@ void runAlphaEqn
     const word& alpharScheme
 );
 
-void bindAlphaEqn(pybind11::module& m);
+void bindAlphaEqn(nanobind::module_ & m);
 
 } // End namespace Foam
 

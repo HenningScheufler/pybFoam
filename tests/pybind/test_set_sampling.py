@@ -98,7 +98,7 @@ def test_sampledSet_uniform_line(change_test_dir: Any) -> None:
     assert len(cells) == len(points)
 
     # Most cells should be valid (>= 0)
-    valid_cells = sum(1 for c in cells if c >= 0)  # type: ignore[misc, attr-defined]
+    valid_cells = sum(1 for c in cells if c >= 0)
     assert valid_cells > len(points) * 0.7  # At least 70% valid
 
 

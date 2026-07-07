@@ -32,8 +32,9 @@ SourceFiles
 #define foam_runTimeTables
 
 // System includes
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
 
 
 namespace Foam
@@ -43,7 +44,7 @@ namespace Foam
 
 }
 
-void  AddPyRunTime(pybind11::module& m);
+void  AddPyRunTime(nanobind::module_& m);
 
 
 #endif // foam_runTimeTables  defined

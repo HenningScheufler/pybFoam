@@ -9,13 +9,15 @@ set(FVM_HEADERS
     bind_fvm.hpp
 )
 
-# Create the pybind11 module
-pybind11_add_module(fvm ${FVM_SOURCES})
+# Create the nanobind module
+nanobind_add_module(fvm NB_SHARED ${FVM_SOURCES})
 
 # Set target properties
 set_target_properties(fvm PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
     VISIBILITY_INLINES_HIDDEN ON
+    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
+    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries

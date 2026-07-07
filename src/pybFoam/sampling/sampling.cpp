@@ -22,9 +22,9 @@ Description
 
 #include "bind_sampling.hpp"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-PYBIND11_MODULE(sampling_bindings, m) {
+NB_MODULE(sampling_bindings, m) {
     m.doc() = "OpenFOAM sampling and surface functionality";
 
     Foam::bindSampledSurface(m);

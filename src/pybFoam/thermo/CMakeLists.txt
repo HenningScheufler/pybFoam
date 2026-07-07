@@ -9,13 +9,15 @@ set(THERMO_HEADERS
     bind_thermo.hpp
 )
 
-# Create the pybind11 module
-pybind11_add_module(thermo ${THERMO_SOURCES})
+# Create the nanobind module
+nanobind_add_module(thermo NB_SHARED ${THERMO_SOURCES})
 
 # Set target properties
 set_target_properties(thermo PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
     VISIBILITY_INLINES_HIDDEN ON
+    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
+    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries

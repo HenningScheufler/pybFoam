@@ -20,12 +20,12 @@ License
 #ifndef bind_twoPhaseTransport_H
 #define bind_twoPhaseTransport_H
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 namespace Foam
 {
 
-void bindTwoPhaseTransport(pybind11::module& m);
+void bindTwoPhaseTransport(nanobind::module_ & m);
 
 } // End namespace Foam
 

@@ -42,8 +42,6 @@ License
 #include "surfaceWriter.H"
 #include "searchableSurfaces.H"
 
-#include <pybind11/stl.h>
-
 namespace Foam
 {
 
@@ -492,17 +490,17 @@ void generate_snappy_hex_mesh
     MeshUtils::restoreOutput();
 }
 
-void addSnappyBindings(pybind11::module_& m)
+void addSnappyBindings(nb::module_& m)
 {
     m.def("generate_snappy_hex_mesh",
         [](fvMesh& mesh, const dictionary& dict, bool overwrite, bool verbose)
         {
             generate_snappy_hex_mesh(mesh, dict, overwrite, verbose);
         },
-        pybind11::arg("mesh"),
-        pybind11::arg("dict"),
-        pybind11::arg("overwrite") = true,
-        pybind11::arg("verbose") = true,
+        nb::arg("mesh"),
+        nb::arg("dict"),
+        nb::arg("overwrite") = true,
+        nb::arg("verbose") = true,
         "Run snappyHexMesh on an existing mesh"
     );
 }
