@@ -20,9 +20,31 @@ License
 #include "bind_fvm.hpp"
 
 #include "fvm.H"
+#include "convectionScheme.H"
+#include "IStringStream.H"
+#include "dictionary.H"
+
+#include <optional>
+#include <stdexcept>
 
 namespace Foam
 {
+
+// Validate the optional scheme/key/dict kwargs (see bind_fvc.cpp for the shared
+// semantics: scheme=inline spec, key=fvSchemes entry name, dict=lookup source).
+static void checkSchemeArgs
+(
+    const std::optional<std::string>& scheme,
+    const std::optional<std::string>& key,
+    const dictionary* dict,
+    const char* op
+)
+{
+    if (scheme && (key || dict))
+        throw std::invalid_argument(std::string(op) + ": 'scheme' is exclusive with 'key'/'dict'");
+    if (dict && !key)
+        throw std::invalid_argument(std::string(op) + ": 'dict' requires 'key'");
+}
 
 template <class Type>
 void bindFvmDdt(nb::module_& fvm)
@@ -39,31 +61,53 @@ template <class Type>
 void bindFvmDiv(nb::module_& fvm)
 {
     using Field = GeometricField<Type, fvPatchField, volMesh>;
-    fvm.def("div", [](const surfaceScalarField& flux, const Field& vf) { return fvm::div(flux, vf); });
     fvm.def("div", [](const tmp<surfaceScalarField>& flux, const Field& vf) { return fvm::div(flux, vf); });
+
+    // div(phi, field, *, scheme=, key=, dict=) — mirror of fvm::div; the three
+    // optional kwargs swap the Istream source fed to convectionScheme::New:
+    //   scheme= inline spec (e.g. "Gauss upwind"), independent of fvSchemes
+    //           (used by the MULESCorr implicit-upwind predictor);
+    //   key=    entry looked up in the case's fvSchemes (native word overload);
+    //   key= + dict=  entry looked up in the caller-supplied dictionary.
+    fvm.def("div", [](const surfaceScalarField& flux, const Field& vf, std::optional<std::string> scheme,
+                      std::optional<std::string> key, const dictionary* dict)
+        {
+            checkSchemeArgs(scheme, key, dict, "div");
+            if (scheme) { IStringStream is(*scheme);
+                return fv::convectionScheme<Type>::New(vf.mesh(), flux, is)->fvmDiv(flux, vf); }
+            if (dict) return fv::convectionScheme<Type>::New(vf.mesh(), flux, dict->lookup(word(*key)))->fvmDiv(flux, vf);
+            if (key) return fvm::div(flux, vf, word(*key));
+            return fvm::div(flux, vf);
+        }, nb::arg("phi"), nb::arg("vf"), nb::kw_only(),
+           nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+           nb::arg("dict").none() = nb::none());
 }
+
+// laplacian gamma form with an optional key= (fvSchemes lookup); scheme=/dict=
+// are deferred (the dimensioned<GType> gamma materialises a Gamma field).
+#define FVM_LAPLACIAN_KEY(GAMMA_T) \
+    fvm.def("laplacian", [](GAMMA_T gamma, const Field& vf, std::optional<std::string> key) \
+        { if (key) return fvm::laplacian(gamma, vf, word(*key)); return fvm::laplacian(gamma, vf); }, \
+        nb::arg("gamma"), nb::arg("vf"), nb::kw_only(), nb::arg("key") = nb::none())
 
 template <class Type>
 void bindFvmLaplacian(nb::module_& fvm)
 {
     using Field = GeometricField<Type, fvPatchField, volMesh>;
 
-    fvm.def("laplacian", [](const Field& vf) { return fvm::laplacian(vf); });
+    fvm.def("laplacian", [](const Field& vf, std::optional<std::string> key)
+        { if (key) return fvm::laplacian(vf, word(*key)); return fvm::laplacian(vf); },
+        nb::arg("vf"), nb::kw_only(), nb::arg("key") = nb::none());
 
-    // fvm.def("laplacian", [](const zero&, const Field& vf) { return fvm::laplacian(zero{}, vf); });
-    // fvm.def("laplacian", [](const scalar&, const Field& vf) { return fvm::laplacian(one{}, vf); });
-
-    fvm.def("laplacian", [](const dimensionedScalar& gamma, const Field& vf) { return fvm::laplacian(gamma, vf); });
-
-    fvm.def("laplacian", [](const volScalarField& gamma, const Field& vf) { return fvm::laplacian(gamma, vf); });
-    fvm.def("laplacian", [](const tmp<volScalarField>& gamma, const Field& vf) { return fvm::laplacian(gamma, vf); });
-
-    fvm.def("laplacian", [](const volTensorField& gamma, const Field& vf) { return fvm::laplacian(gamma, vf); });
-    fvm.def("laplacian", [](const tmp<volTensorField>& gamma, const Field& vf) { return fvm::laplacian(gamma, vf); });
-
-    fvm.def("laplacian", [](const surfaceScalarField& gamma, const Field& vf) { return fvm::laplacian(gamma, vf); });
-    fvm.def("laplacian", [](const tmp<surfaceScalarField>& gamma, const Field& vf) { return fvm::laplacian(gamma, vf); });
+    FVM_LAPLACIAN_KEY(const dimensionedScalar&);
+    FVM_LAPLACIAN_KEY(const volScalarField&);
+    FVM_LAPLACIAN_KEY(const tmp<volScalarField>&);
+    FVM_LAPLACIAN_KEY(const volTensorField&);
+    FVM_LAPLACIAN_KEY(const tmp<volTensorField>&);
+    FVM_LAPLACIAN_KEY(const surfaceScalarField&);
+    FVM_LAPLACIAN_KEY(const tmp<surfaceScalarField>&);
 }
+#undef FVM_LAPLACIAN_KEY
 
 template <class Type>
 void bindFvmSources(nb::module_& fvm)

@@ -115,7 +115,8 @@ void bindFvMesh(nanobind::module_ &m)
         }, nb::rv_policy::reference)
         .def("size", [](const Foam::fvPatch& self) { return self.size(); })
         .def("start", [](const Foam::fvPatch& self) { return self.start(); })
-        .def("index", [](const Foam::fvPatch& self) { return self.index(); });
+        .def("index", [](const Foam::fvPatch& self) { return self.index(); })
+        .def("coupled", [](const Foam::fvPatch& self) { return self.coupled(); });
 
     nb::class_<Foam::fvMesh>(m, "fvMesh")
         .def("__init__", [](Foam::fvMesh* self, const Foam::Time& time, bool autoWrite) {

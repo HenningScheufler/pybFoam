@@ -34,6 +34,7 @@ SourceFiles
 // System includes
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/optional.h>
 #include "word.H"
 #include "scalar.H"
 #include "vector.H"

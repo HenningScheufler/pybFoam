@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2022, Henning Scheufler
+            Copyright (c) 2026, NeoFOAM authors
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
-	unofficial extension to OpenFOAM.
+    unofficial extension to OpenFOAM.
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -16,42 +16,22 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::bind_fvm
+    Foam::bind_mules
 
 Description
-
-Author
-    Henning Scheufler, all rights reserved.
-
-SourceFiles
-
+    Generic MULES (Multidimensional Universal Limiter for Explicit Solution)
+    bindings.  Not VoF-specific — usable for any bounded scalar transport.
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef bind_fvm
-#define bind_fvm
+#ifndef bind_mules
+#define bind_mules
 
-// System includes
 #include <nanobind/nanobind.h>
-#include <nanobind/stl/string.h>
-#include <nanobind/stl/optional.h>
 
 namespace Foam
 {
-    namespace nb = nanobind;
-
-    template<class Type>
-    void bindFvmDdt(nb::module_& fvm);
-
-    template<class Type>
-    void bindFvmDiv(nb::module_& fvm);
-
-    template<class Type>
-    void bindFvmLaplacian(nb::module_& fvm);
-
-
-
-    void  bindFVM(nb::module_& m);
+    void bindMULES(nanobind::module_& m);
 }
 
-#endif // bind_fvm defined
+#endif // bind_mules defined
