@@ -26,6 +26,8 @@ License
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "ITstream.H"
+#include "IStringStream.H"
+#include "DynamicList.H"
 #include "dictionary.H"
 
 #include <optional>
@@ -56,7 +58,22 @@ static ITstream schemeStream
         throw std::invalid_argument(std::string(op) + ": 'dict' requires 'key'");
 
     if (scheme)
-        return ITstream(std::string_view(*scheme));
+    {
+        // Parse the inline scheme spec ("Gauss upwind", ...) into tokens.
+        // ITstream's string-parsing constructors only exist in newer OpenFOAM;
+        // tokenising through IStringStream and building the stream from a token
+        // list works across all supported versions (v2312+).
+        IStringStream iss(*scheme);
+        DynamicList<token> toks;
+        for (token t; (iss >> t, t.good()); )
+            toks.append(t);
+
+        tokenList tl;
+        tl.transfer(toks);
+        // Use a plain stream name: the spec string may contain spaces, which
+        // OpenFOAM would reject when the name is validated as a fileName.
+        return ITstream(word("scheme"), std::move(tl), IOstreamOption());
+    }
 
     const word name(key ? word(*key) : defaultName);
     ITstream is(dict ? dict->lookup(name) : meshScheme(name));
