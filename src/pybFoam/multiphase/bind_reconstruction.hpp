@@ -17,33 +17,15 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef bind_alphaEqn_H
-#define bind_alphaEqn_H
+#ifndef bind_reconstruction_H
+#define bind_reconstruction_H
 
 #include <nanobind/nanobind.h>
-#include "immiscibleIncompressibleTwoPhaseMixture.H"
-#include "volFields.H"
-#include "surfaceFields.H"
 
 namespace Foam
 {
 
-// Public API: run a single pass of the alpha equation (MULES-based)
-// May be called directly from Python via the 'run_alpha_eqn' binding.
-void runAlphaEqn
-(
-    volScalarField& alpha1,
-    volScalarField& alpha2,
-    const surfaceScalarField& phi,
-    surfaceScalarField& alphaPhi10,
-    immiscibleIncompressibleTwoPhaseMixture& mixture,
-    int  nAlphaCorr,
-    bool MULESCorr,
-    const word& alphaScheme,
-    const word& alpharScheme
-);
-
-void bindAlphaEqn(nanobind::module_ & m);
+void bindReconstruction(nanobind::module_ & m);
 
 } // End namespace Foam
 

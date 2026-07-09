@@ -230,6 +230,7 @@ if(NOT TARGET OpenFOAM::vof)
         "${FOAM_SRC}/phaseSystemModels/twoPhaseInter/incompressibleInterPhaseTransportModel/lnInclude"
         "${FOAM_SRC}/phaseSystemModels/twoPhaseInter/VoFphaseIncompressibleTurbulenceModels/lnInclude"
         "${FOAM_SRC}/TurbulenceModels/phaseIncompressible/lnInclude"
+        "${FOAM_SRC}/transportModels/geometricVoF/lnInclude"
     )
 
     target_link_libraries(OpenFOAM::vof INTERFACE
@@ -239,6 +240,7 @@ if(NOT TARGET OpenFOAM::vof)
         twoPhaseProperties
         VoFphaseTurbulentTransportModels
         incompressibleInterPhaseTransportModels
+        geometricVoF
         OpenFOAM::turbulence
         OpenFOAM::finiteVolume
         OpenFOAM::core

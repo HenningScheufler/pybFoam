@@ -21,22 +21,32 @@ License
 
 #include "fvm.H"
 #include "convectionScheme.H"
-#include "IStringStream.H"
+#include "ddtScheme.H"
+#include "laplacianScheme.H"
+#include "volFields.H"
+#include "surfaceFields.H"
+#include "ITstream.H"
 #include "dictionary.H"
 
 #include <optional>
 #include <stdexcept>
+#include <string_view>
 
 namespace Foam
 {
 
-// Validate the optional scheme/key/dict kwargs (see bind_fvc.cpp for the shared
-// semantics: scheme=inline spec, key=fvSchemes entry name, dict=lookup source).
-static void checkSchemeArgs
+// Resolve the scheme token stream from the optional scheme/key/dict kwargs (see
+// bind_fvc.cpp for the shared semantics: scheme=inline spec, key=fvSchemes entry
+// name, dict=lookup source).  Returned by value so the inline case owns its
+// freshly parsed tokens and the by-name cases copy the dict/mesh ITstream.
+template<class MeshScheme>
+static ITstream schemeStream
 (
     const std::optional<std::string>& scheme,
     const std::optional<std::string>& key,
     const dictionary* dict,
+    const word& defaultName,
+    const MeshScheme& meshScheme,
     const char* op
 )
 {
@@ -44,70 +54,208 @@ static void checkSchemeArgs
         throw std::invalid_argument(std::string(op) + ": 'scheme' is exclusive with 'key'/'dict'");
     if (dict && !key)
         throw std::invalid_argument(std::string(op) + ": 'dict' requires 'key'");
+
+    if (scheme)
+        return ITstream(std::string_view(*scheme));
+
+    const word name(key ? word(*key) : defaultName);
+    ITstream is(dict ? dict->lookup(name) : meshScheme(name));
+    is.rewind();
+    return is;
 }
 
+// Element type of a GeometricField, used to pick laplacianScheme<Type, GType>
+// from a gamma field type.
+template<class GF> struct fieldElem;
+template<class T, template<class> class PatchField, class Mesh>
+struct fieldElem<GeometricField<T, PatchField, Mesh>> { using type = T; };
+
+// Per-scheme stream resolvers bound to the corresponding mesh lookup.
+static ITstream ddtStream
+(
+    const std::optional<std::string>& scheme,
+    const std::optional<std::string>& key,
+    const dictionary* dict,
+    const fvMesh& mesh,
+    const word& defaultName
+)
+{
+    return schemeStream(scheme, key, dict, defaultName,
+        [&](const word& n) -> ITstream& { return mesh.ddtScheme(n); }, "ddt");
+}
+
+static ITstream laplacianStream
+(
+    const std::optional<std::string>& scheme,
+    const std::optional<std::string>& key,
+    const dictionary* dict,
+    const fvMesh& mesh,
+    const word& defaultName
+)
+{
+    return schemeStream(scheme, key, dict, defaultName,
+        [&](const word& n) -> ITstream& { return mesh.laplacianScheme(n); }, "laplacian");
+}
+
+// ddt — runtime-selectable: every overload reduces to
+//     ddtScheme<Type>::New(mesh, schemeStream(...))->fvmDdt(...)
 template <class Type>
 void bindFvmDdt(nb::module_& fvm)
 {
     using Field = GeometricField<Type, fvPatchField, volMesh>;
-    fvm.def("ddt", [](const Field& vf) { return fvm::ddt(vf); });
-    // fvm.def("ddt", [](const one&, const Field& vf) { return fvm::ddt(one{}, vf); });
-    fvm.def("ddt", [](const dimensionedScalar& rho, const Field& vf) { return fvm::ddt(rho, vf); });
-    fvm.def("ddt", [](const volScalarField& rho, const Field& vf) { return fvm::ddt(rho, vf); });
-    fvm.def("ddt", [](const volScalarField& alpha,const volScalarField& rho, const Field& vf) { return fvm::ddt(alpha,rho, vf); });
+    fvm.def("ddt", [](const Field& vf, std::optional<std::string> scheme,
+                      std::optional<std::string> key, const dictionary* dict)
+        {
+            ITstream is = ddtStream(scheme, key, dict, vf.mesh(),
+                word("ddt(" + vf.name() + ')'));
+            return fv::ddtScheme<Type>::New(vf.mesh(), is)->fvmDdt(vf);
+        },
+        nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    fvm.def("ddt", [](const dimensionedScalar& rho, const Field& vf,
+                      std::optional<std::string> scheme,
+                      std::optional<std::string> key, const dictionary* dict)
+        {
+            ITstream is = ddtStream(scheme, key, dict, vf.mesh(),
+                word("ddt(" + rho.name() + ',' + vf.name() + ')'));
+            return fv::ddtScheme<Type>::New(vf.mesh(), is)->fvmDdt(rho, vf);
+        },
+        nb::arg("rho"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    fvm.def("ddt", [](const volScalarField& rho, const Field& vf,
+                      std::optional<std::string> scheme,
+                      std::optional<std::string> key, const dictionary* dict)
+        {
+            ITstream is = ddtStream(scheme, key, dict, vf.mesh(),
+                word("ddt(" + rho.name() + ',' + vf.name() + ')'));
+            return fv::ddtScheme<Type>::New(vf.mesh(), is)->fvmDdt(rho, vf);
+        },
+        nb::arg("rho"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    fvm.def("ddt", [](const volScalarField& alpha, const volScalarField& rho, const Field& vf,
+                      std::optional<std::string> scheme,
+                      std::optional<std::string> key, const dictionary* dict)
+        {
+            ITstream is = ddtStream(scheme, key, dict, vf.mesh(),
+                word("ddt(" + alpha.name() + ',' + rho.name() + ',' + vf.name() + ')'));
+            return fv::ddtScheme<Type>::New(vf.mesh(), is)->fvmDdt(alpha, rho, vf);
+        },
+        nb::arg("alpha"), nb::arg("rho"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
 }
 
+// div(phi, field, *, scheme=, key=, dict=) — mirror of fvm::div, which is just
+//   convectionScheme<Type>::New(mesh, flux, mesh.divScheme(name))->fvmDiv(flux, vf)
+// so a scheme is fully described by its token stream and the kwargs only choose
+// where that stream comes from (see bind_fvc.cpp for the shared semantics):
+//   (default)  mesh.divScheme("div(phi,field)")  -- the default fvSchemes entry;
+//   key=       mesh.divScheme(key)               -- a named fvSchemes entry;
+//   dict=      dict.lookup(key)                  -- a named entry in a supplied dict;
+//   scheme=    IStringStream(scheme)             -- inline spec (e.g. "Gauss upwind"),
+//              used by the MULESCorr implicit-upwind predictor.
 template <class Type>
 void bindFvmDiv(nb::module_& fvm)
 {
     using Field = GeometricField<Type, fvPatchField, volMesh>;
-    fvm.def("div", [](const tmp<surfaceScalarField>& flux, const Field& vf) { return fvm::div(flux, vf); });
 
-    // div(phi, field, *, scheme=, key=, dict=) — mirror of fvm::div; the three
-    // optional kwargs swap the Istream source fed to convectionScheme::New:
-    //   scheme= inline spec (e.g. "Gauss upwind"), independent of fvSchemes
-    //           (used by the MULESCorr implicit-upwind predictor);
-    //   key=    entry looked up in the case's fvSchemes (native word overload);
-    //   key= + dict=  entry looked up in the caller-supplied dictionary.
-    fvm.def("div", [](const surfaceScalarField& flux, const Field& vf, std::optional<std::string> scheme,
-                      std::optional<std::string> key, const dictionary* dict)
-        {
-            checkSchemeArgs(scheme, key, dict, "div");
-            if (scheme) { IStringStream is(*scheme);
-                return fv::convectionScheme<Type>::New(vf.mesh(), flux, is)->fvmDiv(flux, vf); }
-            if (dict) return fv::convectionScheme<Type>::New(vf.mesh(), flux, dict->lookup(word(*key)))->fvmDiv(flux, vf);
-            if (key) return fvm::div(flux, vf, word(*key));
-            return fvm::div(flux, vf);
-        }, nb::arg("phi"), nb::arg("vf"), nb::kw_only(),
-           nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
-           nb::arg("dict").none() = nb::none());
+    auto impl = [](const surfaceScalarField& flux, const Field& vf,
+                   std::optional<std::string> scheme,
+                   std::optional<std::string> key, const dictionary* dict)
+    {
+        ITstream is = schemeStream(scheme, key, dict,
+            word("div(" + flux.name() + ',' + vf.name() + ')'),
+            [&](const word& n) -> ITstream& { return vf.mesh().divScheme(n); }, "div");
+        return fv::convectionScheme<Type>::New(vf.mesh(), flux, is)->fvmDiv(flux, vf);
+    };
+    fvm.def("div", impl, nb::arg("phi"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    fvm.def("div", [impl](const tmp<surfaceScalarField>& flux, const Field& vf,
+                          std::optional<std::string> scheme,
+                          std::optional<std::string> key, const dictionary* dict)
+        { return impl(flux(), vf, scheme, key, dict); },
+        nb::arg("phi"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
 }
 
-// laplacian gamma form with an optional key= (fvSchemes lookup); scheme=/dict=
-// are deferred (the dimensioned<GType> gamma materialises a Gamma field).
-#define FVM_LAPLACIAN_KEY(GAMMA_T) \
-    fvm.def("laplacian", [](GAMMA_T gamma, const Field& vf, std::optional<std::string> key) \
-        { if (key) return fvm::laplacian(gamma, vf, word(*key)); return fvm::laplacian(gamma, vf); }, \
-        nb::arg("gamma"), nb::arg("vf"), nb::kw_only(), nb::arg("key") = nb::none())
+// laplacian with a field diffusivity — GType is the gamma field's element type:
+//     laplacianScheme<Type, GType>::New(mesh, schemeStream(...))->fvmLaplacian(gamma, vf)
+template <class GammaField, class Type>
+void bindFvmLaplacianGamma(nb::module_& fvm)
+{
+    using GType = typename fieldElem<GammaField>::type;
+    using Field = GeometricField<Type, fvPatchField, volMesh>;
+    auto impl = [](const GammaField& gamma, const Field& vf, std::optional<std::string> scheme,
+                   std::optional<std::string> key, const dictionary* dict)
+    {
+        ITstream is = laplacianStream(scheme, key, dict, vf.mesh(),
+            word("laplacian(" + gamma.name() + ',' + vf.name() + ')'));
+        return fv::laplacianScheme<Type, GType>::New(vf.mesh(), is)->fvmLaplacian(gamma, vf);
+    };
+    fvm.def("laplacian", impl, nb::arg("gamma"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    fvm.def("laplacian", [impl](const tmp<GammaField>& gamma, const Field& vf,
+                                std::optional<std::string> scheme,
+                                std::optional<std::string> key, const dictionary* dict)
+        { return impl(gamma(), vf, scheme, key, dict); },
+        nb::arg("gamma"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+}
 
 template <class Type>
 void bindFvmLaplacian(nb::module_& fvm)
 {
     using Field = GeometricField<Type, fvPatchField, volMesh>;
 
-    fvm.def("laplacian", [](const Field& vf, std::optional<std::string> key)
-        { if (key) return fvm::laplacian(vf, word(*key)); return fvm::laplacian(vf); },
-        nb::arg("vf"), nb::kw_only(), nb::arg("key") = nb::none());
+    // unit gamma: the scheme still needs a gamma, so materialise Gamma == 1
+    // (mirroring fvm::laplacian(vf)) and drive laplacianScheme<Type, scalar>.
+    fvm.def("laplacian", [](const Field& vf, std::optional<std::string> scheme,
+                            std::optional<std::string> key, const dictionary* dict)
+        {
+            const surfaceScalarField Gamma
+            (
+                IOobject("1", vf.time().constant(), vf.mesh(), IOobject::NO_READ),
+                vf.mesh(), dimensionedScalar("1", dimless, 1.0)
+            );
+            ITstream is = laplacianStream(scheme, key, dict, vf.mesh(),
+                word("laplacian(" + vf.name() + ')'));
+            return fv::laplacianScheme<Type, scalar>::New(vf.mesh(), is)->fvmLaplacian(Gamma, vf);
+        },
+        nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
 
-    FVM_LAPLACIAN_KEY(const dimensionedScalar&);
-    FVM_LAPLACIAN_KEY(const volScalarField&);
-    FVM_LAPLACIAN_KEY(const tmp<volScalarField>&);
-    FVM_LAPLACIAN_KEY(const volTensorField&);
-    FVM_LAPLACIAN_KEY(const tmp<volTensorField>&);
-    FVM_LAPLACIAN_KEY(const surfaceScalarField&);
-    FVM_LAPLACIAN_KEY(const tmp<surfaceScalarField>&);
+    // dimensionedScalar gamma: materialise a surface Gamma field first
+    // (mirroring fvm::laplacian(dimensioned<GType>, vf)).
+    fvm.def("laplacian", [](const dimensionedScalar& gamma, const Field& vf,
+                            std::optional<std::string> scheme,
+                            std::optional<std::string> key, const dictionary* dict)
+        {
+            const surfaceScalarField Gamma
+            (
+                IOobject(gamma.name(), vf.instance(), vf.mesh(), IOobject::NO_READ),
+                vf.mesh(), gamma
+            );
+            ITstream is = laplacianStream(scheme, key, dict, vf.mesh(),
+                word("laplacian(" + gamma.name() + ',' + vf.name() + ')'));
+            return fv::laplacianScheme<Type, scalar>::New(vf.mesh(), is)->fvmLaplacian(Gamma, vf);
+        },
+        nb::arg("gamma"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+
+    // field diffusivities (vol/surface, scalar/tensor) with their tmp variants.
+    bindFvmLaplacianGamma<volScalarField, Type>(fvm);
+    bindFvmLaplacianGamma<volTensorField, Type>(fvm);
+    bindFvmLaplacianGamma<surfaceScalarField, Type>(fvm);
 }
-#undef FVM_LAPLACIAN_KEY
 
 template <class Type>
 void bindFvmSources(nb::module_& fvm)

@@ -16,13 +16,13 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Description
-    Python binding module for VoF (Volume of Fluid) functionality.
+    Python binding module for multiphase (VoF, Volume of Fluid) functionality.
 
     Provides:
       - immiscibleIncompressibleTwoPhaseMixture (mixture model)
       - TwoPhaseTransportModel (turbulence for two-phase flows)
-      - solveAlpha (MULES-based alpha equation with subcycling)
-      - computeAlphaCourantNumber
+      - isoAdvection (geometric VoF advection)
+      - reconstructionSchemes (geometric PLIC interface reconstruction)
 
 \*---------------------------------------------------------------------------*/
 
@@ -30,18 +30,20 @@ Description
 
 #include "bind_mixture.hpp"
 #include "bind_twoPhaseTransport.hpp"
-#include "bind_alphaEqn.hpp"
+#include "bind_isoAdvection.hpp"
+#include "bind_reconstruction.hpp"
 
 namespace nb = nanobind;
 
 
-NB_MODULE(vof, m)
+NB_MODULE(multiphase, m)
 {
-    m.doc() = "pybFoam VoF (Volume of Fluid) bindings for two-phase flows";
+    m.doc() = "pybFoam multiphase (VoF) bindings for two-phase flows";
 
     Foam::bindMixture(m);
     Foam::bindTwoPhaseTransport(m);
-    Foam::bindAlphaEqn(m);
+    Foam::bindIsoAdvection(m);
+    Foam::bindReconstruction(m);
 }
 
 // ************************************************************************* //

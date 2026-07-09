@@ -2,7 +2,17 @@
 
 ## [0.5.0]
 
-* VoF (Volume of Fluid) bindings (nanobind)
+* `multiphase` module (nanobind) with VoF (Volume of Fluid) bindings:
+  - `immiscibleIncompressibleTwoPhaseMixture` and `TwoPhaseTransportModel`
+  - `isoAdvection` — geometric VoF advection (interIsoFoam)
+  - `reconstructionSchemes` / `reconstruct` — geometric PLIC interface
+    reconstruction (isoAlpha/plicRDF) exposing per-cell interface normals,
+    centres and the reconstructed interface as meshed polygons; reconstruct-only
+    (does not mutate `alpha`), suitable for post-processing
+* generic `MULES` bounded-transport limiter exposed as the `pybFoam.mules`
+  submodule of core (not VoF-specific)
+* `oldTime()` bound on every geometric field type
+* renamed the `vof` module to `multiphase`
 
 ## [0.4.6]
 

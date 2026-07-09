@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2026, NeoFOAM authors
+            Copyright (c) 2025, NeoFOAM authors
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
@@ -17,15 +17,18 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#ifndef bind_isoAdvection_H
+#define bind_isoAdvection_H
+
 #include <nanobind/nanobind.h>
 
-#include "bind_mules.hpp"
+namespace Foam
+{
 
-namespace nb = nanobind;
+void bindIsoAdvection(nanobind::module_ & m);
 
+} // End namespace Foam
 
-NB_MODULE(mules, m) {
-    m.doc() = "MULES bounded-transport limiter (generic)";
+#endif
 
-    Foam::bindMULES(m);
-}
+// ************************************************************************* //

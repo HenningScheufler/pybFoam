@@ -171,6 +171,11 @@ auto declare_geofields(nb::module_ &m, std::string className) {
         return self.mesh();
     }, nb::rv_policy::reference)
     .def("name", [](const GF& self) -> std::string { return self.name(); })
+    // oldTime(): stored old-time value (e.g. for fvm::ddt). Defined on every
+    // GeometricField, so bind it once here in the template rather than
+    // special-casing individual field types.
+    .def("oldTime", [](GF& self) -> GF& { return self.oldTime(); },
+         nb::rv_policy::reference_internal)
     ;
 
     m.def("write", [](const GF& geofield){ geofield.write(); });
@@ -230,19 +235,6 @@ void Foam::bindGeoFields(nb::module_& m)
             return self + dimensionedScalar("s", self.dimensions(), s);
         })
         .def("__rtruediv__", [](const volScalarField& self, const scalar& s){ return s / self; })
-        .def("oldTime", [](volScalarField& self) -> volScalarField&
-        {
-            return self.oldTime();
-        }, nb::rv_policy::reference_internal)
-        ;
-
-    // oldTime() on the vector field — VoF momentum needs the stored old-time
-    // value for fvm::ddt(rho, U).
-    vvf
-        .def("oldTime", [](volVectorField& self) -> volVectorField&
-        {
-            return self.oldTime();
-        }, nb::rv_policy::reference_internal)
         ;
 
     auto [ssf, tmp_ssf] = declare_geofields<scalar,fvsPatchField, surfaceMesh>(m, std::string("surfaceScalarField"));
