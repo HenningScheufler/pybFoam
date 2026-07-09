@@ -171,6 +171,11 @@ auto declare_geofields(nb::module_ &m, std::string className) {
         return self.mesh();
     }, nb::rv_policy::reference)
     .def("name", [](const GF& self) -> std::string { return self.name(); })
+    // oldTime(): stored old-time value (e.g. for fvm::ddt). Defined on every
+    // GeometricField, so bind it once here in the template rather than
+    // special-casing individual field types.
+    .def("oldTime", [](GF& self) -> GF& { return self.oldTime(); },
+         nb::rv_policy::reference_internal)
     ;
 
     m.def("write", [](const GF& geofield){ geofield.write(); });
@@ -258,6 +263,11 @@ void Foam::bindGeoFields(nb::module_& m)
     DEFINE_UNARY(mag, SurfaceField, scalar,     Foam::mag);
     DEFINE_UNARY(mag, SurfaceField, vector,     Foam::mag);
     DEFINE_UNARY(mag, SurfaceField, tensor,     Foam::mag);
+
+    // pos0 — Heaviside step (x >= 0 ? 1 : 0); scalar vol + surface fields.
+    // Building block for interface/band masks (e.g. the alpha Courant number).
+    DEFINE_UNARY(pos0, VolumeField,  scalar, Foam::pos0);
+    DEFINE_UNARY(pos0, SurfaceField, scalar, Foam::pos0);
 
     // magSqr — vol scalar/vector/tensor (not symmTensor).
     DEFINE_UNARY(magSqr, VolumeField, scalar, Foam::magSqr);

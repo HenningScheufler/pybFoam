@@ -115,6 +115,18 @@ def flux(
     arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.tmp_volVectorField
 ) -> pybFoam.pybFoam_core.tmp_surfaceVectorField: ...
 @typing.overload
+def flux(
+    arg0: pybFoam.pybFoam_core.surfaceScalarField,
+    arg1: pybFoam.pybFoam_core.volScalarField,
+    arg2: str,
+) -> pybFoam.pybFoam_core.tmp_surfaceScalarField: ...
+@typing.overload
+def flux(
+    arg0: pybFoam.pybFoam_core.surfaceScalarField,
+    arg1: pybFoam.pybFoam_core.tmp_volScalarField,
+    arg2: str,
+) -> pybFoam.pybFoam_core.tmp_surfaceScalarField: ...
+@typing.overload
 def grad(arg0: pybFoam.pybFoam_core.volScalarField) -> pybFoam.pybFoam_core.tmp_volVectorField: ...
 @typing.overload
 def grad(

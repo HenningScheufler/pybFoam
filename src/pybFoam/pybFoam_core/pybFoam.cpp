@@ -32,6 +32,7 @@ License
 #include "bind_cfdTools.hpp"
 #include "bind_wallDist.hpp"
 #include "bind_pstream.hpp"
+#include "bind_mules.hpp"
 
 namespace nb = nanobind;
 
@@ -53,4 +54,10 @@ NB_MODULE(pybFoam_core, m) {
     Foam::bindCfdTools(m);
     Foam::bindWallDist(m);
     Foam::bindPstream(m);
+
+    // Generic MULES bounded-transport limiter — not VoF-specific, so it lives
+    // in core, exposed as the ``pybFoam.mules`` submodule.
+    auto mules = m.def_submodule(
+        "mules", "Generic MULES bounded-transport limiter");
+    Foam::bindMULES(mules);
 }

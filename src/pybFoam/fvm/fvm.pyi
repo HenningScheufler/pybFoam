@@ -140,6 +140,12 @@ def div(
 ) -> pybFoam.pybFoam_core.tmp_fvScalarMatrix: ...
 @typing.overload
 def div(
+    arg0: pybFoam.pybFoam_core.surfaceScalarField,
+    arg1: pybFoam.pybFoam_core.volScalarField,
+    arg2: str,
+) -> pybFoam.pybFoam_core.tmp_fvScalarMatrix: ...
+@typing.overload
+def div(
     arg0: pybFoam.pybFoam_core.surfaceScalarField, arg1: pybFoam.pybFoam_core.volVectorField
 ) -> pybFoam.pybFoam_core.tmp_fvVectorMatrix: ...
 @typing.overload

@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
-            Copyright (c) 2022, Henning Scheufler
+            Copyright (c) 2025, NeoFOAM authors
 -------------------------------------------------------------------------------
 License
     This file is part of the pybFoam source code library, which is an
-	unofficial extension to OpenFOAM.
+    unofficial extension to OpenFOAM.
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -15,43 +15,35 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    Foam::bind_fvm
-
 Description
+    Python binding module for multiphase (VoF, Volume of Fluid) functionality.
 
-Author
-    Henning Scheufler, all rights reserved.
-
-SourceFiles
-
+    Provides:
+      - immiscibleIncompressibleTwoPhaseMixture (mixture model)
+      - TwoPhaseTransportModel (turbulence for two-phase flows)
+      - isoAdvection (geometric VoF advection)
+      - reconstructionSchemes (geometric PLIC interface reconstruction)
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef bind_fvm
-#define bind_fvm
-
-// System includes
 #include <nanobind/nanobind.h>
-#include <nanobind/stl/string.h>
-#include <nanobind/stl/optional.h>
 
-namespace Foam
+#include "bind_mixture.hpp"
+#include "bind_twoPhaseTransport.hpp"
+#include "bind_isoAdvection.hpp"
+#include "bind_reconstruction.hpp"
+
+namespace nb = nanobind;
+
+
+NB_MODULE(multiphase, m)
 {
-    namespace nb = nanobind;
+    m.doc() = "pybFoam multiphase (VoF) bindings for two-phase flows";
 
-    template<class Type>
-    void bindFvmDdt(nb::module_& fvm);
-
-    template<class Type>
-    void bindFvmDiv(nb::module_& fvm);
-
-    template<class Type>
-    void bindFvmLaplacian(nb::module_& fvm);
-
-
-
-    void  bindFVM(nb::module_& m);
+    Foam::bindMixture(m);
+    Foam::bindTwoPhaseTransport(m);
+    Foam::bindIsoAdvection(m);
+    Foam::bindReconstruction(m);
 }
 
-#endif // bind_fvm defined
+// ************************************************************************* //

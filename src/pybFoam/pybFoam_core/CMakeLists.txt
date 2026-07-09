@@ -15,6 +15,7 @@ set(PYBFOAM_CORE_SOURCES
     bind_cfdTools.cpp
     bind_wallDist.cpp
     bind_pstream.cpp
+    bind_mules.cpp
     pybFoam.cpp
 )
 
@@ -33,6 +34,7 @@ set(PYBFOAM_CORE_HEADERS
     bind_cfdTools.hpp
     bind_wallDist.hpp
     bind_pstream.hpp
+    bind_mules.hpp
 )
 
 # Create the nanobind module

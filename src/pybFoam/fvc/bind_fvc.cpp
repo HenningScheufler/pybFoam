@@ -22,21 +22,123 @@ License
 #include "fvc.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "gradScheme.H"
+#include "divScheme.H"
+#include "convectionScheme.H"
+#include "snGradScheme.H"
+#include "surfaceInterpolationScheme.H"
+#include "laplacianScheme.H"
+#include "ITstream.H"
+#include "IStringStream.H"
+#include "DynamicList.H"
+#include "dictionary.H"
+
+#include <optional>
+#include <stdexcept>
+#include <string_view>
+
+namespace nb = nanobind;
 
 namespace Foam
 {
 
-// Template helper functions for binding fvc operations
-
-// Single argument operations (grad, div, laplacian, interpolate, snGrad, reconstruct, flux)
-template<class FieldType>
-void bindUnaryOp(nanobind::module_& m, const char* opName)
+// A scheme is fully described by its token stream (an ITstream / Istream), so
+// every scheme-carrying operator boils down to the single, branchless call
+//     <X>Scheme<Type>::New(mesh, schemeStream(...))->op(...)
+// exactly as the OpenFOAM free functions do internally.  The three optional,
+// keyword-only args only choose where that stream comes from:
+//   (default)     mesh.<x>Scheme(defaultName)  -- the op's default fvSchemes entry
+//   key="entry"   mesh.<x>Scheme(key)          -- a named fvSchemes entry
+//   dict=d        d.lookup(key)                -- a named entry in a supplied dict
+//   scheme="..."  the inline spec parsed into tokens, e.g. "Gauss upwind"
+// `meshScheme` is the per-operator mesh lookup (mesh.gradScheme, mesh.divScheme,
+// mesh.snGradScheme, mesh.interpolationScheme, ...).  The stream is returned by
+// value: for the inline spec it owns freshly parsed tokens; for the by-name
+// forms it copies the ITstream held by the dict/mesh (a cheap token-list copy).
+template<class MeshScheme>
+static ITstream schemeStream
+(
+    const std::optional<std::string>& scheme,
+    const std::optional<std::string>& key,
+    const dictionary* dict,
+    const word& defaultName,
+    const MeshScheme& meshScheme,
+    const char* op
+)
 {
-    m.def(opName, [](const FieldType& vf){return fvc::grad(vf);});
-    m.def(opName, [](const tmp<FieldType>& vf){return fvc::grad(vf);});
+    if (scheme && (key || dict))
+        throw std::invalid_argument(std::string(op) + ": 'scheme' is exclusive with 'key'/'dict'");
+    if (dict && !key)
+        throw std::invalid_argument(std::string(op) + ": 'dict' requires 'key'");
+
+    if (scheme)
+    {
+        // Parse the inline scheme spec ("Gauss upwind", ...) into tokens.
+        // ITstream's string-parsing constructors only exist in newer OpenFOAM;
+        // tokenising through IStringStream and building the stream from a token
+        // list works across all supported versions (v2312+).
+        IStringStream iss(*scheme);
+        DynamicList<token> toks;
+        for (token t; (iss >> t, t.good()); )
+            toks.append(t);
+
+        tokenList tl;
+        tl.transfer(toks);
+        // Use a plain stream name: the spec string may contain spaces, which
+        // OpenFOAM would reject when the name is validated as a fileName.
+        return ITstream(word("scheme"), std::move(tl), IOstreamOption());
+    }
+
+    const word name(key ? word(*key) : defaultName);
+    ITstream is(dict ? dict->lookup(name) : meshScheme(name));
+    is.rewind();
+    return is;
 }
 
-// Specialized template for grad operation
+// Element type of a GeometricField, used to pick laplacianScheme<Type, GType>
+// from a gamma field type.
+template<class GF> struct fieldElem;
+template<class T, template<class> class PatchField, class Mesh>
+struct fieldElem<GeometricField<T, PatchField, Mesh>> { using type = T; };
+
+// laplacianScheme lookup bound to the mesh (mesh.laplacianScheme(name)).
+static ITstream laplacianStream
+(
+    const std::optional<std::string>& scheme,
+    const std::optional<std::string>& key,
+    const dictionary* dict,
+    const fvMesh& mesh,
+    const word& defaultName
+)
+{
+    return schemeStream(scheme, key, dict, defaultName,
+        [&](const word& n) -> ITstream& { return mesh.laplacianScheme(n); }, "laplacian");
+}
+
+// grad — vol fields carry scheme/key/dict.
+template<class Type>
+void bindGradVol(nanobind::module_& m)
+{
+    using Field = GeometricField<Type, fvPatchField, volMesh>;
+    auto impl = [](const Field& vf, std::optional<std::string> scheme,
+                   std::optional<std::string> key, const dictionary* dict)
+    {
+        ITstream is = schemeStream(scheme, key, dict, word("grad(" + vf.name() + ')'),
+            [&](const word& n) -> ITstream& { return vf.mesh().gradScheme(n); }, "grad");
+        return fv::gradScheme<Type>::New(vf.mesh(), is)->grad(vf);
+    };
+    m.def("grad", impl, nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    m.def("grad", [impl](const tmp<Field>& vf, std::optional<std::string> scheme,
+                         std::optional<std::string> key, const dictionary* dict)
+        { return impl(vf(), scheme, key, dict); },
+        nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+}
+
+// grad — plain (surface fields have no word/scheme overload upstream).
 template<class FieldType>
 void bindGrad(nanobind::module_& m)
 {
@@ -44,7 +146,30 @@ void bindGrad(nanobind::module_& m)
     m.def("grad", [](const tmp<FieldType>& vf){return fvc::grad(vf);});
 }
 
-// Specialized template for div operation
+// div (1-arg divergence) — vol fields carry scheme/key/dict.
+template<class Type>
+void bindDivVol(nanobind::module_& m)
+{
+    using Field = GeometricField<Type, fvPatchField, volMesh>;
+    auto impl = [](const Field& vf, std::optional<std::string> scheme,
+                   std::optional<std::string> key, const dictionary* dict)
+    {
+        ITstream is = schemeStream(scheme, key, dict, word("div(" + vf.name() + ')'),
+            [&](const word& n) -> ITstream& { return vf.mesh().divScheme(n); }, "div");
+        return fv::divScheme<Type>::New(vf.mesh(), is)->fvcDiv(vf);
+    };
+    m.def("div", impl, nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    m.def("div", [impl](const tmp<Field>& vf, std::optional<std::string> scheme,
+                        std::optional<std::string> key, const dictionary* dict)
+        { return impl(vf(), scheme, key, dict); },
+        nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+}
+
+// div (1-arg divergence) — plain (surface fields).
 template<class FieldType>
 void bindDiv(nanobind::module_& m)
 {
@@ -52,50 +177,142 @@ void bindDiv(nanobind::module_& m)
     m.def("div", [](const tmp<FieldType>& vf){return fvc::div(vf);});
 }
 
-// Specialized template for div-convection operation (2 arguments)
-template<class FieldType>
+// div (convection, phi + field) — vol fields carry scheme/key/dict.
+template<class Type>
 void bindDivConvection(nanobind::module_& m)
 {
-    m.def("div", [](const surfaceScalarField& ssf, const FieldType& vf){return fvc::div(ssf, vf);});
-    m.def("div", [](const surfaceScalarField& ssf, const tmp<FieldType>& vf){return fvc::div(ssf, vf);});
+    using Field = GeometricField<Type, fvPatchField, volMesh>;
+    auto impl = [](const surfaceScalarField& phi, const Field& vf,
+                   std::optional<std::string> scheme,
+                   std::optional<std::string> key, const dictionary* dict)
+    {
+        ITstream is = schemeStream(scheme, key, dict,
+            word("div(" + phi.name() + ',' + vf.name() + ')'),
+            [&](const word& n) -> ITstream& { return vf.mesh().divScheme(n); }, "div");
+        return fv::convectionScheme<Type>::New(vf.mesh(), phi, is)->fvcDiv(phi, vf);
+    };
+    m.def("div", impl, nb::arg("phi"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    m.def("div", [impl](const surfaceScalarField& phi, const tmp<Field>& vf,
+                        std::optional<std::string> scheme,
+                        std::optional<std::string> key, const dictionary* dict)
+        { return impl(phi, vf(), scheme, key, dict); },
+        nb::arg("phi"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
 }
 
-// Specialized template for laplacian operation
-template<class FieldType>
-void bindLaplacian(nanobind::module_& m)
-{
-    m.def("laplacian", [](const FieldType& vf){return fvc::laplacian(vf);});
-    m.def("laplacian", [](const tmp<FieldType>& vf){return fvc::laplacian(vf);});
-}
-
-// Specialized template for laplacian with diffusivity (2 arguments)
-template<class DiffType, class FieldType>
-void bindLaplacianWithDiff(nanobind::module_& m)
-{
-    // DiffType& + FieldType&
-    m.def("laplacian", [](const DiffType& diff, const FieldType& vf){return fvc::laplacian(diff, vf);});
-    // DiffType& + tmp<FieldType>
-    m.def("laplacian", [](const DiffType& diff, const tmp<FieldType>& vf){return fvc::laplacian(diff, vf);});
-    // tmp<DiffType> + FieldType&
-    m.def("laplacian", [](const tmp<DiffType>& diff, const FieldType& vf){return fvc::laplacian(diff, vf);});
-    // tmp<DiffType> + tmp<FieldType>
-    m.def("laplacian", [](const tmp<DiffType>& diff, const tmp<FieldType>& vf){return fvc::laplacian(diff, vf);});
-}
-
-// Specialized template for interpolate operation
-template<class FieldType>
-void bindInterpolate(nanobind::module_& m)
-{
-    m.def("interpolate", [](const FieldType& vf){return fvc::interpolate(vf);});
-    m.def("interpolate", [](const tmp<FieldType>& vf){return fvc::interpolate(vf);});
-}
-
-// Specialized template for snGrad operation
-template<class FieldType>
+// snGrad — vol fields carry scheme/key/dict.
+template<class Type>
 void bindSnGrad(nanobind::module_& m)
 {
-    m.def("snGrad", [](const FieldType& vf){return fvc::snGrad(vf);});
-    m.def("snGrad", [](const tmp<FieldType>& vf){return fvc::snGrad(vf);});
+    using Field = GeometricField<Type, fvPatchField, volMesh>;
+    auto impl = [](const Field& vf, std::optional<std::string> scheme,
+                   std::optional<std::string> key, const dictionary* dict)
+    {
+        ITstream is = schemeStream(scheme, key, dict, word("snGrad(" + vf.name() + ')'),
+            [&](const word& n) -> ITstream& { return vf.mesh().snGradScheme(n); }, "snGrad");
+        return fv::snGradScheme<Type>::New(vf.mesh(), is)->snGrad(vf);
+    };
+    m.def("snGrad", impl, nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    m.def("snGrad", [impl](const tmp<Field>& vf, std::optional<std::string> scheme,
+                           std::optional<std::string> key, const dictionary* dict)
+        { return impl(vf(), scheme, key, dict); },
+        nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+}
+
+// interpolate — vol fields carry scheme/key/dict.
+template<class Type>
+void bindInterpolate(nanobind::module_& m)
+{
+    using Field = GeometricField<Type, fvPatchField, volMesh>;
+    auto impl = [](const Field& vf, std::optional<std::string> scheme,
+                   std::optional<std::string> key, const dictionary* dict)
+    {
+        ITstream is = schemeStream(scheme, key, dict, word("interpolate(" + vf.name() + ')'),
+            [&](const word& n) -> ITstream& { return vf.mesh().interpolationScheme(n); },
+            "interpolate");
+        return surfaceInterpolationScheme<Type>::New(vf.mesh(), is)->interpolate(vf);
+    };
+    m.def("interpolate", impl, nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    m.def("interpolate", [impl](const tmp<Field>& vf, std::optional<std::string> scheme,
+                                std::optional<std::string> key, const dictionary* dict)
+        { return impl(vf(), scheme, key, dict); },
+        nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+}
+
+// laplacian (unit gamma) — runtime-selectable like the other schemes:
+//     laplacianScheme<Type, scalar>::New(mesh, schemeStream(...))->fvcLaplacian(vf)
+template<class Type>
+void bindLaplacian(nanobind::module_& m)
+{
+    using Field = GeometricField<Type, fvPatchField, volMesh>;
+    auto impl = [](const Field& vf, std::optional<std::string> scheme,
+                   std::optional<std::string> key, const dictionary* dict)
+    {
+        ITstream is = laplacianStream(scheme, key, dict, vf.mesh(),
+            word("laplacian(" + vf.name() + ')'));
+        return fv::laplacianScheme<Type, scalar>::New(vf.mesh(), is)->fvcLaplacian(vf);
+    };
+    m.def("laplacian", impl, nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    m.def("laplacian", [impl](const tmp<Field>& vf, std::optional<std::string> scheme,
+                              std::optional<std::string> key, const dictionary* dict)
+        { return impl(vf(), scheme, key, dict); },
+        nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+}
+
+// laplacian with a field diffusivity — GType is the gamma field's element type;
+// both vol<GType> and surface<GType> gammas have an fvcLaplacian overload:
+//     laplacianScheme<Type, GType>::New(mesh, schemeStream(...))->fvcLaplacian(gamma, vf)
+template<class Type, class GammaField>
+void bindLaplacianWithDiff(nanobind::module_& m)
+{
+    using GType = typename fieldElem<GammaField>::type;
+    using Field = GeometricField<Type, fvPatchField, volMesh>;
+    auto impl = [](const GammaField& gamma, const Field& vf, std::optional<std::string> scheme,
+                   std::optional<std::string> key, const dictionary* dict)
+    {
+        ITstream is = laplacianStream(scheme, key, dict, vf.mesh(),
+            word("laplacian(" + gamma.name() + ',' + vf.name() + ')'));
+        return fv::laplacianScheme<Type, GType>::New(vf.mesh(), is)->fvcLaplacian(gamma, vf);
+    };
+    m.def("laplacian", impl, nb::arg("gamma"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    m.def("laplacian", [impl](const tmp<GammaField>& gamma, const Field& vf,
+                              std::optional<std::string> scheme,
+                              std::optional<std::string> key, const dictionary* dict)
+        { return impl(gamma(), vf, scheme, key, dict); },
+        nb::arg("gamma"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    m.def("laplacian", [impl](const GammaField& gamma, const tmp<Field>& vf,
+                              std::optional<std::string> scheme,
+                              std::optional<std::string> key, const dictionary* dict)
+        { return impl(gamma, vf(), scheme, key, dict); },
+        nb::arg("gamma"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
+    m.def("laplacian", [impl](const tmp<GammaField>& gamma, const tmp<Field>& vf,
+                              std::optional<std::string> scheme,
+                              std::optional<std::string> key, const dictionary* dict)
+        { return impl(gamma(), vf(), scheme, key, dict); },
+        nb::arg("gamma"), nb::arg("vf"), nb::kw_only(),
+        nb::arg("scheme") = nb::none(), nb::arg("key") = nb::none(),
+        nb::arg("dict").none() = nb::none());
 }
 
 // Specialized template for reconstruct operation
@@ -106,7 +323,18 @@ void bindReconstruct(nanobind::module_& m)
     m.def("reconstruct", [](const tmp<FieldType>& sf){return fvc::reconstruct(sf);});
 }
 
-// Specialized template for flux operation
+// surfaceSum: sum each cell's face values into a cell field (face->cell
+// reduction). Generic building block for flux integrals composed in Python
+// (e.g. the flow / interface Courant numbers).
+template<class Type>
+void bindSurfaceSum(nanobind::module_& m)
+{
+    using SurfField = GeometricField<Type, fvsPatchField, surfaceMesh>;
+    m.def("surfaceSum", [](const SurfField& ssf){return fvc::surfaceSum(ssf);});
+    m.def("surfaceSum", [](const tmp<SurfField>& ssf){return fvc::surfaceSum(ssf);});
+}
+
+// Specialized template for flux operation (single argument)
 template<class FieldType>
 void bindFlux(nanobind::module_& m)
 {
@@ -114,12 +342,18 @@ void bindFlux(nanobind::module_& m)
     m.def("flux", [](const tmp<FieldType>& vf){return fvc::flux(vf);});
 }
 
-// Specialized template for flux with surfaceScalarField (2 arguments)
-template<class FieldType>
+// flux(phi, field, *, key=) — by-name fvSchemes lookup only (no inline scheme
+// factory for flux upstream).
+template<class Type>
 void bindFluxWithPhi(nanobind::module_& m)
 {
-    m.def("flux", [](const surfaceScalarField& ssf, const FieldType& vf){return fvc::flux(ssf, vf);});
-    m.def("flux", [](const surfaceScalarField& ssf, const tmp<FieldType>& vf){return fvc::flux(ssf, vf);});
+    using Field = GeometricField<Type, fvPatchField, volMesh>;
+    m.def("flux", [](const surfaceScalarField& ssf, const Field& vf, std::optional<std::string> key)
+        { if (key) return fvc::flux(ssf, vf, word(*key)); return fvc::flux(ssf, vf); },
+        nb::arg("phi"), nb::arg("vf"), nb::kw_only(), nb::arg("key") = nb::none());
+    m.def("flux", [](const surfaceScalarField& ssf, const tmp<Field>& vf, std::optional<std::string> key)
+        { if (key) return fvc::flux(ssf, vf(), word(*key)); return fvc::flux(ssf, vf()); },
+        nb::arg("phi"), nb::arg("vf"), nb::kw_only(), nb::arg("key") = nb::none());
 }
 
 } // End namespace Foam
@@ -127,68 +361,73 @@ void bindFluxWithPhi(nanobind::module_& m)
 
 void Foam::bindFVC(nanobind::module_& fvc)
 {
-    // grad operations
-    bindGrad<volScalarField>(fvc);
-    bindGrad<volVectorField>(fvc);
+    // grad operations — vol fields carry scheme/key/dict; surface fields stay plain
+    bindGradVol<scalar>(fvc);
+    bindGradVol<vector>(fvc);
     bindGrad<surfaceScalarField>(fvc);
     bindGrad<surfaceVectorField>(fvc);
 
-    // div operations (single argument)
-    bindDiv<volVectorField>(fvc);
-    bindDiv<volTensorField>(fvc);
-    bindDiv<volSymmTensorField>(fvc);
+    // div operations (single argument) — vol fields carry scheme/key/dict
+    bindDivVol<vector>(fvc);
+    bindDivVol<tensor>(fvc);
+    bindDivVol<symmTensor>(fvc);
     bindDiv<surfaceScalarField>(fvc);
     bindDiv<surfaceVectorField>(fvc);
     bindDiv<surfaceTensorField>(fvc);
     bindDiv<surfaceSymmTensorField>(fvc);
 
     // div-convection operations (two arguments)
-    bindDivConvection<volVectorField>(fvc);
-    bindDivConvection<volTensorField>(fvc);
-    bindDivConvection<volSymmTensorField>(fvc);
+    bindDivConvection<vector>(fvc);
+    bindDivConvection<tensor>(fvc);
+    bindDivConvection<symmTensor>(fvc);
 
-    // laplacian operations (single argument)
-    bindLaplacian<volScalarField>(fvc);
-    bindLaplacian<volVectorField>(fvc);
-    bindLaplacian<volTensorField>(fvc);
-    bindLaplacian<volSymmTensorField>(fvc);
+    // laplacian operations (single argument, unit gamma)
+    bindLaplacian<scalar>(fvc);
+    bindLaplacian<vector>(fvc);
+    bindLaplacian<tensor>(fvc);
+    bindLaplacian<symmTensor>(fvc);
 
-    // laplacian with diffusivity (two arguments)
+    // laplacian with diffusivity (two arguments) — <fieldType, gammaFieldType>
     // volScalar diffusivity
-    bindLaplacianWithDiff<volScalarField, volScalarField>(fvc);
-    bindLaplacianWithDiff<volScalarField, volVectorField>(fvc);
-    bindLaplacianWithDiff<volScalarField, volTensorField>(fvc);
-    bindLaplacianWithDiff<volScalarField, volSymmTensorField>(fvc);
+    bindLaplacianWithDiff<scalar, volScalarField>(fvc);
+    bindLaplacianWithDiff<vector, volScalarField>(fvc);
+    bindLaplacianWithDiff<tensor, volScalarField>(fvc);
+    bindLaplacianWithDiff<symmTensor, volScalarField>(fvc);
 
     // surfaceScalar diffusivity
-    bindLaplacianWithDiff<surfaceScalarField, volScalarField>(fvc);
-    bindLaplacianWithDiff<surfaceScalarField, volVectorField>(fvc);
-    bindLaplacianWithDiff<surfaceScalarField, volTensorField>(fvc);
-    bindLaplacianWithDiff<surfaceScalarField, volSymmTensorField>(fvc);
+    bindLaplacianWithDiff<scalar, surfaceScalarField>(fvc);
+    bindLaplacianWithDiff<vector, surfaceScalarField>(fvc);
+    bindLaplacianWithDiff<tensor, surfaceScalarField>(fvc);
+    bindLaplacianWithDiff<symmTensor, surfaceScalarField>(fvc);
 
     // volTensor diffusivity
-    bindLaplacianWithDiff<volTensorField, volScalarField>(fvc);
-    bindLaplacianWithDiff<volTensorField, volVectorField>(fvc);
-    bindLaplacianWithDiff<volTensorField, volTensorField>(fvc);
-    bindLaplacianWithDiff<volTensorField, volSymmTensorField>(fvc);
+    bindLaplacianWithDiff<scalar, volTensorField>(fvc);
+    bindLaplacianWithDiff<vector, volTensorField>(fvc);
+    bindLaplacianWithDiff<tensor, volTensorField>(fvc);
+    bindLaplacianWithDiff<symmTensor, volTensorField>(fvc);
 
     // interpolate operations
-    bindInterpolate<volScalarField>(fvc);
-    bindInterpolate<volVectorField>(fvc);
-    bindInterpolate<volTensorField>(fvc);
-    bindInterpolate<volSymmTensorField>(fvc);
+    bindInterpolate<scalar>(fvc);
+    bindInterpolate<vector>(fvc);
+    bindInterpolate<tensor>(fvc);
+    bindInterpolate<symmTensor>(fvc);
 
     // flux operations
     bindFlux<volVectorField>(fvc);
-    bindFluxWithPhi<volVectorField>(fvc);
+    bindFluxWithPhi<scalar>(fvc);
+    bindFluxWithPhi<vector>(fvc);
 
     // snGrad operations
-    bindSnGrad<volScalarField>(fvc);
-    bindSnGrad<volVectorField>(fvc);
+    bindSnGrad<scalar>(fvc);
+    bindSnGrad<vector>(fvc);
 
     // reconstruct operations
     bindReconstruct<surfaceScalarField>(fvc);
     bindReconstruct<surfaceVectorField>(fvc);
+
+    // surfaceSum (face->cell reduction)
+    bindSurfaceSum<scalar>(fvc);
+    bindSurfaceSum<vector>(fvc);
 
     // ddtCorr (special case - single binding)
     fvc.def("ddtCorr", [](const volVectorField& vf, const surfaceScalarField& ssf){return fvc::ddtCorr(vf,ssf);});

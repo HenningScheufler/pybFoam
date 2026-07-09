@@ -61,6 +61,8 @@ from pybFoam.pybFoam_core import (
     fvSymmTensorMatrix,
     fvTensorMatrix,
     fvVectorMatrix,
+    gMax,
+    gMin,
     instant,
     instantList,
     keyType,
@@ -80,6 +82,7 @@ from pybFoam.pybFoam_core import (
     polyMesh,
     polyPatch,
     pos,
+    pos0,
     pow,
     pow3,
     pow6,
@@ -133,9 +136,10 @@ from pybFoam.pybFoam_core import (
     write,
 )
 
-from . import fvc, fvm, meshing, runTimeTables, sampling_bindings, thermo, turbulence
+from . import fvc, fvm, meshing, multiphase, runTimeTables, sampling_bindings, thermo, turbulence
 from ._version import __version__
 from .examples import clone_example, examples_root, pyvista_read
+from .pybFoam_core import mules
 
 __all__ = [
     # Core dictionary and info types
@@ -286,8 +290,11 @@ __all__ = [
     "exp",
     "log",
     "log10",
+    "gMax",
+    "gMin",
     "neg",
     "pos",
+    "pos0",
     "sign",
     "sin",
     "tan",
@@ -295,6 +302,8 @@ __all__ = [
     "fvc",
     "fvm",
     "meshing",
+    "multiphase",
+    "mules",
     "runTimeTables",
     "sampling_bindings",
     "thermo",
