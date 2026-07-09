@@ -264,6 +264,11 @@ void Foam::bindGeoFields(nb::module_& m)
     DEFINE_UNARY(mag, SurfaceField, vector,     Foam::mag);
     DEFINE_UNARY(mag, SurfaceField, tensor,     Foam::mag);
 
+    // pos0 — Heaviside step (x >= 0 ? 1 : 0); scalar vol + surface fields.
+    // Building block for interface/band masks (e.g. the alpha Courant number).
+    DEFINE_UNARY(pos0, VolumeField,  scalar, Foam::pos0);
+    DEFINE_UNARY(pos0, SurfaceField, scalar, Foam::pos0);
+
     // magSqr — vol scalar/vector/tensor (not symmTensor).
     DEFINE_UNARY(magSqr, VolumeField, scalar, Foam::magSqr);
     DEFINE_UNARY(magSqr, VolumeField, vector, Foam::magSqr);

@@ -38,6 +38,28 @@ Type declare_sum(const Field<Type>& values)
     return gSum(values);
 }
 
+// Global (MPI-collective) reductions over a field — the parallel-correct
+// counterparts of numpy max/min. gSum is exposed as ``sum`` above.
+scalar declare_gMax(const Field<scalar>& values)
+{
+    return gMax(values);
+}
+
+scalar declare_gMax_tmp(const tmp<Field<scalar>>& values)
+{
+    return gMax(values());
+}
+
+scalar declare_gMin(const Field<scalar>& values)
+{
+    return gMin(values);
+}
+
+scalar declare_gMin_tmp(const tmp<Field<scalar>>& values)
+{
+    return gMin(values());
+}
+
 
 template<class Type>
 nb::class_< Field<Type>> declare_fields(nb::module_ &m, std::string className) {
@@ -486,6 +508,11 @@ void Foam::bindFields(nb::module_& m)
     m.def("sum",declare_sum<vector>);
     m.def("sum",declare_sum<tensor>);
     m.def("sum",declare_sum<symmTensor>);
+
+    m.def("gMax", declare_gMax);
+    m.def("gMax", declare_gMax_tmp);
+    m.def("gMin", declare_gMin);
+    m.def("gMin", declare_gMin_tmp);
 
     // ---- Module-level free functions on Field<T> ----
     // mag/magSqr: defined for all component types (return scalar for vector/tensor input).

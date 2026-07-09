@@ -306,6 +306,17 @@ void bindReconstruct(nanobind::module_& m)
     m.def("reconstruct", [](const tmp<FieldType>& sf){return fvc::reconstruct(sf);});
 }
 
+// surfaceSum: sum each cell's face values into a cell field (face->cell
+// reduction). Generic building block for flux integrals composed in Python
+// (e.g. the flow / interface Courant numbers).
+template<class Type>
+void bindSurfaceSum(nanobind::module_& m)
+{
+    using SurfField = GeometricField<Type, fvsPatchField, surfaceMesh>;
+    m.def("surfaceSum", [](const SurfField& ssf){return fvc::surfaceSum(ssf);});
+    m.def("surfaceSum", [](const tmp<SurfField>& ssf){return fvc::surfaceSum(ssf);});
+}
+
 // Specialized template for flux operation (single argument)
 template<class FieldType>
 void bindFlux(nanobind::module_& m)
@@ -396,6 +407,10 @@ void Foam::bindFVC(nanobind::module_& fvc)
     // reconstruct operations
     bindReconstruct<surfaceScalarField>(fvc);
     bindReconstruct<surfaceVectorField>(fvc);
+
+    // surfaceSum (face->cell reduction)
+    bindSurfaceSum<scalar>(fvc);
+    bindSurfaceSum<vector>(fvc);
 
     // ddtCorr (special case - single binding)
     fvc.def("ddtCorr", [](const volVectorField& vf, const surfaceScalarField& ssf){return fvc::ddtCorr(vf,ssf);});
