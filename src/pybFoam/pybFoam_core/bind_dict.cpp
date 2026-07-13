@@ -237,6 +237,8 @@ void bindDict(nanobind::module_ &m)
              { return static_cast<Foam::dictionary *>(&self.subDict(Foam::word(key))); }, nb::rv_policy::reference_internal)
         .def("subDictOrAdd", [](Foam::dictionary &self, const std::string key)
              { return self.subDictOrAdd(Foam::word(key)); }, nb::rv_policy::reference_internal)
+        .def("remove", [](Foam::dictionary &self, const std::string key)
+             { return self.remove(Foam::word(key)); })
         .def("write", [](const Foam::dictionary &self, const std::string file_name)
              {
             Foam::fileName dictFileName(file_name);

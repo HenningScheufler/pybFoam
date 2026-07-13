@@ -125,6 +125,45 @@ TYPE_REPLACEMENTS = {
 }
 
 
+def fix_dotted_submodule_imports(content: str) -> str:
+    """Rewrite invalid dotted re-exports emitted by nanobind stubgen.
+
+    When a submodule of a submodule (e.g. ``pybFoam_core.mules``) is also
+    re-exported at the top level, stubgen emits an entry like::
+
+        from . import (
+            ...,
+            pybFoam_core.mules as pybFoam_core.mules,
+            ...,
+        )
+
+    which is not valid Python (dotted names are illegal both as an imported
+    name and as an ``as`` target). Pull each such entry out of the
+    ``from . import (...)`` group and re-emit it as a proper standalone
+    ``from .pybFoam_core import mules as mules`` statement, matching the
+    runtime re-export.
+    """
+    dotted = re.compile(r"^\s*(\w+)\.(\w+) as \1\.\2,?\n", re.MULTILINE)
+    extracted: list[tuple[str, str]] = []
+
+    def _drop(match: re.Match[str]) -> str:
+        extracted.append((match.group(1), match.group(2)))
+        return ""
+
+    content = dotted.sub(_drop, content)
+    if not extracted:
+        return content
+
+    # Emit the recovered imports right after the ``from . import (...)`` block.
+    new_imports = "".join(
+        f"from .{parent} import {child} as {child}\n" for parent, child in extracted
+    )
+    block = re.compile(r"(from \. import \([^)]*\)\n)")
+    if block.search(content):
+        return block.sub(lambda m: m.group(1) + new_imports, content, count=1)
+    return new_imports + content
+
+
 def main():
     # Look for stubs directory relative to current working directory
     cwd = Path.cwd()
@@ -166,6 +205,9 @@ def main():
         # Apply all replacements
         for pattern, replacement in TYPE_REPLACEMENTS.items():
             content = re.sub(pattern, replacement, content)
+
+        # Rewrite invalid dotted submodule re-exports into valid imports
+        content = fix_dotted_submodule_imports(content)
 
         # Ensure 'import typing' is present if typing.Any was introduced
         if "typing.Any" in content and "import typing" not in content:

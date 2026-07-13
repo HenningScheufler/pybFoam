@@ -166,6 +166,12 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     .def("assign", [](GF& self, const tmp<GF>& vf2){ self = vf2; })
     .def("relax", [](GF& self){ self.relax(); })
     .def("relax", [](GF& self, Foam::scalar relaxFactor){ self.relax(relaxFactor); })
+    // storePrevIter(): snapshot the current field as the previous-iteration
+    // value that relax() blends against. SIMPLE field under-relaxation needs
+    // this called before the field is updated (native solvers do it in
+    // solutionControl::storePrevIterFields()); relax() fatal-errors without it.
+    // Defined on every GeometricField, so bind it once here in the template.
+    .def("storePrevIter", [](GF& self){ self.storePrevIter(); })
     .def("mesh", [](const GF& self) -> const typename GeoMesh::Mesh&
     {
         return self.mesh();

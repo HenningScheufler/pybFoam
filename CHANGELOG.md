@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.1]
+
+* added storePrevIter
+* added remove
+
 ## [0.5.0]
 
 * `multiphase` module (nanobind) with VoF (Volume of Fluid) bindings:
