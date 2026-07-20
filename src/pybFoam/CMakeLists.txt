@@ -3,7 +3,7 @@
 # --- Canonical nanobind shared library -------------------------------------
 # Build one libnanobind.so, shared by every NB_SHARED module in this package.
 # Treated as a private implementation detail of the binding modules:
-# installed alongside them in pybFoam/, reached via INSTALL_RPATH=$ORIGIN.
+# installed alongside them in pybFoam/, reached via PYBFOAM_MODULE_INSTALL_RPATH.
 # Not exported via install(EXPORT) — downstream nanobind-extension consumers
 # (e.g. pyOFTools) get nanobind from their own pip-install of nanobind, and
 # rely on Linux loader SONAME deduplication to share the same in-process
@@ -20,7 +20,11 @@ else()
 endif()
 
 # RPATH consumed by every per-module CMakeLists below
-set(PYBFOAM_MODULE_INSTALL_RPATH "$ORIGIN")
+if(APPLE)
+    set(PYBFOAM_MODULE_INSTALL_RPATH "@loader_path")
+else()
+    set(PYBFOAM_MODULE_INSTALL_RPATH "$ORIGIN")
+endif()
 
 # Add subdirectories for each module
 add_subdirectory(pybFoam_core)

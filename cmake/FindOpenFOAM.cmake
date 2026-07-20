@@ -81,7 +81,12 @@ if(NOT TARGET OpenFOAM::core)
         "${FOAM_SRC}/OSspecific/POSIX/lnInclude"
     )
 
-    target_link_libraries(OpenFOAM::core INTERFACE OpenFOAM)
+    find_library(PSTREAM_LIB Pstream HINTS "${FOAM_LIBBIN}/$ENV{FOAM_MPI}" "${FOAM_LIBBIN}/dummy")
+    if(NOT PSTREAM_LIB)
+        message(FATAL_ERROR "Pstream library not found")
+    endif()
+
+    target_link_libraries(OpenFOAM::core INTERFACE OpenFOAM ${PSTREAM_LIB})
     target_link_directories(OpenFOAM::core INTERFACE "${FOAM_LIBBIN}")
 
     target_compile_definitions(OpenFOAM::core INTERFACE
