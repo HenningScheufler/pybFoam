@@ -42,8 +42,8 @@ nanobind_add_module(pybFoam_core NB_SHARED ${PYBFOAM_CORE_SOURCES})
 
 # Set target properties
 set_target_properties(pybFoam_core PROPERTIES
-    CXX_VISIBILITY_PRESET "hidden"
-    VISIBILITY_INLINES_HIDDEN ON
+    CXX_VISIBILITY_PRESET "default"
+    VISIBILITY_INLINES_HIDDEN OFF
     INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
     BUILD_WITH_INSTALL_RPATH ON
 )
