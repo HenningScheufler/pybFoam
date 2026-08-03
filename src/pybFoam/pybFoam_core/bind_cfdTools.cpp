@@ -27,10 +27,6 @@ License
 #include "IOMRFZoneList.H"
 #include "fvOptions.H"
 #include "fvc.H"
-#include "fvm.H"
-#include "fvScalarMatrix.H"
-#include "fixedValueFvPatchFields.H"
-#include "zeroGradientFvPatchFields.H"
 #include <nanobind/stl/tuple.h>
 
 namespace Foam
@@ -83,102 +79,6 @@ namespace Foam
             contErr.weightedAverage(mesh.V()).value();
 
         return std::make_tuple(sumLocalContErr, globalContErr);
-    }
-
-
-    // Transcription of the incompressible CorrectPhi<RAUfType, DivUType>
-    // (src/finiteVolume/cfdTools/general/CorrectPhi/CorrectPhi.C), with the two
-    // pieces pybFoam cannot pass through replaced by their only inputs:
-    //   * pimpleControl -> the non-orthogonal corrector count. The template only
-    //     uses pimple.correctNonOrthogonal() / finalNonOrthogonalIter(), i.e. a
-    //     0..nNonOrthCorr counting loop (solutionControlI.H); a negative count
-    //     runs no solve at all, which is what the `frozenFlow` tutorials
-    //     (nNonOrthogonalCorrectors -1) rely on.
-    //   * divU -> dropped. Every interFoam/interIsoFoam call site passes
-    //     geometricZeroField(), for which `fvc::div(phi) - divU` is the operand
-    //     itself.
-    template <typename RAUfType>
-    void correctPhiImpl
-    (
-        volVectorField& U,
-        surfaceScalarField& phi,
-        const volScalarField& p,
-        const RAUfType& rAUf,
-        const label nNonOrthogonalCorrectors
-    )
-    {
-        const fvMesh& mesh = U.mesh();
-        const Time& runTime = mesh.time();
-
-        correctUphiBCs(U, phi);
-
-        // Initialize BCs list for pcorr to zero-gradient
-        wordList pcorrTypes
-        (
-            p.boundaryField().size(),
-            fvPatchFieldBase::zeroGradientType()
-        );
-
-        // Set BCs of pcorr to fixed-value for patches at which p is fixed
-        forAll(p.boundaryField(), patchi)
-        {
-            if (p.boundaryField()[patchi].fixesValue())
-            {
-                pcorrTypes[patchi] = fixedValueFvPatchScalarField::typeName;
-            }
-        }
-
-        volScalarField pcorr
-        (
-            IOobject
-            (
-                "pcorr",
-                runTime.timeName(),
-                mesh
-            ),
-            mesh,
-            dimensionedScalar(p.dimensions(), Zero),
-            pcorrTypes
-        );
-
-        if (pcorr.needReference())
-        {
-            fvc::makeRelative(phi, U);
-            adjustPhi(phi, U, pcorr);
-            fvc::makeAbsolute(phi, U);
-        }
-
-        mesh.setFluxRequired(pcorr.name());
-
-        for (label nonOrth = 0; nonOrth <= nNonOrthogonalCorrectors; ++nonOrth)
-        {
-            const bool finalNonOrth = (nonOrth == nNonOrthogonalCorrectors);
-
-            fvScalarMatrix pcorrEqn
-            (
-                fvm::laplacian(rAUf, pcorr) == fvc::div(phi)
-            );
-
-            pcorrEqn.setReference(0, 0);
-
-            pcorrEqn.solve(pcorr.select(finalNonOrth));
-
-            if (finalNonOrth)
-            {
-                phi -= pcorrEqn.flux();
-            }
-        }
-    }
-
-
-    template <typename RAUfType>
-    void declare_CorrectPhi(nanobind::module_ &m)
-    {
-        namespace nb = nanobind;
-        m.def("CorrectPhi", [](volVectorField &U, surfaceScalarField &phi, const volScalarField &p, const RAUfType &rAUf, const label nNonOrthogonalCorrectors)
-              { correctPhiImpl(U, phi, p, rAUf, nNonOrthogonalCorrectors); },
-              nb::arg("U"), nb::arg("phi"), nb::arg("p"), nb::arg("rAUf"),
-              nb::arg("nNonOrthogonalCorrectors"));
     }
 
 
@@ -279,10 +179,11 @@ namespace Foam
         m.def("adjustPhi", &adjustPhi);
         declare_MRF(m);
         declare_fvOptions(m);
-        // Both rAUf forms interFoam uses: the uniform dimensionedScalar of
-        // initCorrectPhi.H's else branch and the interpolated field of correctPhi.H.
-        declare_CorrectPhi<dimensionedScalar>(m);
-        declare_CorrectPhi<surfaceScalarField>(m);
+        // The CorrectPhi projection itself is composed from primitives on the
+        // Python side; only its one non-composable helper is bound.
+        m.def("correctUphiBCs", [](volVectorField &U, surfaceScalarField &phi)
+              { correctUphiBCs(U, phi); },
+              nb::arg("U"), nb::arg("phi"));
         declare_constrainPressure<volScalarField>(m);
         declare_constrainPressure<surfaceScalarField>(m);
         m.def("constrainHbyA", &constrainHbyA);

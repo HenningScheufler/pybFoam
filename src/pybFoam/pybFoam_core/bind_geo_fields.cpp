@@ -197,6 +197,41 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     // this of the pressure before taking the flux relative to a moving mesh
     // around adjustPhi. Defined on every GeometricField, so bind it once here.
     .def("needReference", [](const GF& self){ return self.needReference(); })
+    // fixesValue(): whether the patch's boundary condition pins the field's
+    // value there. CorrectPhi and pcorr-style fields derive their BC types from
+    // the pressure's answer per patch. Defined on every patch field, so bind it
+    // once here in the template.
+    .def("fixesValue", [](const GF& self, Foam::label patchi)
+    {
+        return self.boundaryField()[patchi].fixesValue();
+    }, nb::arg("patchi"))
+    .def("dimensions", [](const GF& self) -> const dimensionSet&
+    {
+        return self.dimensions();
+    }, nb::rv_policy::reference_internal)
+    // A registered zero-valued field with caller-chosen per-patch BC types —
+    // the GeometricField(IOobject, mesh, dimensioned, wordList) constructor,
+    // which pcorr-style work fields need (mixed zeroGradient/fixedValue BCs).
+    .def_static("uniform",
+        [](const std::string& name, const typename GeoMesh::Mesh& mesh,
+           const dimensioned<Type>& value,
+           const std::vector<std::string>& patchFieldTypes)
+        {
+            wordList types(patchFieldTypes.size());
+            forAll(types, i)
+            {
+                types[i] = patchFieldTypes[i];
+            }
+            return GF
+            (
+                IOobject(name, mesh.time().timeName(), mesh),
+                mesh,
+                value,
+                types
+            );
+        },
+        nb::arg("name"), nb::arg("mesh"), nb::arg("value"),
+        nb::arg("patchFieldTypes"))
     .def("mesh", [](const GF& self) -> const typename GeoMesh::Mesh&
     {
         return self.mesh();

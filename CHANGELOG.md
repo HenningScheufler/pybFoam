@@ -7,6 +7,10 @@
 * bind `fv::options` (finite-volume options / `fvOptions`) as `pybFoam.fvOptions`
   — `New(mesh)`, the momentum source `__call__(U)` / `__call__(rho, U)`,
   `constrain(eqn)` and `correct(U)`
+* bind the primitives the CorrectPhi flux projection is composed from (the
+  projection itself lives in Python): `correctUphiBCs`, per-patch
+  `fixesValue(patchi)`, `dimensions()` and the `uniform(name, mesh, value,
+  patchFieldTypes)` field constructor on every `GeometricField`
 
 ## [0.5.2]
 

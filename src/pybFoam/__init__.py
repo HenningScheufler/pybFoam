@@ -1,5 +1,4 @@
 from pybFoam.pybFoam_core import (
-    CorrectPhi,
     DictionaryGetOrDefaultProxy,
     DictionaryGetProxy,
     Info,
@@ -25,6 +24,7 @@ from pybFoam.pybFoam_core import (
     computeContinuityErrors,
     constrainHbyA,
     constrainPressure,
+    correctUphiBCs,
     cos,
     createMesh,
     createPhi,
@@ -253,7 +253,7 @@ __all__ = [
     "pisoControl",
     "simpleControl",
     # Utility functions
-    "CorrectPhi",
+    "correctUphiBCs",
     "IOMRFZoneList",
     "adjustPhi",
     "bound",
