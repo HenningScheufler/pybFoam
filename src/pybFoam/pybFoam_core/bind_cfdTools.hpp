@@ -43,6 +43,8 @@ namespace Foam
 template<typename RAUType>
 void declare_constrainPressure(nanobind::module_& m);
 
+void declare_MRF(nanobind::module_& m);
+
 
 void  bindCfdTools(nanobind::module_& m);
 

@@ -30,6 +30,9 @@ License
 #include "fvBoundaryMesh.H"
 #include "fvPatch.H"
 #include "IOobject.H"
+#include "ITstream.H"
+#include "ddtScheme.H"
+#include "CrankNicolsonDdtScheme.H"
 
 namespace Foam
 {
@@ -165,6 +168,37 @@ void bindFvMesh(nanobind::module_ &m)
         .def("Sf", &Foam::fvMesh::Sf, nb::rv_policy::reference)
         .def("magSf", &Foam::fvMesh::magSf, nb::rv_policy::reference)
         .def("setFluxRequired", &Foam::fvMesh::setFluxRequired)
+        // The fvSchemes ddt entry a solver has to branch on rather than just
+        // apply: interFoam's alphaEqn.H builds the scheme named by `key`
+        // (falling back to fvSchemes' `default`) and reads the Crank-Nicolson
+        // off-centring coefficient off it. Returns (scheme name, ocCoeff); the
+        // coefficient is a Function1 of time, so it is evaluated at the current
+        // time and is 0 for every scheme that has none.
+        .def("ddtSchemeInfo", [](const Foam::fvMesh &self, const Foam::word &key)
+             {
+                Foam::ITstream is(self.ddtScheme(key));
+                is.rewind();
+                Foam::tmp<Foam::fv::ddtScheme<Foam::scalar>> tddt
+                (
+                    Foam::fv::ddtScheme<Foam::scalar>::New(self, is)
+                );
+                const Foam::fv::ddtScheme<Foam::scalar>& ddt = tddt();
+                Foam::scalar ocCoeff = 0;
+                if (Foam::isType<Foam::fv::CrankNicolsonDdtScheme<Foam::scalar>>(ddt))
+                {
+                    ocCoeff =
+                        Foam::refCast
+                        <
+                            const Foam::fv::CrankNicolsonDdtScheme<Foam::scalar>
+                        >(ddt).ocCoeff();
+                }
+                return nb::make_tuple(std::string(ddt.type()), ocCoeff);
+             },
+             nb::arg("key"),
+             "The (scheme name, off-centring coefficient) of the fvSchemes ddt "
+             "entry `key`, e.g. ddtSchemeInfo('ddt(alpha)') -> "
+             "('CrankNicolson', 0.5). The coefficient is 0 for any scheme "
+             "without one.")
         .def("solverPerformanceDict", [](const Foam::fvMesh &self)
              {
                 #if OPENFOAM >= 2312
@@ -200,9 +234,22 @@ void bindFvMesh(nanobind::module_ &m)
         }, nb::rv_policy::reference_internal)
         .def("write", [](Foam::fvMesh& self) { return self.write(); },
              "Write mesh to disk")
-        // dynamic mesh support
+        // dynamic mesh support. All four are virtual on polyMesh/fvMesh, so a
+        // plain fvMesh answers false/false and a dynamicFvMesh answers for its
+        // motion solver — the caller never has to know which it holds.
         .def("changing", [](Foam::fvMesh &self)
              { return self.changing(); })
+        .def("moving", [](const Foam::fvMesh &self)
+             { return self.moving(); })
+        .def("topoChanging", [](const Foam::fvMesh &self)
+             { return self.topoChanging(); })
+        .def("dynamic", [](const Foam::fvMesh &self)
+             { return self.dynamic(); })
+        // The mesh motion (swept-volume) flux, i.e. native's mesh.phi(). Only
+        // a moving mesh has one; fvMesh::phi() calls FatalError otherwise, so
+        // guard the call site with moving() exactly as the solvers do.
+        .def("phi", [](const Foam::fvMesh &self) -> const Foam::surfaceScalarField&
+             { return self.phi(); }, nb::rv_policy::reference_internal)
         ;
 
 

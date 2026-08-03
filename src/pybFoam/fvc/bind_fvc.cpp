@@ -431,4 +431,30 @@ void Foam::bindFVC(nanobind::module_& fvc)
 
     // ddtCorr (special case - single binding)
     fvc.def("ddtCorr", [](const volVectorField& vf, const surfaceScalarField& ssf){return fvc::ddtCorr(vf,ssf);});
+    // Moving-mesh form. fvc::ddtCorr(U, phi, Uf) is a dispatcher that picks this
+    // overload when mesh.dynamic(); pybFoam holds Uf as a field rather than an
+    // autoPtr, so the two arms are bound separately and the caller picks.
+    fvc.def("ddtCorr", [](const volVectorField& vf, const surfaceVectorField& Uf){return fvc::ddtCorr(vf,Uf);});
+
+    // Mesh-motion flux helpers. meshPhi is the swept-volume face flux of the mesh
+    // itself; makeRelative/makeAbsolute/correctUf are all no-ops on a mesh that is
+    // not moving/dynamic, so a static-mesh call site is unchanged by using them.
+    fvc.def("meshPhi", [](const volVectorField& U){ return fvc::meshPhi(U); });
+    fvc.def("makeRelative", [](surfaceScalarField& phi, const volVectorField& U)
+        { fvc::makeRelative(phi, U); });
+    fvc.def("makeAbsolute", [](surfaceScalarField& phi, const volVectorField& U)
+        { fvc::makeAbsolute(phi, U); });
+    fvc.def("correctUf", [](surfaceVectorField& Uf, const volVectorField& U,
+                            const surfaceScalarField& phi)
+        {
+            // Body of fvc::correctUf, which takes an autoPtr<surfaceVectorField>&
+            // that pybFoam has no counterpart for. Guard and arithmetic identical.
+            const fvMesh& mesh = U.mesh();
+            if (mesh.dynamic())
+            {
+                Uf = fvc::interpolate(U);
+                surfaceVectorField n(mesh.Sf()/mesh.magSf());
+                Uf += n*(phi/mesh.magSf() - (n & Uf));
+            }
+        });
 }

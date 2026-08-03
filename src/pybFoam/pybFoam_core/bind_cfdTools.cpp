@@ -23,7 +23,14 @@ License
 #include "findRefCell.H"
 #include "constrainPressure.H"
 #include "constrainHbyA.H"
+#include "CorrectPhi.H"
+#include "IOMRFZoneList.H"
+#include "fvOptions.H"
 #include "fvc.H"
+#include "fvm.H"
+#include "fvScalarMatrix.H"
+#include "fixedValueFvPatchFields.H"
+#include "zeroGradientFvPatchFields.H"
 #include <nanobind/stl/tuple.h>
 
 namespace Foam
@@ -79,6 +86,102 @@ namespace Foam
     }
 
 
+    // Transcription of the incompressible CorrectPhi<RAUfType, DivUType>
+    // (src/finiteVolume/cfdTools/general/CorrectPhi/CorrectPhi.C), with the two
+    // pieces pybFoam cannot pass through replaced by their only inputs:
+    //   * pimpleControl -> the non-orthogonal corrector count. The template only
+    //     uses pimple.correctNonOrthogonal() / finalNonOrthogonalIter(), i.e. a
+    //     0..nNonOrthCorr counting loop (solutionControlI.H); a negative count
+    //     runs no solve at all, which is what the `frozenFlow` tutorials
+    //     (nNonOrthogonalCorrectors -1) rely on.
+    //   * divU -> dropped. Every interFoam/interIsoFoam call site passes
+    //     geometricZeroField(), for which `fvc::div(phi) - divU` is the operand
+    //     itself.
+    template <typename RAUfType>
+    void correctPhiImpl
+    (
+        volVectorField& U,
+        surfaceScalarField& phi,
+        const volScalarField& p,
+        const RAUfType& rAUf,
+        const label nNonOrthogonalCorrectors
+    )
+    {
+        const fvMesh& mesh = U.mesh();
+        const Time& runTime = mesh.time();
+
+        correctUphiBCs(U, phi);
+
+        // Initialize BCs list for pcorr to zero-gradient
+        wordList pcorrTypes
+        (
+            p.boundaryField().size(),
+            fvPatchFieldBase::zeroGradientType()
+        );
+
+        // Set BCs of pcorr to fixed-value for patches at which p is fixed
+        forAll(p.boundaryField(), patchi)
+        {
+            if (p.boundaryField()[patchi].fixesValue())
+            {
+                pcorrTypes[patchi] = fixedValueFvPatchScalarField::typeName;
+            }
+        }
+
+        volScalarField pcorr
+        (
+            IOobject
+            (
+                "pcorr",
+                runTime.timeName(),
+                mesh
+            ),
+            mesh,
+            dimensionedScalar(p.dimensions(), Zero),
+            pcorrTypes
+        );
+
+        if (pcorr.needReference())
+        {
+            fvc::makeRelative(phi, U);
+            adjustPhi(phi, U, pcorr);
+            fvc::makeAbsolute(phi, U);
+        }
+
+        mesh.setFluxRequired(pcorr.name());
+
+        for (label nonOrth = 0; nonOrth <= nNonOrthogonalCorrectors; ++nonOrth)
+        {
+            const bool finalNonOrth = (nonOrth == nNonOrthogonalCorrectors);
+
+            fvScalarMatrix pcorrEqn
+            (
+                fvm::laplacian(rAUf, pcorr) == fvc::div(phi)
+            );
+
+            pcorrEqn.setReference(0, 0);
+
+            pcorrEqn.solve(pcorr.select(finalNonOrth));
+
+            if (finalNonOrth)
+            {
+                phi -= pcorrEqn.flux();
+            }
+        }
+    }
+
+
+    template <typename RAUfType>
+    void declare_CorrectPhi(nanobind::module_ &m)
+    {
+        namespace nb = nanobind;
+        m.def("CorrectPhi", [](volVectorField &U, surfaceScalarField &phi, const volScalarField &p, const RAUfType &rAUf, const label nNonOrthogonalCorrectors)
+              { correctPhiImpl(U, phi, p, rAUf, nNonOrthogonalCorrectors); },
+              nb::arg("U"), nb::arg("phi"), nb::arg("p"), nb::arg("rAUf"),
+              nb::arg("nNonOrthogonalCorrectors"));
+    }
+
+
     template <typename RAUType>
     void declare_constrainPressure(nanobind::module_ &m)
     {
@@ -86,6 +189,87 @@ namespace Foam
         namespace nb = nanobind;
         m.def("constrainPressure", [](volScalarField &p, const volVectorField &U, const surfaceScalarField &phiHbyA, const RAUType &rAU)
               { return constrainPressure(p, U, phiHbyA, rAU); }, nb::arg("p"), nb::arg("U"), nb::arg("phiHbyA"), nb::arg("rAU"));
+        // The MRF-aware overload every rotating-frame solver calls
+        // (simpleFoam/pimpleFoam/interFoam pEqn.H). It differs from the one above
+        // only on fixedFluxPressure patches, where the prescribed snGrad must be
+        // taken relative to the rotating frame.
+        m.def("constrainPressure", [](volScalarField &p, const volVectorField &U, const surfaceScalarField &phiHbyA, const RAUType &rAU, const IOMRFZoneList &MRF)
+              { return constrainPressure(p, U, phiHbyA, rAU, MRF); }, nb::arg("p"), nb::arg("U"), nb::arg("phiHbyA"), nb::arg("rAU"), nb::arg("MRF"));
+    }
+
+
+    // Foam::IOMRFZoneList — the rotating-zone list read from
+    // constant/MRFProperties, bound as one flat class rather than as
+    // IOdictionary + MRFZoneList bases: it inherits from both, so a bound base
+    // would need nanobind to fix up the pointer offset on every cast. Every
+    // method below is resolved in C++ inside the lambda, where the offsets are
+    // the compiler's problem. `size` is the one name both bases carry, so it is
+    // disambiguated explicitly.
+    void declare_MRF(nanobind::module_ &m)
+    {
+        namespace nb = nanobind;
+
+        nb::class_<IOMRFZoneList>(m, "IOMRFZoneList")
+            // keep_alive<1,2>: the list keeps a bare reference to the mesh (and
+            // registers itself on its registry), so the mesh must outlive it.
+            .def(nb::init<const fvMesh &>(), nb::arg("mesh"), nb::keep_alive<1, 2>())
+            .def("__len__", [](const IOMRFZoneList &self)
+                 { return static_cast<const MRFZoneList &>(self).size(); })
+            .def("active", [](const IOMRFZoneList &self, const bool warn)
+                 { return self.active(warn); }, nb::arg("warn") = false)
+            .def("DDt", [](const IOMRFZoneList &self, const volVectorField &U)
+                 { return self.DDt(U); }, nb::arg("U"))
+            .def("DDt", [](const IOMRFZoneList &self, const volScalarField &rho, const volVectorField &U)
+                 { return self.DDt(rho, U); }, nb::arg("rho"), nb::arg("U"))
+            .def("makeRelative", [](const IOMRFZoneList &self, surfaceScalarField &phi)
+                 { self.makeRelative(phi); }, nb::arg("phi"))
+            .def("makeAbsolute", [](const IOMRFZoneList &self, surfaceScalarField &phi)
+                 { self.makeAbsolute(phi); }, nb::arg("phi"))
+            .def("correctBoundaryVelocity", [](const IOMRFZoneList &self, volVectorField &U)
+                 { self.correctBoundaryVelocity(U); }, nb::arg("U"))
+            .def("zeroFilter", [](const IOMRFZoneList &self, const tmp<surfaceScalarField> &phi)
+                 { return self.zeroFilter(phi); }, nb::arg("phi"))
+            .def("update", [](IOMRFZoneList &self)
+                 { self.update(); })
+            ;
+    }
+
+    // Foam::fv::options — the finite-volume option list read from
+    // constant/fvOptions or system/fvOptions (fvOptions.C picks whichever is
+    // present, in that order). Bound flat, like IOMRFZoneList above: it inherits
+    // both IOdictionary and fv::optionList, so every method is resolved in C++
+    // inside the lambda where the base-pointer offsets are the compiler's
+    // problem. `size` is carried by both bases, hence the explicit cast.
+    //
+    // Only the vector (momentum) arms are bound: the scalar equations OpenFOAM
+    // would also source through fvOptions (k/epsilon/omega/he) are assembled
+    // inside native library code, which reaches its own fv::options directly.
+    void declare_fvOptions(nanobind::module_ &m)
+    {
+        namespace nb = nanobind;
+
+        nb::class_<fv::options>(m, "fvOptions")
+            // New() looks the list up on the mesh registry and constructs it
+            // there on first call, so the returned reference is owned by the
+            // mesh -- never by Python. keep_alive<0,1> holds the mesh for as
+            // long as the handle lives; the native turbulence models call the
+            // same New() and therefore share this very object.
+            .def_static("New", [](const fvMesh &mesh) -> fv::options &
+                 { return fv::options::New(mesh); },
+                 nb::arg("mesh"), nb::rv_policy::reference, nb::keep_alive<0, 1>())
+            .def("__len__", [](const fv::options &self)
+                 { return static_cast<const fv::optionList &>(self).size(); })
+            // fvOptions(U) / fvOptions(rho, U): the source matrix an equation
+            // takes with `==`, i.e. subtracts.
+            .def("__call__", [](fv::options &self, volVectorField &U)
+                 { return self(U); }, nb::arg("U"))
+            .def("__call__", [](fv::options &self, const volScalarField &rho, volVectorField &U)
+                 { return self(rho, U); }, nb::arg("rho"), nb::arg("U"))
+            .def("constrain", [](fv::options &self, fvMatrix<vector> &eqn)
+                 { self.constrain(eqn); }, nb::arg("eqn"))
+            .def("correct", [](fv::options &self, volVectorField &U)
+                 { self.correct(U); }, nb::arg("U"))
+            ;
     }
 
     void bindCfdTools(nanobind::module_ &m)
@@ -93,6 +277,12 @@ namespace Foam
         namespace nb = nanobind;
 
         m.def("adjustPhi", &adjustPhi);
+        declare_MRF(m);
+        declare_fvOptions(m);
+        // Both rAUf forms interFoam uses: the uniform dimensionedScalar of
+        // initCorrectPhi.H's else branch and the interpolated field of correctPhi.H.
+        declare_CorrectPhi<dimensionedScalar>(m);
+        declare_CorrectPhi<surfaceScalarField>(m);
         declare_constrainPressure<volScalarField>(m);
         declare_constrainPressure<surfaceScalarField>(m);
         m.def("constrainHbyA", &constrainHbyA);
