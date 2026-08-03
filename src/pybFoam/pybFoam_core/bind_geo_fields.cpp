@@ -132,15 +132,15 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     // partner patch) aborts a read that only wants cell values.
     .def_static("read_internal_field", [](const fvMesh& mesh, std::string name)
     {
-        const dictionary fieldDict
+        // Not readContents(): that static helper only exists from v2406 on and
+        // the constructor with registerObject=false reads without registering
+        // just the same — keeps the build working back to v2312.
+        const localIOdictionary fieldDict
         (
-            localIOdictionary::readContents
-            (
-                Foam::IOobject(name, mesh.time().timeName(), mesh,
-                               Foam::IOobject::MUST_READ, Foam::IOobject::NO_WRITE,
-                               false /*registerObject*/),
-                GF::typeName
-            )
+            Foam::IOobject(name, mesh.time().timeName(), mesh,
+                           Foam::IOobject::MUST_READ, Foam::IOobject::NO_WRITE,
+                           false /*registerObject*/),
+            GF::typeName
         );
         return Foam::Field<Type>("internalField", fieldDict, GeoMesh::size(mesh));
     },
