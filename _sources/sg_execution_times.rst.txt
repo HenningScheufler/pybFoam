@@ -1,0 +1,70 @@
+
+:orphan:
+
+.. _sphx_glr_sg_execution_times:
+
+
+Computation times
+=================
+**00:12.107** total execution time for 12 files **from all galleries**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_auto_tutorials_example_03_modify_initial_conditions.py` (``../examples/tutorials/example_03_modify_initial_conditions.py``)
+     - 00:07.414
+     - 0.0
+   * - :ref:`sphx_glr_auto_tutorials_example_04_run_and_sample.py` (``../examples/tutorials/example_04_run_and_sample.py``)
+     - 00:02.953
+     - 0.0
+   * - :ref:`sphx_glr_auto_how_to_example_modify_boundary_conditions.py` (``../examples/how-to/example_modify_boundary_conditions.py``)
+     - 00:00.235
+     - 0.0
+   * - :ref:`sphx_glr_auto_how_to_example_turbulence.py` (``../examples/how-to/example_turbulence.py``)
+     - 00:00.215
+     - 0.0
+   * - :ref:`sphx_glr_auto_how_to_example_sample_plane.py` (``../examples/how-to/example_sample_plane.py``)
+     - 00:00.204
+     - 0.0
+   * - :ref:`sphx_glr_auto_how_to_example_fvc_fvm_operators.py` (``../examples/how-to/example_fvc_fvm_operators.py``)
+     - 00:00.198
+     - 0.0
+   * - :ref:`sphx_glr_auto_how_to_example_sample_isosurface.py` (``../examples/how-to/example_sample_isosurface.py``)
+     - 00:00.198
+     - 0.0
+   * - :ref:`sphx_glr_auto_how_to_example_sample_line.py` (``../examples/how-to/example_sample_line.py``)
+     - 00:00.196
+     - 0.0
+   * - :ref:`sphx_glr_auto_tutorials_example_02_scalar_fields.py` (``../examples/tutorials/example_02_scalar_fields.py``)
+     - 00:00.178
+     - 0.0
+   * - :ref:`sphx_glr_auto_how_to_example_blockmesh.py` (``../examples/how-to/example_blockmesh.py``)
+     - 00:00.149
+     - 0.0
+   * - :ref:`sphx_glr_auto_tutorials_example_01_dictionaries.py` (``../examples/tutorials/example_01_dictionaries.py``)
+     - 00:00.097
+     - 0.0
+   * - :ref:`sphx_glr_auto_how_to_example_read_dictionaries.py` (``../examples/how-to/example_read_dictionaries.py``)
+     - 00:00.069
+     - 0.0
