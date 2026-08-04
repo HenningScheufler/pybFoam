@@ -40,6 +40,7 @@ void Foam::bindTurbulence(nb::module_& m)
         .def(nb::init<const volVectorField&, const surfaceScalarField&>(),
              nb::arg("U"), nb::arg("phi"))
         .def("correct", &singlePhaseTransportModel::correct)
+        .def("nu", [](const singlePhaseTransportModel& self) { return self.nu(); })
     ;
 
     nb::class_<incompressible::turbulenceModel>(m, "incompressibleTurbulenceModel")

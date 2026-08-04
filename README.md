@@ -107,6 +107,7 @@ div_U = pf.fvc.div(U)
 
 # Convert to NumPy arrays for analysis
 import numpy as np
+
 p_array = np.asarray(p_rgh["internalField"])
 print(f"Pressure range: {p_array.min():.3f} to {p_array.max():.3f}")
 ```
@@ -118,10 +119,7 @@ from pybFoam.sampling import SampledPlaneConfig, sampledSurface, interpolationSc
 from pybFoam import Word
 
 # Create a sampling plane using Pydantic config
-plane_config = SampledPlaneConfig(
-    point=[0.5, 0.5, 0.0],
-    normal=[1.0, 0.0, 0.0]
-)
+plane_config = SampledPlaneConfig(point=[0.5, 0.5, 0.0], normal=[1.0, 0.0, 0.0])
 
 # Create the surface
 plane = sampledSurface.New(Word("myPlane"), mesh, plane_config.to_foam_dict())
@@ -141,8 +139,8 @@ d = dictionary.read("system/controlDict")
 
 # Typed accessors — a typo in the key raises at the call site
 application = d.get[Word]("application")
-end_time    = d.get[float]("endTime")
-max_co      = d.getOrDefault[float]("maxCo", 0.5)
+end_time = d.get[float]("endTime")
+max_co = d.getOrDefault[float]("maxCo", 0.5)
 
 # Nested subdictionaries and key enumeration
 piso = d.subDict("PISO")

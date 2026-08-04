@@ -80,10 +80,27 @@ void bindTime(nanobind::module_ &m)
                             const Foam::instant &inst,
                             const Foam::label newIndex)
              { self.setTime(inst, newIndex); })
-        .def("setDeltaT", [](Foam::Time &self, const Foam::scalar newDeltaT)
-             { self.setDeltaT(newDeltaT); }, nb::arg("newDeltaT"))
+        .def("setDeltaT", [](Foam::Time &self, const Foam::scalar newDeltaT, const bool adjust)
+             { self.setDeltaT(newDeltaT, adjust); },
+             nb::arg("newDeltaT"), nb::arg("adjust") = true,
+             "Set deltaT. adjust=True (the OpenFOAM default) also runs "
+             "adjustDeltaT(), snapping the step onto the next adjustableRunTime "
+             "write time; pass False when the caller already owns that snapping.")
         .def("value", &Foam::Time::timeOutputValue)
         .def("deltaTValue", [](Foam::Time &self) { return self.deltaTValue(); })
+        .def("timeIndex", [](const Foam::Time &self) { return self.timeIndex(); })
+        .def("startTimeIndex", [](const Foam::Time &self) { return self.startTimeIndex(); },
+             "The time index the run started from. Schemes that need an Euler "
+             "first step (CrankNicolson) compare timeIndex() against it.")
+        .def("subCycle", [](Foam::Time &self, const Foam::label nSubCycles)
+             { self.subCycle(nSubCycles); },
+             nb::arg("nSubCycles"),
+             "Begin sub-cycling: rewind one deltaT, scale the time index by n and "
+             "divide deltaT by n, so each subsequent increment() is one sub-step "
+             "(Foam::subCycleTime). Must be paired with endSubCycle().")
+        .def("endSubCycle", [](Foam::Time &self)
+             { self.endSubCycle(); },
+             "Restore the time state saved by subCycle().")
         .def("loop", &Foam::Time::loop)
         .def("run", &Foam::Time::run)
         .def("write", &Foam::Time::write)

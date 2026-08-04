@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.5.3]
+
+* bind `fvMesh::phi()` — the mesh motion (swept-volume) face flux, i.e. native's
+  `mesh.phi()`; only valid on a moving mesh
+* bind `fv::options` (finite-volume options / `fvOptions`) as `pybFoam.fvOptions`
+  — `New(mesh)`, the momentum source `__call__(U)` / `__call__(rho, U)`,
+  `constrain(eqn)` and `correct(U)`
+* bind the primitives the CorrectPhi flux projection is composed from (the
+  projection itself lives in Python): `correctUphiBCs`, per-patch
+  `fixesValue(patchi)`, `dimensions()` and the `uniform(name, mesh, value,
+  patchFieldTypes)` field constructor on every `GeometricField`
+
+## [0.5.2]
+
+* bind `IOMRFZoneList` (MRF rotating zones) — construction from the mesh plus
+  `DDt`, `makeRelative`, `makeAbsolute`, `correctBoundaryVelocity`, `zeroFilter`
+  and `update`
+* bind the MRF-aware `constrainPressure` overload
+
 ## [0.5.1]
 
 * added storePrevIter

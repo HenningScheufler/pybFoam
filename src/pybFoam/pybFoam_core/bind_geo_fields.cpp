@@ -20,6 +20,7 @@ License
 #include "bind_geo_fields.hpp"
 #include "tmp.H"
 #include "bound.H"
+#include "localIOdictionary.H"
 
 namespace Foam
 {
@@ -125,6 +126,25 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     },
     nb::rv_policy::take_ownership,
     nb::arg("mesh"), nb::arg("name"), nb::arg("register"))
+    // Reads the field file's internalField entry only. read_field() also constructs
+    // every patch field, and a boundary condition that needs more than the file it is
+    // written in (fan/fanPressure read a fan-curve table, coupled types need their
+    // partner patch) aborts a read that only wants cell values.
+    .def_static("read_internal_field", [](const fvMesh& mesh, std::string name)
+    {
+        // Not readContents(): that static helper only exists from v2406 on and
+        // the constructor with registerObject=false reads without registering
+        // just the same — keeps the build working back to v2312.
+        const localIOdictionary fieldDict
+        (
+            Foam::IOobject(name, mesh.time().timeName(), mesh,
+                           Foam::IOobject::MUST_READ, Foam::IOobject::NO_WRITE,
+                           false /*registerObject*/),
+            GF::typeName
+        );
+        return Foam::Field<Type>("internalField", fieldDict, GeoMesh::size(mesh));
+    },
+    nb::arg("mesh"), nb::arg("name"))
     .def_static("from_registry", [](const fvMesh& mesh, std::string name)
     {
         return mesh.findObject<GF>(name);
@@ -172,6 +192,46 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     // solutionControl::storePrevIterFields()); relax() fatal-errors without it.
     // Defined on every GeometricField, so bind it once here in the template.
     .def("storePrevIter", [](GF& self){ self.storePrevIter(); })
+    // needReference(): true when no boundary patch fixes the field's value, so
+    // its level is undetermined and a reference cell has to pin it. pEqn.H asks
+    // this of the pressure before taking the flux relative to a moving mesh
+    // around adjustPhi. Defined on every GeometricField, so bind it once here.
+    .def("needReference", [](const GF& self){ return self.needReference(); })
+    // fixesValue(): whether the patch's boundary condition pins the field's
+    // value there. CorrectPhi and pcorr-style fields derive their BC types from
+    // the pressure's answer per patch. Defined on every patch field, so bind it
+    // once here in the template.
+    .def("fixesValue", [](const GF& self, Foam::label patchi)
+    {
+        return self.boundaryField()[patchi].fixesValue();
+    }, nb::arg("patchi"))
+    .def("dimensions", [](const GF& self) -> const dimensionSet&
+    {
+        return self.dimensions();
+    }, nb::rv_policy::reference_internal)
+    // A registered zero-valued field with caller-chosen per-patch BC types —
+    // the GeometricField(IOobject, mesh, dimensioned, wordList) constructor,
+    // which pcorr-style work fields need (mixed zeroGradient/fixedValue BCs).
+    .def_static("uniform",
+        [](const std::string& name, const typename GeoMesh::Mesh& mesh,
+           const dimensioned<Type>& value,
+           const std::vector<std::string>& patchFieldTypes)
+        {
+            wordList types(patchFieldTypes.size());
+            forAll(types, i)
+            {
+                types[i] = patchFieldTypes[i];
+            }
+            return GF
+            (
+                IOobject(name, mesh.time().timeName(), mesh),
+                mesh,
+                value,
+                types
+            );
+        },
+        nb::arg("name"), nb::arg("mesh"), nb::arg("value"),
+        nb::arg("patchFieldTypes"))
     .def("mesh", [](const GF& self) -> const typename GeoMesh::Mesh&
     {
         return self.mesh();
@@ -182,6 +242,13 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     // special-casing individual field types.
     .def("oldTime", [](GF& self) -> GF& { return self.oldTime(); },
          nb::rv_policy::reference_internal)
+    // timeIndex(): the Time index the stored old-time value belongs to. oldTime()
+    // rolls the current value into the old-time slot whenever the two disagree,
+    // so a sub-cycle (which moves Time's index) has to set it explicitly — this
+    // is what Foam::subCycleField does around a subCycle.
+    .def("timeIndex", [](const GF& self) { return self.timeIndex(); })
+    .def("setTimeIndex", [](GF& self, Foam::label index) { self.timeIndex() = index; },
+         nb::arg("index"))
     ;
 
     m.def("write", [](const GF& geofield){ geofield.write(); });
@@ -252,6 +319,13 @@ void Foam::bindGeoFields(nb::module_& m)
         ;
 
     auto [svf, tmp_svf] = declare_geofields<vector,fvsPatchField, surfaceMesh>(m, std::string("surfaceVectorField"));
+
+    // Face-normal inner product — `mesh.Sf() & Uf`, the absolute flux interFoam
+    // rebuilds from the mapped face velocity after a mesh move.
+    svf
+        .def("__and__", [](const surfaceVectorField& self, const surfaceVectorField& other){ return self & other; })
+        .def("__and__", [](const surfaceVectorField& self, const tmp<surfaceVectorField>& other){ return self & other; })
+        ;
     auto [stf, tmp_stf] = declare_geofields<tensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceTensorField"));
     auto [sstf, tmp_sstf] = declare_geofields<symmTensor,fvsPatchField, surfaceMesh>(m, std::string("surfaceSymmTensorField"));
 
