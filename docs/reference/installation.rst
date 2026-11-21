@@ -10,7 +10,7 @@ Prerequisites
 
      source /path/to/OpenFOAM/etc/bashrc
 
-* **Python** 3.9 or higher
+* **Python** 3.11 or higher
 * **CMake** 3.18 or higher
 * A C++17-capable compiler
 

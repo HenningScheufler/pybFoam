@@ -31,7 +31,7 @@ cd docs && uv run make html
 ## Requirements
 
 - **OpenFOAM**: v2312 or higher (sourced and installed)
-- **Python**: 3.9 or higher
+- **Python**: 3.11 or higher
 - **CMake**: 3.18 or higher
 - **C++ Compiler**: C++17 compatible (GCC 7+, Clang 5+)
 - **Build tools**: nanobind, scikit-build-core

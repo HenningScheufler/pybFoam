@@ -14,8 +14,6 @@ including processes that hold no values.
 
 from __future__ import annotations
 
-from typing import Union
-
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
@@ -24,7 +22,7 @@ from .pybFoam_core import sum as _gSum
 
 __all__ = ["max", "min", "sum", "weighted_average"]
 
-ScalarValues = Union[ArrayLike, scalarField]
+ScalarValues = ArrayLike | scalarField
 
 
 def _as_array(values: ScalarValues) -> NDArray[np.float64]:

@@ -2,6 +2,8 @@
 #
 # Links against the venv's libpython3.X.so and OpenFOAM's finiteVolume.
 # Does NOT depend on nanobind: pyInterp.{hpp,cpp} only call Py_* APIs.
+# nanobindEmbed.hpp is header-only and compiled into each consumer, because
+# nanobind's state pointer is hidden per shared library.
 # Ships inside the pybFoam wheel under site-packages/pybFoam/embed/ with
 # its CMake config + headers; consumers (OpenFOAM solvers, function objects)
 # discover it via:
@@ -50,7 +52,7 @@ install(TARGETS pybFoamEmbed
     EXPORT  pybFoamEmbedTargets
     LIBRARY DESTINATION ${PYBFOAM_EMBED_INSTALL_LIBDIR})
 
-install(FILES pyInterp.hpp
+install(FILES pyInterp.hpp nanobindEmbed.hpp
     DESTINATION ${PYBFOAM_EMBED_INSTALL_INCLUDEDIR}/pybFoamEmbed)
 
 # Vendor nanobind headers so OpenFOAM-side consumers that want to manipulate

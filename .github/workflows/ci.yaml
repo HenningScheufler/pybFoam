@@ -95,6 +95,7 @@ jobs:
           test -f "$SITE/pybFoam/embed/cmake/pybFoamEmbed/pybFoamEmbedConfig.cmake"
           test -f "$SITE/pybFoam/embed/cmake/pybFoamEmbed/pybFoamEmbedTargets.cmake"
           test -f "$SITE/pybFoam/embed/include/pybFoamEmbed/pyInterp.hpp"
+          test -f "$SITE/pybFoam/embed/include/pybFoamEmbed/nanobindEmbed.hpp"
           test -f "$SITE/pybFoam/embed/include/pybFoamEmbed/nanobind/include/nanobind/nanobind.h"
 
       - name: Configure and build consumer smoke test

@@ -35,17 +35,16 @@ Source: ``.github/workflows/ci.yaml`` (``matrix.openfoam-version``).
 Python
 ------
 
-The ``pyproject.toml`` declares ``requires-python = ">=3.9"`` and ships
-classifiers for **3.9**, **3.10**, **3.11**, and **3.12**. CI currently
-exercises only 3.11 — other Python versions in that range should work but
-are untested.
+The ``pyproject.toml`` declares ``requires-python = ">=3.11"`` and ships
+classifiers for **3.11** and **3.12**. CI currently exercises only 3.11 —
+other Python versions in that range should work but are untested.
 
 Build-time requirements
 -----------------------
 
 * **CMake** 3.18 or higher
 * **C++17** compiler (GCC ≥ 9 or Clang ≥ 9)
-* **nanobind** ≥ 1.8.0 (fetched via scikit-build-core)
+* **nanobind** ≥ 3, < 4 (fetched via scikit-build-core)
 * **scikit-build-core** ≥ 0.4.3
 
 Runtime dependencies
@@ -57,7 +56,7 @@ From ``pyproject.toml``:
 
    dependencies = [
        "numpy>=1.20",
-       "nanobind>=1.8.0",
+       "nanobind>=3,<4",
        "pydantic",
        "pyyaml",
    ]
