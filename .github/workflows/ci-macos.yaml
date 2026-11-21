@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-test:
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         # v2406 is excluded: its ISpanStream.H relies on a libstdc++-only
