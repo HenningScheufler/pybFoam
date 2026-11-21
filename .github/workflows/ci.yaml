@@ -88,10 +88,10 @@ jobs:
           set -e
           SITE=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
           echo "Checking pybFoam install layout under $SITE/pybFoam"
-          # libnanobind.so lives next to the binding modules (consumed via RPATH=$ORIGIN)
-          test -f "$SITE/pybFoam/libnanobind.so"
+          # nanobind is linked statically and the embed package is header-only
+          test ! -e "$SITE/pybFoam/libnanobind.so"
+          test ! -e "$SITE/pybFoam/embed/lib"
           # pybFoamEmbed (OpenFOAM-side embed helper) and its CMake package config
-          test -f "$SITE/pybFoam/embed/lib/libpybFoamEmbed.so"
           test -f "$SITE/pybFoam/embed/cmake/pybFoamEmbed/pybFoamEmbedConfig.cmake"
           test -f "$SITE/pybFoam/embed/cmake/pybFoamEmbed/pybFoamEmbedTargets.cmake"
           test -f "$SITE/pybFoam/embed/include/pybFoamEmbed/pyInterp.hpp"

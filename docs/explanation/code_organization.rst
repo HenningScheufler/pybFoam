@@ -22,9 +22,8 @@ At import time ``import pybFoam`` brings in:
    ├── turbulence.so          ← turbulence models
    ├── sampling_bindings.so   ← sampledSurface / sampledSet
    ├── runTimeTables.so       ← runtime table registry
-   ├── libnanobind.so         ← shared nanobind runtime (see below)
    ├── sampling/              ← pure-Python Pydantic sampling configs
-   └── embed/                 ← C++ embed library (for OpenFOAM solvers)
+   └── embed/                 ← header-only C++ embed package (for OpenFOAM solvers)
 
 Each ``.so`` is a separate nanobind module compiled against the
 ``OpenFOAM::*`` CMake targets it needs — ``pybFoam_core`` links only
@@ -47,19 +46,17 @@ has two practical drawbacks:
 Splitting by subsystem keeps build feedback fast and keeps the import cost
 proportional to what was asked for.
 
-The shared ``libnanobind.so``
------------------------------
+Static nanobind
+---------------
 
-Every binding module is built with ``NB_SHARED``, so the nanobind
-type registry lives in a separate ``libnanobind.so`` installed
-alongside the modules (located at load time via ``RPATH=$ORIGIN``).
-All of pybFoam's submodules share that one registry.
+Every binding module links nanobind statically (``NB_STATIC``), so pybFoam
+installs no nanobind library. The modules share one type registry at runtime,
+which nanobind finds through its ABI key.
 
-A downstream nanobind extension that wants to take pybFoam types as
-parameters has to opt in to the same registry — it isn't automatic.
-The consumer must build with ``NB_SHARED`` against the same nanobind
-SONAME, RPATH-link to pybFoam's installed ``libnanobind.so``, **and**
-ensure ``pybFoam`` is imported before any of its types are looked up.
+A downstream nanobind extension shares that registry when it is built with a
+compatible nanobind and the same ABI key, and ``pybFoam`` is imported before
+any of its types are looked up. If the keys differ, nothing crashes, but
+pybFoam types are not recognized and calls raise ``TypeError``.
 A library that embeds Python has no ``NB_MODULE``, so it must also call
 ``Foam::initEmbeddedNanobind()`` from ``nanobindEmbed.hpp`` after
 ``pyInterp::New()`` and before any other nanobind call.
@@ -70,9 +67,8 @@ A library that embeds Python has no ``NB_MODULE``, so it must also call
 The embed library
 -----------------
 
-``pybFoam/embed/`` is a separate C++ shared library
-(``libpybFoamEmbed.so``) built when ``PYBFOAM_BUILD_EMBED=ON`` (the
-default). It is designed to be consumed **from the OpenFOAM side** —
-OpenFOAM solvers link against it via a CMake package config to embed a
-Python interpreter. The install layout and CMake targets are asserted in
+``pybFoam/embed/`` is a header-only C++ package, installed when
+``PYBFOAM_BUILD_EMBED=ON`` (the default). It is designed to be consumed
+**from the OpenFOAM side** — OpenFOAM solvers use it via a CMake package
+config to embed a Python interpreter. The install layout and CMake targets are asserted in
 the ``verify-embed-install`` CI job.

@@ -38,14 +38,12 @@ set(PYBFOAM_CORE_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(pybFoam_core NB_SHARED ${PYBFOAM_CORE_SOURCES})
+nanobind_add_module(pybFoam_core NB_STATIC ${PYBFOAM_CORE_SOURCES})
 
 # Set target properties
 set_target_properties(pybFoam_core PROPERTIES
     CXX_VISIBILITY_PRESET "default"
     VISIBILITY_INLINES_HIDDEN OFF
-    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
-    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries

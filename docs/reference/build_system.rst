@@ -49,9 +49,8 @@ CMake options
      - Effect
    * - ``PYBFOAM_BUILD_EMBED``
      - ``ON``
-     - Build ``libpybFoamEmbed.so``, the C++ library that OpenFOAM solvers
-       link against to embed Python. Turn off when OpenFOAM is unavailable
-       or not needed.
+     - Install the header-only ``pybFoamEmbed`` package that OpenFOAM
+       solvers use to embed Python. Turn off when it is not needed.
    * - ``ENABLE_PYBFOAM_STUBS``
      - ``OFF``
      - Generate ``.pyi`` type stubs during the build. Enable with
@@ -125,10 +124,8 @@ A non-editable install lays out ``site-packages/pybFoam/`` as:
 .. code-block:: text
 
    pybFoam/
-   ├── *.so                    # nanobind extension modules
-   ├── libnanobind.so          # shared nanobind runtime (RPATH=$ORIGIN)
+   ├── *.so                    # nanobind extension modules (static nanobind)
    ├── embed/
-   │   ├── lib/libpybFoamEmbed.so
    │   ├── include/pybFoamEmbed/
    │   └── cmake/pybFoamEmbed/  # pybFoamEmbedConfig.cmake + Targets
    └── ...

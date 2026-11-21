@@ -10,14 +10,12 @@ set(TURBULENCE_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(turbulence NB_SHARED ${TURBULENCE_SOURCES})
+nanobind_add_module(turbulence NB_STATIC ${TURBULENCE_SOURCES})
 
 # Set target properties
 set_target_properties(turbulence PROPERTIES
     CXX_VISIBILITY_PRESET "default"
     VISIBILITY_INLINES_HIDDEN OFF
-    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
-    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries

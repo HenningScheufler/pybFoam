@@ -1,6 +1,6 @@
 [project]
 name = "pybFoam"
-version = "0.6.0"
+version = "0.7.0"
 authors = [
     {name = "Henning Scheufler", email = "henning.scheufler@web.de"},
 ]

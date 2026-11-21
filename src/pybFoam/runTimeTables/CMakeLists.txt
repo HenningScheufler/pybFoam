@@ -10,14 +10,12 @@ set(RUNTIME_TABLES_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(runTimeTables NB_SHARED ${RUNTIME_TABLES_SOURCES})
+nanobind_add_module(runTimeTables NB_STATIC ${RUNTIME_TABLES_SOURCES})
 
 # Set target properties
 set_target_properties(runTimeTables PROPERTIES
     CXX_VISIBILITY_PRESET "default"
     VISIBILITY_INLINES_HIDDEN OFF
-    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
-    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries
