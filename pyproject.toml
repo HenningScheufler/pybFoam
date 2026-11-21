@@ -1,6 +1,6 @@
 [project]
 name = "pybFoam"
-version = "0.5.3"
+version = "0.6.0"
 authors = [
     {name = "Henning Scheufler", email = "henning.scheufler@web.de"},
 ]
@@ -8,7 +8,7 @@ description = "python bindings for OpenFOAM"
 readme = "README.md"
 license = "GPL-3.0-or-later"
 keywords = ["OpenFOAM", "simulation", "CFD"]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: End Users/Desktop",
@@ -17,15 +17,13 @@ classifiers = [
     "Natural Language :: English",
     "Programming Language :: C++",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
     "numpy>=1.20",
-    "nanobind>=1.8.0",
+    "nanobind>=3,<4",
     "pydantic",
     "pyyaml",
 ]
@@ -75,7 +73,7 @@ zip-safe = false
 [build-system]
 requires = [
     "scikit-build-core[pyproject]>=0.4.3",
-    "nanobind>=1.8.0",
+    "nanobind>=3,<4",
     "cmake>=3.18"
 ]
 build-backend = "scikit_build_core.build"
@@ -122,7 +120,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py311"
 extend-exclude = ["build/", "dist/", "_skbuild/", "__pycache__/", "*.pyi"]
 
 [tool.ruff.lint]

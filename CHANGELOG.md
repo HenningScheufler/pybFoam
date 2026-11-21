@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0]
+
+Breaking changes:
+
+* require Python 3.11 or newer
+* require nanobind 3 (`nanobind>=3,<4`) at build time and at runtime
+* C++ libraries that embed Python and use nanobind must call
+  `Foam::initEmbeddedNanobind()` from `nanobindEmbed.hpp` after
+  `pyInterp::New()` and before any other nanobind call
+
+Other changes:
+
+* add `pybFoam.parallel` with global `sum`, `min`, `max` and `weighted_average`
+* add the header-only `nanobindEmbed.hpp`, which fixes the segfault in embedded
+  libraries under nanobind 3
+* run macOS CI on `macos-15`, because GitHub no longer supports `macos-14`
+
 ## [0.5.3]
 
 * bind `fvMesh::phi()` — the mesh motion (swept-volume) face flux, i.e. native's

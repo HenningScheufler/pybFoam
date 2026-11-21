@@ -21,8 +21,8 @@ Class
 Description
     Singleton Python interpreter for embedding pybFoam into OpenFOAM solvers.
 
-    Manages Py_Initialize/Py_Finalize lifecycle and bootstraps nanobind's
-    shared type registry so that nb::cast works for pybFoam types.
+    Manages the Py_Initialize/Py_Finalize lifecycle. Libraries that use
+    nanobind must also call initEmbeddedNanobind() from nanobindEmbed.hpp.
 
     Registered as a regIOobject on the Time registry to ensure exactly one
     interpreter exists per simulation.

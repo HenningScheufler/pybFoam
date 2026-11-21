@@ -59,9 +59,10 @@ A downstream nanobind extension that wants to take pybFoam types as
 parameters has to opt in to the same registry — it isn't automatic.
 The consumer must build with ``NB_SHARED`` against the same nanobind
 SONAME, RPATH-link to pybFoam's installed ``libnanobind.so``, **and**
-ensure ``pybFoam`` is imported before any of its types are looked up
-(``import pybFoam`` from Python, or
-``nb::module_::import_("pybFoam")`` from an embedded interpreter).
+ensure ``pybFoam`` is imported before any of its types are looked up.
+A library that embeds Python has no ``NB_MODULE``, so it must also call
+``Foam::initEmbeddedNanobind()`` from ``nanobindEmbed.hpp`` after
+``pyInterp::New()`` and before any other nanobind call.
 ``pyOFTools`` is the worked example — see its
 ``cmake/Dependencies.cmake`` and ``embeddingPython/pyFunctionObject.cpp``.
 
