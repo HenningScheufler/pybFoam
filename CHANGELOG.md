@@ -15,6 +15,7 @@ Other changes:
 * add `pybFoam.parallel` with global `sum`, `min`, `max` and `weighted_average`
 * add the header-only `nanobindEmbed.hpp`, which fixes the segfault in embedded
   libraries under nanobind 3
+* run macOS CI on `macos-15`, because GitHub no longer supports `macos-14`
 
 ## [0.5.3]
 
