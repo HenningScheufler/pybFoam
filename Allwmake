@@ -1,0 +1,66 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+export WM_CONTINUE_ON_ERROR=true                    # Optional unit
+. "${WM_PROJECT_DIR:?}"/wmake/scripts/cmakeFunctions  # Cmake functions
+. "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
+#------------------------------------------------------------------------------
+# Copyright (C) 2026 Keysight Technologies
+# This file is part of OpenFOAM, distributed under GPL-3.0-or-later.
+#
+# Note
+#     Build into FOAM_USER_{APPBIN,LIBBIN} unless otherwise specified with
+#     -prefix or FOAM_MODULE_{APPBIN,LIBBIN}, CMAKE_INSTALL_PREFIX env varables
+#
+#------------------------------------------------------------------------------
+
+# Default to user location
+# - Long form to avoid dash 0.5.8 error (issue #1757)
+[ -n "$FOAM_MODULE_PREFIX" ]   || FOAM_MODULE_PREFIX="${FOAM_USER_LIBBIN%/*}"
+[ -n "$CMAKE_INSTALL_PREFIX" ] || CMAKE_INSTALL_PREFIX="$FOAM_MODULE_PREFIX"
+export FOAM_MODULE_PREFIX CMAKE_INSTALL_PREFIX
+
+cmakeOpts="-DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX"
+
+#------------------------------------------------------------------------------
+
+echo "======================================================================"
+echo "${PWD##*/} : $PWD"
+echo
+
+depend=none
+
+if [ -f "$PWD"/.venv/bin/activate ]
+then
+    . "$PWD"/.venv/bin/activate ''
+    echo "virtual environment : .venv/bin/activate"
+    if command -v pip >/dev/null
+    then
+        echo "updating required infrastructure"
+        echo
+        pip install -e '.[dep]'
+    fi
+else
+    echo "no virtual environment"
+fi
+
+if [ "$targetType" = objects ]
+then
+    depend=ignore
+elif [ -n "$depend" ]
+then
+    if command -v cmake >/dev/null
+    then
+        echo "pybFoam prefix : $CMAKE_INSTALL_PREFIX"
+        cmakeVersionedInstall "$depend" "$PWD" $cmakeOpts || {
+            echo
+            echo "    WARNING: incomplete build of pybFoam"
+            echo
+        }
+    else
+        echo "==> skip pybFoam (needs cmake)"
+    fi
+fi
+
+echo "======================================================================"
+
+#------------------------------------------------------------------------------
