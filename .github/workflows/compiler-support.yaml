@@ -1,0 +1,116 @@
+name: Compiler Support
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, labeled, synchronize, reopened]
+
+jobs:
+  build-test:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.pull_request.labels.*.name, 'full-ci')
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        compiler:
+          - { name: gcc-9,    cc: gcc-9,    cxx: g++-9,      apt: "gcc-9 g++-9" }
+          - { name: gcc-10,   cc: gcc-10,   cxx: g++-10,     apt: "gcc-10 g++-10" }
+          - { name: gcc-11,   cc: gcc-11,   cxx: g++-11,     apt: "gcc-11 g++-11" }
+          - { name: gcc-12,   cc: gcc-12,   cxx: g++-12,     apt: "gcc-12 g++-12" }
+          - { name: gcc-13,   cc: gcc-13,   cxx: g++-13,     apt: "gcc-13 g++-13" }
+          - { name: gcc-14,   cc: gcc-14,   cxx: g++-14,     apt: "gcc-14 g++-14" }
+          - { name: clang-14, cc: clang-14, cxx: clang++-14, apt: "clang-14" }
+          - { name: clang-15, cc: clang-15, cxx: clang++-15, apt: "clang-15" }
+          - { name: clang-16, cc: clang-16, cxx: clang++-16, apt: "clang-16" }
+          - { name: clang-17, cc: clang-17, cxx: clang++-17, apt: "clang-17" }
+          - { name: clang-18, cc: clang-18, cxx: clang++-18, apt: "clang-18" }
+      fail-fast: false
+    name: Test with ${{ matrix.compiler.name }} (OpenFOAM 2506, Python 3.11)
+    env:
+      CC: ${{ matrix.compiler.cc }}
+      CXX: ${{ matrix.compiler.cxx }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install compiler (${{ matrix.compiler.name }})
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ matrix.compiler.apt }}
+          ${{ matrix.compiler.cc }} --version
+          ${{ matrix.compiler.cxx }} --version
+
+      - name: Set up OpenFOAM
+        uses: gerlero/setup-openfoam@v1
+        with:
+          openfoam-version: 2506
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Build package
+        run: |
+          pip install .[dev] -v
+
+      - name: Run tests
+        run: |
+          pytest
+
+  build-test-gcc8:
+    name: Test with gcc-8 (OpenFOAM 2506, Python 3.11) [nanobind floor]
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.pull_request.labels.*.name, 'full-ci')
+    runs-on: ubuntu-22.04
+    container:
+      image: ubuntu:20.04
+      env:
+        DEBIAN_FRONTEND: noninteractive
+        TZ: UTC
+    env:
+      CC: gcc-8
+      CXX: g++-8
+    steps:
+      - name: Install container prerequisites
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            sudo curl ca-certificates gnupg git tzdata build-essential gcc-8 g++-8
+
+      - name: Install Python 3.11 via uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.local/bin:$PATH"
+          uv python install 3.11
+          uv venv /opt/venv --python 3.11
+          echo "/opt/venv/bin" >> "$GITHUB_PATH"
+          echo "VIRTUAL_ENV=/opt/venv" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v5
+
+      - name: Set up OpenFOAM
+        uses: gerlero/setup-openfoam@v1
+        with:
+          openfoam-version: 2506
+
+      - name: Verify compiler and Python
+        run: |
+          ${CC} --version
+          ${CXX} --version
+          python --version
+
+      - name: Build package
+        run: |
+          uv pip install .[dev] -v \
+            --config-settings=cmake.args="-DCMAKE_C_COMPILER=${CC};-DCMAKE_CXX_COMPILER=${CXX}"
+
+      - name: Run tests
+        run: |
+          pytest
