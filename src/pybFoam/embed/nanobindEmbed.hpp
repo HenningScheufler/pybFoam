@@ -29,7 +29,6 @@ Description
     The function has internal linkage on purpose. As an ordinary inline
     function it would be exported, and the dynamic linker would bind every
     library to a single definition, which sets only that library's pointer.
-    For the same reason it cannot live in libpybFoamEmbed.
 
     Registering pybFoam_core itself selects its domain, so types such as
     fvMesh cast, and ties the reference to a module that lives until the

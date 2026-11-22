@@ -10,14 +10,12 @@ set(THERMO_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(thermo NB_SHARED ${THERMO_SOURCES})
+nanobind_add_module(thermo NB_STATIC ${THERMO_SOURCES})
 
 # Set target properties
 set_target_properties(thermo PROPERTIES
     CXX_VISIBILITY_PRESET "default"
     VISIBILITY_INLINES_HIDDEN OFF
-    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
-    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries

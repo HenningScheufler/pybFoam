@@ -16,16 +16,13 @@ set(MULTIPHASE_HEADERS
     bind_reconstruction.hpp
 )
 
-# Create the nanobind module (NB_SHARED so it shares the canonical
-# libnanobind.so and the cross-module type registry with pybFoam_core).
-nanobind_add_module(multiphase NB_SHARED ${MULTIPHASE_SOURCES})
+# Create the nanobind module
+nanobind_add_module(multiphase NB_STATIC ${MULTIPHASE_SOURCES})
 
 # Set target properties
 set_target_properties(multiphase PROPERTIES
     CXX_VISIBILITY_PRESET "default"
     VISIBILITY_INLINES_HIDDEN OFF
-    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
-    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM VoF libraries (includes mixture, interfaceProperties, turbulence)

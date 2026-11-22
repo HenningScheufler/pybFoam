@@ -10,14 +10,12 @@ set(SAMPLING_HEADERS
 )
 
 # Create the nanobind module
-nanobind_add_module(sampling_bindings NB_SHARED ${SAMPLING_SOURCES})
+nanobind_add_module(sampling_bindings NB_STATIC ${SAMPLING_SOURCES})
 
 # Set target properties
 set_target_properties(sampling_bindings PROPERTIES
     CXX_VISIBILITY_PRESET "default"
     VISIBILITY_INLINES_HIDDEN OFF
-    INSTALL_RPATH "${PYBFOAM_MODULE_INSTALL_RPATH}"
-    BUILD_WITH_INSTALL_RPATH ON
 )
 
 # Link OpenFOAM libraries - order matters!

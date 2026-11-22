@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0]
+
+Breaking changes:
+
+* link nanobind statically in every module, so `libnanobind.so` is no longer
+  installed; downstream extensions must stop linking it and use `NB_STATIC`
+* `libpybFoamEmbed.so` is removed; `pybFoamEmbed::pybFoamEmbed` is now a
+  header-only interface target, and `find_package(pybFoamEmbed)` still works
+* `pyInterp::New()` now returns `regIOobject&` instead of `pyInterp&`
+* `pyInterp.cpp` is removed, and `pyInterp` has hidden visibility, with one
+  copy per library and one shared instance per `Time`
+
 ## [0.6.0]
 
 Breaking changes:

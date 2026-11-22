@@ -5,7 +5,7 @@ if(POLICY CMP0169)
     cmake_policy(SET CMP0169 OLD)
 endif()
 
-project(pybFoam VERSION 0.6.0 LANGUAGES CXX)
+project(pybFoam VERSION 0.7.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -16,14 +16,14 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(GNUInstallDirs)
 
-# The embed library ships inside the pybFoam wheel (site-packages/pybFoam/embed/).
-# It only requires OpenFOAM at build time; disable with -DPYBFOAM_BUILD_EMBED=OFF
-# when OpenFOAM is unavailable.
+# The header-only embed package ships inside the pybFoam wheel
+# (site-packages/pybFoam/embed/). Disable with -DPYBFOAM_BUILD_EMBED=OFF when it
+# is not needed.
 option(PYBFOAM_BUILD_EMBED
-    "Build the pybFoamEmbed C++ library for OpenFOAM solvers"
+    "Install the header-only pybFoamEmbed package for OpenFOAM solvers"
     ON)
 
-# Development.Embed only needed when building the embed library (links libpython)
+# Development.Embed only needed for the embed package (consumers link libpython)
 set(_pybfoam_python_components Interpreter Development.Module)
 if(PYBFOAM_BUILD_EMBED)
     list(APPEND _pybfoam_python_components Development.Embed)
@@ -54,6 +54,6 @@ endif()
 add_subdirectory(src/pybFoam)
 
 if(PYBFOAM_BUILD_EMBED)
-    message(STATUS "Building pybFoamEmbed (C++ embed library for OpenFOAM)")
+    message(STATUS "Installing pybFoamEmbed (header-only embed package for OpenFOAM)")
     add_subdirectory(src/pybFoam/embed)
 endif()

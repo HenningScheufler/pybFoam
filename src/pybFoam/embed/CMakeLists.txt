@@ -1,41 +1,34 @@
-# pybFoam embed library — Python interpreter wrapper for OpenFOAM embedding.
+# pybFoamEmbed: header-only package for embedding Python in OpenFOAM.
 #
-# Links against the venv's libpython3.X.so and OpenFOAM's finiteVolume.
-# Does NOT depend on nanobind: pyInterp.{hpp,cpp} only call Py_* APIs.
-# nanobindEmbed.hpp is header-only and compiled into each consumer, because
-# nanobind's state pointer is hidden per shared library.
-# Ships inside the pybFoam wheel under site-packages/pybFoam/embed/ with
-# its CMake config + headers; consumers (OpenFOAM solvers, function objects)
+# Nothing is compiled here. pyInterp.hpp and nanobindEmbed.hpp are compiled into
+# each consumer, because nanobind's state pointer is hidden per shared library.
+# A consumer that uses nanobind links its own static nanobind and shares types
+# with pybFoam through nanobind's ABI key.
+# Ships inside the pybFoam wheel under site-packages/pybFoam/embed/ with its
+# CMake config and headers; consumers (OpenFOAM solvers, function objects)
 # discover it via:
 #
 #   list(APPEND CMAKE_PREFIX_PATH "${Python_SITELIB}/pybFoam/embed/cmake")
 #   find_package(pybFoamEmbed REQUIRED)
 #   target_link_libraries(mylib PUBLIC pybFoamEmbed::pybFoamEmbed)
-#
-# The shared libnanobind.so used by pybFoam's Python binding modules is a
-# private implementation detail of those modules and lives in pybFoam/, not
-# under embed/. See ../CMakeLists.txt.
 
 include(CMakePackageConfigHelpers)
 
-# Install layout — relative paths inside the wheel
-set(PYBFOAM_EMBED_INSTALL_LIBDIR     "pybFoam/embed/lib")
+# Install layout: relative paths inside the wheel
 set(PYBFOAM_EMBED_INSTALL_INCLUDEDIR "pybFoam/embed/include")
 set(PYBFOAM_EMBED_INSTALL_CMAKEDIR   "pybFoam/embed/cmake/pybFoamEmbed")
 
 # --- pybFoamEmbed -----------------------------------------------------------
 
-add_library(pybFoamEmbed SHARED pyInterp.cpp)
+add_library(pybFoamEmbed INTERFACE)
 add_library(pybFoamEmbed::pybFoamEmbed ALIAS pybFoamEmbed)
 
-set_target_properties(pybFoamEmbed PROPERTIES
-    OUTPUT_NAME pybFoamEmbed)
-
-target_link_libraries(pybFoamEmbed PUBLIC
+target_link_libraries(pybFoamEmbed INTERFACE
     OpenFOAM::finiteVolume
-    Python::Python)
+    Python::Python
+    ${CMAKE_DL_LIBS})
 
-target_include_directories(pybFoamEmbed PUBLIC
+target_include_directories(pybFoamEmbed INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${PYBFOAM_EMBED_INSTALL_INCLUDEDIR}/pybFoamEmbed>)
 
@@ -49,8 +42,7 @@ configure_package_config_file(
 # --- Install ---------------------------------------------------------------
 
 install(TARGETS pybFoamEmbed
-    EXPORT  pybFoamEmbedTargets
-    LIBRARY DESTINATION ${PYBFOAM_EMBED_INSTALL_LIBDIR})
+    EXPORT  pybFoamEmbedTargets)
 
 install(FILES pyInterp.hpp nanobindEmbed.hpp
     DESTINATION ${PYBFOAM_EMBED_INSTALL_INCLUDEDIR}/pybFoamEmbed)
