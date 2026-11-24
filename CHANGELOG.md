@@ -4,7 +4,8 @@
 
 * add `fvMesh.points()`
 * add `read_field(mesh, name, default=...)` on every vol/surface field class,
-  the `IOobject::READ_IF_PRESENT` construction of `createUf.H`
+  the `IOobject::READ_IF_PRESENT` construction of `createUf.H`;
+  `default` is a field, a tmp field, or a callable that runs only without the file
 * add the scalar limits `SMALL`, `VSMALL` and `GREAT`
 * add `getRefCellValue(field, refCell)` and `setRefCellInfo(...)`, which also
   returns the needReference bool that `setRefCell` drops

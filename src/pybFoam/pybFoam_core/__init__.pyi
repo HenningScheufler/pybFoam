@@ -1789,6 +1789,10 @@ class volScalarField:
     @staticmethod
     def read_field(mesh: fvMesh, name: str, *, default: tmp_volScalarField) -> volScalarField: ...
 
+    @overload
+    @staticmethod
+    def read_field(mesh: fvMesh, name: str, *, default: typing.Callable[[], volScalarField | tmp_volScalarField]) -> volScalarField: ...
+
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> scalarField: ...
 
@@ -1993,6 +1997,10 @@ class volVectorField:
     @staticmethod
     def read_field(mesh: fvMesh, name: str, *, default: tmp_volVectorField) -> volVectorField: ...
 
+    @overload
+    @staticmethod
+    def read_field(mesh: fvMesh, name: str, *, default: typing.Callable[[], volVectorField | tmp_volVectorField]) -> volVectorField: ...
+
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> vectorField: ...
 
@@ -2153,6 +2161,10 @@ class volTensorField:
     @staticmethod
     def read_field(mesh: fvMesh, name: str, *, default: tmp_volTensorField) -> volTensorField: ...
 
+    @overload
+    @staticmethod
+    def read_field(mesh: fvMesh, name: str, *, default: typing.Callable[[], volTensorField | tmp_volTensorField]) -> volTensorField: ...
+
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> tensorField: ...
 
@@ -2312,6 +2324,10 @@ class volSymmTensorField:
     @overload
     @staticmethod
     def read_field(mesh: fvMesh, name: str, *, default: tmp_volSymmTensorField) -> volSymmTensorField: ...
+
+    @overload
+    @staticmethod
+    def read_field(mesh: fvMesh, name: str, *, default: typing.Callable[[], volSymmTensorField | tmp_volSymmTensorField]) -> volSymmTensorField: ...
 
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> symmTensorField: ...
@@ -2483,6 +2499,10 @@ class surfaceScalarField:
     @staticmethod
     def read_field(mesh: fvMesh, name: str, *, default: tmp_surfaceScalarField) -> surfaceScalarField: ...
 
+    @overload
+    @staticmethod
+    def read_field(mesh: fvMesh, name: str, *, default: typing.Callable[[], surfaceScalarField | tmp_surfaceScalarField]) -> surfaceScalarField: ...
+
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> scalarField: ...
 
@@ -2642,6 +2662,10 @@ class surfaceVectorField:
     @overload
     @staticmethod
     def read_field(mesh: fvMesh, name: str, *, default: tmp_surfaceVectorField) -> surfaceVectorField: ...
+
+    @overload
+    @staticmethod
+    def read_field(mesh: fvMesh, name: str, *, default: typing.Callable[[], surfaceVectorField | tmp_surfaceVectorField]) -> surfaceVectorField: ...
 
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> vectorField: ...
@@ -2809,6 +2833,10 @@ class surfaceTensorField:
     @staticmethod
     def read_field(mesh: fvMesh, name: str, *, default: tmp_surfaceTensorField) -> surfaceTensorField: ...
 
+    @overload
+    @staticmethod
+    def read_field(mesh: fvMesh, name: str, *, default: typing.Callable[[], surfaceTensorField | tmp_surfaceTensorField]) -> surfaceTensorField: ...
+
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> tensorField: ...
 
@@ -2968,6 +2996,10 @@ class surfaceSymmTensorField:
     @overload
     @staticmethod
     def read_field(mesh: fvMesh, name: str, *, default: tmp_surfaceSymmTensorField) -> surfaceSymmTensorField: ...
+
+    @overload
+    @staticmethod
+    def read_field(mesh: fvMesh, name: str, *, default: typing.Callable[[], surfaceSymmTensorField | tmp_surfaceSymmTensorField]) -> surfaceSymmTensorField: ...
 
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> symmTensorField: ...

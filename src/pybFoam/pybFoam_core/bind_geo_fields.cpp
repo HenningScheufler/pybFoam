@@ -150,6 +150,34 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     },
     nb::rv_policy::take_ownership,
     nb::arg("mesh"), nb::arg("name"), nb::kw_only(), nb::arg("default"))
+    // A callable default runs only when the file is missing, so an expensive default
+    // is not built for a case that has the file. Registered after the field overloads:
+    // a tmp field is itself callable.
+    .def_static("read_field", [className](const fvMesh& mesh, std::string name, nb::callable dflt)
+    {
+        Foam::IOobject io(name, mesh.time().timeName(), mesh,
+                          Foam::IOobject::READ_IF_PRESENT, Foam::IOobject::AUTO_WRITE);
+        if (io.typeHeaderOk<GF>(true))
+        {
+            return new GF(io, mesh);
+        }
+        nb::object result = dflt();
+        GF* field = nullptr;
+        if (nb::try_cast<GF*>(result, field) && field)
+        {
+            return new GF(io, *field);
+        }
+        tmp<GF>* tfield = nullptr;
+        if (nb::try_cast<tmp<GF>*>(result, tfield) && tfield)
+        {
+            return new GF(io, *tfield);
+        }
+        throw nb::type_error(
+            ("default must return a " + className + " or tmp_" + className).c_str()
+        );
+    },
+    nb::rv_policy::take_ownership,
+    nb::arg("mesh"), nb::arg("name"), nb::kw_only(), nb::arg("default"))
     // Reads the field file's internalField entry only. read_field() also constructs
     // every patch field, and a boundary condition that needs more than the file it is
     // written in (fan/fanPressure read a fan-curve table, coupled types need their

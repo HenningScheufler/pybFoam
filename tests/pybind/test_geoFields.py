@@ -141,6 +141,50 @@ def test_read_field_default_is_keyword_only(case_copy: Path) -> None:
         pybFoam.volScalarField.read_field(mesh, "T", p_rgh)  # type: ignore[call-overload]
 
 
+def test_read_field_callable_default_runs_only_without_file(case_copy: Path) -> None:
+    time = pybFoam.Time(".", ".")
+    mesh = pybFoam.fvMesh(time)
+    U = pybFoam.volVectorField.read_field(mesh, "U")
+    calls = []
+
+    def default() -> Any:
+        calls.append(1)
+        return pybFoam.fvc.interpolate(U)
+
+    assert not (case_copy / "0" / "Uf").exists()
+    Uf = pybFoam.surfaceVectorField.read_field(mesh, "Uf", default=default)
+    assert calls == [1]
+    assert Uf.name() == "Uf"
+    n = len(np.asarray(Uf["internalField"]))
+    written = np.column_stack([np.arange(n) % 5, np.ones(n), -0.5 * np.ones(n)])
+    np.asarray(Uf["internalField"])[:] = written
+    pybFoam.write(Uf)
+    del Uf
+
+    Uf = pybFoam.surfaceVectorField.read_field(mesh, "Uf", default=default)
+    assert calls == [1]
+    np.testing.assert_array_equal(np.asarray(Uf["internalField"]), written)
+
+
+def test_read_field_callable_default_may_return_a_field(case_copy: Path) -> None:
+    time = pybFoam.Time(".", ".")
+    mesh = pybFoam.fvMesh(time)
+    p_rgh = pybFoam.volScalarField.read_field(mesh, "p_rgh")
+    np.asarray(p_rgh["internalField"])[:] = 3.0
+
+    T = pybFoam.volScalarField.read_field(mesh, "T", default=lambda: p_rgh)
+    assert T.name() == "T"
+    np.testing.assert_array_equal(np.asarray(T["internalField"]), 3.0)
+
+
+def test_read_field_callable_default_of_wrong_type_is_rejected(case_copy: Path) -> None:
+    time = pybFoam.Time(".", ".")
+    mesh = pybFoam.fvMesh(time)
+
+    with pytest.raises(TypeError, match="volScalarField"):
+        pybFoam.volScalarField.read_field(mesh, "T", default=lambda: 1.0)  # type: ignore[arg-type,return-value]
+
+
 def test_scalar_arithmetic_operators(change_test_dir: Any) -> None:
     """Test scalar arithmetic operators for volScalarField.
 
