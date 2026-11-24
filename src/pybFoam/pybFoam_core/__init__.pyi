@@ -338,6 +338,8 @@ class fvMesh:
 
     def nInternalFaces(self) -> int: ...
 
+    def points(self) -> vectorField: ...
+
     def time(self) -> Time: ...
 
     def C(self) -> volVectorField: ...
@@ -626,6 +628,12 @@ def mag(arg: surfaceTensorField, /) -> tmp_surfaceScalarField: ...
 
 @overload
 def mag(arg: tmp_surfaceTensorField, /) -> tmp_surfaceScalarField: ...
+
+SMALL: float = 1e-15
+
+VSMALL: float = 1e-300
+
+GREAT: float = 1000000000000000.0
 
 class dimensionSet:
     def __init__(self, arg0: float, arg1: float, arg2: float, arg3: float, arg4: float, arg5: float, arg6: float, /) -> None: ...
@@ -1773,6 +1781,14 @@ class volScalarField:
     @staticmethod
     def read_field(mesh: fvMesh, name: str, register: bool) -> volScalarField: ...
 
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: volScalarField) -> volScalarField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: tmp_volScalarField) -> volScalarField: ...
+
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> scalarField: ...
 
@@ -1969,6 +1985,14 @@ class volVectorField:
     @staticmethod
     def read_field(mesh: fvMesh, name: str, register: bool) -> volVectorField: ...
 
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: volVectorField) -> volVectorField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: tmp_volVectorField) -> volVectorField: ...
+
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> vectorField: ...
 
@@ -2121,6 +2145,14 @@ class volTensorField:
     @staticmethod
     def read_field(mesh: fvMesh, name: str, register: bool) -> volTensorField: ...
 
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: volTensorField) -> volTensorField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: tmp_volTensorField) -> volTensorField: ...
+
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> tensorField: ...
 
@@ -2272,6 +2304,14 @@ class volSymmTensorField:
     @overload
     @staticmethod
     def read_field(mesh: fvMesh, name: str, register: bool) -> volSymmTensorField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: volSymmTensorField) -> volSymmTensorField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: tmp_volSymmTensorField) -> volSymmTensorField: ...
 
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> symmTensorField: ...
@@ -2435,6 +2475,14 @@ class surfaceScalarField:
     @staticmethod
     def read_field(mesh: fvMesh, name: str, register: bool) -> surfaceScalarField: ...
 
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: surfaceScalarField) -> surfaceScalarField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: tmp_surfaceScalarField) -> surfaceScalarField: ...
+
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> scalarField: ...
 
@@ -2586,6 +2634,14 @@ class surfaceVectorField:
     @overload
     @staticmethod
     def read_field(mesh: fvMesh, name: str, register: bool) -> surfaceVectorField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: surfaceVectorField) -> surfaceVectorField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: tmp_surfaceVectorField) -> surfaceVectorField: ...
 
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> vectorField: ...
@@ -2745,6 +2801,14 @@ class surfaceTensorField:
     @staticmethod
     def read_field(mesh: fvMesh, name: str, register: bool) -> surfaceTensorField: ...
 
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: surfaceTensorField) -> surfaceTensorField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: tmp_surfaceTensorField) -> surfaceTensorField: ...
+
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> tensorField: ...
 
@@ -2896,6 +2960,14 @@ class surfaceSymmTensorField:
     @overload
     @staticmethod
     def read_field(mesh: fvMesh, name: str, register: bool) -> surfaceSymmTensorField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: surfaceSymmTensorField) -> surfaceSymmTensorField: ...
+
+    @overload
+    @staticmethod
+    def read_if_present(mesh: fvMesh, name: str, default: tmp_surfaceSymmTensorField) -> surfaceSymmTensorField: ...
 
     @staticmethod
     def read_internal_field(mesh: fvMesh, name: str) -> symmTensorField: ...
@@ -3574,6 +3646,18 @@ def setRefCell(p: volScalarField, dict: dictionary, forceReference: bool = False
 
 @overload
 def setRefCell(p: volScalarField, p_rgh: volScalarField, dict: dictionary, forceReference: bool = False) -> tuple[int, float]: ...
+
+@overload
+def setRefCellInfo(p: volScalarField, dict: dictionary, forceReference: bool = False) -> tuple[int, float, bool]:
+    """setRefCell returning (refCell, refValue, needReference)"""
+
+@overload
+def setRefCellInfo(p: volScalarField, p_rgh: volScalarField, dict: dictionary, forceReference: bool = False) -> tuple[int, float, bool]:
+    """
+    setRefCell(p, p_rgh, dict) returning (refCell, refValue, needReference)
+    """
+
+def getRefCellValue(field: volScalarField, refCell: int) -> float: ...
 
 def computeCFLNumber(arg: surfaceScalarField, /) -> tuple[float, float]: ...
 

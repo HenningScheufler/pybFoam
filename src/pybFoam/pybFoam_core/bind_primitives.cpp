@@ -224,4 +224,9 @@ void bindPrimitives(nanobind::module_& m)
     m.def("mag", [](Foam::scalar t){return Foam::mag(t);});
     m.def("mag", [](Foam::vector t){return Foam::mag(t);});
     m.def("mag", [](Foam::tensor t){return Foam::mag(t);});
+
+    // scalar limits, as the solver headers compare against them
+    m.attr("SMALL") = Foam::SMALL;
+    m.attr("VSMALL") = Foam::VSMALL;
+    m.attr("GREAT") = Foam::GREAT;
 }

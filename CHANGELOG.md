@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.1]
+
+* add `fvMesh.points()`
+* add `read_if_present(mesh, name, default)` on every vol/surface field class,
+  the `IOobject::READ_IF_PRESENT` construction of `createUf.H`
+* add the scalar limits `SMALL`, `VSMALL` and `GREAT`
+* add `getRefCellValue(field, refCell)` and `setRefCellInfo(...)`, which also
+  returns the needReference bool that `setRefCell` drops
+* add scalar convection `fvc.div(phi, T)` with `scheme`/`key`/`dict`
+
 ## [0.7.0]
 
 Breaking changes:
