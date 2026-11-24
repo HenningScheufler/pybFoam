@@ -3,7 +3,7 @@
 ## [0.7.1]
 
 * add `fvMesh.points()`
-* add `read_if_present(mesh, name, default)` on every vol/surface field class,
+* add `read_field(mesh, name, default=...)` on every vol/surface field class,
   the `IOobject::READ_IF_PRESENT` construction of `createUf.H`
 * add the scalar limits `SMALL`, `VSMALL` and `GREAT`
 * add `getRefCellValue(field, refCell)` and `setRefCellInfo(...)`, which also

@@ -126,11 +126,11 @@ auto declare_geofields(nb::module_ &m, std::string className) {
     },
     nb::rv_policy::take_ownership,
     nb::arg("mesh"), nb::arg("name"), nb::arg("register"))
-    // READ_IF_PRESENT construction (createUf.H / createUfIfPresent.H): reads
-    // <time>/<name> if the file exists, else copies `default` under `name`.
-    // Registered and AUTO_WRITE like native's; Python owns the field and it
-    // leaves the registry when it is collected.
-    .def_static("read_if_present", [](const fvMesh& mesh, std::string name, const GF& dflt)
+    // read_field(mesh, name, default=...): the READ_IF_PRESENT construction of
+    // createUf.H / createUfIfPresent.H. Reads <time>/<name> if the file exists,
+    // else copies `default` under `name`. Registered and AUTO_WRITE like native's;
+    // Python owns the field and it leaves the registry when it is collected.
+    .def_static("read_field", [](const fvMesh& mesh, std::string name, const GF& dflt)
     {
         return new GF(
             Foam::IOobject(name, mesh.time().timeName(), mesh,
@@ -139,8 +139,8 @@ auto declare_geofields(nb::module_ &m, std::string className) {
         );
     },
     nb::rv_policy::take_ownership,
-    nb::arg("mesh"), nb::arg("name"), nb::arg("default"))
-    .def_static("read_if_present", [](const fvMesh& mesh, std::string name, const tmp<GF>& dflt)
+    nb::arg("mesh"), nb::arg("name"), nb::kw_only(), nb::arg("default"))
+    .def_static("read_field", [](const fvMesh& mesh, std::string name, const tmp<GF>& dflt)
     {
         return new GF(
             Foam::IOobject(name, mesh.time().timeName(), mesh,
@@ -149,7 +149,7 @@ auto declare_geofields(nb::module_ &m, std::string className) {
         );
     },
     nb::rv_policy::take_ownership,
-    nb::arg("mesh"), nb::arg("name"), nb::arg("default"))
+    nb::arg("mesh"), nb::arg("name"), nb::kw_only(), nb::arg("default"))
     // Reads the field file's internalField entry only. read_field() also constructs
     // every patch field, and a boundary condition that needs more than the file it is
     // written in (fan/fanPressure read a fan-curve table, coupled types need their
