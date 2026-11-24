@@ -5,7 +5,13 @@ if(POLICY CMP0169)
     cmake_policy(SET CMP0169 OLD)
 endif()
 
-project(pybFoam VERSION 0.7.0 LANGUAGES CXX)
+# The version lives only in src/pybFoam/_version.py (pyproject.toml reads it too)
+set(_pybfoam_version_file "${CMAKE_CURRENT_SOURCE_DIR}/src/pybFoam/_version.py")
+file(STRINGS "${_pybfoam_version_file}" _pybfoam_version REGEX "^__version__ *= *\"")
+string(REGEX REPLACE "^__version__ *= *\"([^\"]+)\".*" "\\1" _pybfoam_version "${_pybfoam_version}")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_pybfoam_version_file}")
+
+project(pybFoam VERSION ${_pybfoam_version} LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)

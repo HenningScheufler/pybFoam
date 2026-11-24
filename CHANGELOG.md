@@ -9,6 +9,8 @@
 * add `getRefCellValue(field, refCell)` and `setRefCellInfo(...)`, which also
   returns the needReference bool that `setRefCell` drops
 * add scalar convection `fvc.div(phi, T)` with `scheme`/`key`/`dict`
+* keep the version only in `src/pybFoam/_version.py`; `pyproject.toml`,
+  `CMakeLists.txt` and `docs/conf.py` read it from there
 
 ## [0.7.0]
 

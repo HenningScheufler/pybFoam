@@ -1,6 +1,6 @@
 [project]
 name = "pybFoam"
-version = "0.7.0"
+dynamic = ["version"]
 authors = [
     {name = "Henning Scheufler", email = "henning.scheufler@web.de"},
 ]
@@ -72,7 +72,7 @@ zip-safe = false
 
 [build-system]
 requires = [
-    "scikit-build-core[pyproject]>=0.4.3",
+    "scikit-build-core[pyproject]>=0.5",
     "nanobind>=3,<4",
     "cmake>=3.18"
 ]
@@ -88,6 +88,9 @@ build-dir = "_skbuild"
 editable.mode = "redirect"
 editable.verbose = true
 editable.rebuild = false
+# The version lives only in src/pybFoam/_version.py (CMakeLists.txt reads it too)
+metadata.version.provider = "scikit_build_core.metadata.regex"
+metadata.version.input = "src/pybFoam/_version.py"
 
 
 # CMake configuration

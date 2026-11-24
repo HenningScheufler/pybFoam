@@ -52,7 +52,6 @@ echo "Copying stubs to source directory..."
 
 # nanobind stubgen outputs flat .pyi files (not under pybFoam/ subdir)
 cp "$STUBS_DIR/__init__.pyi" "$SRC_DIR/"
-[ -f "$STUBS_DIR/_version.pyi" ] && cp "$STUBS_DIR/_version.pyi" "$SRC_DIR/"
 cp "$STUBS_DIR/sampling_bindings.pyi" "$SRC_DIR/"
 
 # pybFoam_core is a stub package (it owns the `mules` submodule), so stubgen
