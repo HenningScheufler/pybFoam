@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.1]
+
+* add `fvMesh.points()`
+* add `read_field(mesh, name, default=...)` on every vol/surface field class,
+  the `IOobject::READ_IF_PRESENT` construction of `createUf.H`;
+  `default` is a field, a tmp field, or a callable that runs only without the file
+* add the scalar limits `SMALL`, `VSMALL` and `GREAT`
+* add `getRefCellValue(field, refCell)` and `setRefCellInfo(...)`, which also
+  returns the needReference bool that `setRefCell` drops
+* add scalar convection `fvc.div(phi, T)` with `scheme`/`key`/`dict`
+* keep the version only in `src/pybFoam/_version.py`; `pyproject.toml`,
+  `CMakeLists.txt` and `docs/conf.py` read it from there
+
 ## [0.7.0]
 
 Breaking changes:

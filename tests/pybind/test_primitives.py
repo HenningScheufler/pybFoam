@@ -1,6 +1,17 @@
 import numpy as np
 
-from pybFoam import Word, mag, scalarField, tensor, tensorField, vector, vectorField
+from pybFoam import (
+    GREAT,
+    SMALL,
+    VSMALL,
+    Word,
+    mag,
+    scalarField,
+    tensor,
+    tensorField,
+    vector,
+    vectorField,
+)
 
 
 def test_mag() -> None:
@@ -325,3 +336,10 @@ def test_tmp_field_mixed_operations() -> None:
     # tmp / Field
     result7 = tmp_a / b
     assert len(result7) == 4
+
+
+def test_scalar_limits() -> None:
+    # OpenFOAM's double-precision limits (doubleScalar.H)
+    assert SMALL == 1e-15
+    assert VSMALL == 1e-300
+    assert GREAT == 1e15

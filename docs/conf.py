@@ -9,6 +9,8 @@
 # "2.0" in $WM_PROJECT_DIR/etc/controlDict with FOAM FATAL IO ERROR.
 import locale
 import os
+import re
+from pathlib import Path
 
 locale.setlocale(locale.LC_NUMERIC, "C")
 
@@ -43,7 +45,9 @@ except ImportError:
 project = "pybFoam"
 copyright = "2025, Henning Scheufler"
 author = "Henning Scheufler"
-release = "0.7.0"
+# The version lives only in src/pybFoam/_version.py
+_version_file = Path(__file__).resolve().parent.parent / "src" / "pybFoam" / "_version.py"
+release = re.search(r'^__version__ = "(.+)"', _version_file.read_text(), re.M).group(1)
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

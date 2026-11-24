@@ -377,6 +377,7 @@ void Foam::bindFVC(nanobind::module_& fvc)
     bindDiv<surfaceSymmTensorField>(fvc);
 
     // div-convection operations (two arguments)
+    bindDivConvection<scalar>(fvc);
     bindDivConvection<vector>(fvc);
     bindDivConvection<tensor>(fvc);
     bindDivConvection<symmTensor>(fvc);

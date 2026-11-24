@@ -226,6 +226,30 @@ namespace Foam
             setRefCell(p, p_rgh, dict, pRefCell, pRefValue, forceReference);
             return std::make_tuple(pRefCell, pRefValue);
         }, nb::arg("p"), nb::arg("p_rgh"), nb::arg("dict"), nb::arg("forceReference") = false);
+        // setRefCell plus the bool it returns (whether a reference is needed),
+        // which the two-tuple variants above drop. The cell index cannot stand
+        // in for it: in parallel every rank but the master gets -1 even when a
+        // reference is needed.
+        m.def("setRefCellInfo", [](volScalarField &p, const Foam::dictionary &dict, const bool forceReference)
+        {
+            label pRefCell = 0;
+            scalar pRefValue = 0.0;
+            const bool needRef = setRefCell(p, dict, pRefCell, pRefValue, forceReference);
+            return std::make_tuple(pRefCell, pRefValue, needRef);
+        }, nb::arg("p"), nb::arg("dict"), nb::arg("forceReference") = false,
+        "setRefCell returning (refCell, refValue, needReference)");
+        m.def("setRefCellInfo", [](volScalarField &p, volScalarField &p_rgh, const Foam::dictionary &dict, const bool forceReference)
+        {
+            label pRefCell = 0;
+            scalar pRefValue = 0.0;
+            const bool needRef = setRefCell(p, p_rgh, dict, pRefCell, pRefValue, forceReference);
+            return std::make_tuple(pRefCell, pRefValue, needRef);
+        }, nb::arg("p"), nb::arg("p_rgh"), nb::arg("dict"), nb::arg("forceReference") = false,
+        "setRefCell(p, p_rgh, dict) returning (refCell, refValue, needReference)");
+        // The field value at the reference cell, summed over all ranks (0 from a
+        // rank whose refCell is -1), as pEqn.H uses it to level the pressure.
+        m.def("getRefCellValue", [](const volScalarField &field, const label refCelli)
+        { return getRefCellValue(field, refCelli); }, nb::arg("field"), nb::arg("refCell"));
         m.def("computeCFLNumber", &computeCFLNumber);
         m.def("computeContinuityErrors", &computeContinuityErrors, nb::arg("phi"));
     }

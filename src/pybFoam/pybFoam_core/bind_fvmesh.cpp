@@ -159,6 +159,9 @@ void bindFvMesh(nanobind::module_ &m)
         {
             return self.nInternalFaces();
         })
+        .def("points", [](const Foam::fvMesh& self) -> const Foam::pointField& {
+            return self.points();
+        }, nb::rv_policy::reference_internal)
         .def("time", &Foam::fvMesh::time, nb::rv_policy::reference)
         .def("C", &Foam::fvMesh::C, nb::rv_policy::reference)
         .def("V", [](const Foam::fvMesh &self) -> const Foam::Field<Foam::scalar>&
